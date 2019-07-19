@@ -1,0 +1,20 @@
+.fb-iot-things-list-view {
+  &__container {
+    .fade-leave-active,
+    .fade-enter-active {
+      transition-duration: 0.3s;
+      transition-property: height, opacity;
+      transition-timing-function: ease;
+      overflow: hidden;
+    }
+
+    .fade-enter,
+    .fade-leave-active {
+      opacity: 0
+    }
+  }
+
+  &__off-canvas-body {
+    overflow-y: auto;
+  }
+}

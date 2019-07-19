@@ -1,0 +1,19 @@
+{
+  "en": {
+    "headings": {
+      "channelSettings": "Channel settings",
+      "generalSettings": "General settings"
+    },
+    "texts": {
+      "actual": "Actual"
+    },
+    "buttons": {
+      "rename": {
+        "title": "Rename channel"
+      },
+      "units": {
+        "title": "Channel units"
+      }
+    }
+  }
+}

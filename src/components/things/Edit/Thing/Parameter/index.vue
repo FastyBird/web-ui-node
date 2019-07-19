@@ -1,0 +1,396 @@
+<template web>
+  <fb-modal-form
+    :transparent-bg="transparentBg"
+    icon="plug"
+    @submit="submit"
+    @close="close"
+  >
+    <template slot="header">
+      {{ translatedHeading }}
+    </template>
+
+    <template slot="form">
+      <p
+        v-if="!thing.state"
+        class="alert alert-warning"
+        role="alert"
+      >
+        This thing is offline. Therefore you can't edit its setting
+      </p>
+
+      <fb-md-form-input
+        v-if="isNumberParameter"
+        v-model="form.model"
+        v-validate="`required|numeric|between:${parameter.min},${parameter.max}`"
+        :data-vv-scope="form.scope"
+        :data-vv-as="translatedLabel"
+        :data-vv-min="parameter.min"
+        :data-vv-max="parameter.max"
+        :error="errors.first(`${form.scope}.${parameter.name}`)"
+        :has-error="errors.has(`${form.scope}.${parameter.name}`)"
+        :name="parameter.name"
+        :label="translatedLabel"
+        :required="true"
+        :tab-index="2"
+        type="number"
+        class="m-b-0"
+      >
+        <template
+          v-if="translatedDescription !== null && !errors.has(`${form.scope}.${parameter.name}`)"
+          slot="help-line"
+        >
+          {{ translatedDescription }}
+        </template>
+      </fb-md-form-input>
+
+      <fb-md-form-input
+        v-if="isTextParameter"
+        v-model="form.model"
+        v-validate="'required'"
+        :data-vv-scope="form.scope"
+        :data-vv-as="translatedLabel"
+        :error="errors.first(`${form.scope}.${parameter.name}`)"
+        :has-error="errors.has(`${form.scope}.${parameter.name}`)"
+        :name="parameter.name"
+        :label="translatedLabel"
+        :required="true"
+        :tab-index="2"
+        type="text"
+        class="m-b-0"
+      >
+        <template
+          v-if="translatedDescription !== null && !errors.has(`${form.scope}.${parameter.name}`)"
+          slot="help-line"
+        >
+          {{ translatedDescription }}
+        </template>
+      </fb-md-form-input>
+
+      <fb-md-form-select
+        v-if="isSelectParameter"
+        v-model="form.model"
+        :items="parameterItems"
+        :data-vv-scope="form.scope"
+        :data-vv-as="translatedLabel"
+        :error="errors.first(`${form.scope}.${parameter.name}`)"
+        :has-error="errors.has(`${form.scope}.${parameter.name}`)"
+        :name="parameter.name"
+        :label="translatedLabel"
+        :tab-index="2"
+        :required="true"
+      >
+        <template
+          v-if="translatedDescription !== null && !errors.has(`${form.scope}.${parameter.name}`)"
+          slot="help-line"
+        >
+          {{ translatedDescription }}
+        </template>
+      </fb-md-form-select>
+    </template>
+  </fb-modal-form>
+</template>
+
+<script>
+  import {
+    IO_SERVER_THING_CONFIGURATION_NUMBER,
+    IO_SERVER_THING_CONFIGURATION_SELECT,
+    IO_SERVER_THING_CONFIGURATION_TEXT,
+  } from '@/api/server/types'
+
+  import ThingConfiguration from '@/store/modules/io-server/ThingConfiguration'
+  import Hardware from '@/store/modules/io-server/Hardware'
+
+  import { WAMP_TOPIC_THING } from '@/config'
+
+  export default {
+
+    name: 'ThingsEditThingParameter',
+
+    props: {
+
+      thing: {
+        type: Object,
+        required: true,
+      },
+
+      parameter: {
+        type: Object,
+        required: true,
+      },
+
+      transparentBg: {
+        type: Boolean,
+        default: false,
+      },
+
+    },
+
+    data() {
+      return {
+        form: {
+          scope: 'io_server_thing_edit_property',
+          model: null,
+        },
+      }
+    },
+
+    computed: {
+
+      hardware() {
+        return Hardware
+          .query()
+          .where('thing_id', this.thing.id)
+          .first()
+      },
+
+      /**
+       * Translate parameter heading
+       *
+       * @returns {String}
+       */
+      translatedHeading() {
+        if (this._.get(this.hardware, 'model', null) === 'custom') {
+          if (this.parameter.title !== null) {
+            return this.parameter.title
+          }
+
+          return this.parameter.name
+        }
+
+        if (this.$t(`things.vendors.${this._.get(this.hardware, 'manufacturer', 'custom')}.${this.parameter.name}.heading`).indexOf('things.vendors.') === -1) {
+          return this.$t(`things.vendors.${this._.get(this.hardware, 'manufacturer', 'custom')}.${this.parameter.name}.heading`)
+        }
+
+        return this.parameter.name
+      },
+
+      /**
+       * Translate parameter form label
+       *
+       * @returns {String}
+       */
+      translatedLabel() {
+        if (this._.get(this.hardware, 'model', null) === 'custom') {
+          if (this.parameter.title !== null) {
+            return this.parameter.title
+          }
+
+          return this.parameter.name
+        }
+
+        if (this.$t(`things.vendors.${this._.get(this.hardware, 'manufacturer', 'custom')}.${this.parameter.name}.button`).indexOf('things.vendors.') === -1) {
+          return this.$t(`things.vendors.${this._.get(this.hardware, 'manufacturer', 'custom')}.${this.parameter.name}.button`)
+        }
+
+        return this.parameter.name
+      },
+
+      /**
+       * Translate parameter field description
+       *
+       * @returns {(String|null)}
+       */
+      translatedDescription() {
+        if (this._.get(this.hardware, 'model', null) === 'custom') {
+          if (this.parameter.description !== null) {
+            return this.parameter.description
+          }
+
+          return null
+        }
+
+        if (this.$t(`things.vendors.${this._.get(this.hardware, 'manufacturer', 'custom')}.${this.parameter.name}.description`).indexOf('things.vendors.') === -1) {
+          return this.$t(`things.vendors.${this._.get(this.hardware, 'manufacturer', 'custom')}.${this.parameter.name}.description`)
+        }
+
+        return null
+      },
+
+      /**
+       * Parse parameter items for select box
+       *
+       * @returns {Array}
+       */
+      parameterItems() {
+        const items = []
+
+        for (const key in this.parameter.values) {
+          if (this.parameter.values.hasOwnProperty(key)) {
+            items.push({
+              'value': this.parameter.values[key].value,
+              'name': this.$t(`things.vendors.${this._.get(this.hardware, 'manufacturer', 'custom')}.${this.parameter.name}.values.${this.parameter.values[key].name}`),
+            })
+          }
+        }
+
+        return items
+      },
+
+      /**
+       * Check if settings parameter is number value type
+       *
+       * @return {Boolean}
+       */
+      isNumberParameter() {
+        return this.parameter.type === IO_SERVER_THING_CONFIGURATION_NUMBER
+      },
+
+      /**
+       * Check if settings parameter is selectable type
+       *
+       * @return {Boolean}
+       */
+      isSelectParameter() {
+        return this.parameter.type === IO_SERVER_THING_CONFIGURATION_SELECT
+      },
+
+      /**
+       * Check if settings parameter is text value type
+       *
+       * @return {Boolean}
+       */
+      isTextParameter() {
+        return this.parameter.type === IO_SERVER_THING_CONFIGURATION_TEXT
+      },
+
+    },
+
+    watch: {
+
+      'thing.state'(val) {
+        if (val) {
+          this._initModel()
+        }
+      },
+
+    },
+
+    created() {
+      this._initModel()
+    },
+
+    mounted() {
+      this.$emit('loaded')
+    },
+
+    methods: {
+
+      /**
+       * Submit thing parameter edit form
+       *
+       * @param {Object} event
+       */
+      submit(event) {
+        event && event.preventDefault()
+
+        // Check if thing is connected to cloud
+        if (!this.thing.state) {
+          this.$toasted.error(this.$t('things.messages.notOnline', {
+            thing: this.thing.label,
+          }), {
+            action: {
+              text: this.$t('application.buttons.close.title'),
+              onClick: (evnt, toastObject) => {
+                toastObject.goAway(0)
+              },
+            },
+          })
+
+          return
+        }
+
+        this.$validator.validateAll(this.form.scope)
+          .then(result => {
+            if (result) {
+              let topic = WAMP_TOPIC_THING
+              topic = topic.replace('{thing_id}', this.thing.id)
+
+              const data = {}
+              data[this.parameter.name] = this.form.model
+
+              this.$wamp.call(topic, {
+                action: 'thing.configure',
+                payload: data,
+              })
+                .then(cmdResult => {
+                  if (this._.get(cmdResult, 'response') === 'accepted') {
+                    ThingConfiguration.update({
+                      where: this.parameter.id,
+                      data: {
+                        value: this.form.model,
+                      },
+                    })
+                      .catch(() => {
+                        // Something went wrong
+                      })
+                  } else {
+                    // Something went wrong
+                  }
+                })
+                .catch(() => {
+                  // Something went wrong
+                })
+
+              this.$toasted.success(this.$t('things.messages.edited', {
+                thing: this.thing.label,
+              }), {
+                action: {
+                  text: this.$t('application.buttons.close.title'),
+                  onClick: (evnt, toastObject) => {
+                    toastObject.goAway(0)
+                  },
+                },
+              })
+
+              this.$emit('close')
+            } else {
+              this.$toasted.info(this.$t('application.messages.fixAllFormErrors'), {
+                action: {
+                  text: this.$t('application.buttons.close.title'),
+                  onClick: (evnt, toastObject) => {
+                    toastObject.goAway(0)
+                  },
+                },
+              })
+            }
+          })
+          .catch(() => {
+            this.$toasted.info(this.$t('application.messages.fixAllFormErrors'), {
+              action: {
+                text: this.$t('application.buttons.close.title'),
+                onClick: (evnt, toastObject) => {
+                  toastObject.goAway(0)
+                },
+              },
+            })
+          })
+      },
+
+      /**
+       * Close thing parameter edit window
+       *
+       * @param {Object} event
+       */
+      close(event) {
+        event && event.preventDefault()
+
+        this.$emit('close')
+      },
+
+      /**
+       * Initialize form model data
+       *
+       * @private
+       */
+      _initModel() {
+        this.form.model = this.parameter.value === null ? this.parameter.default : this.parameter.value
+
+        this.errors.clear(this.form.scope)
+      },
+
+    },
+
+  }
+</script>
+
+<i18n src="./locales.json" />

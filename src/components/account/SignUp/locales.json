@@ -1,0 +1,41 @@
+{
+  "en": {
+    "headings": {
+      "signUp": "Sign up"
+    },
+    "field": {
+      "emailAddress": {
+        "title": "Email",
+        "help": "Primary email, eg. john@doe.com",
+        "validation": {
+          "required": "Please fill in your email address."
+        }
+      },
+      "firstName": {
+        "title": "First name",
+        "help": "First name, eg. John",
+        "validation": {
+          "required": "Please fill in first name."
+        }
+      },
+      "lastName": {
+        "title": "Last name",
+        "help": "Last name, eg. Doe",
+        "validation": {
+          "required": "Please fill in last name."
+        }
+      },
+      "password": {
+        "title": "Password",
+        "validation": {
+          "required": "Please fill in your email address."
+        }
+      }
+    },
+    "buttons": {
+      "signUp": {
+        "title": "Sign up"
+      }
+    }
+  }
+}

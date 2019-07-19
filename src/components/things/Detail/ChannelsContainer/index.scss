@@ -1,0 +1,20 @@
+@import "~@fastybird-com/theme/assets/styles/variables";
+
+.fb-iot-thing-detail-channels-container {
+  &__container {
+    position: relative;
+  }
+
+  &__heading {
+    margin-top: 0px;
+    border-bottom: 1px solid $gray-lighter;
+    height: auto;
+    width: 100%;
+
+    h3 {
+      font-size: 95%;
+      margin: 0px;
+      padding: 5px 0;
+    }
+  }
+}

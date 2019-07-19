@@ -1,0 +1,18 @@
+{
+  "en": {
+    "headings": {
+      "clearTotal": "Clear counter"
+    },
+    "messages": {
+      "confirmClearTotal": "Clear total consumption counter for thing <strong>{thing}</strong> ?"
+    },
+    "channels": {
+      "light": {
+        "title": "Light settings",
+        "preview": {
+          "notAvailable": "N/A"
+        }
+      }
+    }
+  }
+}

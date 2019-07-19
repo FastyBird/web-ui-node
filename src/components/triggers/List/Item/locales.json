@@ -1,0 +1,9 @@
+{
+  "en": {
+    "texts": {
+      "conditions": "With {count} condition|With {count} conditions",
+      "actions": "and with {count} action|and with {count} actions",
+      "notifications": "and with {count} notification|and with {count} notifications"
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "en": {
+    "headings": {
+      "triggers": "Triggers"
+    },
+    "buttons": {
+      "createTrigger": {
+        "title": "Create trigger"
+      }
+    },
+    "texts": {
+      "loading": "Loading triggers...",
+      "noTriggers": "You don't have created any trigger"
+    },
+    "meta": {
+      "title": "Configured triggers"
+    }
+  }
+}

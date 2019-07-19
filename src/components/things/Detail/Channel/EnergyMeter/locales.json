@@ -1,0 +1,29 @@
+{
+  "en": {
+    "headings": {
+      "clearTotal": "Clear counter"
+    },
+    "messages": {
+      "confirmClearTotal": "Clear total consumption counter for thing {thing} ?"
+    },
+    "channels": {
+      "currentPower": {
+        "title": "Current power"
+      },
+      "current": {
+        "title": "Current"
+      },
+      "voltage": {
+        "title": "Voltage"
+      },
+      "totalConsumption": {
+        "title": "Total consumption"
+      }
+    },
+    "states": {
+      "notAvailable": {
+        "title": "N/A"
+      }
+    }
+  }
+}

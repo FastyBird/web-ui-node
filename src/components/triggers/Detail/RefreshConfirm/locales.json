@@ -1,0 +1,12 @@
+{
+  "en": {
+    "headings": {
+      "refresh": "Refresh trigger"
+    },
+    "messages": {
+      "confirmRefresh": "Received new details for trigger {trigger}. Do you want to refresh it ?",
+      "refreshed": "Trigger {trigger} was successfully refreshed.",
+      "notRefreshed": "Trigger {trigger} couldn't be refreshed, please try reload page."
+    }
+  }
+}

@@ -1,0 +1,6 @@
+[defaults]
+project=ioserver
+org=fastybird-sro
+
+[auth]
+token=4e0b91e692d44b9b87c854e06788fa479bba6a747b3c46b1abbbc7194aef33f9

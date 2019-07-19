@@ -1,0 +1,35 @@
+{
+  "en": {
+    "headings": {
+      "signIn": "Sign in"
+    },
+    "field": {
+      "identity": {
+        "uid": {
+          "title": "Primary email or username",
+          "validation": {
+            "required": "Please fill in your primary email or username."
+          }
+        },
+        "password": {
+          "title": "Password",
+          "validation": {
+            "required": "Please enter your password."
+          }
+        }
+      },
+      "persistent": {
+        "title": "Keep me signed in"
+      }
+    },
+    "buttons": {
+      "signIn": {
+        "title": "Sign in"
+      },
+      "forgotPassword": {
+        "title": "Forgot password?",
+        "tooltip": "If you forget your password, just recover it."
+      }
+    }
+  }
+}

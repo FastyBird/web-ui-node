@@ -1,0 +1,31 @@
+{
+  "en": {
+    "headings": {
+      "passwordReset": "Request password reset",
+      "instructionEmailed": "We emailed you a instructions..."
+    },
+    "field": {
+      "identity": {
+        "uid": {
+          "title": "Primary email or username",
+          "validation": {
+            "required": "Please fill in your primary email or username."
+          }
+        }
+      }
+    },
+    "buttons": {
+      "resetPassword": {
+        "title": "Request password reset"
+      }
+    },
+    "texts": {
+      "resetPasswordInfo": "Provide your primary email address or your username and we will send you details with special link to reset your password.",
+      "resetPasswordInstructionsEmailed": "It should be there momentarily. Please check your email and click the link in the message. After one hour, the link to update your password will expire.",
+      "processing": "Processing request..."
+    },
+    "messages": {
+      "passwordRequestFail": "Password reset instruction couldn't be send."
+    }
+  }
+}

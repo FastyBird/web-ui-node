@@ -1,0 +1,46 @@
+{
+  "en": {
+    "headings": {
+      "notification": "Add notification"
+    },
+    "field": {
+      "type": {
+        "title": "Notification type",
+        "prompt": "-- Please select type --",
+        "values": {
+          "sms": "Send SMS",
+          "email": "Send e-mail"
+        },
+        "validation": {
+          "required": "Selecting notification type is required."
+        }
+      },
+      "sms": {
+        "title": "SMS number",
+        "validation": {
+          "required": "Please fill in mobile phone number."
+        }
+      },
+      "value": {
+        "values": {
+          "sms": "SMS number",
+          "email": "E-mail address"
+        },
+        "validation": {
+          "required": "This field is required.",
+          "invalidAddress": "This e-mail address is invalid."
+        }
+      },
+      "email": {
+        "title": "E-mail address",
+        "prompt": "-- Please select e-mail --",
+        "validation": {
+          "required": "You have to select saved e-mail address or custom address."
+        },
+        "values": {
+          "custom": "Send to custom address"
+        }
+      }
+    }
+  }
+}

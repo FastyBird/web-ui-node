@@ -1,0 +1,13 @@
+{
+  "en": {
+    "texts": {
+      "loading": "Loading thing..."
+    },
+    "messages": {
+      "notFound": "Thing was not found, please try reload page."
+    },
+    "meta": {
+      "title": "Thing settings: {thing}"
+    }
+  }
+}

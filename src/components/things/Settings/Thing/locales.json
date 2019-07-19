@@ -1,0 +1,29 @@
+{
+  "en": {
+    "headings": {
+      "thingSettings": "Thing settings",
+      "generalSettings": "General settings",
+      "channelsSettings": "Channel settings|Channels settings"
+    },
+    "texts": {
+      "actual": "Actual"
+    },
+    "buttons": {
+      "remove": {
+        "title": "Remove thing"
+      },
+      "rename": {
+        "title": "Rename thing"
+      },
+      "about": {
+        "title": "About thing"
+      },
+      "networkInfo": {
+        "title": "Network info"
+      },
+      "credentials": {
+        "title": "Connection credentials"
+      }
+    }
+  }
+}

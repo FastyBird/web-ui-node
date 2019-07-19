@@ -1,0 +1,78 @@
+@import "~@fastybird-com/theme/assets/styles/variables";
+
+.fb-iot-things-detail-channel-energy {
+  &__container {
+    position: relative;
+    padding-bottom: 56px;
+
+    .fb-iot-things-detail-channel-energy {
+      &__channel {
+        border-bottom: 1px solid $gray-lighter;
+        height: 55px;
+        width: 100%;
+
+        .fb-iot-things-detail-channel-energy {
+          &__heading {
+            small {
+              font-size: 80%;
+              display: block;
+            }
+          }
+        }
+
+        .fb-iot-things-detail-channel-energy {
+          &__value-container {
+            button {
+              position: absolute;
+              top: -8px;
+              right: -8px;
+            }
+          }
+        }
+
+        .fb-iot-things-detail-channel-energy {
+          &__value-container {
+            padding: 5px;
+            height: 100%;
+
+            .fb-iot-things-detail-channel-energy {
+              &__value {
+                font-size: 15px;
+              }
+
+              &__units {
+                font-size: 10px;
+              }
+            }
+          }
+        }
+
+        .fb-iot-things-detail-channel-energy {
+          &__icon {
+            height: 30px;
+            width: 30px;
+            fill: $gray;
+            stroke: $gray;
+          }
+        }
+      }
+
+      &__channel:last-child {
+        border-bottom: none;
+      }
+    }
+  }
+
+  &__container[data-state="off"] {
+    .fb-iot-things-detail-channel-energy {
+      &__channel {
+        .fb-iot-things-detail-channel-energy {
+          &__icon {
+            fill: $gray-lighter;
+            stroke: $gray-lighter;
+          }
+        }
+      }
+    }
+  }
+}

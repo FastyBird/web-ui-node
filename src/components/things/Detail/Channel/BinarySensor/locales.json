@@ -1,0 +1,15 @@
+{
+  "en": {
+    "states": {
+      "on": {
+        "title": "On"
+      },
+      "off": {
+        "title": "Off"
+      },
+      "notAvailable": {
+        "title": "N/A"
+      }
+    }
+  }
+}

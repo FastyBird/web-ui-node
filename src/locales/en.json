@@ -1,0 +1,282 @@
+{
+  "layout": {
+    "projectName": "FastyBird.com",
+    "buttons": {
+      "toggleNavigation": {
+        "title": "Toggle navigation"
+      }
+    }
+  },
+  "application": {
+    "headings": {
+      "offlineState": "No internet connection"
+    },
+    "buttons": {
+      "remove": {
+        "title": "Delete"
+      },
+      "save": {
+        "title": "Save"
+      },
+      "close": {
+        "title": "Close"
+      },
+      "yes": {
+        "title": "Yes"
+      },
+      "no": {
+        "title": "No"
+      },
+      "back": {
+        "title": "Go back"
+      },
+      "settings": {
+        "title": "Settings"
+      },
+      "previous": {
+        "title": "Previous"
+      },
+      "next": {
+        "title": "Next"
+      },
+      "cancel": {
+        "title": "Cancel"
+      },
+      "add": {
+        "title": "Add"
+      }
+    },
+    "tabs": {
+      "home": {
+        "title": "Home"
+      },
+      "things": {
+        "title": "Things"
+      }
+    },
+    "messages": {
+      "requestError": "Something went wrong, please try again later.",
+      "fixAllFormErrors": "Please fix all marked form errors.",
+      "valueIsNotValid": "This value is not valid.",
+      "loadingApp": "Application is loading...",
+      "offlineState": "It looks like you have no internet connection. Application need internet connection to be able to communicate with services. Try to go online please."
+    },
+    "units": {
+      "short": {
+        "null": {
+          "null": "N/A"
+        },
+        "length": {
+          "centimeter": "cm",
+          "meter": "m",
+          "inch": "in"
+        },
+        "temperature": {
+          "celsius": "°C",
+          "fahrenheit": "°F",
+          "kelvin": "K"
+        },
+        "pressure": {
+          "pascal": "Pa"
+        },
+        "humidity": {
+          "percent": "%"
+        },
+        "luminosity": {
+          "lux": "lx",
+          "percent": "%"
+        },
+        "motion": {
+          "on_off": "On/Off"
+        },
+        "voltage": {
+          "volt": "V",
+          "millivolt": "mV",
+          "null": "N/A"
+        },
+        "current": {
+          "ampere": "A",
+          "miliampere": "mA",
+          "null": "N/A"
+        },
+        "noise": {
+          "percent": "%"
+        },
+        "dust": {
+          "kWh": "mg/m<sup>3</sup>"
+        },
+        "power": {
+          "voltampere": "VA",
+          "watt": "W",
+          "kilowatt": "kW",
+          "var": "VAR",
+          "null": "N/A"
+        },
+        "energy": {
+          "joule": "J",
+          "kilowatt_hours": "kWh",
+          "null": "N/A"
+        }
+      },
+      "long": {
+        "universal": {
+          "null": "Not defined",
+          "p": "Percentage"
+        },
+        "length": {
+          "cm": "Centimeter",
+          "m": "Meter",
+          "in": "Inch"
+        },
+        "volume": {
+          "g": "Gram",
+          "kg": "Kilogram",
+          "lb": "Pound"
+        },
+        "temperature": {
+          "c": "Celsius",
+          "f": "Fahrenheit",
+          "k": "Kelvin"
+        },
+        "pressure": {
+          "pa": "Pascal"
+        },
+        "humidity": {
+          "p": "Percentage"
+        },
+        "luminosity": {
+          "lux": "Illuminance",
+          "p": "Percentage"
+        },
+        "motion": {
+          "on-off": "On/Off"
+        },
+        "voltage": {
+          "v": "Volt",
+          "mv": "Milivolt",
+          "null": "Not defined"
+        },
+        "noise": {
+          "p": "Percentage"
+        },
+        "dust": {
+          "mg-m3": "mg per cubic meter"
+        },
+        "energy": {
+          "w": "Watt",
+          "null": "Not defined"
+        }
+      }
+    },
+    "menu": {
+      "root": "Cloud",
+      "home": "Home",
+      "things": "Things",
+      "triggers": "Triggers",
+      "schedules": "Schedules"
+    },
+    "userMenu": {
+      "accountSettings": "Account settings",
+      "accountProfile": "Profile settings",
+      "passwordChange": "Password change",
+      "securitySettings": "Security settings",
+      "signOut": "Sign out"
+    }
+  },
+  "home": {
+    "buttons": {
+      "things": {
+        "title": "Things"
+      }
+    }
+  },
+  "things": {
+    "messages": {
+      "edited": "Thing {thing} was successfully edited.",
+      "notEdited": "Thing {thing} couldn\"t be updated, please try again later.",
+      "notFound": "Thing was not found, please try reload page.",
+      "commandNotAccepted": "Last command was not accepted by thing <strong>{thing}</strong>.",
+      "notOnline": "Thing <strong>{thing}</strong> is not connected to cloud.",
+      "notSupported": "This function is not supported by <strong>{thing}</strong>."
+    },
+    "vendors": {
+      "itead": {
+        "relays_sync": {
+          "button": "Switch synchronization",
+          "heading": "Switch sync mode",
+          "description": "Define how the different switches should be synchronized.",
+          "values": {
+            "disabled": "Disabled",
+            "zero_or_one": "Zero or one active",
+            "only_one": "Only one active",
+            "all_synchronized": "All synchronized"
+          }
+        },
+        "ntp_offset": {
+          "button": "Time zone",
+          "heading": "Time zone",
+          "description": "Define time zone offset"
+        },
+        "ntp_server": {
+          "button": "NTP server",
+          "heading": "NTP server",
+          "description": "Define server for time synchronization"
+        },
+        "btn_delay": {
+          "button": "Double click delay",
+          "heading": "Double click delay",
+          "description": "Delay in milliseconds to detect a double click (from 0 to 1000ms)."
+        },
+        "ntp_region": {
+          "button": "DST region",
+          "heading": "DST region",
+          "description": "",
+          "values": {
+            "europe": "Europe",
+            "usa": "USA"
+          }
+        },
+        "ntp_dst": {
+          "button": "Enable DST",
+          "heading": "Enable DST"
+        },
+        "on_disconnect": {
+          "button": "On disconnect",
+          "heading": "On disconnect",
+          "description": "State of switch after connection loss to broker",
+          "values": {
+            "no_change": "No change",
+            "turn_off": "Turn off",
+            "turn_on": "Turn on"
+          }
+        },
+        "pulse_mode": {
+          "button": "Pulse mode",
+          "heading": "Pulse mode",
+          "description": "",
+          "values": {
+            "disabled": "Disabled",
+            "normally_off": "Normally off",
+            "normally_on": "Normally on"
+          }
+        },
+        "pulse_time": {
+          "button": "Pulse time",
+          "heading": "Pulse time (s)",
+          "description": ""
+        },
+        "relay_boot": {
+          "button": "Boot mode",
+          "heading": "Boot mode",
+          "description": "State of switch after boot up",
+          "values": {
+            "always_off": "Always off",
+            "always_on": "Always on",
+            "same_before": "Same before",
+            "toggle_before": "Toggle before"
+          }
+        }
+      }
+    }
+  }
+}

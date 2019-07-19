@@ -1,0 +1,25 @@
+{
+  "en": {
+    "headings": {
+      "networkInfo": "Network info"
+    },
+    "texts": {
+      "wifi": {
+        "name": "Wifi name",
+        "signalStrength": "Wifi signal strength",
+        "rssi": "RSSI",
+        "currentMode": "Current mode",
+        "ip": "IP address",
+        "mac": "MAC address"
+      }
+    },
+    "states": {
+      "connected": {
+        "title": "Connected"
+      },
+      "disconnected": {
+        "title": "Not connected"
+      }
+    }
+  }
+}

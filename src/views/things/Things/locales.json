@@ -1,0 +1,19 @@
+{
+  "en": {
+    "headings": {
+      "things": "Things"
+    },
+    "buttons": {
+      "connectThing": {
+        "title": "Connect thing"
+      }
+    },
+    "texts": {
+      "loading": "Loading things...",
+      "noThings": "You don't have assigned any thing"
+    },
+    "meta": {
+      "title": "Registered things"
+    }
+  }
+}

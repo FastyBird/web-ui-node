@@ -1,0 +1,36 @@
+@import "~@fastybird-com/theme/assets/styles/variables";
+
+.fb-iot-things-detail-channel-container {
+  &__container {
+    height: 55px;
+    width: 100%;
+    border-bottom: 1px solid $gray-lighter;
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  &__icon {
+    svg {
+      height: 35px;
+      line-height: 35px;
+      width: 30px;
+      fill: $gray;
+      stroke: $gray;
+    }
+  }
+
+  &__container[data-state="off"] {
+    color: $gray-lighter;
+
+    .fb-iot-things-detail-channel-container {
+      &__icon {
+        svg {
+          fill: $gray-lighter;
+          stroke: $gray-lighter;
+        }
+      }
+    }
+  }
+}
