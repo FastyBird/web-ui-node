@@ -1,4 +1,4 @@
-<template web>
+<template>
   <div class="fb-account-sign-in__container">
     <sign-header :heading="$t('headings.signIn')" />
 

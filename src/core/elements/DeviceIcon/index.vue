@@ -1,4 +1,4 @@
-<template web>
+<template>
   <component
     :is="name"
     class="device-icon"

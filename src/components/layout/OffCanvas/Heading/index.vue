@@ -1,7 +1,4 @@
-<template
-  functional
-  web
->
+<template functional>
   <div class="fb-off-canvas-heading__container">
     <div class="fb-off-canvas-heading__body">
       <h4 v-if="props.subHeading === null">

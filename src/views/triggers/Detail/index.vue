@@ -1,4 +1,4 @@
-<template web>
+<template>
   <layout name="LayoutDefault">
     <template v-if="!$store.state.entities.trigger.semaphore.fetching.items">
       <triggers-detail

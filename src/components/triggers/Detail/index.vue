@@ -1,4 +1,4 @@
-<template web>
+<template>
   <div class="fb-triggers-detail__container">
     <h5 class="fw-b text-capitalize text-primary">
       {{ $t('headings.conditions') }}

@@ -1,4 +1,4 @@
-<template web>
+<template>
   <layout name="LayoutDefault">
     <template v-if="!$store.state.entities.thing.semaphore.fetching.items && $store.state.entities.channel.semaphore.fetching.items.indexOf(id) === -1">
       <things-detail-channel-light

@@ -1,4 +1,4 @@
-<template web>
+<template>
   <div id="app">
     <div
       v-show="isLoading"
@@ -342,5 +342,5 @@
 </script>
 
 <style rel="stylesheet/scss" lang="scss">
-  @import '@fastybird-com/theme/assets/theme/theme';
+  @import '~@fastybird-com/theme/assets/theme/theme';
 </style>

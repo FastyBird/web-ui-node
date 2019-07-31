@@ -1,4 +1,4 @@
-<template web>
+<template>
   <div
     :data-state="thing.state ? 'on' : 'off'"
     class="fb-iot-things-list-item__container"

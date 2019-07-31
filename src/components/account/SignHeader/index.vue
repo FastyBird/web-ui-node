@@ -1,4 +1,4 @@
-<template web>
+<template>
   <h3 class="fb-account-sign-header__heading">
     {{ heading }}
   </h3>

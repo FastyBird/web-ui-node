@@ -1,4 +1,4 @@
-<template web>
+<template>
   <fb-modal-form
     v-if="thing !== null"
     :transparent-bg="transparentBg"

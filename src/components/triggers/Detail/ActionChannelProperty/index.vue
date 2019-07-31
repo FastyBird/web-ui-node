@@ -1,4 +1,4 @@
-<template web>
+<template>
   <div
     v-if="thing && channel && property"
     class="list-group-item"

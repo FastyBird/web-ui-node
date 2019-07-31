@@ -1,4 +1,4 @@
-<template web>
+<template>
   <div class="p-a-sm fb-iot-things-settings-thing__container">
     <h5 class="fw-b text-capitalize text-primary">
       {{ $t('headings.thingSettings') }}

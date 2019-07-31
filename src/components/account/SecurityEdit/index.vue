@@ -1,4 +1,4 @@
-<template web>
+<template>
   <fb-modal-form
     icon="user-shield"
     @submit="submit"

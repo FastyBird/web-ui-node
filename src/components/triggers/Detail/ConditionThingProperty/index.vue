@@ -1,4 +1,4 @@
-<template web>
+<template>
   <div
     v-if="thing && property"
     class="list-group-item"

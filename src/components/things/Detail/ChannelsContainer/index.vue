@@ -1,7 +1,4 @@
-<template
-  functional
-  web
->
+<template functional>
   <div class="fb-iot-thing-detail-channels-container__container">
     <div class="fb-iot-thing-detail-channels-container__heading p-x-md p-y-0 m-a-0">
       <h3>

@@ -1,4 +1,4 @@
-<template web>
+<template>
   <fb-modal-info
     :transparent-bg="transparentBg"
     icon="wifi"

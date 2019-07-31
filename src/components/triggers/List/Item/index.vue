@@ -1,4 +1,4 @@
-<template web>
+<template>
   <div
     class="fb-triggers-list-item__container"
     @click="oneClick"

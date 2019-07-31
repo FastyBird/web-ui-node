@@ -1,4 +1,4 @@
-<template web>
+<template>
   <layout name="LayoutDefault">
     <div class="fb-triggers-list-view__container">
       <triggers-list-container>

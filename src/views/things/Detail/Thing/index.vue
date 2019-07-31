@@ -1,4 +1,4 @@
-<template web>
+<template>
   <layout name="LayoutDefault">
     <div class="fb-iot-things-thing-detail-view__container">
       <fb-loading-box

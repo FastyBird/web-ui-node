@@ -1,4 +1,4 @@
-<template web>
+<template>
   <div class="list-group-item">
     <span
       v-if="removingEnabled"

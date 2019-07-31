@@ -1,4 +1,4 @@
-<template web>
+<template>
   <div class="fb-account-reset-password__container">
     <sign-header
       v-if="!isSubmitted"

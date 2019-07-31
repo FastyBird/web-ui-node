@@ -1,4 +1,4 @@
-<template web>
+<template>
   <fb-confirmation-window
     :show-no="false"
     icon="sync-alt"

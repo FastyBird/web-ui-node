@@ -1,4 +1,4 @@
-<template web>
+<template>
   <fb-modal-window
     class="fb-iot-things-channels-light__container"
     @closed="close"

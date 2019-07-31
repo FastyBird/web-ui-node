@@ -1,4 +1,4 @@
-<template web>
+<template>
   <fb-confirmation-window
     :transparent-bg="transparentBg"
     icon="trash"

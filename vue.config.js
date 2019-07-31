@@ -1,4 +1,3 @@
-const PreloadWebpackPlugin = require('preload-webpack-plugin')
 const SentryWebpackPlugin = require('@sentry/webpack-plugin')
 
 module.exports = {
@@ -56,9 +55,6 @@ module.exports = {
       },
     },
     plugins: [
-      new PreloadWebpackPlugin({
-        rel: 'prefetch',
-      }),
       new SentryWebpackPlugin({
         include: '.',
         ignoreFile: '.sentrycliignore',

@@ -1,4 +1,4 @@
-<template web>
+<template>
   <div
     :class="['fb-off-canvas__container', {'show': show}]"
     @keyup.esc="close"

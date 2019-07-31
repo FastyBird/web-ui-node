@@ -1,4 +1,4 @@
-<template web>
+<template>
   <fb-modal-form
     :transparent-bg="transparentBg"
     icon="plug"

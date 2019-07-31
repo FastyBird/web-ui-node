@@ -1,7 +1,4 @@
-<template
-  functional
-  web
->
+<template functional>
   <div class="fb-triggers-list-container__container">
     <div class="row">
       <slot name="items" />

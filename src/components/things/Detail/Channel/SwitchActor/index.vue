@@ -1,4 +1,4 @@
-<template web>
+<template>
   <switch-actor
     :thing="thing"
     :channel="channel"

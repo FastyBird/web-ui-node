@@ -1,4 +1,4 @@
-<template web>
+<template>
   <layout name="LayoutDefault">
     <div class="fb-home-view__container">
       <div
@@ -22,24 +22,6 @@
       </h4>
     </div>
   </layout>
-</template>
-
-<template native>
-  <page>
-    <action-bar title="YOUR APP" />
-
-    <stack-layout>
-      <label
-        class="body m-20"
-        :text="message"
-        textWrap="true" />
-
-      <button
-        class="btn btn-primary"
-        text="Log out"
-        @tap="logout" />
-    </stack-layout>
-  </page>
 </template>
 
 <script>

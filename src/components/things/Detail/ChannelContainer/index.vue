@@ -1,4 +1,4 @@
-<template web>
+<template>
   <div
     :data-state="thing.state ? 'on' : 'off'"
     class="fb-iot-things-detail-channel-container__container p-x-md p-y m-a-0 row"

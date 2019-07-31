@@ -1,4 +1,4 @@
-<template web>
+<template>
   <layout name="LayoutDefault">
     <div class="fb-iot-things-list-view__container">
       <things-list-container>

@@ -1,4 +1,4 @@
-<template web>
+<template>
   <layout name="LayoutSign">
     <request-password />
   </layout>

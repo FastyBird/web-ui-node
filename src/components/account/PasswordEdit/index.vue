@@ -1,4 +1,4 @@
-<template web>
+<template>
   <fb-modal-form
     icon="key"
     @submit="submit"

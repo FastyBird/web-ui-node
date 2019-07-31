@@ -1,4 +1,4 @@
-<template web>
+<template>
   <div :data-state="thing.state ? 'on' : 'off'">
     <template v-if="!thing.state">
       {{ $t('states.notAvailable.title') }}

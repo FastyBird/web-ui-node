@@ -1,4 +1,4 @@
-<template web>
+<template>
   <div
     :data-state="thing.exchange_data_ok && thing.state ? 'on' : 'off'"
     class="fb-iot-things-channels-switch__container text-center"

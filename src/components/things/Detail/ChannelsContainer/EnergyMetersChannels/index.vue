@@ -1,4 +1,4 @@
-<template web>
+<template>
   <channels-container :heading="$tc('heading', channels.length)">
     <energy-meter
       v-for="channel in channels"

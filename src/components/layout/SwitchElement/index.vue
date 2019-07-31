@@ -1,7 +1,4 @@
-<template
-  functional
-  web
->
+<template functional>
   <label class="fb-switch-element__container switch switch-primary cursor-pointer">
     <input
       :checked="props.status"

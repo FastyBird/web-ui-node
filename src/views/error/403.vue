@@ -1,4 +1,4 @@
-<template web>
+<template>
   <layout name="LayoutError">
     <div>
       <h1>Not allowed</h1>

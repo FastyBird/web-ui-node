@@ -1,7 +1,4 @@
-<template
-  functional
-  web
->
+<template functional>
   <div class="fb-iot-things-list-container__container">
     <div class="row">
       <slot name="items" />

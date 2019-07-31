@@ -1,4 +1,4 @@
-<template web>
+<template>
   <div :class="['fb-list-item__container', { 'with-buttons': slotExists('buttons') }]">
     <div
       class="row cursor-pointer"

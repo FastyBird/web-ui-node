@@ -1,4 +1,4 @@
-<template web>
+<template>
   <li class="media">
     <div class="media-middle media-left">
       <font-awesome-icon

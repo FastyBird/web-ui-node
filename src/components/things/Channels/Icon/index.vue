@@ -1,7 +1,4 @@
-<template
-  functional
-  web
->
+<template functional>
   <div class="circle text-center">
     <device-icon :name="props.icon" />
   </div>
