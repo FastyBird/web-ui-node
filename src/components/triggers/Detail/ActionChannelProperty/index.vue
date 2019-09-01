@@ -11,9 +11,9 @@
     >
       <font-awesome-icon icon="trash" />
     </span>
-    {{ thing.label }} | {{ channel.label }}
+    {{ thing.label }} | {{ $tChannel(thing, channel) }}
     <small class="d-b">
-      {{ property.name }}:
+      {{ $tChannelProperty(thing, channel, property) }}:
       {{ action.value }}
     </small>
   </div>

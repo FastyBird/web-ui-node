@@ -253,6 +253,8 @@
         const options = []
 
         if (this.form.model.thing !== null) {
+          const thing = Thing.find(this.form.model.thing)
+
           const channels = Channel
             .query()
             .with('properties')
@@ -272,7 +274,7 @@
 
             channelsGroups[channel.structure_type].push({
               value: channel.id,
-              name: channel.label,
+              name: this.$tChannel(thing, channel),
             })
           }
 
@@ -296,11 +298,13 @@
         const options = []
 
         if (this.channel) {
+          const thing = Thing.find(this.form.model.thing)
+
           for (const property of this.channel.properties) {
             if (property.is_settable) {
               options.push({
                 value: property.id,
-                name: property.name,
+                name: this.$tChannelProperty(thing, this.channel, property),
               })
             }
           }

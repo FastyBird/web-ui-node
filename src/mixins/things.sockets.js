@@ -1,5 +1,4 @@
 import Thing from '@/store/modules/io-server/Thing'
-import ThingStat from '@/store/modules/io-server/ThingStat'
 import ThingProperty from '@/store/modules/io-server/ThingProperty'
 import ThingConfiguration from '@/store/modules/io-server/ThingConfiguration'
 import ChannelPropertyValue from '@/store/modules/io-server/ChannelPropertyValue'
@@ -79,19 +78,9 @@ const mixin = {
      * @private
      */
     _parseThingExchangeData(thing, channels) {
-      this._.get(thing, 'stats', [])
-        .forEach(stat => {
-          ThingStat.insertOrUpdate({
-            where: stat.id,
-            data: {
-              value: stat.value,
-            },
-          })
-        })
-
       this._.get(thing, 'properties', [])
         .forEach(property => {
-          ThingProperty.insertOrUpdate({
+          ThingProperty.update({
             where: property.id,
             data: {
               value: property.value,
@@ -101,7 +90,7 @@ const mixin = {
 
       this._.get(thing, 'configuration', [])
         .forEach(configuration => {
-          ThingConfiguration.insertOrUpdate({
+          ThingConfiguration.update({
             where: configuration.id,
             data: {
               value: configuration.value,

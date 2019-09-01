@@ -20,8 +20,8 @@
                 @change="submit(parameter)"
               />
             </span>
-            <template v-if="$t(`things.vendors.${_.get(hardware, 'manufacturer', 'custom')}.${parameter.name}.button`).indexOf('things.vendors.') === -1">
-              {{ $t(`things.vendors.${_.get(hardware, 'manufacturer', 'custom')}.${parameter.name}.button`) }}
+            <template v-if="$t(`things.vendors.${_.get(hardware, 'manufacturer', manufacturer.generic)}.${parameter.name}.button`).indexOf('things.vendors.') === -1">
+              {{ $t(`things.vendors.${_.get(hardware, 'manufacturer', manufacturer.generic)}.${parameter.name}.button`) }}
             </template>
             <template v-else>
               {{ parameter.name }}
@@ -40,8 +40,8 @@
               v-show="_.get(loading.parameterForm, parameter.name, false) === true"
               class="spinner spinner-primary spinner-sm sq-18 pos-r m-r-md"
             />
-            <template v-if="$t(`things.vendors.${_.get(hardware, 'manufacturer', 'custom')}.${parameter.name}.button`).indexOf('things.vendors.') === -1">
-              {{ $t(`things.vendors.${_.get(hardware, 'manufacturer', 'custom')}.${parameter.name}.button`) }}
+            <template v-if="$t(`things.vendors.${_.get(hardware, 'manufacturer', manufacturer.generic)}.${parameter.name}.button`).indexOf('things.vendors.') === -1">
+              {{ $t(`things.vendors.${_.get(hardware, 'manufacturer', manufacturer.generic)}.${parameter.name}.button`) }}
             </template>
             <template v-else>
               {{ parameter.name }}
@@ -106,6 +106,10 @@
     IO_SERVER_CHANNEL_CONFIGURATION_SELECT,
   } from '@/api/server/types'
 
+  import {
+    MANUFACTURER_GENERIC,
+  } from '@/constants'
+
   import { WAMP_TOPIC_THING_CHANNEL } from '@/config'
 
   const ThingsEditChannelRename = () => import('../../Edit/Channel/Rename')
@@ -145,6 +149,9 @@
     data() {
       return {
         transparentModal: false,
+        manufacturer: {
+          generic: MANUFACTURER_GENERIC,
+        },
         loading: {
           rename: false,
           parameterForm: [],
@@ -267,8 +274,8 @@
         for (const key in row.values) {
           // eslint-disable-next-line
           if (row.values.hasOwnProperty(key)&& row.values[key].value == this._.get(this.values, row.id)) {
-            if (this.$t(`things.vendors.${this._.get(this.hardware, 'manufacturer', 'custom')}.${row.name}.values.${row.values[key].name}`).indexOf('things.vendors.') === -1) {
-              return this.$t(`things.vendors.${this._.get(this.hardware, 'manufacturer', 'custom')}.${row.name}.values.${row.values[key].name}`)
+            if (this.$t(`things.vendors.${this._.get(this.hardware, 'manufacturer', MANUFACTURER_GENERIC)}.${row.name}.values.${row.values[key].name}`).indexOf('things.vendors.') === -1) {
+              return this.$t(`things.vendors.${this._.get(this.hardware, 'manufacturer', MANUFACTURER_GENERIC)}.${row.name}.values.${row.values[key].name}`)
             } else {
               return this._.get(this.values, row.id)
             }

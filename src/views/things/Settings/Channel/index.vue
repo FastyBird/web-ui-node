@@ -215,7 +215,7 @@
 
         this.setHeading({
           heading: this.thing.label,
-          subHeading: this.channel.label,
+          subHeading: this.$tChannel(this.thing, this.channel),
         })
       },
 

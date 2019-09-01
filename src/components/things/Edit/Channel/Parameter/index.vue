@@ -96,6 +96,10 @@
     IO_SERVER_CHANNEL_CONFIGURATION_TEXT,
   } from '@/api/server/types'
 
+  import {
+    MANUFACTURER_GENERIC,
+  } from '@/constants'
+
   import ChannelConfigurationValue from '@/store/modules/io-server/ChannelConfigurationValue'
   import Hardware from '@/store/modules/io-server/Hardware'
 
@@ -163,7 +167,7 @@
        * @returns {String}
        */
       translatedHeading() {
-        if (this._.get(this.hardware, 'model', null) === 'custom') {
+        if (this._.get(this.hardware, 'model', null) === MANUFACTURER_GENERIC) {
           if (this.parameter.title !== null) {
             return this.parameter.title
           }
@@ -171,8 +175,8 @@
           return this.parameter.name
         }
 
-        if (this.$t(`things.vendors.${this._.get(this.hardware, 'manufacturer', 'custom')}.${this.parameter.name}.heading`).indexOf('things.vendors.') === -1) {
-          return this.$t(`things.vendors.${this._.get(this.hardware, 'manufacturer', 'custom')}.${this.parameter.name}.heading`)
+        if (this.$t(`things.vendors.${this._.get(this.hardware, 'manufacturer', MANUFACTURER_GENERIC)}.${this.parameter.name}.heading`).indexOf('things.vendors.') === -1) {
+          return this.$t(`things.vendors.${this._.get(this.hardware, 'manufacturer', MANUFACTURER_GENERIC)}.${this.parameter.name}.heading`)
         }
 
         return this.parameter.name
@@ -184,7 +188,7 @@
        * @returns {String}
        */
       translatedLabel() {
-        if (this._.get(this.hardware, 'model', null) === 'custom') {
+        if (this._.get(this.hardware, 'model', null) === MANUFACTURER_GENERIC) {
           if (this.parameter.title !== null) {
             return this.parameter.title
           }
@@ -192,8 +196,8 @@
           return this.parameter.name
         }
 
-        if (this.$t(`things.vendors.${this._.get(this.hardware, 'manufacturer', 'custom')}.${this.parameter.name}.button`).indexOf('things.vendors.') === -1) {
-          return this.$t(`things.vendors.${this._.get(this.hardware, 'manufacturer', 'custom')}.${this.parameter.name}.button`)
+        if (this.$t(`things.vendors.${this._.get(this.hardware, 'manufacturer', MANUFACTURER_GENERIC)}.${this.parameter.name}.button`).indexOf('things.vendors.') === -1) {
+          return this.$t(`things.vendors.${this._.get(this.hardware, 'manufacturer', MANUFACTURER_GENERIC)}.${this.parameter.name}.button`)
         }
 
         return this.parameter.name
@@ -205,7 +209,7 @@
        * @returns {(String|null)}
        */
       translatedDescription() {
-        if (this._.get(this.hardware, 'model', null) === 'custom') {
+        if (this._.get(this.hardware, 'model', null) === MANUFACTURER_GENERIC) {
           if (this.parameter.description !== null) {
             return this.parameter.description
           }
@@ -213,8 +217,8 @@
           return null
         }
 
-        if (this.$t(`things.vendors.${this._.get(this.hardware, 'manufacturer', 'custom')}.${this.parameter.name}.description`).indexOf('things.vendors.') === -1) {
-          return this.$t(`things.vendors.${this._.get(this.hardware, 'manufacturer', 'custom')}.${this.parameter.name}.description`)
+        if (this.$t(`things.vendors.${this._.get(this.hardware, 'manufacturer', MANUFACTURER_GENERIC)}.${this.parameter.name}.description`).indexOf('things.vendors.') === -1) {
+          return this.$t(`things.vendors.${this._.get(this.hardware, 'manufacturer', MANUFACTURER_GENERIC)}.${this.parameter.name}.description`)
         }
 
         return null
@@ -233,7 +237,7 @@
             if (this.parameter.values.hasOwnProperty(key)) {
               items.push({
                 'value': this.parameter.values[key].value,
-                'name': this.$t(`things.vendors.${this._.get(this.hardware, 'manufacturer', 'custom')}.${this.parameter.name}.values.${this.parameter.values[key].name}`),
+                'name': this.$t(`things.vendors.${this._.get(this.hardware, 'manufacturer', MANUFACTURER_GENERIC)}.${this.parameter.name}.values.${this.parameter.values[key].name}`),
               })
             }
           }
@@ -324,6 +328,10 @@
 
               const data = {}
               data[this.parameter.name] = this.form.model
+
+              if (this.isSelectParameter && !isNaN(this.form.model)) {
+                data[this.parameter.name] = parseInt(this.form.model, 10)
+              }
 
               this.$wamp.call(topic, {
                 action: 'channel.configure',

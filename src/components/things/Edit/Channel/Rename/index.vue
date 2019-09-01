@@ -87,7 +87,7 @@
             if (result) {
               const errorMessage = this.$t('messages.notEdited', {
                 thing: this.thing.label,
-                channel: this.channel.label,
+                channel: this.$tChannel(this.thing, this.channel),
               })
 
               this.$store.dispatch('entities/channel/edit', {
@@ -113,7 +113,7 @@
 
               this.$toasted.success(this.$t('messages.edited', {
                 thing: this.thing.label,
-                channel: this.channel.label,
+                channel: this.$tChannel(this.thing, this.channel),
               }), {
                 action: {
                   text: this.$t('application.buttons.close.title'),

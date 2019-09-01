@@ -5,7 +5,7 @@
   >
     <template v-if="thing.state">
       <span class="fb-iot-things-detail-channel-analog__value">{{ propertyValue }}</span>
-      <span class="fb-iot-things-detail-channel-analog__units">{{ propertyUnits }}</span>
+      <span class="fb-iot-things-detail-channel-analog__units">{{ _.get(property, 'units', null) }}</span>
     </template>
     <template v-else>
       <span class="fb-iot-things-detail-channel-analog__value">{{ $t('states.notAvailable.title') }}</span>
@@ -65,19 +65,6 @@
           .first()
 
         return propertyValue !== null ? number.format(parseFloat(propertyValue.value), 2, ',', ' ') : 'N/A'
-      },
-
-      /**
-       * Channel property translated units
-       *
-       * @returns {(String|null)}
-       */
-      propertyUnits() {
-        if (this.property !== undefined && this._.get(this.property, 'units', null) !== null) {
-          return this.$t(`application.units.short.${this._.get(this.property, 'data_type', 'null')}.${this._.get(this.property, 'units', 'null')}`)
-        }
-
-        return null
       },
 
     },

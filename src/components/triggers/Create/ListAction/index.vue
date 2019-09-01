@@ -11,7 +11,7 @@
         {{ thing.label }}
       </h5>
 
-      <small>{{ channel.label }} - {{ property.name }}: {{ action.parameter }}</small>
+      <small>{{ $tChannel(thing, channel) }} - {{ $tChannelProperty(thing, channel, property) }}: {{ action.parameter }}</small>
     </div>
     <div class="media-middle media-right">
       <fb-button

@@ -44,8 +44,14 @@
       :channels="energyChannels"
     />
 
+    <things-detail-channels-container-environments-channels
+      v-if="environmentChannels.length"
+      :thing="thing"
+      :channels="environmentChannels"
+    />
+
     <template
-      v-if="!fetchingChannels && !switchChannels.length && !analogSensorsChannels.length && !analogActorsChannels.length && !binarySensorsChannels.length && !binaryActorsChannels.length && !lightChannels.length && !energyChannels.length"
+      v-if="!fetchingChannels && !switchChannels.length && !analogSensorsChannels.length && !analogActorsChannels.length && !binarySensorsChannels.length && !binaryActorsChannels.length && !lightChannels.length && !energyChannels.length && !environmentChannels.length"
     >
       <div class="text-center p-a-lg">
         <span class="icon-with-child">
@@ -97,6 +103,12 @@
     error: FbComponentLoadingError,
     timeout: 5000,
   })
+  const ThingsDetailChannelsContainerEnvironmentsChannels = () => ({
+    component: import('./ChannelsContainer/EnvironmentsChannels'),
+    loading: FbComponentLoading,
+    error: FbComponentLoadingError,
+    timeout: 5000,
+  })
   const ThingsDetailChannelsContainerLightChannels = () => ({
     component: import('./ChannelsContainer/LightActorsChannels'),
     loading: FbComponentLoading,
@@ -117,6 +129,7 @@
     CHANNEL_TYPE_BINARY_ACTOR,
     CHANNEL_TYPE_LIGHT,
     CHANNEL_TYPE_ENERGY,
+    CHANNEL_TYPE_ENVIRONMENT,
     CHANNEL_TYPE_SWITCH,
   } from '@/constants'
 
@@ -129,6 +142,7 @@
       ThingsDetailChannelsContainerBinaryActorChannels,
       ThingsDetailChannelsContainerBinarySensorChannels,
       ThingsDetailChannelsContainerEnergyChannels,
+      ThingsDetailChannelsContainerEnvironmentsChannels,
       ThingsDetailChannelsContainerLightChannels,
       ThingsDetailChannelsContainerSwitchChannels,
     },
@@ -220,6 +234,15 @@
        */
       energyChannels() {
         return this._.filter(this.channels, { 'structure_type': CHANNEL_TYPE_ENERGY })
+      },
+
+      /**
+       * Get all energy meter channels
+       *
+       * @returns {Array}
+       */
+      environmentChannels() {
+        return this._.filter(this.channels, { 'structure_type': CHANNEL_TYPE_ENVIRONMENT })
       },
 
       /**

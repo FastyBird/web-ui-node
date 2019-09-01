@@ -30,20 +30,6 @@
         "title": "Switch pulse time",
         "required": "Please fill in switch pulse time.",
         "info": "Pulse time in seconds (maximum value is 60s, accepts decimals)."
-      },
-      "relaySync": {
-        "title": "Switches synchronization",
-        "values": {
-          "disabled": "No synchronisation",
-          "zero_or_one": "Zero or one switches active",
-          "only_one": "One and just one switch active",
-          "all_synchronized": "All synchronized"
-        }
-      },
-      "scSensorEvery": {
-        "title": "Reading interval",
-        "required": "Please fill in reading interval.",
-        "info": "Sensor reading interval (maximum value is 60s)."
       }
     }
   }

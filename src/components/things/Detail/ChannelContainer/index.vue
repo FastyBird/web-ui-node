@@ -18,13 +18,13 @@
       </template>
       <template v-else>
         <h5 class="fw-b">
-          {{ channel.label }}
+          {{ $tChannel(thing, channel) }}
         </h5>
       </template>
     </div>
     <div
       v-if="slotExists('channel')"
-      class="col-3 text-right p-x-0 clear"
+      class="col-3 text-right p-x-0"
     >
       <slot name="channel" />
     </div>
@@ -41,6 +41,8 @@
     CHANNEL_TYPE_SWITCH,
     CHANNEL_TYPE_LIGHT,
   } from '@/constants'
+
+  import Hardware from '@/store/modules/io-server/Hardware'
 
   export default {
 
@@ -65,6 +67,18 @@
     },
 
     computed: {
+
+      /**
+       * Get thing hardware info
+       *
+       * @returns {Hardware}
+       */
+      hardware() {
+        return Hardware
+          .query()
+          .where('thing_id', this.thing.id)
+          .first()
+      },
 
       icon() {
         if (this.channel.structure_type === CHANNEL_TYPE_ENERGY) {

@@ -32,8 +32,8 @@
               @change="submit(parameter)"
             />
           </span>
-          <template v-if="$t(`things.vendors.${_.get(hardware, 'manufacturer', 'custom')}.${parameter.name}.button`).indexOf('things.vendors.') === -1">
-            {{ $t(`things.vendors.${_.get(hardware, 'manufacturer', 'custom')}.${parameter.name}.button`) }}
+          <template v-if="$t(`things.vendors.${_.get(hardware, 'manufacturer', manufacturer.generic)}.${parameter.name}.button`).indexOf('things.vendors.') === -1">
+            {{ $t(`things.vendors.${_.get(hardware, 'manufacturer', manufacturer.generic)}.${parameter.name}.button`) }}
           </template>
           <template v-else>
             {{ parameter.name }}
@@ -52,8 +52,8 @@
             v-show="_.get(loading.parameterForm, parameter.name, false) === true"
             class="spinner spinner-primary spinner-sm sq-18 pos-r m-r-md"
           />
-          <template v-if="$t(`things.vendors.${_.get(hardware, 'manufacturer', 'custom')}.${parameter.name}.button`).indexOf('things.vendors.') === -1">
-            {{ $t(`things.vendors.${_.get(hardware, 'manufacturer', 'custom')}.${parameter.name}.button`) }}
+          <template v-if="$t(`things.vendors.${_.get(hardware, 'manufacturer', manufacturer.generic)}.${parameter.name}.button`).indexOf('things.vendors.') === -1">
+            {{ $t(`things.vendors.${_.get(hardware, 'manufacturer', manufacturer.generic)}.${parameter.name}.button`) }}
           </template>
           <template v-else>
             {{ parameter.name }}
@@ -69,6 +69,37 @@
           </small>
         </button>
       </template>
+
+      <button
+        v-if="hasTimeSettings"
+        class="list-group-item"
+        role="button"
+        @click.prevent="openModuleForm('ntp_', $t('headings.moduleTimeSettings'))"
+      >
+        <span class="pull-right"><font-awesome-icon icon="angle-right" /></span>
+        <span
+          v-show="loading.moduleSettings"
+          class="spinner spinner-primary spinner-sm sq-18 pos-r m-r-md"
+        />
+        {{ $t('buttons.timeConfiguration.title') }}
+        <small class="d-b fz-sm">
+          {{ $t('buttons.timeConfiguration.description') }}
+        </small>
+      </button>
+
+      <button
+        v-if="hasEnergyCalibration"
+        class="list-group-item"
+        role="button"
+        @click.prevent="openForm('energyCalibration')"
+      >
+        <span class="pull-right"><font-awesome-icon icon="angle-right" /></span>
+        <span
+          v-show="loading.energyCalibration"
+          class="spinner spinner-primary spinner-sm sq-18 pos-r m-r-md"
+        />
+        {{ $t('buttons.energyCalibration.title') }}
+      </button>
     </div>
 
     <template v-if="channels.length">
@@ -84,7 +115,7 @@
           @click.prevent="$emit('channelSettings', channel)"
         >
           <span class="pull-right"><font-awesome-icon icon="angle-right" /></span>
-          {{ channel.label }}
+          {{ $tChannel(thing, channel) }}
         </button>
       </div>
     </template>
@@ -155,6 +186,24 @@
       @close="closeWindow('credentials')"
     />
 
+    <things-edit-thing-module-configuration
+      v-if="moduleSettings.show"
+      :thing="thing"
+      :title="moduleSettings.title"
+      :key-prefix="moduleSettings.prefix"
+      :transparent-bg="transparentModal"
+      @loaded="loading.moduleSettings = false"
+      @close="closeWindow('moduleSettings')"
+    />
+
+    <things-edit-thing-energy-calibration
+      v-if="hasEnergyCalibration && energyCalibration.show"
+      :thing="thing"
+      :transparent-bg="transparentModal"
+      @loaded="loading.energyCalibration = false"
+      @close="closeWindow('energyCalibration')"
+    />
+
     <things-edit-thing-rename
       v-if="rename.show"
       :thing="thing"
@@ -204,11 +253,18 @@
     IO_SERVER_THING_CONFIGURATION_SELECT,
   } from '@/api/server/types'
 
+  import {
+    MANUFACTURER_GENERIC,
+    MANUFACTURER_ITEAD,
+  } from '@/constants'
+
   import { WAMP_TOPIC_THING } from '@/config'
 
   const ThingsInfoThing = () => import('../../Info/Thing')
   const ThingsInfoNetwork = () => import('../../Info/Network')
   const ThingsEditThingCredentials = () => import('../../Edit/Thing/Credentials')
+  const ThingsEditThingEnergyCalibration = () => import('../../Edit/Thing/EnergyCalibration')
+  const ThingsEditThingModuleConfiguration = () => import('../../Edit/Thing/ModuleConfiguration')
   const ThingsEditThingRename = () => import('../../Edit/Thing/Rename')
   const ThingsRemove = () => import('../../Remove')
   const ThingsEditThingParameter = () => import('../../Edit/Thing/Parameter')
@@ -226,6 +282,8 @@
       ThingsInfoThing,
       ThingsInfoNetwork,
       ThingsEditThingCredentials,
+      ThingsEditThingEnergyCalibration,
+      ThingsEditThingModuleConfiguration,
       ThingsEditThingRename,
       ThingsRemove,
       ThingsEditThingParameter,
@@ -251,8 +309,13 @@
       return {
         isCustom: false,
         transparentModal: false,
+        manufacturer: {
+          generic: MANUFACTURER_GENERIC,
+        },
         loading: {
           credentials: false,
+          moduleSettings: false,
+          energyCalibration: false,
           rename: false,
           remove: false,
           thingInfo: false,
@@ -260,6 +323,14 @@
           parameterForm: [],
         },
         credentials: {
+          show: false,
+        },
+        moduleSettings: {
+          show: false,
+          prefix: null,
+          title: null,
+        },
+        energyCalibration: {
           show: false,
         },
         rename: {
@@ -292,10 +363,28 @@
        * @returns {Array}
        */
       parameters() {
-        return ThingConfiguration
+        const parameters = ThingConfiguration
           .query()
           .where('thing_id', this.thing.id)
+          .orderBy('name')
           .all()
+
+        let filtered = []
+
+        if (this._.get(this.hardware, 'manufacturer', MANUFACTURER_GENERIC) === MANUFACTURER_ITEAD) {
+          parameters.forEach(item => {
+            if (
+              this._.get(item, 'name').indexOf('sensor_expected_') !== 0
+              && this._.get(item, 'name').indexOf('ntp_') !== 0
+            ) {
+              filtered.push(item)
+            }
+          })
+        } else {
+          filtered = parameters
+        }
+
+        return filtered
       },
 
       /**
@@ -308,6 +397,60 @@
           .query()
           .where('thing_id', this.thing.id)
           .first()
+      },
+
+      /**
+       * Check if thing has time settings options
+       *
+       * @returns {Boolean}
+       */
+      hasTimeSettings() {
+        if (this._.get(this.hardware, 'manufacturer', MANUFACTURER_GENERIC) !== MANUFACTURER_ITEAD) {
+          return false
+        }
+
+        const parameters = ThingConfiguration
+          .query()
+          .where('thing_id', this.thing.id)
+          .orderBy('name')
+          .all()
+
+        let result = false
+
+        parameters.forEach(item => {
+          if (this._.get(item, 'name').indexOf('ntp_') === 0) {
+            result = true
+          }
+        })
+
+        return result
+      },
+
+      /**
+       * Check if thing has energy calibration settings options
+       *
+       * @returns {Boolean}
+       */
+      hasEnergyCalibration() {
+        if (this._.get(this.hardware, 'manufacturer', MANUFACTURER_GENERIC) !== MANUFACTURER_ITEAD) {
+          return false
+        }
+
+        const parameters = ThingConfiguration
+          .query()
+          .where('thing_id', this.thing.id)
+          .orderBy('name')
+          .all()
+
+        let result = false
+
+        parameters.forEach(item => {
+          if (this._.get(item, 'name').indexOf('sensor_expected_') === 0) {
+            result = true
+          }
+        })
+
+        return result
       },
 
       /**
@@ -352,7 +495,7 @@
           }
         })
 
-      this.isCustom = this.hardware === null || this.hardware.model === 'custom'
+      this.isCustom = this.hardware === null || this.hardware.model === MANUFACTURER_GENERIC
     },
 
     methods: {
@@ -387,8 +530,8 @@
         for (const key in row.values) {
           // eslint-disable-next-line
           if (row.values.hasOwnProperty(key)&& row.values[key].value == row.value) {
-            if (this.$t(`things.vendors.${this._.get(this.hardware, 'manufacturer', 'custom')}.${row.name}.values.${row.values[key].name}`).indexOf('things.vendors.') === -1) {
-              return this.$t(`things.vendors.${this._.get(this.hardware, 'manufacturer', 'custom')}.${row.name}.values.${row.values[key].name}`)
+            if (this.$t(`things.vendors.${this._.get(this.hardware, 'manufacturer', MANUFACTURER_GENERIC)}.${row.name}.values.${row.values[key].name}`).indexOf('things.vendors.') === -1) {
+              return this.$t(`things.vendors.${this._.get(this.hardware, 'manufacturer', MANUFACTURER_GENERIC)}.${row.name}.values.${row.values[key].name}`)
             } else {
               return row.value
             }
@@ -458,6 +601,37 @@
           } else {
             this.loading[type] = true
           }
+        }
+      },
+
+      /**
+       * Open thing module edit form
+       *
+       * @param {String} prefix
+       * @param {String} title
+       */
+      openModuleForm(prefix, title) {
+        if (!this.thing.state) {
+          this.$toasted.error(this.$t('things.messages.notOnline', {
+            thing: this.thing.label,
+          }), {
+            action: {
+              text: this.$t('application.buttons.close.title'),
+              onClick: (evnt, toastObject) => {
+                toastObject.goAway(0)
+              },
+            },
+          })
+
+          return
+        }
+
+        this.moduleSettings.show = true
+        this.moduleSettings.prefix = prefix
+        this.moduleSettings.title = title
+
+        if (this.loading.hasOwnProperty('moduleSettings')) {
+          this.loading.moduleSettings = true
         }
       },
 

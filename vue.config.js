@@ -1,5 +1,12 @@
 const SentryWebpackPlugin = require('@sentry/webpack-plugin')
 
+const sentryPlugin = new SentryWebpackPlugin({
+  include: '.',
+  ignoreFile: '.sentrycliignore',
+  ignore: ['node_modules', 'webpack.config.js'],
+  configFile: 'sentry.properties',
+})
+
 module.exports = {
   pluginOptions: {
     i18n: {
@@ -13,12 +20,12 @@ module.exports = {
   devServer: {
     proxy: {
       '/v1': {
-        target: 'https://io.fastybird.com',
+        target: 'https://io.fastybird.ovh',
         secure: true,
         changeOrigin: true,
       },
       '/ws-exchange': {
-        target: 'wss://io.fastybird.com/sockets',
+        target: 'wss://io.fastybird.ovh/sockets',
         pathRewrite: {
           '^/ws-exchange': '',
         },
@@ -54,13 +61,6 @@ module.exports = {
         maxSize: 200000,
       },
     },
-    plugins: [
-      new SentryWebpackPlugin({
-        include: '.',
-        ignoreFile: '.sentrycliignore',
-        ignore: ['node_modules', 'webpack.config.js'],
-        configFile: 'sentry.properties',
-      }),
-    ],
+    plugins: process.env.NODE_ENV === 'production' ? [sentryPlugin] : [],
   },
 }

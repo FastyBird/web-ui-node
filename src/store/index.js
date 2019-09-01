@@ -3,7 +3,6 @@ import Vuex from 'vuex'
 import VuexORM from '@vuex-orm/core'
 
 import * as types from './types'
-import themeModules from '@fastybird-com/theme/store'
 
 // Profile module
 import Account from './modules/profile/Account'
@@ -22,7 +21,6 @@ import Hardware from './modules/io-server/Hardware'
 import Firmware from './modules/io-server/Firmware'
 import Credentials from './modules/io-server/Credentials'
 import ThingProperty from './modules/io-server/ThingProperty'
-import ThingStat from './modules/io-server/ThingStat'
 import ThingConfiguration from './modules/io-server/ThingConfiguration'
 import Channel from './modules/io-server/Channel'
 import channels from './modules/io-server/channels'
@@ -56,7 +54,6 @@ database.register(Hardware)
 database.register(Firmware)
 database.register(Credentials)
 database.register(ThingProperty)
-database.register(ThingStat)
 database.register(ThingConfiguration)
 database.register(Channel, channels)
 database.register(ChannelProperty)
@@ -114,10 +111,6 @@ const store = {
   state: storeState,
   actions: storeActions,
   mutations: storeMutations,
-  modules: Object.assign(
-    themeModules,
-    {},
-  ),
   plugins: [VuexORM.install(database)],
 }
 

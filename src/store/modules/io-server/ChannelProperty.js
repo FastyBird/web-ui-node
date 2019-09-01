@@ -12,7 +12,7 @@ export default class ChannelProperty extends Model {
       name: this.string(),
       is_settable: this.boolean(false),
       data_type: this.string(),
-      format: this.string(),
+      format: this.string(null).nullable(),
       units: this.string(null).nullable(),
 
       relationshipNames: this.attr(null).nullable(),

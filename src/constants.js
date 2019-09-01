@@ -6,7 +6,7 @@ export const CHANNEL_TYPE_BINARY_ACTOR = 'binary_actor'
 export const CHANNEL_TYPE_EVENT = 'event'
 export const CHANNEL_TYPE_BUTTON = 'button'
 export const CHANNEL_TYPE_ENERGY = 'energy'
-export const CHANNEL_TYPE_LED = 'led'
+export const CHANNEL_TYPE_ENVIRONMENT = 'environment'
 export const CHANNEL_TYPE_LIGHT = 'light'
 export const CHANNEL_TYPE_SWITCH = 'switch'
 
@@ -19,3 +19,7 @@ export const DATA_TYPE_ENUM = 'enum'
 export const DATA_TYPE_COLOR = 'color'
 
 export const PROPERTY_TYPE_STATE = 'state'
+
+export const MANUFACTURER_GENERIC = 'generic'
+export const MANUFACTURER_FASTYBIRD = 'fastybird'
+export const MANUFACTURER_ITEAD = 'itead'

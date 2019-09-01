@@ -3,7 +3,8 @@
     "headings": {
       "thingSettings": "Thing settings",
       "generalSettings": "General settings",
-      "channelsSettings": "Channel settings|Channels settings"
+      "channelsSettings": "Channel settings|Channels settings",
+      "moduleTimeSettings": "Thing time settings"
     },
     "texts": {
       "actual": "Actual"
@@ -23,6 +24,13 @@
       },
       "credentials": {
         "title": "Connection credentials"
+      },
+      "timeConfiguration": {
+        "title": "Time settings",
+        "description": "Configure thing timezone etc."
+      },
+      "energyCalibration": {
+        "title": "Calibrate energy"
       }
     }
   }

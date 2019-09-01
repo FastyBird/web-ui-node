@@ -5,7 +5,6 @@ import Hardware from './Hardware'
 import Firmware from './Firmware'
 import Credentials from './Credentials'
 import ThingProperty from './ThingProperty'
-import ThingStat from './ThingStat'
 import ThingConfiguration from './ThingConfiguration'
 
 import {
@@ -41,7 +40,6 @@ export default class Thing extends Model {
       credentials: this.hasOne(Credentials, 'thing_id'),
       children: this.hasMany(Thing, 'parent_id'),
       properties: this.hasMany(ThingProperty, 'thing_id'),
-      stats: this.hasMany(ThingStat, 'thing_id'),
       configuration: this.hasMany(ThingConfiguration, 'thing_id'),
     }
   }

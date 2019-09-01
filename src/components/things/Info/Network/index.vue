@@ -41,7 +41,6 @@
 
 <script>
   import ThingProperty from '@/store/modules/io-server/ThingProperty'
-  import ThingStat from '@/store/modules/io-server/ThingStat'
   import Hardware from '@/store/modules/io-server/Hardware'
 
   export default {
@@ -79,7 +78,7 @@
        * @returns {String}
        */
       wifiSSID() {
-        const stat = ThingStat
+        const stat = ThingProperty
           .query()
           .where('thing_id', this.thing.id)
           .where('name', 'ssid')
@@ -94,7 +93,7 @@
        * @returns {String}
        */
       wifiSignalStrength() {
-        const stat = ThingStat
+        const stat = ThingProperty
           .query()
           .where('thing_id', this.thing.id)
           .where('name', 'rssi')
@@ -115,7 +114,7 @@
        * @returns {String}
        */
       wifiRSSI() {
-        const stat = ThingStat
+        const stat = ThingProperty
           .query()
           .where('thing_id', this.thing.id)
           .where('name', 'rssi')

@@ -11,17 +11,17 @@
     >
       <font-awesome-icon icon="trash" />
     </span>
-    {{ thing.label }} | {{ channel.label }}
+    {{ thing.label }} | {{ $tChannel(thing, channel) }}
     <template v-if="isSwitch">
       <small class="d-b">
-        {{ property.name }}:
+        {{ $tChannelProperty(thing, channel, property) }}:
         {{ condition.operator }}
         {{ condition.operands }}
       </small>
     </template>
     <template v-if="isButton">
       <small class="d-b">
-        {{ property.name }}:
+        {{ $tChannelProperty(thing, channel, property) }}:
         {{ condition.operator }}
         {{ condition.operands }}
       </small>
@@ -182,7 +182,7 @@
           return null
         }
 
-        return this.$t(`application.units.short.${this.property.data_type}.${this.property.units}`)
+        return this._.get(this.property, 'units',null)
       },
 
     },

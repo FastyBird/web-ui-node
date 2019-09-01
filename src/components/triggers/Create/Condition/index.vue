@@ -295,6 +295,8 @@
             name: this.$t('groups.state'),
           })
 
+          const thing = Thing.find(this.form.model.thing)
+
           const channels = Channel
             .query()
             .with('properties')
@@ -312,7 +314,7 @@
 
             channelsGroups[channel.structure_type].push({
               value: channel.id,
-              name: channel.label,
+              name: this.$tChannel(thing, channel),
             })
           }
 
@@ -335,6 +337,8 @@
       properties() {
         const options = []
 
+        const thing = Thing.find(this.form.model.thing)
+
         if (this.form.model.trigger === 'state') {
           const property = ThingProperty
             .query()
@@ -344,7 +348,7 @@
 
           options.push({
             value: property.id,
-            name: property.name,
+            name: this.$tChannelProperty(thing, this.channel, property),
           })
 
           return options
@@ -352,7 +356,7 @@
           for (const property of this.channel.properties) {
             options.push({
               value: property.id,
-              name: property.name,
+              name: this.$tChannelProperty(thing, this.channel, property),
             })
           }
         }

@@ -16,7 +16,7 @@ export default class ThingProperty extends Model {
       name: this.string(),
       is_settable: this.boolean(false),
       data_type: this.string(),
-      format: this.string(),
+      format: this.string(null).nullable(),
 
       value: this.attr(),
 

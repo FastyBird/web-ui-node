@@ -61,113 +61,6 @@
       "loadingApp": "Application is loading...",
       "offlineState": "It looks like you have no internet connection. Application need internet connection to be able to communicate with services. Try to go online please."
     },
-    "units": {
-      "short": {
-        "null": {
-          "null": "N/A"
-        },
-        "length": {
-          "centimeter": "cm",
-          "meter": "m",
-          "inch": "in"
-        },
-        "temperature": {
-          "celsius": "°C",
-          "fahrenheit": "°F",
-          "kelvin": "K"
-        },
-        "pressure": {
-          "pascal": "Pa"
-        },
-        "humidity": {
-          "percent": "%"
-        },
-        "luminosity": {
-          "lux": "lx",
-          "percent": "%"
-        },
-        "motion": {
-          "on_off": "On/Off"
-        },
-        "voltage": {
-          "volt": "V",
-          "millivolt": "mV",
-          "null": "N/A"
-        },
-        "current": {
-          "ampere": "A",
-          "miliampere": "mA",
-          "null": "N/A"
-        },
-        "noise": {
-          "percent": "%"
-        },
-        "dust": {
-          "kWh": "mg/m<sup>3</sup>"
-        },
-        "power": {
-          "voltampere": "VA",
-          "watt": "W",
-          "kilowatt": "kW",
-          "var": "VAR",
-          "null": "N/A"
-        },
-        "energy": {
-          "joule": "J",
-          "kilowatt_hours": "kWh",
-          "null": "N/A"
-        }
-      },
-      "long": {
-        "universal": {
-          "null": "Not defined",
-          "p": "Percentage"
-        },
-        "length": {
-          "cm": "Centimeter",
-          "m": "Meter",
-          "in": "Inch"
-        },
-        "volume": {
-          "g": "Gram",
-          "kg": "Kilogram",
-          "lb": "Pound"
-        },
-        "temperature": {
-          "c": "Celsius",
-          "f": "Fahrenheit",
-          "k": "Kelvin"
-        },
-        "pressure": {
-          "pa": "Pascal"
-        },
-        "humidity": {
-          "p": "Percentage"
-        },
-        "luminosity": {
-          "lux": "Illuminance",
-          "p": "Percentage"
-        },
-        "motion": {
-          "on-off": "On/Off"
-        },
-        "voltage": {
-          "v": "Volt",
-          "mv": "Milivolt",
-          "null": "Not defined"
-        },
-        "noise": {
-          "p": "Percentage"
-        },
-        "dust": {
-          "mg-m3": "mg per cubic meter"
-        },
-        "energy": {
-          "w": "Watt",
-          "null": "Not defined"
-        }
-      }
-    },
     "menu": {
       "root": "Cloud",
       "home": "Home",
@@ -201,6 +94,79 @@
     },
     "vendors": {
       "itead": {
+        "channels": {
+          "switch": {
+            "title": "Switch"
+          },
+          "button": {
+            "title": "Button"
+          }
+        },
+        "properties": {
+          "power": {
+            "title": "Active power"
+          },
+          "current": {
+            "title": "Current"
+          },
+          "voltage": {
+            "title": "Voltage"
+          },
+          "apparent": {
+            "title": "Apparent power"
+          },
+          "reactive": {
+            "title": "Reactive power"
+          },
+          "factor": {
+            "title": "Power factor"
+          },
+          "energy": {
+            "title": "Energy"
+          },
+          "energy_delta": {
+            "title": "Energy (delta)"
+          },
+          "temperature": {
+            "title": "Temperature"
+          },
+          "humidity": {
+            "title": "Humidity"
+          },
+          "air_quality": {
+            "title": "Air quality",
+            "values": {
+              "unhealthy": "Unhealthy",
+              "moderate": "Moderate",
+              "good": "Good"
+            }
+          },
+          "light_level": {
+            "title": "Light level",
+            "values": {
+              "dusky": "Dusky",
+              "normal": "Normal",
+              "bright": "Bright"
+            }
+          },
+          "noise_level": {
+            "title": "Noise level",
+            "values": {
+              "noisy": "noisy",
+              "normal": "Normal",
+              "quiet": "Quiet"
+            }
+          }
+        },
+        "led_mode": {
+          "button": "Status LED mode",
+          "heading": "Status LED mode",
+          "values": {
+            "wifi_status": "Wifi status",
+            "always_on": "Always on",
+            "always_off": "Always off"
+          }
+        },
         "relays_sync": {
           "button": "Switch synchronization",
           "heading": "Switch sync mode",
@@ -215,7 +181,7 @@
         "ntp_offset": {
           "button": "Time zone",
           "heading": "Time zone",
-          "description": "Define time zone offset"
+          "description": "Define time zone offset in minutes from GMT"
         },
         "ntp_server": {
           "button": "NTP server",
@@ -230,7 +196,6 @@
         "ntp_region": {
           "button": "DST region",
           "heading": "DST region",
-          "description": "",
           "values": {
             "europe": "Europe",
             "usa": "USA"
@@ -253,7 +218,6 @@
         "pulse_mode": {
           "button": "Pulse mode",
           "heading": "Pulse mode",
-          "description": "",
           "values": {
             "disabled": "Disabled",
             "normally_off": "Normally off",
@@ -275,6 +239,70 @@
             "same_before": "Same before",
             "toggle_before": "Toggle before"
           }
+        },
+        "sensor_read_interval": {
+          "button": "Sensors reading interval",
+          "heading": "Sensors reading interval",
+          "description": "Select the interval between readings. These will be filtered and averaged for the report",
+          "values": {
+            "1": "1 s",
+            "6": "6 s",
+            "10": "10 s",
+            "15": "15 s",
+            "30": "30 s",
+            "60": "60 s",
+            "300": "5 min",
+            "600": "10 min",
+            "900": "15 min",
+            "1800": "30 min",
+            "3600": "60 min"
+          }
+        },
+        "sensor_report_interval": {
+          "button": "Sensors report every",
+          "heading": "Sensors report every",
+          "description": "Select the number of readings to average and report"
+        },
+        "sensor_save_interval": {
+          "button": "Sensors save every",
+          "heading": "Sensors save every",
+          "description": "Save aggregated data to thing memory after these many reports. Set it to 0 to disable this feature"
+        },
+        "sensor_power_units": {
+          "button": "Power units",
+          "heading": "Power units",
+          "values": {
+            "watts": "Watts (W)",
+            "kilowatts": "Kilowatts (kW)"
+          }
+        },
+        "sensor_energy_units": {
+          "button": "Energy units",
+          "heading": "Energy units",
+          "values": {
+            "joules": "Joules (J)",
+            "kilowatts_hours": "Kilowatts-hours (kWh)"
+          }
+        },
+        "sensor_energy_ration": {
+          "button": "Energy ratio",
+          "heading": "Energy ratio",
+          "description": "Energy ratio in pulses/kWh."
+        },
+        "sensor_expected_current": {
+          "button": "Expected current",
+          "heading": "Expected current",
+          "description": "In Amperes (A). If you are using a pure resistive load like a bulb, this will be the ratio between the two previous values, i.e. power / voltage. You can also use a current clamp around one of the power wires to get this value."
+        },
+        "sensor_expected_voltage": {
+          "button": "Expected voltage",
+          "heading": "Expected voltage",
+          "description": "In Volts (V). Enter your the nominal AC voltage for your household or facility, or use multimeter to get this value."
+        },
+        "sensor_expected_power": {
+          "button": "Expected power",
+          "heading": "Expected power",
+          "description": "In Watts (W). Calibrate your sensor connecting a pure resistive load (like a bulb) and enter here its nominal power or use a multimeter."
         }
       }
     }

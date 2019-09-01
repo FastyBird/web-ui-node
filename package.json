@@ -5,10 +5,10 @@
   "private": true,
   "scripts": {
     "lint": "vue-cli-service lint",
-    "build": "vue-cli-service build --mode production.web",
+    "build": "vue-cli-service build --mode production",
     "i18n:report": "vue-cli-service i18n:report --src './src/**/*.?(js|vue)' --locales './src/locales/**/*.json'",
     "postinstall": "patch-package",
-    "serve": "vue-cli-service serve --mode development.web"
+    "serve": "vue-cli-service serve --mode development"
   },
   "dependencies": {
     "@fastybird-com/theme": "bitbucket:fastybird/fastybird-app-theme#master",
