@@ -3,17 +3,17 @@ import Jsona from 'jsona'
 import cloneDeep from 'lodash/cloneDeep'
 import uuid from 'uuid'
 
-import api from '@/api/server'
+import api from './../../../api'
 
-import { ApiError } from '@/helpers/errors'
+import { ApiError } from '@/plugins/io-server/api/errors'
 
 import {
-  COMMON_CLEAR_SEMAPHORE,
-  COMMON_SET_SEMAPHORE,
+  IO_SERVER_CLEAR_SEMAPHORE,
+  IO_SERVER_SET_SEMAPHORE,
 
-  COMMON_POP_FROM_QUEUE,
-  COMMON_PUSH_INTO_QUEUE,
-} from '../../types'
+  IO_SERVER_POP_FROM_QUEUE,
+  IO_SERVER_PUSH_INTO_QUEUE,
+} from './../../types'
 
 import {
   TRIGGER_AUTOMATIC,
@@ -25,7 +25,7 @@ import {
   TRIGGERS_NOTIFICATION_CUSTOM_EMAIL,
   TRIGGERS_NOTIFICATION_EMAIL,
   TRIGGERS_NOTIFICATION_SMS,
-} from '@/api/server/types'
+} from './../../../api/types'
 
 import Trigger from './Trigger'
 import Email from '../profile/Email'
@@ -168,21 +168,21 @@ export default {
         if (state.semaphore.fetching.item.indexOf(id) !== -1) {
           resolve(false)
         } else {
-          commit(COMMON_SET_SEMAPHORE, {
+          commit(IO_SERVER_SET_SEMAPHORE, {
             type: 'get',
             id,
           })
 
           api.getTrigger(id)
             .then(result => {
-              commit(COMMON_CLEAR_SEMAPHORE, {
+              commit(IO_SERVER_CLEAR_SEMAPHORE, {
                 type: 'get',
                 id,
               })
 
               if (getters.isOpened(id)) {
                 if (!getters.isInQueue(id, 'update')) {
-                  commit(COMMON_PUSH_INTO_QUEUE, {
+                  commit(IO_SERVER_PUSH_INTO_QUEUE, {
                     id,
                     queue: 'update',
                   })
@@ -204,7 +204,7 @@ export default {
               }
             })
             .catch(e => {
-              commit(COMMON_CLEAR_SEMAPHORE, {
+              commit(IO_SERVER_CLEAR_SEMAPHORE, {
                 type: 'get',
                 id,
               })
@@ -233,7 +233,7 @@ export default {
         if (state.semaphore.fetching.items) {
           resolve(true)
         } else {
-          commit(COMMON_SET_SEMAPHORE, {
+          commit(IO_SERVER_SET_SEMAPHORE, {
             type: 'fetch',
           })
 
@@ -241,14 +241,14 @@ export default {
             .then(result => {
               const data = dataFormatter.deserialize(result.data)
 
-              commit(COMMON_CLEAR_SEMAPHORE, {
+              commit(IO_SERVER_CLEAR_SEMAPHORE, {
                 type: 'fetch',
               })
 
               for (const item of data) {
                 if (getters.isOpened(item.id)) {
                   if (!getters.isInQueue(item.id, 'update')) {
-                    commit(COMMON_PUSH_INTO_QUEUE, {
+                    commit(IO_SERVER_PUSH_INTO_QUEUE, {
                       id: item.id,
                       queue: 'update',
                     })
@@ -268,7 +268,7 @@ export default {
               resolve(true)
             })
             .catch(e => {
-              commit(COMMON_CLEAR_SEMAPHORE, {
+              commit(IO_SERVER_CLEAR_SEMAPHORE, {
                 type: 'fetch',
               })
 
@@ -526,7 +526,7 @@ export default {
           included,
         }
 
-        commit(COMMON_SET_SEMAPHORE, {
+        commit(IO_SERVER_SET_SEMAPHORE, {
           type: 'create',
           id,
         })
@@ -537,7 +537,7 @@ export default {
           .then(() => {
             api.createTrigger(jsonData)
               .then(result => {
-                commit(COMMON_CLEAR_SEMAPHORE, {
+                commit(IO_SERVER_CLEAR_SEMAPHORE, {
                   type: 'create',
                   id,
                 })
@@ -554,7 +554,7 @@ export default {
                   })
               })
               .catch(e => {
-                commit(COMMON_CLEAR_SEMAPHORE, {
+                commit(IO_SERVER_CLEAR_SEMAPHORE, {
                   type: 'create',
                   id,
                 })
@@ -596,14 +596,14 @@ export default {
           data: dataFormatter.deserialize(jsonData),
         })
           .then(() => {
-            commit(COMMON_SET_SEMAPHORE, {
+            commit(IO_SERVER_SET_SEMAPHORE, {
               type: 'update',
               id,
             })
 
             api.editTrigger(id, jsonData)
               .then(result => {
-                commit(COMMON_CLEAR_SEMAPHORE, {
+                commit(IO_SERVER_CLEAR_SEMAPHORE, {
                   type: 'update',
                   id,
                 })
@@ -620,7 +620,7 @@ export default {
                   })
               })
               .catch(e => {
-                commit(COMMON_CLEAR_SEMAPHORE, {
+                commit(IO_SERVER_CLEAR_SEMAPHORE, {
                   type: 'update',
                   id,
                 })
@@ -655,7 +655,7 @@ export default {
       const trigger = Trigger.find(id)
 
       return new Promise((resolve, reject) => {
-        commit(COMMON_SET_SEMAPHORE, {
+        commit(IO_SERVER_SET_SEMAPHORE, {
           type: 'delete',
           id,
         })
@@ -664,7 +664,7 @@ export default {
           .then(() => {
             api.removeTrigger(id)
               .then(() => {
-                commit(COMMON_CLEAR_SEMAPHORE, {
+                commit(IO_SERVER_CLEAR_SEMAPHORE, {
                   type: 'delete',
                   id,
                 })
@@ -673,7 +673,7 @@ export default {
                 resolve()
               })
               .catch(e => {
-                commit(COMMON_CLEAR_SEMAPHORE, {
+                commit(IO_SERVER_CLEAR_SEMAPHORE, {
                   type: 'delete',
                   id,
                 })
@@ -711,7 +711,7 @@ export default {
      * @param {String} id
      */
     lockForEditing({ commit }, { id }) {
-      commit(COMMON_SET_SEMAPHORE, {
+      commit(IO_SERVER_SET_SEMAPHORE, {
         type: 'openEdit',
         id,
       })
@@ -724,7 +724,7 @@ export default {
      * @param {String} id
      */
     unlockForEditing({ commit }, { id }) {
-      commit(COMMON_CLEAR_SEMAPHORE, {
+      commit(IO_SERVER_CLEAR_SEMAPHORE, {
         type: 'openEdit',
         id,
       })
@@ -800,7 +800,7 @@ export default {
     removeFromQueue({ commit, getters }, { id, queue }) {
       return new Promise((resolve, reject) => {
         if (getters.isInQueue(id, queue)) {
-          commit(COMMON_POP_FROM_QUEUE, {
+          commit(IO_SERVER_POP_FROM_QUEUE, {
             id,
             queue,
           })
@@ -832,7 +832,7 @@ export default {
      * @param {String} action.type
      * @param {String} action.id
      */
-    [COMMON_SET_SEMAPHORE](state, action) {
+    [IO_SERVER_SET_SEMAPHORE](state, action) {
       switch (action.type) {
         case 'fetch':
           state.semaphore.fetching.items = true
@@ -887,7 +887,7 @@ export default {
      * @param {String} action.type
      * @param {String} action.id
      */
-    [COMMON_CLEAR_SEMAPHORE](state, action) {
+    [IO_SERVER_CLEAR_SEMAPHORE](state, action) {
       switch (action.type) {
         case 'fetch':
           state.semaphore.fetching.items = false
@@ -969,7 +969,7 @@ export default {
      * @param {String} action.queue
      * @param {String} action.id
      */
-    [COMMON_PUSH_INTO_QUEUE](state, action) {
+    [IO_SERVER_PUSH_INTO_QUEUE](state, action) {
       // Check if queue wes initialised
       if (!state.queue.hasOwnProperty(action.queue) || state.queue[action.queue] === null) {
         state.queue[action.queue] = []
@@ -988,7 +988,7 @@ export default {
      * @param {String} action.queue
      * @param {String} action.id
      */
-    [COMMON_POP_FROM_QUEUE](state, action) {
+    [IO_SERVER_POP_FROM_QUEUE](state, action) {
       // Check if queue wes initialised
       if (!state.queue.hasOwnProperty(action.queue) || state.queue[action.queue] === null) {
         return

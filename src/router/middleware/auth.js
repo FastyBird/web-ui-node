@@ -3,7 +3,7 @@ import jwtDecode from 'jwt-decode'
 import axios from 'axios'
 
 import { ACCOUNT_SIGN_IN_LINK } from '../index'
-import { USER_PROFILE_SESSION } from '@/api/server/types'
+import { USER_PROFILE_SESSION } from '@/plugins/io-server/api/types'
 
 export default function auth({ next }) {
   const token = Vue.cookie.get('token')

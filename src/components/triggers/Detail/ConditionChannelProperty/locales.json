@@ -1,8 +1,9 @@
 {
   "en": {
     "texts": {
-      "valueAbove": "Sensor value is above {value}",
-      "valueBelow": "Sensor value is below {value}"
+      "valueAbove": "value is above {value}",
+      "valueBelow": "value is below {value}",
+      "valueEqual": "value is below {value}"
     }
   }
 }

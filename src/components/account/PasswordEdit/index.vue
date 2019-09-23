@@ -105,7 +105,7 @@
       }
     },
 
-    created() {
+    mounted() {
       this._initModel()
 
       this.$validator.localize({
@@ -143,11 +143,7 @@
        */
       checkCurrentPassword(value) {
         return this.$store.dispatch('entities/account/validatePassword', {
-          data: {
-            password: {
-              current: value,
-            },
-          },
+          password: value,
         }, {
           root: true,
         })
@@ -194,7 +190,8 @@
               const errorMessage = this.$t('messages.passwordNotEdited')
 
               this.$store.dispatch('entities/account/changePassword', {
-                data: this.form.model,
+                current_password: this.form.model.password.current,
+                new_password: this.form.model.password.new,
               }, {
                 root: true,
               })

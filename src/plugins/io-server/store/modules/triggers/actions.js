@@ -1,25 +1,24 @@
 // JSON:API formatter
 import Jsona from 'jsona'
 
-import api from '@/api/server'
+import api from './../../../api'
 
-import { ApiError } from '@/helpers/errors'
+import { ApiError } from '@/plugins/io-server/api/errors'
 
 import {
-  COMMON_CLEAR_SEMAPHORE,
-  COMMON_SET_SEMAPHORE,
-} from '../../types'
+  IO_SERVER_CLEAR_SEMAPHORE,
+  IO_SERVER_SET_SEMAPHORE,
+} from './../../types'
 
 import uuid from 'uuid'
 
 import {
-  TRIGGERS_NOTIFICATION_SMS,
-  TRIGGERS_NOTIFICATION_EMAIL,
-  TRIGGERS_NOTIFICATION_CUSTOM_EMAIL,
-} from '@/api/server/types'
+  TRIGGERS_ACTION_CHANNEL_PROPERTY,
+} from './../../../api/types'
 
-import Notification from './Notification'
-import Email from '@/store/modules/profile/Email'
+import Action from './Action'
+import Channel from '../io-server/Channel'
+import ChannelProperty from '../io-server/ChannelProperty'
 
 const dataFormatter = new Jsona()
 
@@ -53,56 +52,54 @@ export default {
         const formattedData = data
 
         formattedData.id = id
-        formattedData.relationshipNames = ['trigger']
         formattedData.trigger = {
           type: trigger.type,
           id: trigger.id,
         }
         formattedData.trigger_id = trigger.id
 
-        if (data.type === 'sms') {
-          formattedData.phone = data.value
-          formattedData.type = TRIGGERS_NOTIFICATION_SMS
+        const channel = Channel.find(data.channel)
+        const property = ChannelProperty.find(data.property)
 
-        } else if (data.type === 'email') {
-          const email = Email.find(data.value)
-
-          if (email !== null) {
-            formattedData.address = email.address
-            formattedData.type = TRIGGERS_NOTIFICATION_EMAIL
-            formattedData.relationshipNames = ['trigger', 'email']
-            formattedData.email = {
-              type: email.type,
-              id: email.id,
-            }
-            formattedData.email_id = email.id
-          } else {
-            formattedData.address = data.value
-            formattedData.type = TRIGGERS_NOTIFICATION_CUSTOM_EMAIL
+        if (channel !== null && property !== null) {
+          formattedData.type = TRIGGERS_ACTION_CHANNEL_PROPERTY
+          formattedData.relationshipNames = ['trigger', 'channel', 'property']
+          formattedData.channel = {
+            type: channel.type,
+            id: channel.id,
           }
+          formattedData.channel_id = channel.id
+          formattedData.property = {
+            type: property.type,
+            id: property.id,
+          }
+          formattedData.property_id = property.id
+        } else {
+          reject(new Error('triggers.actions.create.invalid'))
+          return
         }
 
         const jsonData = dataFormatter.serialize({
           stuff: formattedData,
         })
 
-        commit(COMMON_SET_SEMAPHORE, {
+        commit(IO_SERVER_SET_SEMAPHORE, {
           type: 'create',
           id,
         })
 
-        Notification.insertOrUpdate({
+        Action.insertOrUpdate({
           data: dataFormatter.deserialize(jsonData),
         })
           .then(() => {
-            api.createTriggerRelation(trigger, 'notifications', jsonData)
+            api.createTriggerRelation(trigger, 'actions', jsonData)
               .then(result => {
-                commit(COMMON_CLEAR_SEMAPHORE, {
+                commit(IO_SERVER_CLEAR_SEMAPHORE, {
                   type: 'create',
                   id,
                 })
 
-                Notification.insertOrUpdate({
+                Action.insertOrUpdate({
                   data: dataFormatter.deserialize(result.data),
                 })
                   .then(() => {
@@ -110,47 +107,47 @@ export default {
                     resolve()
                   })
                   .catch(() => {
-                    reject(new Error('triggers.notifications.create.failed'))
+                    reject(new Error('triggers.actions.create.failed'))
                   })
               })
               .catch(e => {
-                commit(COMMON_CLEAR_SEMAPHORE, {
+                commit(IO_SERVER_CLEAR_SEMAPHORE, {
                   type: 'create',
                   id,
                 })
 
-                Notification.delete(id)
+                Action.delete(id)
                   .catch(() => {
                     // Failed creating could not be removed
                   })
 
                 reject(new ApiError(
-                  'triggers.notifications.create.failed',
+                  'triggers.actions.create.failed',
                   e,
-                  'Create new trigger notification failed.',
+                  'Create new trigger action failed.',
                 ))
               })
           })
           .catch(() => {
-            reject(new Error('triggers.notifications.create.failed'))
+            reject(new Error('triggers.actions.create.failed'))
           })
       })
     },
 
     remove({ commit, dispatch }, { id }) {
-      const notification = Notification.find(id)
+      const action = Action.find(id)
 
       return new Promise((resolve, reject) => {
-        commit(COMMON_SET_SEMAPHORE, {
+        commit(IO_SERVER_SET_SEMAPHORE, {
           type: 'delete',
           id,
         })
 
-        Notification.delete(id)
+        Action.delete(id)
           .then(() => {
-            api.removeTriggerRelation(notification.trigger_id, 'notifications', id)
+            api.removeTriggerRelation(action.trigger_id, 'actions', id)
               .then(() => {
-                commit(COMMON_CLEAR_SEMAPHORE, {
+                commit(IO_SERVER_CLEAR_SEMAPHORE, {
                   type: 'delete',
                   id,
                 })
@@ -159,13 +156,13 @@ export default {
                 resolve()
               })
               .catch(e => {
-                commit(COMMON_CLEAR_SEMAPHORE, {
+                commit(IO_SERVER_CLEAR_SEMAPHORE, {
                   type: 'delete',
                   id,
                 })
 
-                Notification.insertOrUpdate({
-                  data: notification,
+                Action.insertOrUpdate({
+                  data: action,
                 })
                   .catch(() => {
                     // Replacing backup failed, we need to refresh whole list
@@ -178,14 +175,14 @@ export default {
                   })
 
                 reject(new ApiError(
-                  'triggers.notifications.delete.failed',
+                  'triggers.actions.delete.failed',
                   e,
-                  'Delete notification failed.',
+                  'Delete action failed.',
                 ))
               })
           })
           .catch(() => {
-            reject(new Error('triggers.notifications.delete.failed'))
+            reject(new Error('triggers.actions.delete.failed'))
           })
       })
     },
@@ -205,7 +202,7 @@ export default {
      * @param {String} action.type
      * @param {String} action.id
      */
-    [COMMON_SET_SEMAPHORE](state, action) {
+    [IO_SERVER_SET_SEMAPHORE](state, action) {
       switch (action.type) {
         case 'create':
           state.semaphore.creating.push(action.id)
@@ -228,32 +225,30 @@ export default {
      * @param {String} action.type
      * @param {String} action.id
      */
-    [COMMON_CLEAR_SEMAPHORE](state, action) {
+    [IO_SERVER_CLEAR_SEMAPHORE](state, action) {
       switch (action.type) {
         case 'create':
           // Process all semaphore items
-          for (let key in state.semaphore.creating) {
-            key = parseInt(key, 10)
-
-            // Find created item in creating semaphore...
-            if (state.semaphore.creating.hasOwnProperty(key) && state.semaphore.creating[key] === action.id) {
-              // ...and remove it
-              state.semaphore.creating.splice(key, 1)
-            }
-          }
+          state.semaphore.creating
+            .forEach((item, index) => {
+              // Find created item in creating semaphore...
+              if (item === action.id) {
+                // ...and remove it
+                state.semaphore.creating.splice(index, 1)
+              }
+            })
           break
 
         case 'delete':
           // Process all semaphore items
-          for (let key in state.semaphore.deleting) {
-            key = parseInt(key, 10)
-
-            // Find removed item in removing semaphore...
-            if (state.semaphore.deleting.hasOwnProperty(key) && state.semaphore.deleting[key] === action.id) {
-              // ...and remove it
-              state.semaphore.deleting.splice(key, 1)
-            }
-          }
+          state.semaphore.deleting
+            .forEach((item, index) => {
+              // Find removed item in removing semaphore...
+              if (item === action.id) {
+                // ...and remove it
+                state.semaphore.deleting.splice(index, 1)
+              }
+            })
           break
       }
     },

@@ -2,11 +2,14 @@
 import Jsona from 'jsona'
 import cloneDeep from 'lodash/cloneDeep'
 
-import api from '@/api/server'
+import api from './../../../api'
 
-import { ApiError } from '@/helpers/errors'
+import { ApiError } from '@/plugins/io-server/api/errors'
 
-import { COMMON_CLEAR_SEMAPHORE, COMMON_SET_SEMAPHORE } from '../../types'
+import {
+  IO_SERVER_CLEAR_SEMAPHORE,
+  IO_SERVER_SET_SEMAPHORE,
+} from './../../types'
 
 import Channel from './Channel'
 
@@ -73,7 +76,7 @@ export default {
         if (state.semaphore.fetching.item.indexOf(id) !== -1) {
           resolve(false)
         } else {
-          commit(COMMON_SET_SEMAPHORE, {
+          commit(IO_SERVER_SET_SEMAPHORE, {
             type: 'detail',
             id,
           })
@@ -84,7 +87,7 @@ export default {
                 data: mapChannelResponse(dataFormatter.deserialize(result.data)),
               })
                 .then(() => {
-                  commit(COMMON_CLEAR_SEMAPHORE, {
+                  commit(IO_SERVER_CLEAR_SEMAPHORE, {
                     type: 'detail',
                     id,
                   })
@@ -101,7 +104,7 @@ export default {
               resolve(true)
             })
             .catch(e => {
-              commit(COMMON_CLEAR_SEMAPHORE, {
+              commit(IO_SERVER_CLEAR_SEMAPHORE, {
                 type: 'detail',
                 id,
               })
@@ -121,7 +124,7 @@ export default {
         if (state.semaphore.fetching.items.indexOf(thing) !== -1) {
           resolve(false)
         } else {
-          commit(COMMON_SET_SEMAPHORE, {
+          commit(IO_SERVER_SET_SEMAPHORE, {
             type: 'list',
             thing,
           })
@@ -138,7 +141,7 @@ export default {
                 data: insertData,
               })
                 .then(() => {
-                  commit(COMMON_CLEAR_SEMAPHORE, {
+                  commit(IO_SERVER_CLEAR_SEMAPHORE, {
                     type: 'list',
                     thing,
                   })
@@ -155,7 +158,7 @@ export default {
               resolve(true)
             })
             .catch(e => {
-              commit(COMMON_CLEAR_SEMAPHORE, {
+              commit(IO_SERVER_CLEAR_SEMAPHORE, {
                 type: 'list',
                 thing,
               })
@@ -197,14 +200,14 @@ export default {
             ))
           })
 
-        commit(COMMON_SET_SEMAPHORE, {
+        commit(IO_SERVER_SET_SEMAPHORE, {
           type: 'edit',
           id,
         })
 
         api.editThingChannel(id, channel.thing_id, jsonData)
           .then(result => {
-            commit(COMMON_CLEAR_SEMAPHORE, {
+            commit(IO_SERVER_CLEAR_SEMAPHORE, {
               type: 'edit',
               id,
             })
@@ -229,7 +232,7 @@ export default {
               data: channel,
             })
 
-            commit(COMMON_CLEAR_SEMAPHORE, {
+            commit(IO_SERVER_CLEAR_SEMAPHORE, {
               type: 'edit',
               id,
             })
@@ -263,7 +266,7 @@ export default {
      * @param {String} action.id
      * @param {String} action.thing
      */
-    [COMMON_SET_SEMAPHORE](state, action) {
+    [IO_SERVER_SET_SEMAPHORE](state, action) {
       switch (action.type) {
         case 'list':
           state.semaphore.fetching.items.push(action.thing)
@@ -302,7 +305,7 @@ export default {
      * @param {String} action.type
      * @param {String} action.id
      */
-    [COMMON_CLEAR_SEMAPHORE](state, action) {
+    [IO_SERVER_CLEAR_SEMAPHORE](state, action) {
       switch (action.type) {
         case 'list':
           // Process all semaphore items

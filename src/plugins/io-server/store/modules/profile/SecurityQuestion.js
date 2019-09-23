@@ -9,9 +9,12 @@ export default class SecurityQuestion extends Model {
     return {
       id: this.attr(null),
       type: this.attr(),
+
       account_id: this.attr(),
+
       is_custom: this.attr(),
       question: this.attr(),
+
       account: this.hasOne(Account, 'id'),
     }
   }

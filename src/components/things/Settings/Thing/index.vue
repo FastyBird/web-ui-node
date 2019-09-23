@@ -20,7 +20,7 @@
       </button>
       <template v-for="(parameter, index) in parameters">
         <div
-          v-if="isBooleanSettingsRow(parameter)"
+          v-if="parameter.isBoolean"
           :key="index"
           :class="['list-group-item', {'text-warning': !thing.state}]"
         >
@@ -60,7 +60,7 @@
           </template>
           <small class="d-b">
             {{ $t('texts.actual') }}:
-            <template v-if="isSelectSettingsRow(parameter)">
+            <template v-if="parameter.isSelect">
               <strong>{{ getSelectSettingsRowValue(parameter) }}</strong>
             </template>
             <template v-else>
@@ -249,16 +249,13 @@
 
 <script>
   import {
-    IO_SERVER_THING_CONFIGURATION_BOOLEAN,
-    IO_SERVER_THING_CONFIGURATION_SELECT,
-  } from '@/api/server/types'
-
-  import {
     MANUFACTURER_GENERIC,
     MANUFACTURER_ITEAD,
+
+    HARDWARE_MODEL_CUSTOM,
   } from '@/constants'
 
-  import { WAMP_TOPIC_THING } from '@/config'
+  import { IO_SOCKET_TOPIC_THING } from '@/plugins/io-server/config'
 
   const ThingsInfoThing = () => import('../../Info/Thing')
   const ThingsInfoNetwork = () => import('../../Info/Network')
@@ -271,8 +268,8 @@
 
   import SwitchElement from '@/components/layout/SwitchElement'
 
-  import ThingConfiguration from '@/store/modules/io-server/ThingConfiguration'
-  import Hardware from '@/store/modules/io-server/Hardware'
+  import ThingConfiguration from '@/plugins/io-server/store/modules/io-server/ThingConfiguration'
+  import Hardware from '@/plugins/io-server/store/modules/io-server/Hardware'
 
   export default {
 
@@ -495,31 +492,10 @@
           }
         })
 
-      this.isCustom = this.hardware === null || this.hardware.model === MANUFACTURER_GENERIC
+      this.isCustom = this.hardware === null || this.hardware.model === HARDWARE_MODEL_CUSTOM
     },
 
     methods: {
-
-      /**
-       * Check if settings row is boolean type
-       *
-       * @param {ThingConfiguration} row
-       * @param {String} row.type
-       *
-       * @return {Boolean}
-       */
-      isBooleanSettingsRow(row) {
-        return row.type === IO_SERVER_THING_CONFIGURATION_BOOLEAN
-      },
-
-      /**
-       * Check if settings parameter is selectable type
-       *
-       * @return {Boolean}
-       */
-      isSelectSettingsRow(row) {
-        return row.type === IO_SERVER_THING_CONFIGURATION_SELECT
-      },
 
       /**
        * Parse parameter items for select box
@@ -668,7 +644,7 @@
           return
         }
 
-        const topic = WAMP_TOPIC_THING.replace('{thing_id}', this.thing.id)
+        const topic = IO_SOCKET_TOPIC_THING.replace('{thing_id}', this.thing.id)
 
         const data = {}
         data[parameter.name] = this.form.parameter[parameter.name]

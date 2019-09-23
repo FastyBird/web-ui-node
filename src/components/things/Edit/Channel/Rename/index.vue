@@ -17,7 +17,7 @@
         :has-error="errors.has(form.scope + '.title')"
         :name="'title'"
         :label="$t('field.title.title')"
-        :placeholder="channel.name"
+        :placeholder="$tChannel(thing, channel)"
         :tab-index="2"
       />
     </template>

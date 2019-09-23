@@ -16,7 +16,7 @@
 <script>
   import number from '@/helpers/number'
 
-  import ChannelPropertyValue from '@/store/modules/io-server/ChannelPropertyValue'
+  import ChannelPropertyValue from '@/plugins/io-server/store/modules/io-server/ChannelPropertyValue'
 
   import {
     PROPERTY_TYPE_STATE,

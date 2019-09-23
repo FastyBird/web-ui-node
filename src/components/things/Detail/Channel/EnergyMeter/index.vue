@@ -36,8 +36,6 @@
 </template>
 
 <script>
-  import sockets from '@/mixins/channels.properties'
-
   const ThingsDetailChannelEnergyProperty = () => import('./Property')
 
   export default {
@@ -47,8 +45,6 @@
     components: {
       ThingsDetailChannelEnergyProperty,
     },
-
-    mixins: [sockets],
 
     props: {
 
@@ -107,7 +103,7 @@
           return
         }
 
-        this.sendCommand(
+        this.$ioServerChannelPropertySocket.createCommand(
           this.thing,
           this.channel,
           this.clearTotal.property,
@@ -116,7 +112,7 @@
           .then(result => {
             this.$wamp.call(result.topic, result.value)
               .then(cmdResult => {
-                this.clearCommand(
+                this.$ioServerChannelPropertySocket.clearCommand(
                   this.thing,
                   this.channel,
                   this.clearTotal.property,
@@ -140,7 +136,7 @@
        * @private
        */
       _commandFailed() {
-        this.clearCommand(
+        this.$ioServerChannelPropertySocket.clearCommand(
           this.thing,
           this.channel,
           this.clearTotal.property,

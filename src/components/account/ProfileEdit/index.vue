@@ -10,7 +10,7 @@
 
     <template slot="form">
       <fb-md-form-input
-        v-model="form.model.email_address"
+        v-model="form.model.emailAddress"
         v-validate="'required|email|checkEmail'"
         :data-vv-scope="form.scope"
         :data-vv-as="$t('field.emailAddress.title')"
@@ -33,7 +33,7 @@
       </fb-md-form-input>
 
       <fb-md-form-input
-        v-model="form.model.profile.details.first_name"
+        v-model="form.model.firstName"
         v-validate="'required'"
         :data-vv-scope="form.scope"
         :data-vv-as="$t('field.firstName.title')"
@@ -54,7 +54,7 @@
       </fb-md-form-input>
 
       <fb-md-form-input
-        v-model="form.model.profile.details.last_name"
+        v-model="form.model.lastName"
         v-validate="'required'"
         :data-vv-scope="form.scope"
         :data-vv-as="$t('field.lastName.title')"
@@ -75,7 +75,7 @@
       </fb-md-form-input>
 
       <fb-md-form-input
-        v-model="form.model.profile.details.middle_name"
+        v-model="form.model.middleName"
         :data-vv-scope="form.scope"
         :error="errors.first(form.scope + '.middle_name')"
         :has-error="errors.has(form.scope + '.middle_name')"
@@ -89,8 +89,6 @@
 </template>
 
 <script>
-  import Email from '@/store/modules/profile/Email'
-
   export default {
 
     name: 'ProfileEdit',
@@ -114,14 +112,10 @@
         form: {
           scope: 'account_profile_edit',
           model: {
-            email_address: '',
-            profile: {
-              details: {
-                first_name: '',
-                last_name: '',
-                middle_name: '',
-              },
-            },
+            emailAddress: '',
+            firstName: '',
+            lastName: '',
+            middleName: '',
           },
         },
       }
@@ -130,7 +124,7 @@
     computed: {
 
       primaryEmailAddress() {
-        const email = Email.query()
+        const email = this.$store.getters['entities/email/query']()
           .where('is_default', true)
           .first()
 
@@ -139,7 +133,7 @@
 
     },
 
-    created() {
+    mounted() {
       this._initModel()
 
       this.$validator.localize({
@@ -176,7 +170,7 @@
        * @returns {Object}
        */
       checkEmail(value) {
-        const emails = Email.query().all()
+        const emails = this.$store.getters['entities/email/all']()
 
         for (const email of emails) {
           if (email.address === value) {
@@ -187,9 +181,7 @@
         }
 
         return this.$store.dispatch('entities/email/validate', {
-          data: {
-            address: value,
-          },
+          address: value,
         }, {
           root: true,
         })
@@ -236,7 +228,9 @@
               const errorMessage = this.$t('messages.profileNotEdited')
 
               this.$store.dispatch('entities/profile/edit', {
-                data: this.form.model.profile,
+                first_name: this.form.model.firstName,
+                last_name: this.form.model.lastName,
+                middle_name: this.form.model.middleName,
               }, {
                 root: true,
               })
@@ -256,10 +250,9 @@
                 })
 
               // Email has been changed
-              if (this.form.model.email_address !== this.primaryEmailAddress) {
-                const storedEmail = Email
-                  .query()
-                  .where('address', this.form.model.email_address)
+              if (this.form.model.emailAddress !== this.primaryEmailAddress) {
+                const storedEmail = this.$store.getters['entities/email/query']()
+                  .where('address', this.form.model.emailAddress)
                   .first()
 
                 const emailErrorMessage = this.$t('messages.emailNotEdited')
@@ -267,14 +260,11 @@
                 if (storedEmail !== null) {
                   this.$store.dispatch('entities/email/edit', {
                     id: storedEmail.id,
-                    data: {
-                      is_default: true,
-                    },
+                    is_default: true,
                   }, {
                     root: true,
                   })
                     .catch(e => {
-                      console.log(e)
                       if (this._.get(e, 'exception', null) !== null) {
                         this.handleFormError(e.exception, emailErrorMessage)
                       } else {
@@ -290,15 +280,12 @@
                     })
                 } else {
                   this.$store.dispatch('entities/email/add', {
-                    data: {
-                      address: this.form.model.email_address,
-                      is_default: true,
-                    },
+                    address: this.form.model.emailAddress,
+                    is_default: true,
                   }, {
                     root: true,
                   })
                     .catch(e => {
-                      console.log(e)
                       if (this._.get(e, 'exception', null) !== null) {
                         this.handleFormError(e.exception, emailErrorMessage)
                       } else {
@@ -370,14 +357,10 @@
        */
       _initModel() {
         this.form.model = {
-          email_address: this.primaryEmailAddress,
-          profile: {
-            details: {
-              first_name: this.profile.details.first_name,
-              last_name: this.profile.details.last_name,
-              middle_name: this.profile.details.middle_name,
-            },
-          },
+          emailAddress: this.primaryEmailAddress,
+          firstName: this.profile.firstName,
+          lastName: this.profile.lastName,
+          middleName: this.profile.middleName,
         }
 
         this.errors.clear(this.form.scope)

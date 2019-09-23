@@ -74,10 +74,6 @@
   const PasswordEdit = () => import('@/components/account/PasswordEdit')
   const SecurityEdit = () => import('@/components/account/SecurityEdit')
 
-  import Account from '@/store/modules/profile/Account'
-  import Profile from '@/store/modules/profile/Profile'
-  import Thing from '@/store/modules/io-server/Thing'
-
   export default {
 
     name: 'App',
@@ -92,8 +88,6 @@
     data() {
       return {
         layout: 'div',
-        account: null,
-        profile: null,
         view: {
           accountEdit: {
             show: false,
@@ -135,7 +129,15 @@
       },
 
       things() {
-        return Thing.all()
+        return this.$store.getters['entities/thing/all']()
+      },
+
+      account() {
+        return this.$store.getters['entities/account/query']().first()
+      },
+
+      profile() {
+        return this.$store.getters['entities/profile/query']().first()
       },
 
     },
@@ -163,7 +165,7 @@
 
       // Check if user token is saved in local storage
       if (this.isSignedIn()) {
-        if (Account.query().count() === 0) {
+        if (this.account === null) {
           this.$store.dispatch('entities/account/fetch', null, {
             root: true,
           })
@@ -262,14 +264,6 @@
        * @private
        */
       _loadUserDetails() {
-        this.account = Account
-          .query()
-          .first()
-
-        this.profile = Profile
-          .query()
-          .first()
-
         if (this.profile !== null) {
           this.setThemeUsername({ username: this.profile.name })
           this.setThemeEmail({ email: this.profile.email })

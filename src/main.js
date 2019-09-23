@@ -5,7 +5,7 @@ import * as Integrations from '@sentry/integrations'
 
 if (process.env.NODE_ENV === 'production') {
   Sentry.init({
-    dsn: 'https://9751af78eef341b9880b38ee3d859be1@sentry.io/1507443',
+    dsn: process.env.VUE_APP_SENTRY_DNS,
     integrations: [new Integrations.Vue({ Vue, attachProps: true })],
     environment: (process.env.NODE_ENV === 'production') ? 'production' : 'development',
   })
@@ -29,6 +29,7 @@ import VueEventBus from './plugins/event.bus'
 import VueNProgress from './plugins/nprogress'
 import VueWamp from './plugins/wamp'
 import VueThingTranslate from './plugins/translate'
+import VueIOServer from './plugins/io-server'
 
 import { Validator, install as VeeValidate } from 'vee-validate/dist/vee-validate.minimal.esm.js'
 import { required, email, numeric, between } from 'vee-validate/dist/rules.esm.js'
@@ -160,13 +161,43 @@ Vue.prototype.$coreLinks = {
 const vuexStore = new Vuex.Store(store)
 
 Vue.use(VueWamp, {
-  wsuri: config.WAMP_SERVER_ADDRESS,
+  wsuri: process.env.VUE_APP_WS_SERVER,
   debug: true,
   store: vuexStore,
 })
 
 Vue.use(FastyBirdTheme, {
   store: vuexStore,
+})
+
+Vue.use(VueIOServer, {
+  store: vuexStore,
+  api: {
+    root: process.env.VUE_APP_API_ROOT,
+    key: process.env.VUE_APP_API_KEY,
+  },
+  accessToken: {
+    read: () => {
+      return Vue.cookie.get('token')
+    },
+    write: (token) => {
+      Vue.cookie.set('token', token)
+    },
+    clear: () => {
+      Vue.cookie.delete('token')
+    },
+  },
+  refreshToken: {
+    read: () => {
+      return Vue.cookie.get('refresh_token')
+    },
+    write: (token) => {
+      Vue.cookie.set('refresh_token', token)
+    },
+    clear: () => {
+      Vue.cookie.delete('refresh_token')
+    },
+  },
 })
 
 new Vue({

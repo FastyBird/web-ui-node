@@ -40,8 +40,8 @@
 </template>
 
 <script>
-  import ThingProperty from '@/store/modules/io-server/ThingProperty'
-  import Hardware from '@/store/modules/io-server/Hardware'
+  import ThingProperty from '@/plugins/io-server/store/modules/io-server/ThingProperty'
+  import Hardware from '@/plugins/io-server/store/modules/io-server/Hardware'
 
   export default {
 

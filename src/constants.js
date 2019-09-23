@@ -23,3 +23,5 @@ export const PROPERTY_TYPE_STATE = 'state'
 export const MANUFACTURER_GENERIC = 'generic'
 export const MANUFACTURER_FASTYBIRD = 'fastybird'
 export const MANUFACTURER_ITEAD = 'itead'
+
+export const HARDWARE_MODEL_CUSTOM = 'custom'

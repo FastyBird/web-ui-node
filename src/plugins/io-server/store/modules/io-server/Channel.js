@@ -37,7 +37,7 @@ export default class Channel extends Model {
     return this.title !== null ? this.title : this.name
   }
 
-  get formattedComment() {
-    return this.comment !== null && this.comment !== '' ? this.comment : null
+  get hasComment() {
+    return this.comment !== null && this.comment !== ''
   }
 }

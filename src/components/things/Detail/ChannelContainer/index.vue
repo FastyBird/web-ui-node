@@ -42,7 +42,7 @@
     CHANNEL_TYPE_LIGHT,
   } from '@/constants'
 
-  import Hardware from '@/store/modules/io-server/Hardware'
+  import Hardware from '@/plugins/io-server/store/modules/io-server/Hardware'
 
   export default {
 

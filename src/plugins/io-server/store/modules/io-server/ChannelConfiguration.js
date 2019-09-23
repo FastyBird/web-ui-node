@@ -1,5 +1,12 @@
 import { Model } from '@vuex-orm/core'
 
+import {
+  IO_SERVER_CHANNEL_CONFIGURATION_BOOLEAN,
+  IO_SERVER_CHANNEL_CONFIGURATION_NUMBER,
+  IO_SERVER_CHANNEL_CONFIGURATION_SELECT,
+  IO_SERVER_CHANNEL_CONFIGURATION_TEXT,
+} from './../../../api/types'
+
 export default class ChannelConfiguration extends Model {
   static entity = 'channel_configuration'
 
@@ -19,5 +26,21 @@ export default class ChannelConfiguration extends Model {
 
       relationshipNames: this.attr(null).nullable(),
     }
+  }
+
+  get isBoolean() {
+    return this.type === IO_SERVER_CHANNEL_CONFIGURATION_BOOLEAN
+  }
+
+  get isNumber() {
+    return this.type === IO_SERVER_CHANNEL_CONFIGURATION_NUMBER
+  }
+
+  get isSelect() {
+    return this.type === IO_SERVER_CHANNEL_CONFIGURATION_SELECT
+  }
+
+  get isText() {
+    return this.type === IO_SERVER_CHANNEL_CONFIGURATION_TEXT
   }
 }

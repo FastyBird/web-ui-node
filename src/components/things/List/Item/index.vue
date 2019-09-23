@@ -14,7 +14,7 @@
       </template>
 
       <template
-        v-if="thing.formattedComment !== null"
+        v-if="thing.hasComment"
         slot="sub-heading"
       >
         {{ thing.comment }}

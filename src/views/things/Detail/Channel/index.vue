@@ -26,8 +26,8 @@
 
   const ThingsDetailChannelLight = () => import('@/components/things/Detail/Channel/LightActor')
 
-  import Thing from '@/store/modules/io-server/Thing'
-  import Channel from '@/store/modules/io-server/Channel'
+  import Thing from '@/plugins/io-server/store/modules/io-server/Thing'
+  import Channel from '@/plugins/io-server/store/modules/io-server/Channel'
 
   import {
     CHANNEL_TYPE_LIGHT,

@@ -47,8 +47,8 @@
 
   const ThingsDetailChannelContainer = () => import('../../../ChannelContainer')
 
-  import ChannelPropertyValue from '@/store/modules/io-server/ChannelPropertyValue'
-  import Hardware from '@/store/modules/io-server/Hardware'
+  import ChannelPropertyValue from '@/plugins/io-server/store/modules/io-server/ChannelPropertyValue'
+  import Hardware from '@/plugins/io-server/store/modules/io-server/Hardware'
 
   export default {
 

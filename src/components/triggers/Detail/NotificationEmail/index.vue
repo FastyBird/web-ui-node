@@ -14,7 +14,7 @@
 </template>
 
 <script>
-  import Email from '@/store/modules/profile/Email'
+  import Email from '@/plugins/io-server/store/modules/profile/Email'
 
   export default {
 

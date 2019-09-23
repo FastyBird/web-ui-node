@@ -193,7 +193,7 @@
 
   import VueSlider from 'vue-slider-component'
 
-  import ChannelPropertyValue from '@/store/modules/io-server/ChannelPropertyValue'
+  import ChannelPropertyValue from '@/plugins/io-server/store/modules/io-server/ChannelPropertyValue'
 
   import {
     PROPERTY_TYPE_STATE,
@@ -379,7 +379,7 @@
         const payload = Object.assign({}, this.channelData)
         payload.rgb = setColor.toRgb()
 
-        this.sendCommand({
+        this.$ioServerChannelPropertySocket.createCommand({
           thingId: this.thing.id,
           channelId: this.channel.id,
           payload,

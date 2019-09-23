@@ -204,8 +204,8 @@
     timeout: 5000,
   })
 
-  import Thing from '@/store/modules/io-server/Thing'
-  import Channel from '@/store/modules/io-server/Channel'
+  import Thing from '@/plugins/io-server/store/modules/io-server/Thing'
+  import Channel from '@/plugins/io-server/store/modules/io-server/Channel'
 
   import ThingsSockets from '@/mixins/things.sockets'
 
@@ -564,11 +564,11 @@
        */
       detailSubHeading() {
         if (this.view.opened.type === this.view.detail.name) {
-          return this.viewThing.comment
+          return this.viewThing.hasComment ? this.viewThing.comment : null
         } else if (this.view.opened.type === this.view.settings.name) {
-          return this.viewThing.comment
+          return this.viewThing.hasComment ? this.viewThing.comment : null
         } else if (this.view.opened.type === this.view.channelSettings.name) {
-          return this.viewChannel.label
+          return this.$tChannel(this.viewThing, this.viewChannel)
         }
 
         return null

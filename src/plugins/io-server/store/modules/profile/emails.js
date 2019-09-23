@@ -1,12 +1,16 @@
 // JSON:API formatter
 import Jsona from 'jsona'
 
-import api from '@/api/server'
-import { USER_PROFILE_EMAIL } from '@/api/server/types'
+import api from './../../../api'
+import {
+  USER_PROFILE_EMAIL,
+} from './../../../api/types'
+import { ApiError } from './../../../api/errors'
 
-import { ApiError } from '@/helpers/errors'
-
-import { COMMON_CLEAR_SEMAPHORE, COMMON_SET_SEMAPHORE } from '../../types'
+import {
+  IO_SERVER_CLEAR_SEMAPHORE,
+  IO_SERVER_SET_SEMAPHORE,
+} from './../../types'
 
 import uuid from 'uuid'
 
@@ -34,66 +38,72 @@ export default {
   actions: {
 
     fetch({ state, commit }) {
+      if (state.semaphore.fetching.items) {
+        return Promise.reject(new Error('profile.emails.fetch.inProgress'))
+      }
+
       const account = Account.query().first()
 
       return new Promise((resolve, reject) => {
-        if (state.semaphore.fetching.items) {
-          reject(new Error('profile.emails.fetch.inProgress'))
-        } else {
-          commit(COMMON_SET_SEMAPHORE, {
-            type: 'list',
-          })
+        commit(IO_SERVER_SET_SEMAPHORE, {
+          type: 'list',
+        })
 
-          api.getEmails()
-            .then(result => {
-              const data = dataFormatter.deserialize(result.data)
+        api.getEmails()
+          .then(result => {
+            const data = dataFormatter.deserialize(result.data)
 
-              commit(COMMON_CLEAR_SEMAPHORE, {
-                type: 'list',
-              })
+            commit(IO_SERVER_CLEAR_SEMAPHORE, {
+              type: 'list',
+            })
 
-              for (const item of data) {
-                Email.insertOrUpdate({
-                  data: Object.assign(
-                    item,
-                    {
-                      account_id: account.id,
-                      account: {
-                        id: account.id,
-                        type: account.type,
-                      },
+            for (const item of data) {
+              Email.insertOrUpdate({
+                data: Object.assign(
+                  item,
+                  {
+                    account_id: account.id,
+                    account: {
+                      id: account.id,
+                      type: account.type,
                     },
-                  ),
-                })
-                  .catch(e => {
-                    reject(new ApiError(
-                      'profile.emails.fetch.failed',
-                      e,
-                      'Fetching account emails failed.',
-                    ))
-                  })
-              }
-
-              // Entities were successfully fetched from server
-              resolve()
-            })
-            .catch(e => {
-              commit(COMMON_CLEAR_SEMAPHORE, {
-                type: 'list',
+                  },
+                ),
               })
+                .catch(e => {
+                  reject(new ApiError(
+                    'profile.emails.fetch.failed',
+                    e,
+                    'Fetching account emails failed.',
+                  ))
+                })
+            }
 
-              reject(new ApiError(
-                'profile.emails.fetch.failed',
-                e,
-                'Fetching account emails failed.',
-              ))
+            // Entities were successfully fetched from server
+            resolve()
+          })
+          .catch(e => {
+            commit(IO_SERVER_CLEAR_SEMAPHORE, {
+              type: 'list',
             })
-        }
+
+            reject(new ApiError(
+              'profile.emails.fetch.failed',
+              e,
+              'Fetching account emails failed.',
+            ))
+          })
       })
     },
 
-    add({ commit, dispatch }, { data }) {
+    add({ commit, dispatch }, { address, is_default = false, is_private = false }) {
       const account = Account.query().first()
+
+      const data = {
+        address,
+        is_default,
+        is_private,
+      }
 
       return new Promise((resolve, reject) => {
         const id = uuid.v4()
@@ -106,7 +116,7 @@ export default {
           },
         }
 
-        Email.insertOrUpdate({
+        Email.insert({
           data: Object.assign(
             dataFormatter.deserialize(jsonData),
             {
@@ -126,29 +136,29 @@ export default {
             ))
           })
 
-        commit(COMMON_SET_SEMAPHORE, {
+        commit(IO_SERVER_SET_SEMAPHORE, {
           type: 'create',
           id,
         })
 
         api.createEmail(jsonData)
           .then(result => {
-            commit(COMMON_CLEAR_SEMAPHORE, {
+            const updatedData = dataFormatter.deserialize(result.data)
+
+            commit(IO_SERVER_CLEAR_SEMAPHORE, {
               type: 'create',
               id,
             })
 
-            Email.insertOrUpdate({
-              data: Object.assign(
-                dataFormatter.deserialize(result.data),
-                {
-                  account_id: account.id,
-                  account: {
-                    id: account.id,
-                    type: account.type,
-                  },
-                },
-              ),
+            updatedData.account_id = account.id
+            updatedData.account = {
+              id: account.id,
+              type: account.type,
+            }
+
+            Email.update({
+              where: id,
+              data: updatedData,
             })
               .then(() => {
                 // Refresh emails
@@ -167,6 +177,12 @@ export default {
                 resolve()
               })
               .catch(e => {
+                // Revert changes
+                Email.delete(id)
+                  .catch(() => {
+                    // Nothing to do here
+                  })
+
                 reject(new ApiError(
                   'profile.emails.create.failed',
                   e,
@@ -175,9 +191,13 @@ export default {
               })
           })
           .catch(e => {
+            // Revert changes
             Email.delete(id)
+              .catch(() => {
+                // Nothing to do here
+              })
 
-            commit(COMMON_CLEAR_SEMAPHORE, {
+            commit(IO_SERVER_CLEAR_SEMAPHORE, {
               type: 'create',
               id,
             })
@@ -191,9 +211,18 @@ export default {
       })
     },
 
-    edit({ commit, dispatch }, { id, data }) {
+    edit({ state, commit, dispatch }, { id, is_default = false, is_private = false }) {
+      if (state.semaphore.updating.indexOf(id) !== -1) {
+        return Promise.reject(new Error('profile.emails.update.inProgress'))
+      }
+
       const account = Account.query().first()
       const email = Email.find(id)
+
+      const data = {
+        is_default,
+        is_private,
+      }
 
       return new Promise((resolve, reject) => {
         const formattedData = {}
@@ -205,7 +234,8 @@ export default {
           stuff: formattedData,
         })
 
-        Email.insertOrUpdate({
+        Email.update({
+          where: email.id,
           data: dataFormatter.deserialize(jsonData),
         })
           .catch(e => {
@@ -216,29 +246,29 @@ export default {
             ))
           })
 
-        commit(COMMON_SET_SEMAPHORE, {
+        commit(IO_SERVER_SET_SEMAPHORE, {
           type: 'edit',
           id,
         })
 
         api.editEmail(id, jsonData)
           .then(result => {
-            commit(COMMON_CLEAR_SEMAPHORE, {
+            const updatedData = dataFormatter.deserialize(result.data)
+
+            commit(IO_SERVER_CLEAR_SEMAPHORE, {
               type: 'edit',
               id,
             })
 
-            Email.insertOrUpdate({
-              data: Object.assign(
-                dataFormatter.deserialize(result.data),
-                {
-                  account_id: account.id,
-                  account: {
-                    id: account.id,
-                    type: account.type,
-                  },
-                },
-              ),
+            updatedData.account_id = account.id
+            updatedData.account = {
+              id: account.id,
+              type: account.type,
+            }
+
+            Email.update({
+              where: email.id,
+              data: updatedData,
             })
               .then(() => {
                 // Refresh emails
@@ -253,10 +283,19 @@ export default {
                     ))
                   })
 
-                // Entity was successfully created in database
+                // Entity was successfully updated in database
                 resolve()
               })
               .catch(e => {
+                // Revert changes
+                Email.update({
+                  where: email.id,
+                  data: email,
+                })
+                  .catch(() => {
+                    // Nothing to do here
+                  })
+
                 reject(new ApiError(
                   'profile.emails.edit.failed',
                   e,
@@ -265,11 +304,16 @@ export default {
               })
           })
           .catch(e => {
-            Email.insertOrUpdate({
+            // Revert changes
+            Email.update({
+              where: email.id,
               data: email,
             })
+              .catch(() => {
+                // Nothing to do here
+              })
 
-            commit(COMMON_CLEAR_SEMAPHORE, {
+            commit(IO_SERVER_CLEAR_SEMAPHORE, {
               type: 'edit',
               id,
             })
@@ -283,7 +327,11 @@ export default {
       })
     },
 
-    validate({}, { data }) {
+    validate({}, { address }) {
+      const data = {
+        address,
+      }
+
       return new Promise((resolve, reject) => {
         const formattedData = {}
 
@@ -297,7 +345,7 @@ export default {
 
         api.validateEmail(jsonData)
           .then(() => {
-            // Entity was successfully created in database
+            // Validation was successful
             resolve()
           })
           .catch(e => {
@@ -329,7 +377,7 @@ export default {
      * @param {String} action.type
      * @param {String} action.id
      */
-    [COMMON_SET_SEMAPHORE](state, action) {
+    [IO_SERVER_SET_SEMAPHORE](state, action) {
       switch (action.type) {
         case 'list':
           state.semaphore.fetching.items = true
@@ -368,7 +416,7 @@ export default {
      * @param {String} action.type
      * @param {String} action.id
      */
-    [COMMON_CLEAR_SEMAPHORE](state, action) {
+    [IO_SERVER_CLEAR_SEMAPHORE](state, action) {
       switch (action.type) {
         case 'list':
           state.semaphore.fetching.items = false

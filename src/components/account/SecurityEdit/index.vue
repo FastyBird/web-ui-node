@@ -104,8 +104,6 @@
 </template>
 
 <script>
-  import SecurityQuestion from '@/store/modules/profile/SecurityQuestion'
-
   export default {
 
     name: 'SecurityEdit',
@@ -187,12 +185,12 @@
     computed: {
 
       question() {
-        return SecurityQuestion.query().first()
+        return this.$store.getters['entities/security_question/query']().first()
       },
 
     },
 
-    created() {
+    mounted() {
       this._initModel()
 
       this.$validator.localize({
@@ -236,9 +234,7 @@
        */
       checkCurrentAnswer(value) {
         return this.$store.dispatch('entities/security_question/validate', {
-          data: {
-            current_answer: value,
-          },
+          answer: value,
         }, {
           root: true,
         })
@@ -284,19 +280,14 @@
             if (result) {
               const errorMessage = this.$t('messages.profileNotEdited')
 
-              const data = {
-                question: this.form.model.question === 'custom' ? this.form.model.otherQuestion : this.form.model.question,
-                is_custom: this.form.model.question === 'custom',
-                answer: this.form.model.answer,
-                locking_notice: this.form.model.lockingNotice,
-              }
-
               if (this.question !== null) {
-                data.current_answer = this.form.model.currentAnswer
-
                 this.$store.dispatch('entities/security_question/edit', {
                   id: this.question.id,
-                  data,
+                  current_answer: this.form.model.currentAnswer,
+                  question: this.form.model.question === 'custom' ? this.form.model.otherQuestion : this.form.model.question,
+                  is_custom: this.form.model.question === 'custom',
+                  answer: this.form.model.answer,
+                  locking_notice: this.form.model.lockingNotice,
                 }, {
                   root: true,
                 })
@@ -325,7 +316,10 @@
                 })
               } else {
                 this.$store.dispatch('entities/security_question/add', {
-                  data,
+                  question: this.form.model.question === 'custom' ? this.form.model.otherQuestion : this.form.model.question,
+                  is_custom: this.form.model.question === 'custom',
+                  answer: this.form.model.answer,
+                  locking_notice: this.form.model.lockingNotice,
                 }, {
                   root: true,
                 })

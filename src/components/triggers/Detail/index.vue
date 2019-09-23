@@ -187,7 +187,7 @@
     TRIGGERS_CONDITION_THING_PROPERTY,
     TRIGGERS_CONDITION_CHANNEL_PROPERTY,
 
-  } from '@/api/server/types'
+  } from '@/plugins/io-server/api/types'
 
   const TriggersDetailConditionChannelProperty = () => import('./ConditionChannelProperty')
   const TriggersDetailConditionThingProperty = () => import('./ConditionThingProperty')

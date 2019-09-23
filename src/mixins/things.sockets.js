@@ -1,10 +1,10 @@
-import Thing from '@/store/modules/io-server/Thing'
-import ThingProperty from '@/store/modules/io-server/ThingProperty'
-import ThingConfiguration from '@/store/modules/io-server/ThingConfiguration'
-import ChannelPropertyValue from '@/store/modules/io-server/ChannelPropertyValue'
-import ChannelConfigurationValue from '@/store/modules/io-server/ChannelConfigurationValue'
+import Thing from '@/plugins/io-server/store/modules/io-server/Thing'
+import ThingProperty from '@/plugins/io-server/store/modules/io-server/ThingProperty'
+import ThingConfiguration from '@/plugins/io-server/store/modules/io-server/ThingConfiguration'
+import ChannelPropertyValue from '@/plugins/io-server/store/modules/io-server/ChannelPropertyValue'
+import ChannelConfigurationValue from '@/plugins/io-server/store/modules/io-server/ChannelConfigurationValue'
 
-import { WAMP_TOPIC_THING } from '@/config'
+import { IO_SOCKET_TOPIC_THING } from '@/plugins/io-server/config'
 
 const mixin = {
 
@@ -18,25 +18,26 @@ const mixin = {
      * @private
      */
     subscribeToThingExchange(id) {
-      const topic = WAMP_TOPIC_THING.replace('{thing_id}', id)
+      const topic = IO_SOCKET_TOPIC_THING.replace('{thing_id}', id)
 
-      return this.$wamp.subscribe(topic, (data) => {
-        const body = JSON.parse(data)
+      return this.$wamp
+        .subscribe(topic, (data) => {
+          const body = JSON.parse(data)
 
-        if (body.hasOwnProperty('thing')) {
-          Thing.update({
-            where: body.thing.id,
-            data: {
-              exchange_data_ok: true,
-            },
-          })
+          if (body.hasOwnProperty('thing')) {
+            Thing.update({
+              where: body.thing.id,
+              data: {
+                exchange_data_ok: true,
+              },
+            })
 
-          this._parseThingExchangeData(
-            body.thing,
-            body.hasOwnProperty('channels') ? body.channels : [],
-          )
-        }
-      })
+            this._parseThingExchangeData(
+              body.thing,
+              body.hasOwnProperty('channels') ? body.channels : [],
+            )
+          }
+        })
         .then(() => {
           Thing.update({
             where: id,
@@ -55,9 +56,10 @@ const mixin = {
      * @private
      */
     unsubscribeFromThingExchange(id) {
-      const topic = WAMP_TOPIC_THING.replace('{thing_id}', id)
+      const topic = IO_SOCKET_TOPIC_THING.replace('{thing_id}', id)
 
-      return this.$wamp.unsubscribe(topic)
+      return this.$wamp
+        .unsubscribe(topic)
         .then(() => {
           Thing.update({
             where: id,

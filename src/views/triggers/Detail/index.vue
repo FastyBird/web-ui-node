@@ -28,7 +28,7 @@
 
   const TriggersDetail = () => import('@/components/triggers/Detail')
 
-  import Trigger from '@/store/modules/triggers/Trigger'
+  import Trigger from '@/plugins/io-server/store/modules/triggers/Trigger'
 
   export default {
 

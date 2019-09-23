@@ -14,8 +14,6 @@
 </template>
 
 <script>
-  import sockets from '@/mixins/channels.properties'
-
   const ThingsDetailChannelEnvironmentProperty = () => import('./Property')
 
   export default {
@@ -25,8 +23,6 @@
     components: {
       ThingsDetailChannelEnvironmentProperty,
     },
-
-    mixins: [sockets],
 
     props: {
 

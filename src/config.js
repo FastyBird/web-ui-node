@@ -2,21 +2,10 @@ import {
   HOME_LINK,
   THINGS_LIST_LINK,
   TRIGGERS_LIST_LINK,
-  SCHEDULES_LIST_LINK,
 } from '@/router'
 
 export const AUTHOR_NAME = 'FastyBird s.r.o.'
 export const AUTHOR_WEBSITE = 'https://www.fastybird.com'
-
-export const APPLICATION_WEBSITE = process.env.VUE_APP_APPLICATION_WEBSITE
-
-export const API_ROOT = process.env.VUE_APP_API_ROOT
-export const API_KEY = process.env.VUE_APP_API_KEY
-
-export const WAMP_SERVER_ADDRESS = process.env.VUE_APP_WS_SERVER
-export const WAMP_TOPIC_THING = '/io/thing/{thing_id}'
-export const WAMP_TOPIC_THING_CHANNEL = '/io/thing/{thing_id}/channel/{channel_id}'
-export const WAMP_TOPIC_THING_CHANNEL_PROPERTY = '/io/thing/{thing_id}/channel/{channel_id}/property/{property_id}'
 
 export const MQTT_SERVER_ADDRESS = process.env.VUE_APP_MQTT_SERVER_ADDRESS
 export const MQTT_SERVER_PORT = '1883'
@@ -71,15 +60,6 @@ export const MENU_ITEMS = [
           icon: 'sliders-h',
           label: 'application.menu.triggers',
           type: 'triggers',
-        },
-      }, {
-        path: SCHEDULES_LIST_LINK,
-        name: 'Schedules',
-        meta: {
-          auth: true,
-          icon: 'calendar',
-          label: 'application.menu.schedules',
-          type: 'schedules',
         },
       },
     ],

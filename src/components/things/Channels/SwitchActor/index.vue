@@ -34,11 +34,9 @@
 </template>
 
 <script>
-  import sockets from '@/mixins/channels.properties'
-
   import SwitchElement from '@/components/layout/SwitchElement'
 
-  import ChannelPropertyValue from '@/store/modules/io-server/ChannelPropertyValue'
+  import ChannelPropertyValue from '@/plugins/io-server/store/modules/io-server/ChannelPropertyValue'
 
   import {
     DATA_TYPE_BOOLEAN,
@@ -54,8 +52,6 @@
     components: {
       SwitchElement,
     },
-
-    mixins: [sockets],
 
     props: {
 
@@ -163,7 +159,7 @@
           payload = this.propertyValue ? 'off' : 'on'
         }
 
-        this.sendCommand(
+        this.$ioServerChannelPropertySocket.createCommand(
           this.thing,
           this.channel,
           this.property,
@@ -172,7 +168,7 @@
           .then(result => {
             this.$wamp.call(result.topic, result.value)
               .then(cmdResult => {
-                this.clearCommand(
+                this.$ioServerChannelPropertySocket.clearCommand(
                   this.thing,
                   this.channel,
                   this.property,
@@ -194,7 +190,7 @@
        * @private
        */
       _commandFailed() {
-        this.clearCommand(
+        this.$ioServerChannelPropertySocket.clearCommand(
           this.thing,
           this.channel,
           this.property,

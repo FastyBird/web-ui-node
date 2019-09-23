@@ -26,18 +26,18 @@
         {{ condition.operands }}
       </small>
     </template>
-    <template v-if="isAnalogSensor">
-      <small
-        v-if="isAbove"
-        class="d-b"
-      >
-        {{ $t('texts.valueAbove', {value: `${value} ${units}`}) }}
-      </small>
-      <small
-        v-else-if="isBelow"
-        class="d-b"
-      >
-        {{ $t('texts.valueBelow', {value: `${value} ${units}`}) }}
+    <template v-if="isSensor">
+      <small class="d-b">
+        {{ $tChannelProperty(thing, channel, property) }}:
+        <template v-if="condition.operator === 'above'">
+          {{ $t('texts.valueAbove', {value: `${value} ${units}`}) }}
+        </template>
+        <template v-else-if="condition.operator === 'below'">
+          {{ $t('texts.valueBelow', {value: `${value} ${units}`}) }}
+        </template>
+        <template v-else>
+          {{ $t('texts.valueEqual', {value: `${value} ${units}`}) }}
+        </template>
       </small>
     </template>
   </div>
@@ -52,12 +52,14 @@
 <script>
   import number from '@/helpers/number'
 
-  import Channel from '@/store/modules/io-server/Channel'
-  import ChannelProperty from '@/store/modules/io-server/ChannelProperty'
-  import Thing from '@/store/modules/io-server/Thing'
+  import Channel from '@/plugins/io-server/store/modules/io-server/Channel'
+  import ChannelProperty from '@/plugins/io-server/store/modules/io-server/ChannelProperty'
+  import Thing from '@/plugins/io-server/store/modules/io-server/Thing'
 
   import {
-    CHANNEL_TYPE_ANALOG_SENSOR,
+    DATA_TYPE_INTEGER,
+    DATA_TYPE_FLOAT,
+
     CHANNEL_TYPE_SWITCH,
     CHANNEL_TYPE_BUTTON,
   } from '@/constants'
@@ -137,26 +139,8 @@
        *
        * @returns {Boolean}
        */
-      isAnalogSensor() {
-        return this.channel.structure_type === CHANNEL_TYPE_ANALOG_SENSOR
-      },
-
-      /**
-       * For analog sensor channel check above action condition
-       *
-       * @returns {Boolean}
-       */
-      isAbove() {
-        return this.isAnalogSensor && this.condition.operator === 'above'
-      },
-
-      /**
-       * For analog sensor channel check below action condition
-       *
-       * @returns {Boolean}
-       */
-      isBelow() {
-        return this.isAnalogSensor && this.condition.operator === 'below'
+      isSensor() {
+        return this.property.data_type === DATA_TYPE_FLOAT || this.property.data_type === DATA_TYPE_INTEGER
       },
 
       /**
@@ -165,11 +149,7 @@
        * @returns {(String|null)}
        */
       value() {
-        if (!this.isAnalogSensor) {
-          return null
-        }
-
-        return number.format(this.condition.value, 2, ',', ' ')
+        return number.format(this.condition.operands[0], 2, ',', ' ')
       },
 
       /**
@@ -178,11 +158,7 @@
        * @returns {(String|null)}
        */
       units() {
-        if (!this.isAnalogSensor) {
-          return null
-        }
-
-        return this._.get(this.property, 'units',null)
+        return this._.get(this.property, 'units', null)
       },
 
     },

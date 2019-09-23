@@ -37,8 +37,8 @@
     timeout: 5000,
   })
 
-  import Thing from '@/store/modules/io-server/Thing'
-  import Channel from '@/store/modules/io-server/Channel'
+  import Thing from '@/plugins/io-server/store/modules/io-server/Thing'
+  import Channel from '@/plugins/io-server/store/modules/io-server/Channel'
 
   import ThingsSockets from '@/mixins/things.sockets'
 

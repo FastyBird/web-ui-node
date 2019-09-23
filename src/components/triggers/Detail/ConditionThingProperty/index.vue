@@ -27,8 +27,8 @@
 </template>
 
 <script>
-  import Thing from '@/store/modules/io-server/Thing'
-  import ThingProperty from '@/store/modules/io-server/ThingProperty'
+  import Thing from '@/plugins/io-server/store/modules/io-server/Thing'
+  import ThingProperty from '@/plugins/io-server/store/modules/io-server/ThingProperty'
 
   export default {
 

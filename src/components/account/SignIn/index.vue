@@ -60,17 +60,9 @@
 </template>
 
 <script>
-  // JSON:API formatter
-  import Jsona from 'jsona'
-
   import { HOME_LINK, ACCOUNT_SIGN_IN_LINK, ACCOUNT_RESET_PASSWORD_LINK } from '@/router'
 
-  import api from '@/api/server'
-  import { USER_PROFILE_IDENTITY, USER_PROFILE_SESSION } from '@/api/server/types'
-
   const SignHeader = () => import('@/components/account/SignHeader')
-
-  const dataFormatter = new Jsona()
 
   export default {
 
@@ -134,15 +126,10 @@
        * @returns {Object}
        */
       checkUid(value) {
-        return api.validateIdentityUid({
-          data: {
-            type: USER_PROFILE_IDENTITY,
-            attributes: {
-              credentials: {
-                uid: value,
-              },
-            },
-          },
+        return this.$store.dispatch('entities/account/validateUid', {
+          uid: value,
+        }, {
+          root: true,
         })
           .then(() => {
             return {
@@ -184,36 +171,24 @@
 
               this.$bus.$emit('wait-sign_in', true)
 
-              api.createSession({
-                data: {
-                  type: USER_PROFILE_SESSION,
-                  attributes: this.form.model.credentials,
-                },
+              this.$store.dispatch('entities/account/createSession', {
+                uid: this.form.model.credentials.uid,
+                password: this.form.model.credentials.password,
+              }, {
+                root: true,
               })
-                .then(createResult => {
-                  const session = dataFormatter.deserialize(createResult.data)
-
+                .then(tokens => {
                   if (this.form.model.persistent) {
-                    this.$cookie.set('token', session.token, { expires: '30D' })
-                    this.$cookie.set('refresh_token', session.refresh, { expires: '30D' })
+                    this.$cookie.set('token', tokens.token, { expires: '30D' })
+                    this.$cookie.set('refresh_token', tokens.refresh, { expires: '30D' })
                   } else {
-                    this.$cookie.set('token', session.token)
-                    this.$cookie.set('refresh_token', session.refresh)
+                    this.$cookie.set('token', tokens.token)
+                    this.$cookie.set('refresh_token', tokens.refresh)
                   }
 
-                  this.$store.dispatch('entities/account/fetch', null, {
-                    root: true,
-                  })
-                    .then(() => {
-                      this.$bus.$emit('signIn', true)
+                  this.$bus.$emit('signIn', true)
 
-                      this.$router.push(HOME_LINK)
-                    })
-                    .catch(() => {
-                      this.$bus.$emit('wait-sign_in', false)
-
-                      this.$router.push(ACCOUNT_SIGN_IN_LINK)
-                    })
+                  this.$router.push(HOME_LINK)
                 })
                 .catch(e => {
                   this.$bus.$emit('wait-sign_in', false)
@@ -232,6 +207,8 @@
                       },
                     })
                   }
+
+                  this.$router.push(ACCOUNT_SIGN_IN_LINK)
                 })
             } else {
               this.$toasted.info(this.$t('application.messages.fixAllFormErrors'), {

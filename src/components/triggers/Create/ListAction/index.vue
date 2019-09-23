@@ -26,9 +26,9 @@
 </template>
 
 <script>
-  import Thing from '@/store/modules/io-server/Thing'
-  import Channel from '@/store/modules/io-server/Channel'
-  import ChannelProperty from '@/store/modules/io-server/ChannelProperty'
+  import Thing from '@/plugins/io-server/store/modules/io-server/Thing'
+  import Channel from '@/plugins/io-server/store/modules/io-server/Channel'
+  import ChannelProperty from '@/plugins/io-server/store/modules/io-server/ChannelProperty'
 
   export default {
 

@@ -3,12 +3,15 @@ import Jsona from 'jsona'
 import cloneDeep from 'lodash/cloneDeep'
 import uuid from 'uuid'
 
-import api from '@/api/server'
-import { IO_SERVER_THING_MACHINE } from '@/api/server/types'
+import api from './../../../api'
+import { IO_SERVER_THING_MACHINE } from './../../../api/types'
 
-import { ApiError } from '@/helpers/errors'
+import { ApiError } from '@/plugins/io-server/api/errors'
 
-import { COMMON_CLEAR_SEMAPHORE, COMMON_SET_SEMAPHORE } from '../../types'
+import {
+  IO_SERVER_CLEAR_SEMAPHORE,
+  IO_SERVER_SET_SEMAPHORE,
+} from './../../types'
 
 import Thing from './Thing'
 import Credentials from './Credentials'
@@ -157,7 +160,7 @@ export default {
         if (state.semaphore.fetching.item.indexOf(id) !== -1) {
           resolve(false)
         } else {
-          commit(COMMON_SET_SEMAPHORE, {
+          commit(IO_SERVER_SET_SEMAPHORE, {
             type: 'detail',
             id,
           })
@@ -175,7 +178,7 @@ export default {
                     root: true,
                   })
                     .then(() => {
-                      commit(COMMON_CLEAR_SEMAPHORE, {
+                      commit(IO_SERVER_CLEAR_SEMAPHORE, {
                         type: 'detail',
                         id,
                       })
@@ -200,7 +203,7 @@ export default {
               resolve(true)
             })
             .catch(e => {
-              commit(COMMON_CLEAR_SEMAPHORE, {
+              commit(IO_SERVER_CLEAR_SEMAPHORE, {
                 type: 'detail',
                 id,
               })
@@ -220,7 +223,7 @@ export default {
         if (state.semaphore.fetching.items) {
           resolve(false)
         } else {
-          commit(COMMON_SET_SEMAPHORE, {
+          commit(IO_SERVER_SET_SEMAPHORE, {
             type: 'list',
           })
 
@@ -253,7 +256,7 @@ export default {
                         })
                     })
 
-                  commit(COMMON_CLEAR_SEMAPHORE, {
+                  commit(IO_SERVER_CLEAR_SEMAPHORE, {
                     type: 'list',
                   })
                 })
@@ -269,7 +272,7 @@ export default {
               resolve(true)
             })
             .catch(e => {
-              commit(COMMON_CLEAR_SEMAPHORE, {
+              commit(IO_SERVER_CLEAR_SEMAPHORE, {
                 type: 'list',
               })
 
@@ -306,14 +309,14 @@ export default {
             ))
           })
 
-        commit(COMMON_SET_SEMAPHORE, {
+        commit(IO_SERVER_SET_SEMAPHORE, {
           type: 'create',
           id,
         })
 
         api.createThing(jsonData)
           .then(result => {
-            commit(COMMON_CLEAR_SEMAPHORE, {
+            commit(IO_SERVER_CLEAR_SEMAPHORE, {
               type: 'create',
               id,
             })
@@ -336,7 +339,7 @@ export default {
           .catch(e => {
             Thing.delete(id)
 
-            commit(COMMON_CLEAR_SEMAPHORE, {
+            commit(IO_SERVER_CLEAR_SEMAPHORE, {
               type: 'create',
               id,
             })
@@ -392,14 +395,14 @@ export default {
             ))
           })
 
-        commit(COMMON_SET_SEMAPHORE, {
+        commit(IO_SERVER_SET_SEMAPHORE, {
           type: 'edit',
           id,
         })
 
         api.editThing(id, jsonData)
           .then(result => {
-            commit(COMMON_CLEAR_SEMAPHORE, {
+            commit(IO_SERVER_CLEAR_SEMAPHORE, {
               type: 'edit',
               id,
             })
@@ -424,7 +427,7 @@ export default {
               data: thing,
             })
 
-            commit(COMMON_CLEAR_SEMAPHORE, {
+            commit(IO_SERVER_CLEAR_SEMAPHORE, {
               type: 'edit',
               id,
             })
@@ -442,7 +445,7 @@ export default {
       const thing = Thing.find(id)
 
       return new Promise((resolve, reject) => {
-        commit(COMMON_SET_SEMAPHORE, {
+        commit(IO_SERVER_SET_SEMAPHORE, {
           type: 'delete',
           id,
         })
@@ -454,7 +457,7 @@ export default {
 
         api.removeThing(id)
           .then(() => {
-            commit(COMMON_CLEAR_SEMAPHORE, {
+            commit(IO_SERVER_CLEAR_SEMAPHORE, {
               type: 'delete',
               id,
             })
@@ -463,7 +466,7 @@ export default {
             resolve()
           })
           .catch(e => {
-            commit(COMMON_CLEAR_SEMAPHORE, {
+            commit(IO_SERVER_CLEAR_SEMAPHORE, {
               type: 'delete',
               id,
             })
@@ -510,7 +513,7 @@ export default {
      * @param {String} action.type
      * @param {String} action.id
      */
-    [COMMON_SET_SEMAPHORE](state, action) {
+    [IO_SERVER_SET_SEMAPHORE](state, action) {
       switch (action.type) {
         case 'list':
           state.semaphore.fetching.items = true
@@ -551,7 +554,7 @@ export default {
      * @param {String} action.type
      * @param {String} action.id
      */
-    [COMMON_CLEAR_SEMAPHORE](state, action) {
+    [IO_SERVER_CLEAR_SEMAPHORE](state, action) {
       switch (action.type) {
         case 'list':
           state.semaphore.fetching.items = false

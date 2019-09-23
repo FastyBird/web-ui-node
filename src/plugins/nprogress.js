@@ -91,6 +91,9 @@ function plugin(Vue, opt) {
     },
   })
 
+  /* eslint-disable-next-line */
+  Vue.nprogress = _nprogress
+
   Object.defineProperties(Vue.prototype, {
     $nprogress: {
       get() {

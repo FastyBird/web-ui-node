@@ -13,7 +13,7 @@
     <template slot="form">
       <template v-for="(parameter, index) in parameters">
         <fb-md-form-input
-          v-if="parameter.type === form.types.number"
+          v-if="parameter.isNumber"
           :key="index"
           v-model="form.model[parameter.name]"
           v-validate="`required|numeric|between:${parameter.min},${parameter.max}`"
@@ -39,7 +39,7 @@
         </fb-md-form-input>
 
         <fb-md-form-input
-          v-if="parameter.type === form.types.text"
+          v-if="parameter.isText"
           :key="index"
           v-model="form.model[parameter.name]"
           v-validate="'required'"
@@ -63,7 +63,7 @@
         </fb-md-form-input>
 
         <fb-md-form-select
-          v-if="parameter.type === form.types.select"
+          v-if="parameter.isSelect"
           :key="index"
           v-model="form.model[parameter.name]"
           :items="getParameterItems(parameter)"
@@ -91,19 +91,15 @@
 
 <script>
   import {
-    IO_SERVER_THING_CONFIGURATION_NUMBER,
-    IO_SERVER_THING_CONFIGURATION_SELECT,
-    IO_SERVER_THING_CONFIGURATION_TEXT,
-  } from '@/api/server/types'
-
-  import {
     MANUFACTURER_GENERIC,
+
+    HARDWARE_MODEL_CUSTOM,
   } from '@/constants'
 
-  import ThingConfiguration from '@/store/modules/io-server/ThingConfiguration'
-  import Hardware from '@/store/modules/io-server/Hardware'
+  import ThingConfiguration from '@/plugins/io-server/store/modules/io-server/ThingConfiguration'
+  import Hardware from '@/plugins/io-server/store/modules/io-server/Hardware'
 
-  import { WAMP_TOPIC_THING } from '@/config'
+  import { IO_SOCKET_TOPIC_THING } from '@/plugins/io-server/config'
 
   export default {
 
@@ -128,11 +124,6 @@
         form: {
           scope: 'io_server_thing_edit_energy_calibration',
           model: [],
-          types: {
-            number: IO_SERVER_THING_CONFIGURATION_NUMBER,
-            select: IO_SERVER_THING_CONFIGURATION_SELECT,
-            text: IO_SERVER_THING_CONFIGURATION_TEXT,
-          },
         },
       }
     },
@@ -205,7 +196,7 @@
        * @returns {String}
        */
       translateLabel(parameter) {
-        if (this._.get(this.hardware, 'model', null) === MANUFACTURER_GENERIC) {
+        if (this._.get(this.hardware, 'model', HARDWARE_MODEL_CUSTOM) === HARDWARE_MODEL_CUSTOM) {
           if (parameter.title !== null) {
             return parameter.title
           }
@@ -226,7 +217,7 @@
        * @returns {(String|null)}
        */
       translateDescription(parameter) {
-        if (this._.get(this.hardware, 'model', null) === MANUFACTURER_GENERIC) {
+        if (this._.get(this.hardware, 'model', HARDWARE_MODEL_CUSTOM) === HARDWARE_MODEL_CUSTOM) {
           if (parameter.description !== null) {
             return parameter.description
           }
@@ -272,7 +263,7 @@
         this.$validator.validateAll(this.form.scope)
           .then(result => {
             if (result) {
-              let topic = WAMP_TOPIC_THING
+              let topic = IO_SOCKET_TOPIC_THING
               topic = topic.replace('{thing_id}', this.thing.id)
 
               const data = {}

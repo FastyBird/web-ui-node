@@ -1,12 +1,15 @@
 // JSON:API formatter
 import Jsona from 'jsona'
 
-import api from '@/api/server'
-import { USER_PROFILE_SECURITY_QUESTION } from '@/api/server/types'
+import api from './../../../api'
+import { USER_PROFILE_SECURITY_QUESTION } from './../../../api/types'
 
-import { ApiError } from '@/helpers/errors'
+import { ApiError } from '@/plugins/io-server/api/errors'
 
-import { COMMON_CLEAR_SEMAPHORE, COMMON_SET_SEMAPHORE } from '../../types'
+import {
+  IO_SERVER_CLEAR_SEMAPHORE,
+  IO_SERVER_SET_SEMAPHORE,
+} from './../../types'
 
 import uuid from 'uuid'
 
@@ -29,8 +32,15 @@ export default {
 
   actions: {
 
-    add({ commit }, { data }) {
+    add({ commit }, { question, is_custom = false, answer, locking_notice = false }) {
       const account = Account.query().first()
+
+      const data = {
+        question,
+        is_custom,
+        answer,
+        locking_notice,
+      }
 
       return new Promise((resolve, reject) => {
         const id = uuid.v4()
@@ -43,7 +53,7 @@ export default {
           },
         }
 
-        SecurityQuestion.insertOrUpdate({
+        SecurityQuestion.insert({
           data: Object.assign(
             dataFormatter.deserialize(jsonData),
             {
@@ -63,35 +73,41 @@ export default {
             ))
           })
 
-        commit(COMMON_SET_SEMAPHORE, {
+        commit(IO_SERVER_SET_SEMAPHORE, {
           type: 'create',
           id,
         })
 
         api.createSecurityQuestion(jsonData)
           .then(result => {
-            commit(COMMON_CLEAR_SEMAPHORE, {
+            const updatedData = dataFormatter.deserialize(result.data)
+
+            commit(IO_SERVER_CLEAR_SEMAPHORE, {
               type: 'create',
               id,
             })
 
-            SecurityQuestion.insertOrUpdate({
-              data: Object.assign(
-                dataFormatter.deserialize(result.data),
-                {
-                  account_id: account.id,
-                  account: {
-                    id: account.id,
-                    type: account.type,
-                  },
-                },
-              ),
+            updatedData.account_id = account.id
+            updatedData.account = {
+              id: account.id,
+              type: account.type,
+            }
+
+            SecurityQuestion.update({
+              where: id,
+              data: updatedData,
             })
               .then(() => {
                 // Entity was successfully created in database
                 resolve()
               })
               .catch(e => {
+                // Revert changes
+                SecurityQuestion.delete(id)
+                  .catch(() => {
+                    // Nothing to do here
+                  })
+
                 reject(new ApiError(
                   'profile.security_question.create.failed',
                   e,
@@ -100,9 +116,13 @@ export default {
               })
           })
           .catch(e => {
+            // Revert changes
             SecurityQuestion.delete(id)
+              .catch(() => {
+                // Nothing to do here
+              })
 
-            commit(COMMON_CLEAR_SEMAPHORE, {
+            commit(IO_SERVER_CLEAR_SEMAPHORE, {
               type: 'create',
               id,
             })
@@ -116,21 +136,34 @@ export default {
       })
     },
 
-    edit({ commit }, { id, data }) {
+    edit({ state, commit }, { id, current_answer, question, is_custom = false, answer, locking_notice = false }) {
+      if (state.semaphore.updating) {
+        return Promise.reject(new Error('profile.security_question.update.inProgress'))
+      }
+
       const account = Account.query().first()
-      const question = SecurityQuestion.find(id)
+      const securityQuestion = SecurityQuestion.find(id)
+
+      const data = {
+        current_answer,
+        question,
+        is_custom,
+        answer,
+        locking_notice,
+      }
 
       return new Promise((resolve, reject) => {
         const formattedData = {}
 
-        Object.assign(formattedData, question)
+        Object.assign(formattedData, securityQuestion)
         Object.assign(formattedData, data)
 
         const jsonData = dataFormatter.serialize({
           stuff: formattedData,
         })
 
-        SecurityQuestion.insertOrUpdate({
+        SecurityQuestion.update({
+          where: securityQuestion.id,
           data: dataFormatter.deserialize(jsonData),
         })
           .catch(e => {
@@ -141,35 +174,44 @@ export default {
             ))
           })
 
-        commit(COMMON_SET_SEMAPHORE, {
+        commit(IO_SERVER_SET_SEMAPHORE, {
           type: 'edit',
           id,
         })
 
         api.editSecurityQuestion(jsonData)
           .then(result => {
-            commit(COMMON_CLEAR_SEMAPHORE, {
+            const updatedData = dataFormatter.deserialize(result.data)
+
+            commit(IO_SERVER_CLEAR_SEMAPHORE, {
               type: 'edit',
               id,
             })
 
-            SecurityQuestion.insertOrUpdate({
-              data: Object.assign(
-                dataFormatter.deserialize(result.data),
-                {
-                  account_id: account.id,
-                  account: {
-                    id: account.id,
-                    type: account.type,
-                  },
-                },
-              ),
+            updatedData.account_id = account.id
+            updatedData.account = {
+              id: account.id,
+              type: account.type,
+            }
+
+            SecurityQuestion.update({
+              where: securityQuestion.id,
+              data: updatedData,
             })
               .then(() => {
-                // Entity was successfully created in database
+                // Entity was successfully updated in database
                 resolve()
               })
               .catch(e => {
+                // Revert changes
+                SecurityQuestion.update({
+                  where: securityQuestion.id,
+                  data: securityQuestion,
+                })
+                  .catch(() => {
+                    // Nothing to do here
+                  })
+
                 reject(new ApiError(
                   'profile.security_question.edit.failed',
                   e,
@@ -178,11 +220,16 @@ export default {
               })
           })
           .catch(e => {
-            SecurityQuestion.insertOrUpdate({
-              data: question,
+            // Revert changes
+            SecurityQuestion.update({
+              where: securityQuestion.id,
+              data: securityQuestion,
             })
+              .catch(() => {
+                // Nothing to do here
+              })
 
-            commit(COMMON_CLEAR_SEMAPHORE, {
+            commit(IO_SERVER_CLEAR_SEMAPHORE, {
               type: 'edit',
               id,
             })
@@ -196,7 +243,11 @@ export default {
       })
     },
 
-    validate({}, { data }) {
+    validate({}, { answer }) {
+      const data = {
+        current_answer: answer,
+      }
+
       return new Promise((resolve, reject) => {
         const formattedData = {}
 
@@ -210,7 +261,7 @@ export default {
 
         api.validateSecurityQuestion(jsonData)
           .then(() => {
-            // Entity was successfully created in database
+            // Validation was successful
             resolve()
           })
           .catch(e => {
@@ -238,7 +289,7 @@ export default {
      * @param {Object} action
      * @param {String} action.type
      */
-    [COMMON_SET_SEMAPHORE](state, action) {
+    [IO_SERVER_SET_SEMAPHORE](state, action) {
       switch (action.type) {
         case 'detail':
           state.semaphore.fetching = true
@@ -265,7 +316,7 @@ export default {
      * @param {Object} action
      * @param {String} action.type
      */
-    [COMMON_CLEAR_SEMAPHORE](state, action) {
+    [IO_SERVER_CLEAR_SEMAPHORE](state, action) {
       switch (action.type) {
         case 'detail':
           state.semaphore.fetching = false

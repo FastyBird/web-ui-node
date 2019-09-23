@@ -35,8 +35,12 @@
 </template>
 
 <script>
-  import Hardware from '@/store/modules/io-server/Hardware'
-  import Firmware from '@/store/modules/io-server/Firmware'
+  import Hardware from '@/plugins/io-server/store/modules/io-server/Hardware'
+  import Firmware from '@/plugins/io-server/store/modules/io-server/Firmware'
+
+  import {
+    HARDWARE_MODEL_CUSTOM,
+  } from '@/constants'
 
   export default {
 
@@ -76,7 +80,7 @@
        * @returns {String}
        */
       hardwareModel() {
-        if (this.hardware !== null && this._.get(this.hardware, 'model', null) !== null) {
+        if (this.hardware !== null && this._.get(this.hardware, 'model', HARDWARE_MODEL_CUSTOM) !== HARDWARE_MODEL_CUSTOM) {
           return this.hardware.model
         }
 

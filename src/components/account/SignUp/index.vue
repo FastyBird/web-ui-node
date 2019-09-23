@@ -94,10 +94,6 @@
 </template>
 
 <script>
-  import api from '@/api/server'
-
-  import { USER_PROFILE_EMAIL } from '@/api/server/types'
-
   const SignHeader = () => import('../SignHeader')
 
   export default {
@@ -158,6 +154,7 @@
     },
 
     methods: {
+
       /**
        * Check if provided email address is not used
        *
@@ -166,13 +163,10 @@
        * @returns {Object}
        */
       checkEmail(value) {
-        return api.validateEmail({
-          data: {
-            type: USER_PROFILE_EMAIL,
-            attributes: {
-              address: value,
-            },
-          },
+        return this.$store.dispatch('entities/email/validate', {
+          address: value,
+        }, {
+          root: true,
         })
           .then(() => {
             return {

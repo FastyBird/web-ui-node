@@ -18,7 +18,7 @@
         v-if="profile !== null"
         class="d-b text-center"
       >
-        Wellcome back <strong>{{ profile.details.first_name }}</strong>
+        Wellcome back <strong>{{ profile.firstName }}</strong>
       </h4>
     </div>
   </layout>
@@ -29,7 +29,7 @@
 
   import Gravatar from 'vue-gravatar'
 
-  import Profile from '@/store/modules/profile/Profile'
+  import Profile from '@/plugins/io-server/store/modules/profile/Profile'
 
   import SignIn from './../../account/SignIn'
 

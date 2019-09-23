@@ -158,10 +158,10 @@
 </template>
 
 <script>
-  import Thing from '@/store/modules/io-server/Thing'
-  import ThingProperty from '@/store/modules/io-server/ThingProperty'
-  import Channel from '@/store/modules/io-server/Channel'
-  import ChannelProperty from '@/store/modules/io-server/ChannelProperty'
+  import Thing from '@/plugins/io-server/store/modules/io-server/Thing'
+  import ThingProperty from '@/plugins/io-server/store/modules/io-server/ThingProperty'
+  import Channel from '@/plugins/io-server/store/modules/io-server/Channel'
+  import ChannelProperty from '@/plugins/io-server/store/modules/io-server/ChannelProperty'
 
   import {
     DATA_TYPE_BOOLEAN,

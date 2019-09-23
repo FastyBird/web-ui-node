@@ -19,7 +19,7 @@
       />
 
       <fb-md-form-select
-        v-model="form.model.params.datetime.zone"
+        v-model="form.model.timeZone"
         :data-vv-scope="form.scope"
         :label="$t('field.datetime.timeZone.title')"
         :items="zonesOptions"
@@ -28,7 +28,7 @@
       />
 
       <fb-md-form-select
-        v-model="form.model.params.datetime.week_start"
+        v-model="form.model.weekStart"
         :data-vv-scope="form.scope"
         :label="$t('field.datetime.weekStartOn.title')"
         :items="form.options.weekStart"
@@ -37,7 +37,7 @@
       />
 
       <fb-md-form-select
-        v-model="form.model.params.datetime.format.date"
+        v-model="form.model.dateFormat"
         :data-vv-scope="form.scope"
         :label="$t('field.datetime.dateFormat.title')"
         :items="form.options.dateFormat"
@@ -46,7 +46,7 @@
       />
 
       <fb-md-form-select
-        v-model="form.model.params.datetime.format.time"
+        v-model="form.model.timeFormat"
         :data-vv-scope="form.scope"
         :label="$t('field.datetime.timeFormat.title')"
         :items="form.options.timeFormat"
@@ -80,16 +80,10 @@
           scope: 'account_edit',
           model: {
             language: 'en',
-            params: {
-              datetime: {
-                week_start: 1,
-                zone: 'Europe/London',
-                format: {
-                  date: 'DD.MM.YYYY',
-                  time: 'HH:mm',
-                },
-              },
-            },
+            weekStart: 1,
+            timeZone: 'Europe/London',
+            dateFormat: 'DD.MM.YYYY',
+            timeFormat: 'HH:mm',
           },
           options: {
             languages: [
@@ -165,7 +159,7 @@
 
     },
 
-    created() {
+    mounted() {
       this._initModel()
     },
 
@@ -185,7 +179,11 @@
               const errorMessage = this.$t('messages.accountNotEdited')
 
               this.$store.dispatch('entities/account/edit', {
-                data: this.form.model,
+                language: this.form.model.language,
+                week_start: this.form.model.weekStart,
+                time_zone: this.form.model.timeZone,
+                date_format: this.form.model.dateFormat,
+                time_format: this.form.model.timeFormat,
               }, {
                 root: true,
               })
@@ -297,16 +295,10 @@
       _initModel() {
         this.form.model = {
           language: this.account.language,
-          params: {
-            datetime: {
-              week_start: this._.get(this.account, 'params.datetime.week_start', 1),
-              zone: this._.get(this.account, 'params.datetime.zone', 'Europe/London'),
-              format: {
-                date: this._.get(this.account, 'params.datetime.format.date', 'DD.MM.YYYY'),
-                time: this._.get(this.account, 'params.datetime.format.time', 'HH:mm'),
-              },
-            },
-          },
+          weekStart: this.account.weekStart,
+          timeZone: this.account.timeZone,
+          dateFormat: this.account.dateFormat,
+          timeFormat: this.account.timeFormat,
         }
 
         this.errors.clear(this.form.scope)

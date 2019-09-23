@@ -1,12 +1,16 @@
 // JSON:API formatter
 import Jsona from 'jsona'
 
-import api from '@/api/server'
-import { USER_PROFILE_PROFILE } from '@/api/server/types'
+import api from './../../../api'
+import {
+  USER_PROFILE_PROFILE,
+} from './../../../api/types'
+import { ApiError } from './../../../api/errors'
 
-import { ApiError } from '@/helpers/errors'
-
-import { COMMON_CLEAR_SEMAPHORE, COMMON_SET_SEMAPHORE } from '../../types'
+import {
+  IO_SERVER_CLEAR_SEMAPHORE,
+  IO_SERVER_SET_SEMAPHORE,
+} from './../../types'
 
 import Account from './Account'
 import Profile from './Profile'
@@ -26,9 +30,21 @@ export default {
 
   actions: {
 
-    edit({ commit }, { data }) {
+    edit({ state, commit }, { first_name, last_name, middle_name }) {
+      if (state.semaphore.updating) {
+        return Promise.reject(new Error('profile.profile.update.inProgress'))
+      }
+
       const account = Account.query().first()
       const profile = Profile.query().first()
+
+      const data = {
+        details: {
+          first_name,
+          last_name,
+          middle_name,
+        },
+      }
 
       return new Promise((resolve, reject) => {
         const formattedData = {}
@@ -42,7 +58,8 @@ export default {
           stuff: formattedData,
         })
 
-        Profile.insertOrUpdate({
+        Profile.update({
+          where: profile.id,
           data: dataFormatter.deserialize(jsonData),
         })
           .catch(e => {
@@ -53,33 +70,42 @@ export default {
             ))
           })
 
-        commit(COMMON_SET_SEMAPHORE, {
+        commit(IO_SERVER_SET_SEMAPHORE, {
           type: 'edit',
         })
 
         api.editProfile(jsonData)
           .then(result => {
-            commit(COMMON_CLEAR_SEMAPHORE, {
+            const updatedData = dataFormatter.deserialize(result.data)
+
+            commit(IO_SERVER_CLEAR_SEMAPHORE, {
               type: 'edit',
             })
 
-            Profile.insertOrUpdate({
-              data: Object.assign(
-                dataFormatter.deserialize(result.data),
-                {
-                  account_id: account.id,
-                  account: {
-                    id: account.id,
-                    type: account.type,
-                  },
-                },
-              ),
+            updatedData.account_id = account.id
+            updatedData.account = {
+              id: account.id,
+              type: account.type,
+            }
+
+            Profile.update({
+              where: profile.id,
+              data: updatedData,
             })
               .then(() => {
-                // Entity was successfully created in database
+                // Entity was successfully updated in database
                 resolve()
               })
               .catch(e => {
+                // Revert changes
+                Profile.update({
+                  where: profile.id,
+                  data: profile,
+                })
+                  .catch(() => {
+                    // Nothing to do here
+                  })
+
                 reject(new ApiError(
                   'profile.profile.edit.failed',
                   e,
@@ -88,11 +114,16 @@ export default {
               })
           })
           .catch(e => {
-            Profile.insertOrUpdate({
+            // Revert changes
+            Profile.update({
+              where: profile.id,
               data: profile,
             })
+              .catch(() => {
+                // Nothing to do here
+              })
 
-            commit(COMMON_CLEAR_SEMAPHORE, {
+            commit(IO_SERVER_CLEAR_SEMAPHORE, {
               type: 'edit',
             })
 
@@ -119,7 +150,7 @@ export default {
      * @param {Object} action
      * @param {String} action.type
      */
-    [COMMON_SET_SEMAPHORE](state, action) {
+    [IO_SERVER_SET_SEMAPHORE](state, action) {
       switch (action.type) {
         case 'detail':
           state.semaphore.fetching = true
@@ -141,7 +172,7 @@ export default {
      * @param {Object} action
      * @param {String} action.type
      */
-    [COMMON_CLEAR_SEMAPHORE](state, action) {
+    [IO_SERVER_CLEAR_SEMAPHORE](state, action) {
       switch (action.type) {
         case 'detail':
           state.semaphore.fetching = false

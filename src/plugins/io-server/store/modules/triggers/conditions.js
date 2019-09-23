@@ -1,21 +1,21 @@
 // JSON:API formatter
 import Jsona from 'jsona'
 
-import api from '@/api/server'
+import api from './../../../api'
 
-import { ApiError } from '@/helpers/errors'
+import { ApiError } from '@/plugins/io-server/api/errors'
 
 import {
-  COMMON_CLEAR_SEMAPHORE,
-  COMMON_SET_SEMAPHORE,
-} from '../../types'
+  IO_SERVER_CLEAR_SEMAPHORE,
+  IO_SERVER_SET_SEMAPHORE,
+} from './../../types'
 
 import uuid from 'uuid'
 
 import {
   TRIGGERS_CONDITION_CHANNEL_PROPERTY,
   TRIGGERS_CONDITION_THING_PROPERTY,
-} from '@/api/server/types'
+} from './../../../api/types'
 
 import Condition from './Condition'
 import Thing from '../io-server/Thing'
@@ -110,7 +110,7 @@ export default {
           stuff: formattedData,
         })
 
-        commit(COMMON_SET_SEMAPHORE, {
+        commit(IO_SERVER_SET_SEMAPHORE, {
           type: 'create',
           id,
         })
@@ -121,7 +121,7 @@ export default {
           .then(() => {
             api.createTriggerRelation(trigger, 'conditions', jsonData)
               .then(result => {
-                commit(COMMON_CLEAR_SEMAPHORE, {
+                commit(IO_SERVER_CLEAR_SEMAPHORE, {
                   type: 'create',
                   id,
                 })
@@ -138,7 +138,7 @@ export default {
                   })
               })
               .catch(e => {
-                commit(COMMON_CLEAR_SEMAPHORE, {
+                commit(IO_SERVER_CLEAR_SEMAPHORE, {
                   type: 'create',
                   id,
                 })
@@ -165,7 +165,7 @@ export default {
       const condition = Condition.find(id)
 
       return new Promise((resolve, reject) => {
-        commit(COMMON_SET_SEMAPHORE, {
+        commit(IO_SERVER_SET_SEMAPHORE, {
           type: 'delete',
           id,
         })
@@ -174,7 +174,7 @@ export default {
           .then(() => {
             api.removeTriggerRelation(condition.trigger_id, 'conditions', id)
               .then(() => {
-                commit(COMMON_CLEAR_SEMAPHORE, {
+                commit(IO_SERVER_CLEAR_SEMAPHORE, {
                   type: 'delete',
                   id,
                 })
@@ -183,7 +183,7 @@ export default {
                 resolve()
               })
               .catch(e => {
-                commit(COMMON_CLEAR_SEMAPHORE, {
+                commit(IO_SERVER_CLEAR_SEMAPHORE, {
                   type: 'delete',
                   id,
                 })
@@ -229,7 +229,7 @@ export default {
      * @param {String} action.type
      * @param {String} action.id
      */
-    [COMMON_SET_SEMAPHORE](state, action) {
+    [IO_SERVER_SET_SEMAPHORE](state, action) {
       switch (action.type) {
         case 'create':
           state.semaphore.creating.push(action.id)
@@ -252,7 +252,7 @@ export default {
      * @param {String} action.type
      * @param {String} action.id
      */
-    [COMMON_CLEAR_SEMAPHORE](state, action) {
+    [IO_SERVER_CLEAR_SEMAPHORE](state, action) {
       switch (action.type) {
         case 'create':
           // Process all semaphore items

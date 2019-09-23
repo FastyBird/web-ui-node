@@ -23,4 +23,8 @@ export default class Trigger extends Model {
       notifications: this.hasMany(Notification, 'trigger_id'),
     }
   }
+
+  get hasComment() {
+    return this.comment !== null && this.comment !== ''
+  }
 }

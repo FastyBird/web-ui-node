@@ -88,7 +88,7 @@
     MQTT_SERVER_PORT,
   } from '@/config'
 
-  import Credentials from '@/store/modules/io-server/Credentials'
+  import Credentials from '@/plugins/io-server/store/modules/io-server/Credentials'
 
   export default {
 

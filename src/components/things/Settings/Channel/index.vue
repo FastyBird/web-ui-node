@@ -8,7 +8,7 @@
       <div class="list-group">
         <template v-for="parameter in parameters">
           <div
-            v-if="isBooleanSettingsRow(parameter)"
+            v-if="parameter.isBoolean"
             :key="parameter.name"
             :class="['list-group-item', {'text-warning':!thing.state}]"
           >
@@ -48,7 +48,7 @@
             </template>
             <small class="d-b">
               {{ $t('texts.actual') }}:
-              <template v-if="isSelectSettingsRow(parameter)">
+              <template v-if="parameter.isSelect">
                 <strong>{{ getSelectSettingsRowValue(parameter) }}</strong>
               </template>
               <template v-else>
@@ -102,24 +102,19 @@
 
 <script>
   import {
-    IO_SERVER_CHANNEL_CONFIGURATION_BOOLEAN,
-    IO_SERVER_CHANNEL_CONFIGURATION_SELECT,
-  } from '@/api/server/types'
-
-  import {
     MANUFACTURER_GENERIC,
   } from '@/constants'
 
-  import { WAMP_TOPIC_THING_CHANNEL } from '@/config'
+  import { IO_SOCKET_TOPIC_THING_CHANNEL } from '@/plugins/io-server/config'
 
   const ThingsEditChannelRename = () => import('../../Edit/Channel/Rename')
   const ThingsEditChannelParameter = () => import('../../Edit/Channel/Parameter')
 
   import SwitchElement from '@/components/layout/SwitchElement'
 
-  import Hardware from '@/store/modules/io-server/Hardware'
-  import ChannelConfiguration from '@/store/modules/io-server/ChannelConfiguration'
-  import ChannelConfigurationValue from '@/store/modules/io-server/ChannelConfigurationValue'
+  import Hardware from '@/plugins/io-server/store/modules/io-server/Hardware'
+  import ChannelConfiguration from '@/plugins/io-server/store/modules/io-server/ChannelConfiguration'
+  import ChannelConfigurationValue from '@/plugins/io-server/store/modules/io-server/ChannelConfigurationValue'
 
   export default {
 
@@ -245,27 +240,6 @@
     methods: {
 
       /**
-       * Check if settings row is boolean type
-       *
-       * @param {ChannelConfiguration} row
-       * @param {String} row.type
-       *
-       * @return {Boolean}
-       */
-      isBooleanSettingsRow(row) {
-        return row.type === IO_SERVER_CHANNEL_CONFIGURATION_BOOLEAN
-      },
-
-      /**
-       * Check if settings parameter is selectable type
-       *
-       * @return {Boolean}
-       */
-      isSelectSettingsRow(row) {
-        return row.type === IO_SERVER_CHANNEL_CONFIGURATION_SELECT
-      },
-
-      /**
        * Parse parameter items for select box
        *
        * @returns {String}
@@ -381,7 +355,7 @@
           return
         }
 
-        let topic = WAMP_TOPIC_THING_CHANNEL
+        let topic = IO_SOCKET_TOPIC_THING_CHANNEL
         topic = topic.replace('{thing_id}', this.channel.thing_id)
         topic = topic.replace('{channel_id}', this.channel.id)
 

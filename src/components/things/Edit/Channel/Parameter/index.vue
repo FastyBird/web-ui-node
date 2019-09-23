@@ -18,7 +18,7 @@
       </p>
 
       <fb-md-form-input
-        v-if="isNumberParameter"
+        v-if="parameter.isNumber"
         v-model="form.model"
         v-validate="`required|numeric|between:${parameter.min},${parameter.max}`"
         :data-vv-scope="form.scope"
@@ -43,7 +43,7 @@
       </fb-md-form-input>
 
       <fb-md-form-input
-        v-if="isTextParameter"
+        v-if="parameter.isText"
         v-model="form.model"
         v-validate="'required'"
         :data-vv-scope="form.scope"
@@ -66,7 +66,7 @@
       </fb-md-form-input>
 
       <fb-md-form-select
-        v-if="isSelectParameter"
+        v-if="parameter.isSelect"
         v-model="form.model"
         :items="parameterItems"
         :data-vv-scope="form.scope"
@@ -91,19 +91,15 @@
 
 <script>
   import {
-    IO_SERVER_CHANNEL_CONFIGURATION_NUMBER,
-    IO_SERVER_CHANNEL_CONFIGURATION_SELECT,
-    IO_SERVER_CHANNEL_CONFIGURATION_TEXT,
-  } from '@/api/server/types'
-
-  import {
     MANUFACTURER_GENERIC,
+
+    HARDWARE_MODEL_CUSTOM,
   } from '@/constants'
 
-  import ChannelConfigurationValue from '@/store/modules/io-server/ChannelConfigurationValue'
-  import Hardware from '@/store/modules/io-server/Hardware'
+  import ChannelConfigurationValue from '@/plugins/io-server/store/modules/io-server/ChannelConfigurationValue'
+  import Hardware from '@/plugins/io-server/store/modules/io-server/Hardware'
 
-  import { WAMP_TOPIC_THING_CHANNEL } from '@/config'
+  import { IO_SOCKET_TOPIC_THING_CHANNEL } from '@/plugins/io-server/config'
 
   export default {
 
@@ -167,7 +163,7 @@
        * @returns {String}
        */
       translatedHeading() {
-        if (this._.get(this.hardware, 'model', null) === MANUFACTURER_GENERIC) {
+        if (this._.get(this.hardware, 'model', HARDWARE_MODEL_CUSTOM) === HARDWARE_MODEL_CUSTOM) {
           if (this.parameter.title !== null) {
             return this.parameter.title
           }
@@ -188,7 +184,7 @@
        * @returns {String}
        */
       translatedLabel() {
-        if (this._.get(this.hardware, 'model', null) === MANUFACTURER_GENERIC) {
+        if (this._.get(this.hardware, 'model', HARDWARE_MODEL_CUSTOM) === HARDWARE_MODEL_CUSTOM) {
           if (this.parameter.title !== null) {
             return this.parameter.title
           }
@@ -209,7 +205,7 @@
        * @returns {(String|null)}
        */
       translatedDescription() {
-        if (this._.get(this.hardware, 'model', null) === MANUFACTURER_GENERIC) {
+        if (this._.get(this.hardware, 'model', HARDWARE_MODEL_CUSTOM) === HARDWARE_MODEL_CUSTOM) {
           if (this.parameter.description !== null) {
             return this.parameter.description
           }
@@ -232,7 +228,7 @@
       parameterItems() {
         const items = []
 
-        if (this.isSelectParameter) {
+        if (this.parameter.isSelect) {
           for (const key in this.parameter.values) {
             if (this.parameter.values.hasOwnProperty(key)) {
               items.push({
@@ -244,33 +240,6 @@
         }
 
         return items
-      },
-
-      /**
-       * Check if settings parameter is number value type
-       *
-       * @return {Boolean}
-       */
-      isNumberParameter() {
-        return this.parameter.type === IO_SERVER_CHANNEL_CONFIGURATION_NUMBER
-      },
-
-      /**
-       * Check if settings parameter is selectable type
-       *
-       * @return {Boolean}
-       */
-      isSelectParameter() {
-        return this.parameter.type === IO_SERVER_CHANNEL_CONFIGURATION_SELECT
-      },
-
-      /**
-       * Check if settings parameter is text value type
-       *
-       * @return {Boolean}
-       */
-      isTextParameter() {
-        return this.parameter.type === IO_SERVER_CHANNEL_CONFIGURATION_TEXT
       },
 
     },
@@ -322,14 +291,14 @@
         this.$validator.validateAll(this.form.scope)
           .then(result => {
             if (result) {
-              let topic = WAMP_TOPIC_THING_CHANNEL
+              let topic = IO_SOCKET_TOPIC_THING_CHANNEL
               topic = topic.replace('{thing_id}', this.thing.id)
               topic = topic.replace('{channel_id}', this.channel.id)
 
               const data = {}
               data[this.parameter.name] = this.form.model
 
-              if (this.isSelectParameter && !isNaN(this.form.model)) {
+              if (this.parameter.isSelect && !isNaN(this.form.model)) {
                 data[this.parameter.name] = parseInt(this.form.model, 10)
               }
 

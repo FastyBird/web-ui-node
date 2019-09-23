@@ -18,6 +18,7 @@
         v-if="windowSize !== 'xs'"
         :show="view.opened.type !== null"
         :heading="detailHeading()"
+        :sub-heading="detailSubHeading()"
         @close="closeView(view.opened.type)"
       >
         <template slot="left-button">
@@ -124,7 +125,7 @@
     timeout: 5000,
   })
 
-  import Trigger from '@/store/modules/triggers/Trigger'
+  import Trigger from '@/plugins/io-server/store/modules/triggers/Trigger'
 
   export default {
 
@@ -315,6 +316,19 @@
       detailHeading() {
         if (this.view.opened.type === this.view.detail.name) {
           return this.viewTrigger.name
+        }
+
+        return 'N/A'
+      },
+
+      /**
+       * Get detail window sub-heading
+       *
+       * @returns {(String|null)}
+       */
+      detailSubHeading() {
+        if (this.view.opened.type === this.view.detail.name) {
+          return this.viewTrigger.hasComment ? this.viewTrigger.comment : null
         }
 
         return 'N/A'

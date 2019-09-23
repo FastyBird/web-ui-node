@@ -66,9 +66,6 @@
 </template>
 
 <script>
-  import api from '@/api/server'
-  import { USER_PROFILE_IDENTITY } from '@/api/server/types'
-
   const SignHeader = () => import('@/components/account/SignHeader')
 
   export default {
@@ -125,15 +122,10 @@
        * @returns {Object}
        */
       checkUid(value) {
-        return api.validateIdentityUid({
-          data: {
-            type: USER_PROFILE_IDENTITY,
-            attributes: {
-              credentials: {
-                uid: value,
-              },
-            },
-          },
+        return this.$store.dispatch('entities/account/validateUid', {
+          uid: value,
+        }, {
+          root: true,
         })
           .then(() => {
             return {
@@ -175,15 +167,10 @@
 
               this.makingRequest = true
 
-              api.requestPassword({
-                data: {
-                  type: USER_PROFILE_IDENTITY,
-                  attributes: {
-                    credentials: {
-                      uid: this.form.model.credentials.uid,
-                    },
-                  },
-                },
+              this.$store.dispatch('entities/account/requestPassword', {
+                uid: this.form.model.credentials.uid,
+              }, {
+                root: true,
               })
                 .then(() => {
                   this.makingRequest = false

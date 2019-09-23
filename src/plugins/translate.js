@@ -1,9 +1,11 @@
 import get from 'lodash/get'
 
-import Hardware from '@/store/modules/io-server/Hardware'
+import Hardware from '@/plugins/io-server/store/modules/io-server/Hardware'
 
 import {
   MANUFACTURER_GENERIC,
+
+  HARDWARE_MODEL_CUSTOM,
 } from '@/constants'
 
 export default {
@@ -25,12 +27,23 @@ export default {
 
           const hardware = getThingHardware(thing)
 
-          if (get(hardware, 'model', null) === MANUFACTURER_GENERIC) {
+          if (get(hardware, 'model', HARDWARE_MODEL_CUSTOM) === HARDWARE_MODEL_CUSTOM) {
             return channel.label
           }
 
-          if (this.$t(`things.vendors.${get(hardware, 'manufacturer', MANUFACTURER_GENERIC)}.channels.${channel.name}.title`).indexOf('things.vendors.') === -1) {
-            return this.$t(`things.vendors.${get(hardware, 'manufacturer', MANUFACTURER_GENERIC)}.channels.${channel.name}.title`)
+          let channelName = channel.name
+
+          if (channelName.indexOf('_') === -1) {
+            if (this.$t(`things.vendors.${get(hardware, 'manufacturer', MANUFACTURER_GENERIC)}.channels.${channelName}.title`).indexOf('things.vendors.') === -1) {
+              return this.$t(`things.vendors.${get(hardware, 'manufacturer', MANUFACTURER_GENERIC)}.channels.${channelName}.title`)
+            }
+          } else {
+            channelName = channelName.substring(0, (channelName.indexOf('_')))
+            const channelNum = channel.name.substring(channel.name.indexOf('_') + 1)
+
+            if (this.$t(`things.vendors.${get(hardware, 'manufacturer', MANUFACTURER_GENERIC)}.channels.${channelName}.title`).indexOf('things.vendors.') === -1) {
+              return `${this.$t(`things.vendors.${get(hardware, 'manufacturer', MANUFACTURER_GENERIC)}.channels.${channelName}.title`)} ${channelNum}`
+            }
           }
 
           return channel.label
@@ -43,7 +56,7 @@ export default {
         return function(thing, channel, property) {
           const hardware = getThingHardware(thing)
 
-          if (get(hardware, 'model', null) === MANUFACTURER_GENERIC) {
+          if (get(hardware, 'model', HARDWARE_MODEL_CUSTOM) === HARDWARE_MODEL_CUSTOM) {
             return property.name
           }
 
