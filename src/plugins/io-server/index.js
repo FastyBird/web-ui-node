@@ -2,7 +2,9 @@ import get from 'lodash/get'
 
 import api from './api'
 import store from './store'
+
 import channelProperties from './sockets/channels.properties'
+import thingsSockets from './sockets/things.sockets'
 
 export default {
   install(Vue, opt) {
@@ -19,9 +21,15 @@ export default {
     api.setAccessToken(get(opt, 'accessToken'))
     api.setRefreshToken(get(opt, 'refreshToken'))
 
-    Object.defineProperty(Vue.prototype, '$ioServerChannelPropertySocket', {
+    Object.defineProperty(Vue.prototype, '$ioServerChannelsPropertiesSocket', {
       get() {
         return channelProperties
+      },
+    })
+
+    Object.defineProperty(Vue.prototype, '$ioServerThingsSocket', {
+      get() {
+        return thingsSockets
       },
     })
   },

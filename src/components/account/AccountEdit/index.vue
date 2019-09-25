@@ -159,7 +159,7 @@
 
     },
 
-    mounted() {
+    created() {
       this._initModel()
     },
 

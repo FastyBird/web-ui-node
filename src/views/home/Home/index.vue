@@ -18,7 +18,7 @@
         v-if="profile !== null"
         class="d-b text-center"
       >
-        Wellcome back <strong>{{ profile.firstName }}</strong>
+        Welcome back <strong>{{ profile.firstName }}</strong>
       </h4>
     </div>
   </layout>
@@ -28,10 +28,6 @@
   import { mapActions } from 'vuex'
 
   import Gravatar from 'vue-gravatar'
-
-  import Profile from '@/plugins/io-server/store/modules/profile/Profile'
-
-  import SignIn from './../../account/SignIn'
 
   export default {
 
@@ -50,9 +46,7 @@
     computed: {
 
       profile() {
-        return Profile
-          .query()
-          .first()
+        return this.$store.getters['entities/profile/query']().first()
       },
 
     },
@@ -66,12 +60,6 @@
       ...mapActions('header', [
         'resetStore',
       ]),
-
-      logout() {
-        this.$navigateTo(SignIn, {
-          clearHistory: true,
-        })
-      },
 
     },
 

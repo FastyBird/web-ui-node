@@ -121,19 +121,7 @@
       }
     },
 
-    computed: {
-
-      primaryEmailAddress() {
-        const email = this.$store.getters['entities/email/query']()
-          .where('is_default', true)
-          .first()
-
-        return email !== null ? email.address : null
-      },
-
-    },
-
-    mounted() {
+    created() {
       this._initModel()
 
       this.$validator.localize({
@@ -170,7 +158,7 @@
        * @returns {Object}
        */
       checkEmail(value) {
-        const emails = this.$store.getters['entities/email/all']()
+        const emails = this.account.emails
 
         for (const email of emails) {
           if (email.address === value) {
@@ -250,7 +238,7 @@
                 })
 
               // Email has been changed
-              if (this.form.model.emailAddress !== this.primaryEmailAddress) {
+              if (this.form.model.emailAddress !== this._.get(this.account, 'primaryEmail.address')) {
                 const storedEmail = this.$store.getters['entities/email/query']()
                   .where('address', this.form.model.emailAddress)
                   .first()
@@ -357,7 +345,7 @@
        */
       _initModel() {
         this.form.model = {
-          emailAddress: this.primaryEmailAddress,
+          emailAddress: this._.get(this.account, 'primaryEmail.address'),
           firstName: this.profile.firstName,
           lastName: this.profile.lastName,
           middleName: this.profile.middleName,

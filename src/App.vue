@@ -133,7 +133,10 @@
       },
 
       account() {
-        return this.$store.getters['entities/account/query']().first()
+        return this.$store.getters['entities/account/query']()
+          .with('emails')
+          .with('security_question')
+          .first()
       },
 
       profile() {

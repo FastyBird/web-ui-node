@@ -379,7 +379,7 @@
         const payload = Object.assign({}, this.channelData)
         payload.rgb = setColor.toRgb()
 
-        this.$ioServerChannelPropertySocket.createCommand({
+        this.$ioServerChannelsPropertiesSocket.createCommand({
           thingId: this.thing.id,
           channelId: this.channel.id,
           payload,

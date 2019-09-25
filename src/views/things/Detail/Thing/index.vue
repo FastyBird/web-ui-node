@@ -37,9 +37,6 @@
     timeout: 5000,
   })
 
-  import Thing from '@/plugins/io-server/store/modules/io-server/Thing'
-  import Channel from '@/plugins/io-server/store/modules/io-server/Channel'
-
   import ThingsSockets from '@/mixins/things.sockets'
 
   export default {
@@ -78,8 +75,7 @@
        * @returns {Thing}
        */
       thing() {
-        return Thing
-          .query()
+        return this.$store.getters['entities/thing/query']()
           .with('properties')
           .where('id', this.id)
           .first()
@@ -91,8 +87,7 @@
        * @returns {Array}
        */
       channels() {
-        return Channel
-          .query()
+        return this.$store.getters['entities/channel/query']()
           .with('properties')
           .where('thing_id', this.id)
           .orderBy('name')
@@ -151,7 +146,7 @@
         return
       }
 
-      if (Thing.query().count() === 0) {
+      if (this.$store.getters['entities/thing/query']().count() === 0) {
         if (!this.fetchingThing) {
           this.$store.dispatch('entities/thing/get', {
             id: this.id,

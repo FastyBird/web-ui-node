@@ -10,7 +10,7 @@
 
     <template slot="form">
       <fieldset
-        v-if="question !== null"
+        v-if="account.security_question !== null"
         class="m-b-md"
       >
         <fb-md-form-input
@@ -20,7 +20,7 @@
           :error="errors.first(form.scope + '.current_answer')"
           :has-error="errors.has(form.scope + '.current_answer')"
           :name="'current_answer'"
-          :label="(question.is_custom ? question.question : $t(`field.securityQuestion.question.values.${question.question}`))"
+          :label="(account.security_question.is_custom ? account.security_question.question : $t(`field.securityQuestion.question.values.${account.security_question.question}`))"
           :required="true"
           data-vv-validate-on="blur"
           spellcheck="false"
@@ -182,15 +182,7 @@
       }
     },
 
-    computed: {
-
-      question() {
-        return this.$store.getters['entities/security_question/query']().first()
-      },
-
-    },
-
-    mounted() {
+    created() {
       this._initModel()
 
       this.$validator.localize({
@@ -280,9 +272,9 @@
             if (result) {
               const errorMessage = this.$t('messages.profileNotEdited')
 
-              if (this.question !== null) {
+              if (this.account.security_question !== null) {
                 this.$store.dispatch('entities/security_question/edit', {
-                  id: this.question.id,
+                  id: this.account.security_question.id,
                   current_answer: this.form.model.currentAnswer,
                   question: this.form.model.question === 'custom' ? this.form.model.otherQuestion : this.form.model.question,
                   is_custom: this.form.model.question === 'custom',

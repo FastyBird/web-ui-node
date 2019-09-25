@@ -103,7 +103,7 @@
           return
         }
 
-        this.$ioServerChannelPropertySocket.createCommand(
+        this.$ioServerChannelsPropertiesSocket.createCommand(
           this.thing,
           this.channel,
           this.clearTotal.property,
@@ -112,7 +112,7 @@
           .then(result => {
             this.$wamp.call(result.topic, result.value)
               .then(cmdResult => {
-                this.$ioServerChannelPropertySocket.clearCommand(
+                this.$ioServerChannelsPropertiesSocket.clearCommand(
                   this.thing,
                   this.channel,
                   this.clearTotal.property,
@@ -136,7 +136,7 @@
        * @private
        */
       _commandFailed() {
-        this.$ioServerChannelPropertySocket.clearCommand(
+        this.$ioServerChannelsPropertiesSocket.clearCommand(
           this.thing,
           this.channel,
           this.clearTotal.property,

@@ -1,11 +1,3 @@
-import Thing from '@/plugins/io-server/store/modules/io-server/Thing'
-import ThingProperty from '@/plugins/io-server/store/modules/io-server/ThingProperty'
-import ThingConfiguration from '@/plugins/io-server/store/modules/io-server/ThingConfiguration'
-import ChannelPropertyValue from '@/plugins/io-server/store/modules/io-server/ChannelPropertyValue'
-import ChannelConfigurationValue from '@/plugins/io-server/store/modules/io-server/ChannelConfigurationValue'
-
-import { IO_SOCKET_TOPIC_THING } from '@/plugins/io-server/config'
-
 const mixin = {
 
   methods: {
@@ -18,117 +10,33 @@ const mixin = {
      * @private
      */
     subscribeToThingExchange(id) {
-      const topic = IO_SOCKET_TOPIC_THING.replace('{thing_id}', id)
+      const topic = this.$ioServerThingsSocket.getTopic(id)
 
       return this.$wamp
         .subscribe(topic, (data) => {
           const body = JSON.parse(data)
 
-          if (body.hasOwnProperty('thing')) {
-            Thing.update({
-              where: body.thing.id,
-              data: {
-                exchange_data_ok: true,
-              },
-            })
-
-            this._parseThingExchangeData(
-              body.thing,
-              body.hasOwnProperty('channels') ? body.channels : [],
-            )
-          }
+          this.$ioServerThingsSocket.updated(body)
         })
         .then(() => {
-          Thing.update({
-            where: id,
-            data: {
-              exchange_subscribed: true,
-            },
-          })
+          this.$ioServerThingsSocket.subscribed(id)
         })
     },
 
     /**
-     * Disconnect thing to WS channels
+     * Disconnect thing from WS channels
      *
      * @param {String} id
      *
      * @private
      */
     unsubscribeFromThingExchange(id) {
-      const topic = IO_SOCKET_TOPIC_THING.replace('{thing_id}', id)
+      const topic = this.$ioServerThingsSocket.getTopic(id)
 
       return this.$wamp
         .unsubscribe(topic)
         .then(() => {
-          Thing.update({
-            where: id,
-            data: {
-              exchange_subscribed: false,
-              exchange_data_ok: false,
-            },
-          })
-        })
-    },
-
-    /**
-     * Parse data about thing and channels received via WS
-     *
-     * @param {Object} thing
-     * @param {Array} [channels]
-     *
-     * @private
-     */
-    _parseThingExchangeData(thing, channels) {
-      this._.get(thing, 'properties', [])
-        .forEach(property => {
-          ThingProperty.update({
-            where: property.id,
-            data: {
-              value: property.value,
-            },
-          })
-        })
-
-      this._.get(thing, 'configuration', [])
-        .forEach(configuration => {
-          ThingConfiguration.update({
-            where: configuration.id,
-            data: {
-              value: configuration.value,
-            },
-          })
-        })
-
-      channels
-        .forEach(channel => {
-          this._.get(channel, 'properties', [])
-            .forEach(property => {
-              ChannelPropertyValue.insertOrUpdate({
-                where: property.id + channel.id,
-                data: {
-                  id: property.id + channel.id,
-                  value: property.value,
-
-                  channel_id: channel.id,
-                  property_id: property.id,
-                },
-              })
-            })
-
-          this._.get(channel, 'configuration', [])
-            .forEach(configuration => {
-              ChannelConfigurationValue.insertOrUpdate({
-                where: configuration.id + channel.id,
-                data: {
-                  id: configuration.id + channel.id,
-                  value: configuration.value,
-
-                  channel_id: channel.id,
-                  configuration_id: configuration.id,
-                },
-              })
-            })
+          this.$ioServerThingsSocket.unsubscribed(id)
         })
     },
 

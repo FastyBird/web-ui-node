@@ -159,7 +159,7 @@
           payload = this.propertyValue ? 'off' : 'on'
         }
 
-        this.$ioServerChannelPropertySocket.createCommand(
+        this.$ioServerChannelsPropertiesSocket.createCommand(
           this.thing,
           this.channel,
           this.property,
@@ -168,7 +168,7 @@
           .then(result => {
             this.$wamp.call(result.topic, result.value)
               .then(cmdResult => {
-                this.$ioServerChannelPropertySocket.clearCommand(
+                this.$ioServerChannelsPropertiesSocket.clearCommand(
                   this.thing,
                   this.channel,
                   this.property,
@@ -190,7 +190,7 @@
        * @private
        */
       _commandFailed() {
-        this.$ioServerChannelPropertySocket.clearCommand(
+        this.$ioServerChannelsPropertiesSocket.clearCommand(
           this.thing,
           this.channel,
           this.property,

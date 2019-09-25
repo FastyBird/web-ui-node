@@ -26,9 +26,6 @@
 
   const ThingsDetailChannelLight = () => import('@/components/things/Detail/Channel/LightActor')
 
-  import Thing from '@/plugins/io-server/store/modules/io-server/Thing'
-  import Channel from '@/plugins/io-server/store/modules/io-server/Channel'
-
   import {
     CHANNEL_TYPE_LIGHT,
   } from '@/constants'
@@ -57,12 +54,11 @@
       }),
 
       things() {
-        return Thing.all()
+        return this.$store.getters['entities/thing/all']()
       },
 
       channels() {
-        return Channel
-          .query()
+        return this.$store.getters['entities/channel/query']()
           .with('properties')
           .where('thing_id', this.id)
           .all()
@@ -80,7 +76,7 @@
 
       things(val) {
         if (val !== null) {
-          this.thing = Thing.find(this.id)
+          this.thing = this.$store.getters['entities/thing/find'](this.id)
 
           if (this.thing === null) {
             this.$router.push(ERR_404_LINK)
@@ -103,8 +99,7 @@
 
       channels(val) {
         if (val !== null) {
-          this.channel = Channel
-            .query()
+          this.channel = this.$store.getters['entities/channel/query']()
             .with('properties')
             .where('id', this.channelId)
             .first()
@@ -154,7 +149,7 @@
         return
       }
 
-      this.thing = Thing.find(this.id)
+      this.thing = this.$store.getters['entities/thing/find'](this.id)
 
       if (!this.$store.state.entities.thing.semaphore.fetching.items && this.thing === null) {
         this.$router.push(ERR_404_LINK)
@@ -171,8 +166,7 @@
         return
       }
 
-      this.channel = Channel
-        .query()
+      this.channel = this.$store.getters['entities/channel/query']()
         .with('properties')
         .where('id', this.channelId)
         .first()

@@ -204,9 +204,6 @@
     timeout: 5000,
   })
 
-  import Thing from '@/plugins/io-server/store/modules/io-server/Thing'
-  import Channel from '@/plugins/io-server/store/modules/io-server/Channel'
-
   import ThingsSockets from '@/mixins/things.sockets'
 
   export default {
@@ -310,8 +307,7 @@
        * @returns {Array}
        */
       things() {
-        return Thing
-          .query()
+        return this.$store.getters['entities/thing/query']()
           .with('properties')
           .all()
       },
@@ -350,8 +346,7 @@
             break
         }
 
-        return Thing
-          .query()
+        return this.$store.getters['entities/thing/query']()
           .with('properties')
           .where('id', thingId)
           .first()
@@ -370,8 +365,7 @@
           return null
         }
 
-        return Channel
-          .query()
+        return this.$store.getters['entities/channel/query']()
           .with('properties')
           .where('id', this.view.channelSettings.id)
           .first()
@@ -388,15 +382,13 @@
         }
 
         if (this.view.opened.type === this.view.detail.name) {
-          return Channel
-            .query()
+          return this.$store.getters['entities/channel/query']()
             .with('properties')
             .where('thing_id', this.view.detail.id)
             .orderBy('name')
             .all()
         } else if (this.view.opened.type === this.view.settings.name) {
-          return Channel
-            .query()
+          return this.$store.getters['entities/channel/query']()
             .with('properties')
             .where('thing_id', this.view.settings.id)
             .orderBy('name')
@@ -457,8 +449,7 @@
 
             return
           } else if (this.view.opened.type === this.view.channelSettings.name) {
-            const channel = Channel
-              .query()
+            const channel = this.$store.getters['entities/channel/query']()
               .where('id', this.view.channelSettings.id)
               .first()
 
@@ -502,7 +493,7 @@
     },
 
     created() {
-      if (Thing.query().count() === 0) {
+      if (this.$store.getters['entities/thing/query']().count() === 0) {
         if (!this.fetchingThings && !this._.get(this.$store, 'state.entities.thing.firstLoad', true)) {
           this.$store.dispatch('entities/thing/fetch', null, {
             root: true,
@@ -630,8 +621,7 @@
             break
 
           case this.view.channelSettings.name:
-            const channel = Channel
-              .query()
+            const channel = this.$store.getters['entities/channel/query']()
               .where('id', id)
               .first()
 

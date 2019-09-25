@@ -1,4 +1,5 @@
 export default {
+
   // Number formatting
   format(number, decimals, decPoint, thousandsSeparator) {
     const cleanedNumber = (`${number}`).replace(/[^0-9+\-Ee.]/g, '')
@@ -31,4 +32,5 @@ export default {
 
     return s.join(dec)
   },
+
 }
