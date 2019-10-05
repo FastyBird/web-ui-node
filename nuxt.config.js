@@ -49,7 +49,7 @@ export default {
     '@/plugins/elements',
     '@/plugins/lodash',
     '@/plugins/event.bus',
-    '@/plugins/io-server',
+    '@/plugins/io.server',
     '@/plugins/translate',
     '@/plugins/wamp.client',
   ],

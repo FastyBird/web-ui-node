@@ -1,4 +1,4 @@
-import api from './api'
+import api from '@/node_modules/@fastybird-com/io-logic/api'
 
 export default ({ app }) => {
   // Configure api
