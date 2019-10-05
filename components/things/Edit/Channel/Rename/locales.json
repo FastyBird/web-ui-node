@@ -1,0 +1,19 @@
+{
+  "en": {
+    "headings": {
+      "name": "Channel name"
+    },
+    "field": {
+      "title": {
+        "title": "Channel name",
+        "validation": {
+          "required": "Please fill in channel name."
+        }
+      }
+    },
+    "messages": {
+      "edited": "Channel {channel} was successfully renamed.",
+      "notEdited": "Channel {channel} couldn't be renamed, please try again later."
+    }
+  }
+}

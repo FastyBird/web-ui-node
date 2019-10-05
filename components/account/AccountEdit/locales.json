@@ -1,0 +1,35 @@
+{
+  "en": {
+    "headings": {
+      "accountSettings": "Account settings"
+    },
+    "field": {
+      "language": {
+        "title": "Language"
+      },
+      "datetime": {
+        "timeZone": {
+          "title": "Time zone"
+        },
+        "dateFormat": {
+          "title": "Date format"
+        },
+        "timeFormat": {
+          "title": "Time format"
+        },
+        "weekStartOn": {
+          "title": "Week start on",
+          "values": {
+            "monday": "Monday",
+            "saturday": "Saturday",
+            "sunday": "Sunday"
+          }
+        }
+      }
+    },
+    "messages": {
+      "accountNotEdited": "Your account couldn't be edited.",
+      "accountEdited": "Your account was successfully saved."
+    }
+  }
+}

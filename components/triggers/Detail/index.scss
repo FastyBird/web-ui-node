@@ -1,0 +1,17 @@
+@import "~@fastybird-com/theme/assets/styles/variables";
+
+a.list-group-item.text-danger {
+  color: #ac6819;
+}
+
+.fb-triggers-detail {
+  &__container {
+    button {
+      outline: none;
+    }
+
+    @media (min-width: $screen-sm-min) {
+      padding: 5px 15px !important;
+    }
+  }
+}

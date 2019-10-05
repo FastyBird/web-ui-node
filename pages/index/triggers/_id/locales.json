@@ -1,0 +1,13 @@
+{
+  "en": {
+    "texts": {
+      "loading": "Loading trigger..."
+    },
+    "messages": {
+      "notFound": "Trigger was not found, please try reload page."
+    },
+    "meta": {
+      "title": "Trigger: {trigger}"
+    }
+  }
+}

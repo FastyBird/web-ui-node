@@ -1,0 +1,29 @@
+@import "~@fastybird-com/theme/assets/styles/variables";
+
+.fb-iot-things-channels-switch {
+  &__loading {
+    width: 44px;
+
+    .icon {
+      width: 32px;
+      line-height: 32px;
+      font-size: 28px;
+    }
+  }
+
+  &__container {
+    .switch {
+      margin-top: 7px;
+    }
+
+    &[data-state="off"] {
+      .switch-track {
+        background-color: $gray-lighter
+      }
+
+      .switch-thumb {
+        border-color: $gray-lighter;
+      }
+    }
+  }
+}

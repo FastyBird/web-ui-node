@@ -1,0 +1,10 @@
+.fb-account-sign-in {
+  &__container {
+    padding: 0 30px 30px 30px;
+
+    form .fb-md-checkbox__container {
+      padding-bottom: 0;
+      padding-top: 0;
+    }
+  }
+}

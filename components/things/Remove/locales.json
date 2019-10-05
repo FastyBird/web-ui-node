@@ -1,0 +1,12 @@
+{
+  "en": {
+    "headings": {
+      "remove": "Remove thing"
+    },
+    "messages": {
+      "confirmRemove": "Are you sure to remove thing {thing} ?",
+      "removed": "Thing {thing} was successfully removed.",
+      "notRemoved": "Thing {thing} couldn't be removed, please try again later."
+    }
+  }
+}

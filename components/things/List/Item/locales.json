@@ -1,0 +1,12 @@
+{
+  "en": {
+    "buttons": {
+      "thingInfo": {
+        "title": "Thing info"
+      },
+      "networkInfo": {
+        "title": "Network info"
+      }
+    }
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "en": {
+    "headings": {
+      "relayMode": "Switch boot mode",
+      "relayPulseMode": "Switch pulse mode",
+      "relayPulseTime": "Switch pulse time"
+    },
+    "field": {
+      "relayMode": {
+        "title": "Switch boot mode",
+        "info": "Here you can define what will be the status of the switch after a reboot.",
+        "values": {
+          "always_off": "Always OFF",
+          "always_on": "Always ON",
+          "same_before": "Same as before",
+          "toggle_before": "Toggle before"
+        }
+      },
+      "relayPulseMode": {
+        "title": "Switch pulse mode",
+        "info": "When pulse mode is enabled the switch will automatically switch back to its normal state after the pulse time (below).",
+        "values": {
+          "disabled": "Don't pulse",
+          "normally_off": "Normally OFF (stays on for a short time)",
+          "normally_on": "Normally ON (stays off for a short time)"
+        }
+      },
+      "relayPulseTime": {
+        "title": "Switch pulse time",
+        "required": "Please fill in switch pulse time.",
+        "info": "Pulse time in seconds (maximum value is 60s, accepts decimals)."
+      },
+      "relaySync": {
+        "title": "Switches synchronization",
+        "values": {
+          "disabled": "No synchronisation",
+          "zero_or_one": "Zero or one switches active",
+          "only_one": "One and just one switch active",
+          "all_synchronized": "All synchronized"
+        }
+      }
+    },
+    "messages": {
+      "edited": "Units for channel {channel} was successfully changed.",
+      "notEdited": "Units for channel {channel} couldn't be changed, please try again later."
+    }
+  }
+}

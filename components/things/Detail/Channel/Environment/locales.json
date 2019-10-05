@@ -1,0 +1,10 @@
+{
+  "en": {
+    "headings": {
+      "clearTotal": "Clear counter"
+    },
+    "messages": {
+      "confirmClearTotal": "Clear total consumption counter for thing {thing} ?"
+    }
+  }
+}

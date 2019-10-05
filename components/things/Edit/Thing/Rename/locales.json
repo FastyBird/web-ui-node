@@ -1,0 +1,22 @@
+{
+  "en": {
+    "headings": {
+      "rename": "Rename thing"
+    },
+    "field": {
+      "title": {
+        "title": "Thing name",
+        "validation": {
+          "required": "Please fill in thing name."
+        }
+      },
+      "comment": {
+        "title": "Thing description"
+      }
+    },
+    "messages": {
+      "edited": "Thing {thing} was successfully renamed.",
+      "notEdited": "Thing {thing} couldn't be renamed, please try again later."
+    }
+  }
+}

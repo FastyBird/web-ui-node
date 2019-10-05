@@ -1,0 +1,17 @@
+{
+  "en": {
+    "buttons": {
+      "connectThing": {
+        "title": "Connect thing"
+      }
+    },
+    "texts": {
+      "loading": "Loading things...",
+      "noThings": "You don't have assigned any thing",
+      "loadingChannels": "Loading channels..."
+    },
+    "meta": {
+      "title": "Registered things"
+    }
+  }
+}
