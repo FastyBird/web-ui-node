@@ -143,7 +143,7 @@ export default {
 
   proxy: {
     '/v1': {
-      target: 'https://io.fastybird.ovh',
+      target: 'https://io.fastybird.ovh/api',
       secure: true,
       changeOrigin: true,
     },
