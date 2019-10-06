@@ -152,7 +152,7 @@ export default {
       pathRewrite: {
         '^/ws-exchange': '',
       },
-      secure: false,
+      secure: true,
       ws: true,
       changeOrigin: true,
     },
