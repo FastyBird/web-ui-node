@@ -1,0 +1,74 @@
+<template>
+  <div class="fb-off-canvas-body__container">
+    <off-canvas-heading
+      :heading="heading"
+      :sub-heading="subHeading"
+    >
+      <template slot="left-button">
+        <slot name="left-button" />
+      </template>
+
+      <template slot="right-button">
+        <slot name="right-button" />
+      </template>
+    </off-canvas-heading>
+
+    <slot name="body" />
+  </div>
+</template>
+
+<script>
+  import OffCanvasHeading from './../Heading'
+
+  export default {
+
+    name: 'OffCanvasBody',
+
+    components: {
+      OffCanvasHeading,
+    },
+
+    props: {
+
+      show: {
+        type: Boolean,
+        default: false,
+      },
+
+      heading: {
+        type: String,
+        required: true,
+      },
+
+      subHeading: {
+        type: String,
+        required: false,
+        default: null,
+      },
+
+    },
+
+    watch: {
+
+      show(val) {
+        if (val) {
+          this.$el.tabIndex = 1
+
+          this.$nextTick(function() {
+            this.$el.focus()
+          })
+        }
+      },
+
+    },
+
+    methods: {
+
+      close() {
+        this.$emit('close')
+      },
+
+    },
+
+  }
+</script>

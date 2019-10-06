@@ -712,7 +712,7 @@
 
 "@fastybird-com/io-logic@bitbucket:fastybird/fastybird-io-logic#master":
   version "1.0.0"
-  resolved "git+ssh://git@bitbucket.org/fastybird/fastybird-io-logic.git#3b9c0d4a64345cbac12545a1262809674db25398"
+  resolved "git+ssh://git@bitbucket.org/fastybird/fastybird-io-logic.git#ef74232115939de9815f64d10474d9e56fa1b9a1"
   dependencies:
     "@vuex-orm/core" "^0.32.2"
     axios "^0.19.0"

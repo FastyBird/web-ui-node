@@ -49,7 +49,7 @@ export default {
     '@/plugins/elements',
     '@/plugins/lodash',
     '@/plugins/event.bus',
-    '@/plugins/io.server',
+    '@/plugins/io-server',
     '@/plugins/translate',
     '@/plugins/wamp.client',
   ],
@@ -59,7 +59,7 @@ export default {
   ],
 
   modules: [
-    '@nuxtjs/onesignal',
+    //'@nuxtjs/onesignal',
     '@nuxtjs/pwa',
     '@nuxtjs/svg',
     '@nuxtjs/toast',
@@ -165,15 +165,15 @@ export default {
     version: 3,
   },
 
-  oneSignal: {
-    init: {
-      appId: process.env.NUXT_ENV_ONE_SIGNAL,
-      allowLocalhostAsSecureOrigin: true,
-      welcomeNotification: {
-        disable: true,
-      },
-    },
-  },
+  //oneSignal: {
+  //  init: {
+  //    appId: process.env.NUXT_ENV_ONE_SIGNAL,
+  //    allowLocalhostAsSecureOrigin: true,
+  //    welcomeNotification: {
+  //      disable: true,
+  //    },
+  //  },
+  //},
 
   sentry: {
     dsn: process.env.NUXT_ENV_SENTRY_DNS,

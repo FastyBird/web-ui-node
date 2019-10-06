@@ -24,7 +24,7 @@
           class="button"
           @click.prevent="closeView(view.opened.type)"
         >
-          <font-awesome-icon icon="window-close" />
+          <font-awesome-icon icon="times" />
         </button>
       </template>
 

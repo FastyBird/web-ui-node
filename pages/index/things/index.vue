@@ -18,81 +18,85 @@
 
     <!-- THING DETAIL FOR LARGE DEVICES //-->
     <off-canvas
-      v-if="view.opened.type !== null && windowSize !== 'xs'"
-      :show="view.opened.type === view.detail.name || view.opened.type === view.settings.name || view.opened.type === view.channelSettings.name"
-      :heading="detailHeading"
-      :sub-heading="detailSubHeading"
+      :show="(view.opened.type === view.detail.name || view.opened.type === view.settings.name || view.opened.type === view.channelSettings.name) && windowSize !== 'xs'"
       @close="closeView(view.opened.type)"
     >
-      <template slot="left-button">
-        <button
-          class="button"
-          @click.prevent="handleDetailLeftButton"
-        >
-          <font-awesome-icon
-            v-if="view.opened.type === view.detail.name"
-            icon="window-close"
-          />
-          <font-awesome-icon
-            v-else
-            icon="angle-left"
-          />
-        </button>
-      </template>
-
-      <template slot="right-button">
-        <button
-          v-if="view.opened.type === view.detail.name"
-          class="button"
-          @click.prevent="openView(view.settings.name, viewThing.id)"
-        >
-          <font-awesome-icon icon="cogs" />
-        </button>
-        <button
-          v-if="view.opened.type === view.settings.name || view.opened.type === view.channelSettings.name"
-          class="button"
-          @click.prevent="closeView(view.opened.type)"
-        >
-          <font-awesome-icon icon="window-close" />
-        </button>
-      </template>
-      {{ view.opened.type }}
-      <transition
+      <off-canvas-body
+        v-if="view.opened.type !== null && windowSize !== 'xs'"
         slot="body"
-        name="fade"
-        mode="out-in"
+        :heading="detailHeading"
+        :sub-heading="detailSubHeading"
       >
-        <things-detail
-          v-if="viewThing !== null && view.opened.type === view.detail.name"
-          :thing="viewThing"
-          :channels="viewChannels"
-          :style="`height: ${offCanvasHeight}px`"
-          class="fb-iot-things-list-view__off-canvas-body"
-        />
+        <template slot="left-button">
+          <button
+            class="button"
+            @click.prevent="handleDetailLeftButton"
+          >
+            <font-awesome-icon
+              v-if="view.opened.type === view.detail.name"
+              icon="times"
+            />
+            <font-awesome-icon
+              v-else
+              icon="angle-left"
+            />
+          </button>
+        </template>
 
-        <things-settings-thing
-          v-if="viewThing !== null && view.opened.type === view.settings.name"
-          :thing="viewThing"
-          :channels="viewChannels"
-          :style="`height: ${offCanvasHeight}px`"
-          class="fb-iot-things-list-view__off-canvas-body"
-          @channelSettings="openChannelSettings"
-          @removed="closeView(view.opened.type)"
-        />
+        <template slot="right-button">
+          <button
+            v-if="view.opened.type === view.detail.name"
+            class="button"
+            @click.prevent="openView(view.settings.name, viewThing.id)"
+          >
+            <font-awesome-icon icon="cogs" />
+          </button>
+          <button
+            v-if="view.opened.type === view.settings.name || view.opened.type === view.channelSettings.name"
+            class="button"
+            @click.prevent="closeView(view.opened.type)"
+          >
+            <font-awesome-icon icon="times" />
+          </button>
+        </template>
+        {{ view.opened.type }}
+        <transition
+          slot="body"
+          name="fade"
+          mode="out-in"
+        >
+          <things-detail
+            v-if="viewThing !== null && view.opened.type === view.detail.name"
+            :thing="viewThing"
+            :channels="viewChannels"
+            :style="`height: ${offCanvasHeight}px`"
+            class="fb-iot-things-list-view__off-canvas-body"
+          />
 
-        <fb-loading-box
-          v-if="fetchingChannels && viewThing !== null && view.opened.type === view.channelSettings.name"
-          :text="$t('texts.loadingChannels')"
-        />
+          <things-settings-thing
+            v-if="viewThing !== null && view.opened.type === view.settings.name"
+            :thing="viewThing"
+            :channels="viewChannels"
+            :style="`height: ${offCanvasHeight}px`"
+            class="fb-iot-things-list-view__off-canvas-body"
+            @channelSettings="openChannelSettings"
+            @removed="closeView(view.opened.type)"
+          />
 
-        <things-settings-channel
-          v-if="!fetchingChannels && viewThing !== null && view.opened.type === view.channelSettings.name"
-          :thing="viewThing"
-          :channel="viewChannel"
-          :style="`height: ${offCanvasHeight}px`"
-          class="fb-iot-things-list-view__off-canvas-body"
-        />
-      </transition>
+          <fb-loading-box
+            v-if="fetchingChannels && viewThing !== null && view.opened.type === view.channelSettings.name"
+            :text="$t('texts.loadingChannels')"
+          />
+
+          <things-settings-channel
+            v-if="!fetchingChannels && viewThing !== null && view.opened.type === view.channelSettings.name"
+            :thing="viewThing"
+            :channel="viewChannel"
+            :style="`height: ${offCanvasHeight}px`"
+            class="fb-iot-things-list-view__off-canvas-body"
+          />
+        </transition>
+      </off-canvas-body>
     </off-canvas>
 
     <things-info-thing
@@ -195,6 +199,12 @@
     error: FbComponentLoadingError,
     timeout: 5000,
   })
+  const OffCanvasBody = () => ({
+    component: import('@/components/layout/OffCanvas/Body'),
+    loading: FbComponentLoading,
+    error: FbComponentLoadingError,
+    timeout: 5000,
+  })
 
   export default {
 
@@ -210,6 +220,7 @@
       ThingsInfoNetwork,
 
       OffCanvas,
+      OffCanvasBody,
     },
 
     transition: 'fade',
