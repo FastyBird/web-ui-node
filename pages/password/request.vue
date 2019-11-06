@@ -1,7 +1,5 @@
 <template>
-  <div>
-    <request-password />
-  </div>
+  <request-password />
 </template>
 
 <script>

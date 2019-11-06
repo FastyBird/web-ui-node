@@ -50,28 +50,12 @@
       :channels="environmentChannels"
     />
 
-    <template
+    <no-results
       v-if="!fetchingChannels && !switchChannels.length && !analogSensorsChannels.length && !analogActorsChannels.length && !binarySensorsChannels.length && !binaryActorsChannels.length && !lightChannels.length && !energyChannels.length && !environmentChannels.length"
-    >
-      <div class="text-center p-a-lg">
-        <span class="icon-with-child">
-          <font-awesome-icon
-            icon="cube"
-            class="icon-5x text-muted m-y-lg"
-          />
-          <span
-            class="bg-primary circle sq-32 icon-2x icon-child m-y-lg"
-            style="padding-top: 1px;"
-          >
-            <font-awesome-icon icon="plug" />
-          </span>
-        </span>
-      </div>
-
-      <p class="text-center m-t-md m-b-lg">
-        {{ $t('texts.noChannels') }}
-      </p>
-    </template>
+      :message="$t('texts.noChannels')"
+      icon="cube"
+      second-icon="plug"
+    />
   </div>
 </template>
 
@@ -122,6 +106,8 @@
     timeout: 5000,
   })
 
+  import NoResults from '@/components/layout/NoResults'
+
   export default {
 
     name: 'ThingsDetail',
@@ -134,6 +120,8 @@
       ThingsDetailChannelsContainerEnvironmentsChannels,
       ThingsDetailChannelsContainerLightChannels,
       ThingsDetailChannelsContainerSwitchChannels,
+
+      NoResults,
     },
 
     props: {
@@ -249,7 +237,7 @@
 </script>
 
 <style rel="stylesheet/scss" lang="scss">
-  @import './index.scss';
+  @import 'index';
 </style>
 
 <i18n src="./locales.json" />

@@ -1,5 +1,10 @@
 {
   "en": {
-    "heading": "Analog sensor|Analog sensors"
+    "heading": "Analog sensor|Analog sensors",
+    "states": {
+      "notAvailable": {
+        "title": "N/A"
+      }
+    }
   }
 }

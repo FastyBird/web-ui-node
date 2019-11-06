@@ -1,0 +1,82 @@
+@import "~@fastybird-com/theme/assets/variables/colors";
+@import "~@fastybird-com/theme/assets/mixins/utilities";
+
+.fb-spinner {
+  &__container {
+    position: relative;
+    display: inline-block;
+
+    &:before,
+    &:after {
+      border-color: rgba(0, 0, 0, 0.1);
+      border-radius: 50%;
+      border-style: solid;
+      content: "";
+      left: 50%;
+      position: absolute;
+      top: 50%;
+
+      border-width: 2px;
+      height: 24px;
+      margin: half(-24px) 0 0 half(-24px);
+      width: 24px;
+    }
+
+    &:after {
+      animation: fb-spinner-animation 0.6s linear;
+      animation-iteration-count: infinite;
+    }
+
+    // Variants
+    &-default:after {
+      border-color: $gray transparent transparent;
+    }
+
+    &-primary:after {
+      border-color: $brand-primary transparent transparent;
+    }
+
+    &-success:after {
+      border-color: $brand-success transparent transparent;
+    }
+
+    &-info:after {
+      border-color: $brand-info transparent transparent;
+    }
+
+    &-warning:after {
+      border-color: $brand-warning transparent transparent;
+    }
+
+    &-danger:after {
+      border-color: $brand-danger transparent transparent;
+    }
+
+    // Sizes
+    &-lg:before,
+    &-lg:after {
+      border-width: 3px;
+      height: 48px;
+      margin: half(-48px) 0 0 half(-48px);
+      width: 48px;
+    }
+
+    &-sm:before,
+    &-sm:after {
+      border-width: 0;
+      height: 18px;
+      margin: half(-18px) 0 0 half(-18px);
+      width: 18px;
+    }
+  }
+}
+
+@keyframes fb-spinner-animation {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}

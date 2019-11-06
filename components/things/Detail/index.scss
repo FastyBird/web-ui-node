@@ -1,4 +1,4 @@
-@import "~@fastybird-com/theme/assets/styles/variables";
+@import "~@fastybird-com/theme/assets/variables/colors";
 
 .fb-iot-things-detail {
   &__container {
@@ -13,7 +13,7 @@
 
     h3 {
       font-size: 95%;
-      margin: 0px;
+      margin: 0;
       padding: 5px 0;
     }
   }

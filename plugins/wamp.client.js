@@ -1,12 +1,10 @@
-import Vue from 'vue'
-
 // Store mutation constant
 export const WAMP_WS_STATE = 'WAMP_WS_STATE'
 export const WAMP_RESET_STATE = 'WAMP_RESET_STATE'
 
-function WampV1(host, options) {
+function WampV1(host, store) {
   this.wsuri = host
-  this.options = options
+  this.store = store
 
   this.socket = null
   this.sessionId = null
@@ -290,14 +288,8 @@ WampV1.prototype.log = function() {
   }
 }
 
-const wamp = new WampV1(process.env.NUXT_ENV_WS_SERVER, {
-  debug: true,
-  store: undefined,
-})
+export default ({ store }, inject) => {
+  const wamp = new WampV1(process.env.NUXT_ENV_WS_SERVER, store)
 
-Vue.prototype.$wamp = wamp
-Vue.wamp = wamp
-
-export default ({ store }) => {
-  wamp.store = store
+  inject('wamp', wamp)
 }

@@ -9,7 +9,7 @@
     </template>
 
     <template slot="form">
-      <fb-md-form-select
+      <fb-form-select
         v-model="form.model.language"
         :data-vv-scope="form.scope"
         :label="$t('field.language.title')"
@@ -18,7 +18,7 @@
         class="m-b-md"
       />
 
-      <fb-md-form-select
+      <fb-form-select
         v-model="form.model.timeZone"
         :data-vv-scope="form.scope"
         :label="$t('field.datetime.timeZone.title')"
@@ -27,7 +27,7 @@
         class="m-b-md"
       />
 
-      <fb-md-form-select
+      <fb-form-select
         v-model="form.model.weekStart"
         :data-vv-scope="form.scope"
         :label="$t('field.datetime.weekStartOn.title')"
@@ -36,7 +36,7 @@
         class="m-b-md"
       />
 
-      <fb-md-form-select
+      <fb-form-select
         v-model="form.model.dateFormat"
         :data-vv-scope="form.scope"
         :label="$t('field.datetime.dateFormat.title')"
@@ -45,7 +45,7 @@
         class="m-b-md"
       />
 
-      <fb-md-form-select
+      <fb-form-select
         v-model="form.model.timeFormat"
         :data-vv-scope="form.scope"
         :label="$t('field.datetime.timeFormat.title')"

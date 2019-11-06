@@ -1,7 +1,7 @@
 import {
   HOME_LINK,
   THINGS_LIST_LINK,
-  TRIGGERS_LIST_LINK,
+  ROUTINES_LIST_LINK,
 } from '@/configuration/routes'
 
 export const AUTHOR_NAME = 'FastyBird s.r.o.'
@@ -52,12 +52,12 @@ export const MENU_ITEMS = [
           type: 'things',
         },
       }, {
-        name: 'Triggers',
-        link: TRIGGERS_LIST_LINK,
+        name: 'Routines',
+        link: ROUTINES_LIST_LINK,
         meta: {
-          icon: 'sliders-h',
-          label: 'application.menu.triggers',
-          type: 'triggers',
+          icon: 'project-diagram',
+          label: 'application.menu.routines',
+          type: 'routines',
         },
       },
     ],
@@ -142,28 +142,16 @@ export const USER_MENU_ITEMS = [
 
 export const MOBILE_BOTTOM_TABS = [
   {
-    name: 'Home',
     link: HOME_LINK,
-    meta: {
-      icon: 'home',
-      label: 'application.tabs.home.title',
-      type: 'home',
-    },
+    icon: 'home',
+    name: 'application.tabs.home.title',
   }, {
-    name: 'Things',
     link: THINGS_LIST_LINK,
-    meta: {
-      icon: 'plug',
-      label: 'application.tabs.things.title',
-      type: 'things',
-    },
+    icon: 'plug',
+    name: 'application.tabs.things.title',
   }, {
-    name: 'Triggers',
-    link: TRIGGERS_LIST_LINK,
-    meta: {
-      icon: 'sliders-h',
-      label: 'application.tabs.triggers.title',
-      type: 'triggers',
-    },
+    link: ROUTINES_LIST_LINK,
+    icon: 'project-diagram',
+    name: 'application.tabs.routines.title',
   },
 ]

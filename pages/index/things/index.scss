@@ -1,4 +1,53 @@
+@import "~@fastybird-com/theme/assets/variables/colors";
+@import "~@fastybird-com/theme/assets/variables/screen";
+@import "~@fastybird-com/theme/assets/mixins/utilities";
+
 .fb-iot-things-list-view {
+  &__items-container {
+    @include gridRow;
+
+    @media (max-width: $screen-xs-max) {
+      padding: 15px 5px 0 5px;
+      margin: 0;
+    }
+
+    @media (min-width: $screen-sm-min) {
+      padding: 15px 15px 0 30px;
+    }
+
+    > div {
+      @include gridCel(0, 0);
+
+      @media (min-width: $screen-md-min) {
+        -webkit-box-flex: 0;
+        -ms-flex: 0 0 50%;
+        flex: 0 0 50%;
+        max-width: 50%;
+
+        @include gridCel;
+      }
+
+      @media (min-width: $screen-lg-min) {
+        -webkit-box-flex: 0;
+        -ms-flex: 0 0 33.333333%;
+        flex: 0 0 33.333333%;
+        max-width: 33.333333%;
+      }
+    }
+
+    > div[data-state="on"] {
+      .fb-list-item__container {
+        border-left: 4px solid $brand-primary;
+      }
+    }
+
+    > div[data-state="off"] {
+      .fb-list-item__container {
+        border-left: 4px solid $gray-lighter;
+      }
+    }
+  }
+
   &__off-canvas-body {
     overflow-y: auto;
   }

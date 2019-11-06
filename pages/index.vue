@@ -1,13 +1,9 @@
 <template>
-  <div class="fb-page-view__container">
-    <nuxt-child />
-  </div>
+  <nuxt-child />
 </template>
 
 <script>
   import { mapState } from 'vuex'
-
-  import { ACCOUNT_SIGN_IN_LINK } from '@/configuration/routes'
 
   export default {
 
@@ -52,7 +48,7 @@
 
         this.$wamp.close()
 
-        this.$router.push(this.localePath({ name: ACCOUNT_SIGN_IN_LINK }))
+        this.$router.push(this.localePath({ name: this.$routes.account.signIn }))
       })
 
       // Check if user token is saved in local storage

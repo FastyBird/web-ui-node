@@ -1,0 +1,22 @@
+{
+  "en": {
+    "buttons": {
+      "automation": {
+        "title": "Automation"
+      },
+      "schedules": {
+        "title": "Schedules"
+      },
+      "create": {
+        "title": "Create routine"
+      }
+    },
+    "texts": {
+      "loading": "Loading routines...",
+      "noRoutines": "You don't have created any routine"
+    },
+    "meta": {
+      "title": "Configured routines"
+    }
+  }
+}

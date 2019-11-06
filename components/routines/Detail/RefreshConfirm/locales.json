@@ -1,0 +1,12 @@
+{
+  "en": {
+    "headings": {
+      "refresh": "Refresh routine"
+    },
+    "messages": {
+      "confirmRefresh": "Received new details for routine {routine}. Do you want to refresh it ?",
+      "refreshed": "Routine {routine} was successfully refreshed.",
+      "notRefreshed": "Routine {routine} couldn't be refreshed, please try reload page."
+    }
+  }
+}

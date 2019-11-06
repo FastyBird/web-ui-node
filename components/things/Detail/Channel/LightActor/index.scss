@@ -3,7 +3,10 @@
 .fb-iot-things-detail-channel-light {
   &__container {
     position: relative;
-    padding-bottom: 56px;
+
+    @media (max-width: $screen-xs-max) {
+      padding: 0 10px;
+    }
 
     .fb-iot-things-detail-channel-light {
       &__channel {

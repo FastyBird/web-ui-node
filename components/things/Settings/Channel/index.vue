@@ -1,9 +1,11 @@
 <template>
-  <div class="p-a-sm fb-iot-things-settings-channel__container">
+  <div class="fb-iot-things-settings-channel__container">
     <template v-if="parameters.length">
-      <h5 class="fw-b text-capitalize text-primary">
-        {{ $t('headings.channelSettings') }}
-      </h5>
+      <div class="fb-iot-things-settings-channel__heading p-x-md p-y-0 m-a-0">
+        <h3>
+          {{ $t('headings.channelSettings') }}
+        </h3>
+      </div>
 
       <div class="list-group">
         <template v-for="parameter in parameters">
@@ -21,9 +23,11 @@
       </div>
     </template>
 
-    <h5 class="fw-b text-capitalize text-primary">
-      {{ $t('headings.generalSettings') }}
-    </h5>
+    <div class="fb-iot-things-settings-channel__heading p-x-md p-y-0 m-a-0">
+      <h3>
+        {{ $t('headings.generalSettings') }}
+      </h3>
+    </div>
 
     <div class="list-group">
       <button
@@ -120,7 +124,9 @@
        * @returns {Array}
        */
       parameters() {
-        return this.$store.getters['entities/channel_configuration/findIn'](this.channel.configuration_ids)
+        return this.$store.getters['entities/channel_configuration/query']()
+          .where('id', this.channel.configuration_ids)
+          .all()
       },
 
       /**

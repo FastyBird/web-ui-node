@@ -7,9 +7,10 @@
       :channel="channel"
     >
       <template slot="channel">
-        <binary-actor
+        <switch-actor
           :thing="thing"
           :channel="channel"
+          class="pull-right"
         />
       </template>
     </channel-container>
@@ -20,7 +21,7 @@
   import ChannelContainer from '@/components/things/Detail/ChannelContainer'
   import ChannelsContainer from '@/components/things/Detail/ChannelsContainer'
 
-  import BinaryActor from '@/components/things/Detail/Channel/BinaryActor'
+  import SwitchActor from '../../../Channels/SwitchActor'
 
   export default {
 
@@ -30,7 +31,7 @@
       ChannelContainer,
       ChannelsContainer,
 
-      BinaryActor,
+      SwitchActor,
     },
 
     props: {

@@ -7,10 +7,13 @@
       :channel="channel"
     >
       <template slot="channel">
-        <analog-sensor
-          :thing="thing"
-          :channel="channel"
-        />
+        <template v-if="thing.state">
+          <span class="fb-iot-things-detail-channel-analog__value">{{ propertyValue }}</span>
+          <span class="fb-iot-things-detail-channel-analog__units">{{ _.get(channel.stateProperty, 'units', null) }}</span>
+        </template>
+        <template v-else>
+          <span class="fb-iot-things-detail-channel-analog__value">{{ $t('states.notAvailable.title') }}</span>
+        </template>
       </template>
     </channel-container>
   </channels-container>
@@ -20,8 +23,6 @@
   import ChannelContainer from '@/components/things/Detail/ChannelContainer'
   import ChannelsContainer from '@/components/things/Detail/ChannelsContainer'
 
-  import AnalogSensor from '@/components/things/Detail/Channel/AnalogSensor'
-
   export default {
 
     name: 'ThingsDetailChannelsContainerAnalogSensorsChannels',
@@ -29,8 +30,6 @@
     components: {
       ChannelContainer,
       ChannelsContainer,
-
-      AnalogSensor,
     },
 
     props: {
@@ -49,5 +48,9 @@
 
   }
 </script>
+
+<style rel="stylesheet/scss" lang="scss">
+  @import 'index';
+</style>
 
 <i18n src="./locales.json" />

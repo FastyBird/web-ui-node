@@ -1,37 +1,43 @@
 <template>
-  <div :class="['fb-list-item__container', { 'with-buttons': slotExists('buttons') }]">
+  <div
+    class="fb-list-item__container"
+    @click="oneClick($event)"
+  >
+    <div class="fb-list-item__icon">
+      <slot name="icon" />
+    </div>
+
+    <div :class="['fb-list-item__heading', { 'with-subheading': slotExists('sub-heading') }]">
+      <h2>
+        <slot name="heading" />
+      </h2>
+      <small v-if="slotExists('sub-heading')">
+        <slot name="sub-heading" />
+      </small>
+    </div>
+
     <div
-      class="row cursor-pointer"
-      @click="oneClick($event)"
+      v-if="slotExists('detail-large')"
+      class="fb-list-item__detail-content-large"
     >
-      <div class="col-2 col-sm-1 col-lg-1 p-x-0 text-center fb-list-item__icon">
-        <slot name="icon" />
-      </div>
+      <slot name="detail-large" />
+    </div>
 
-      <div class="col p-x-0">
-        <div :class="['fb-list-item__heading', { 'with-subheading': slotExists('sub-heading') }]">
-          <h2>
-            <slot name="heading" />
-          </h2>
-          <small v-if="slotExists('sub-heading')">
-            <slot name="sub-heading" />
-          </small>
-        </div>
+    <div
+      v-else-if="slotExists('detail')"
+      class="fb-list-item__detail-content"
+    >
+      <slot name="detail" />
+    </div>
 
-        <div
-          v-if="slotExists('buttons')"
-          class="fb-list-item__buttons hidden-xs"
-        >
-          <slot name="buttons" />
-        </div>
-      </div>
-
-      <div class="col-1 p-x-0 fb-list-item__detail-icon text-right">
-        <font-awesome-icon
-          icon="chevron-right"
-          role="button"
-        />
-      </div>
+    <div
+      v-else
+      class="fb-list-item__detail-icon"
+    >
+      <font-awesome-icon
+        icon="chevron-right"
+        role="button"
+      />
     </div>
   </div>
 </template>
@@ -47,10 +53,9 @@
        * Double click and single click event handler
        *
        * @param {Object} event
-       * @param {Object} item
        */
-      oneClick(event, item) {
-        this.$emit('click', event, item)
+      oneClick(event) {
+        this.$emit('click', event)
       },
 
     },
@@ -58,6 +63,6 @@
   }
 </script>
 
-<style rel="stylesheet/scss" lang="scss">
+<style rel="stylesheet/scss" lang="scss" scoped>
   @import 'index';
 </style>

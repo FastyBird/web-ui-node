@@ -1,0 +1,46 @@
+@import "~@fastybird-com/theme/assets/styles/variables";
+
+.fb-iot-things-list-item {
+  &__container {
+    &[data-state="off"] {
+      .fb-list-item {
+        &__icon svg,
+        &__heading {
+          color: $gray-lighter;
+        }
+      }
+
+      .fb-icon-with-child__container-child {
+        background-color: $brand-danger;
+      }
+    }
+
+    .fb-icon-with-child__container-child {
+      width: 8px;
+      height: 8px;
+      bottom: 12px !important;
+      right: -3px !important;
+    }
+
+    svg,
+    .fb-spinner__container {
+      height: 53px;
+    }
+
+    .fb-spinner__container {
+      width: 32px;
+    }
+
+    .fb-iot-things-channels-switch__container {
+      float: right;
+    }
+  }
+
+  &__value {
+    font-size: 15px;
+  }
+
+  &__units {
+    font-size: 10px;
+  }
+}

@@ -1,20 +1,13 @@
 <template>
   <div class="fb-iot-things-list-view__container">
-    <things-list-container>
-      <template slot="items">
-        <things-list-item
-          v-for="thing in things"
-          :key="thing.id"
-          :thing="thing"
-          :loading-about="loading.about === thing.id"
-          :loading-network="loading.network === thing.id"
-          class="col-md-6 col-lg-4"
-          @click="oneClick"
-          @about="openView(view.about.name, thing.id)"
-          @network="openView(view.network.name, thing.id)"
-        />
-      </template>
-    </things-list-container>
+    <div class="fb-iot-things-list-view__items-container">
+      <things-list-item
+        v-for="thing in things"
+        :key="thing.id"
+        :thing="thing"
+        @click="oneClick"
+      />
+    </div>
 
     <!-- THING DETAIL FOR LARGE DEVICES //-->
     <off-canvas
@@ -38,7 +31,7 @@
             />
             <font-awesome-icon
               v-else
-              icon="angle-left"
+              icon="arrow-lef"
             />
           </button>
         </template>
@@ -59,7 +52,7 @@
             <font-awesome-icon icon="times" />
           </button>
         </template>
-        {{ view.opened.type }}
+
         <transition
           slot="body"
           name="fade"
@@ -83,11 +76,6 @@
             @removed="closeView(view.opened.type)"
           />
 
-          <fb-loading-box
-            v-if="fetchingChannels && viewThing !== null && view.opened.type === view.channelSettings.name"
-            :text="$t('texts.loadingChannels')"
-          />
-
           <things-settings-channel
             v-if="!fetchingChannels && viewThing !== null && view.opened.type === view.channelSettings.name"
             :thing="viewThing"
@@ -95,80 +83,42 @@
             :style="`height: ${offCanvasHeight}px`"
             class="fb-iot-things-list-view__off-canvas-body"
           />
+
+          <fb-loading-box
+            v-if="fetchingChannels && viewThing !== null && view.opened.type === view.channelSettings.name"
+            :text="$t('texts.loadingChannels')"
+          />
         </transition>
       </off-canvas-body>
     </off-canvas>
-
-    <things-info-thing
-      v-if="view.opened.type === view.about.name"
-      :thing="viewThing"
-      @loaded="componentLoaded(view.about.name)"
-      @close="closeView(view.about.name)"
-    />
-
-    <things-info-network
-      v-if="view.opened.type === view.network.name"
-      :thing="viewThing"
-      @loaded="componentLoaded(view.network.name)"
-      @close="closeView(view.network.name)"
-    />
 
     <fb-loading-box
       v-if="fetchingThings && things.length === 0"
       :text="$t('texts.loading')"
     />
 
-    <div
-      v-show="!fetchingThings && things.length === 0"
-      class="p-x-md"
-    >
-      <div class="row">
-        <div class="col-8 offset-2 col-sm-6 offset-sm-3 col-md-4 offset-md-4 col-xl-2 offset-xl-5 p-t-lg">
-          <div class="text-center p-a-lg">
-            <span class="icon-with-child">
-              <font-awesome-icon
-                icon="plug"
-                class="icon-5x text-muted m-y-lg"
-              />
-              <span
-                class="bg-primary circle sq-32 icon-2x icon-child m-y-lg"
-                style="padding-top: 1px;"
-              >
-                <font-awesome-icon icon="plus" />
-              </span>
-            </span>
-          </div>
-
-          <p class="text-center m-b-lg">
-            {{ $t('texts.noThings') }}
-          </p>
-        </div>
-      </div>
-    </div>
+    <no-results
+      v-if="!fetchingThings && things.length === 0"
+      :message="$t('texts.noThings')"
+      icon="plug"
+    />
   </div>
 </template>
 
 <script>
-  import { mapState, mapActions } from 'vuex'
+  import { mapState } from 'vuex'
 
   import {
-    THINGS_LIST_LINK,
-    THINGS_THING_DETAIL_LINK,
-    THINGS_THING_SETTINGS_LINK,
-    THINGS_CHANNEL_SETTINGS_LINK,
-
     THINGS_HASH_DETAIL,
-    THINGS_HASH_ABOUT,
-    THINGS_HASH_NETWORK,
     THINGS_HASH_SETTINGS,
     THINGS_HASH_CHANNEL_SETTINGS,
+    THINGS_HASH_CONNECT,
   } from '@/configuration/routes'
 
   import FbComponentLoading from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoading'
   import FbComponentLoadingError from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoadingError'
 
-  import ThingsListContainer from '@/components/things/List/Container'
-  import ThingsListItem from '@/components/things/List/Item'
+  import ThingsListItem from '@/components/things/ListItem'
 
   const ThingsDetail = () => ({
     component: import('@/components/things/Detail'),
@@ -189,22 +139,16 @@
     timeout: 5000,
   })
 
-  const ThingsInfoThing = () => import('@/components/things/Info/Thing')
-  const ThingsInfoNetwork = () => import('@/components/things/Info/Network')
-
   // Off canvas details view
-  const OffCanvas = () => ({
-    component: import('@/components/layout/OffCanvas'),
-    loading: FbComponentLoading,
-    error: FbComponentLoadingError,
-    timeout: 5000,
-  })
+  import OffCanvas from '@/components/layout/OffCanvas'
+
   const OffCanvasBody = () => ({
     component: import('@/components/layout/OffCanvas/Body'),
     loading: FbComponentLoading,
     error: FbComponentLoadingError,
     timeout: 5000,
   })
+  import NoResults from '@/components/layout/NoResults'
 
   export default {
 
@@ -212,15 +156,13 @@
 
     components: {
       ThingsListItem,
-      ThingsListContainer,
       ThingsDetail,
       ThingsSettingsThing,
       ThingsSettingsChannel,
-      ThingsInfoThing,
-      ThingsInfoNetwork,
 
       OffCanvas,
       OffCanvasBody,
+      NoResults,
     },
 
     transition: 'fade',
@@ -229,12 +171,19 @@
       return {
         loading: {
           detail: null,
-          about: null,
-          network: null,
         },
         view: {
           opened: {
             type: null,
+          },
+          connect: {
+            name: 'connect',
+            type: undefined,
+            id: null,
+            route: {
+              hash: THINGS_HASH_CONNECT,
+              length: 8,
+            },
           },
           detail: {
             name: 'detail',
@@ -243,22 +192,6 @@
             route: {
               hash: THINGS_HASH_DETAIL,
               length: 8,
-            },
-          },
-          about: {
-            name: 'about',
-            id: null,
-            route: {
-              hash: THINGS_HASH_ABOUT,
-              length: 7,
-            },
-          },
-          network: {
-            name: 'network',
-            id: null,
-            route: {
-              hash: THINGS_HASH_NETWORK,
-              length: 9,
             },
           },
           settings: {
@@ -307,6 +240,7 @@
         return this.$store.getters['entities/thing/query']()
           .with('properties')
           .with('socket')
+          .orderBy('label')
           .all()
       },
 
@@ -325,14 +259,6 @@
         switch (this.view.opened.type) {
           case this.view.detail.name:
             thingId = this.view.detail.id
-            break
-
-          case this.view.about.name:
-            thingId = this.view.about.id
-            break
-
-          case this.view.network.name:
-            thingId = this.view.network.id
             break
 
           case this.view.settings.name:
@@ -358,8 +284,8 @@
        */
       viewChannel() {
         if (
-          this.view.opened.type === null
-          || this.view.opened.type !== this.view.channelSettings.name
+          this.view.opened.type === null ||
+          this.view.opened.type !== this.view.channelSettings.name
         ) {
           return null
         }
@@ -478,7 +404,13 @@
       windowSize(val) {
         if (val === 'xs') {
           if (this.view.opened.type === this.view.settings.name) {
-            this.$router.push(this.localePath({ name: THINGS_THING_SETTINGS_LINK, params: { id: this.view.settings.id } }))
+            this.$router.push(this.localePath({
+              name: this.$routes.things.detail,
+              params: {
+                id: this.view.settings.id,
+              },
+              hash: THINGS_HASH_SETTINGS,
+            }))
 
             return
           } else if (this.view.opened.type === this.view.channelSettings.name) {
@@ -486,11 +418,22 @@
               .where('id', this.view.channelSettings.id)
               .first()
 
-            this.$router.push(this.localePath({ name: THINGS_CHANNEL_SETTINGS_LINK, params: { id: channel.thing_id, channelId: this.view.channelSettings.id } }))
+            this.$router.push(this.localePath({
+              name: this.$routes.things.detail,
+              params: {
+                id: channel.thing_id,
+              },
+              hash: `${THINGS_HASH_CHANNEL_SETTINGS}-${this.view.channelSettings.id}`,
+            }))
 
             return
           } else if (this.view.opened.type === this.view.detail.name) {
-            this.$router.push(this.localePath({ name: THINGS_THING_DETAIL_LINK, params: { id: this.view.detail.id } }))
+            this.$router.push(this.localePath({
+              name: this.$routes.things.detail,
+              params: {
+                id: this.view.detail.id,
+              },
+            }))
 
             return
           }
@@ -532,7 +475,7 @@
 
     },
 
-    fetch({ app, store }) {
+    fetch({ app, store, error }) {
       if (!store.getters['entities/thing/firstLoadFinished']()) {
         return store.dispatch('entities/thing/fetch', {
           include_channels: false,
@@ -540,19 +483,50 @@
           root: true,
         })
           .then(() => {
+            const thingsCount = store.getters['entities/thing/query']().count()
+
             store.dispatch('header/resetStore', null, {
+              root: true,
+            })
+
+            store.dispatch('header/hideHamburger', null, {
               root: true,
             })
 
             store.dispatch('header/setHeading', {
               heading: app.i18n.t('application.headings.things.list'),
+              subHeading: app.i18n.tc('application.subHeadings.things.list', thingsCount, { count: thingsCount }),
             }, {
               root: true,
             })
+
+            store.dispatch('header/setAddButton', {
+              name: app.i18n.t('application.buttons.add.title'),
+              callback: null, // Null is set because of SSR and serialization
+            }, {
+              root: true,
+            })
+
+            store.dispatch('header/addTab', {
+              name: app.i18n.t('application.buttons.things.title'),
+              link: app.localePath(app.$routes.things.list),
+            }, {
+              root: true,
+            })
+
+            store.dispatch('header/addTab', {
+              name: app.i18n.t('application.buttons.groups.title'),
+              link: app.localePath(app.$routes.groups.list),
+            }, {
+              root: true,
+            })
+
+            store.dispatch('bottomNavigation/resetStore', null, {
+              root: true,
+            })
           })
-          .catch(e => {
-            // eslint-disable-next-line
-            console.log(e)
+          .catch(() => {
+            error({ statusCode: 503, message: 'Something went wrong' })
           })
       }
     },
@@ -566,13 +540,12 @@
         this.$store.dispatch('entities/thing/fetch', {}, {
           root: true,
         })
-          .catch(e => {
-            // eslint-disable-next-line
-            console.log(e)
+          .catch(() => {
+            this.$nuxt.error({ statusCode: 503, message: 'Something went wrong' })
           })
       }
 
-      this._configureHeader()
+      this._configureNavigation()
     },
 
     mounted() {
@@ -584,11 +557,6 @@
     },
 
     methods: {
-
-      ...mapActions('header', [
-        'setHeading',
-        'resetStore',
-      ]),
 
       /**
        * Event fired by loaded component
@@ -610,6 +578,14 @@
        */
       openChannelSettings(channel) {
         this.openView(this.view.channelSettings.name, channel.id)
+      },
+
+      openThingConnect() {
+        if (this.windowSize === 'xs') {
+          this.$router.push(this.localePath(this.$routes.things.connect))
+        } else {
+          this.openView('connect')
+        }
       },
 
       /**
@@ -643,9 +619,17 @@
         switch (view) {
           case this.view.detail.name:
             if (this.windowSize === 'xs') {
-              this.$router.push(this.localePath({ name: THINGS_THING_DETAIL_LINK, params: { id } }))
+              this.$router.push(this.localePath({
+                name: this.$routes.things.detail,
+                params: {
+                  id,
+                },
+              }))
             } else {
-              this.$router.push(`${this.localePath({ name: THINGS_LIST_LINK })}${this.view.detail.route.hash}${id}`)
+              this.$router.push(this.localePath({
+                name: this.$routes.things.list,
+                hash: `${this.view.detail.route.hash}-${id}`,
+              }))
 
               this._loadChannels(id)
             }
@@ -653,20 +637,21 @@
 
           case this.view.settings.name:
             if (this.windowSize === 'xs') {
-              this.$router.push(this.localePath({ name: THINGS_THING_SETTINGS_LINK, params: { id } }))
+              this.$router.push(this.localePath({
+                name: this.$routes.things.detail,
+                params: {
+                  id,
+                },
+                hash: THINGS_HASH_SETTINGS,
+              }))
             } else {
-              this.$router.push(`${this.localePath({ name: THINGS_LIST_LINK })}${this.view.settings.route.hash}${id}`)
+              this.$router.push(this.localePath({
+                name: this.$routes.things.list,
+                hash: `${this.view.settings.route.hash}-${id}`,
+              }))
 
               this._loadChannels(id)
             }
-            break
-
-          case this.view.about.name:
-            this.$router.push(`${this.localePath({ name: THINGS_LIST_LINK })}${this.view.about.route.hash}${id}`)
-            break
-
-          case this.view.network.name:
-            this.$router.push(`${this.localePath({ name: THINGS_LIST_LINK })}${this.view.network.route.hash}${id}`)
             break
 
           case this.view.channelSettings.name:
@@ -676,16 +661,25 @@
 
             if (thing) {
               if (this.windowSize === 'xs') {
-                this.$router.push(this.localePath({ name: THINGS_CHANNEL_SETTINGS_LINK, params: { id: thing.id, channelId: id } }))
+                this.$router.push(this.localePath({
+                  name: this.$routes.things.detail,
+                  params: {
+                    id: thing.id,
+                  },
+                  hash: `${THINGS_HASH_CHANNEL_SETTINGS}-${id}`,
+                }))
               } else {
                 this.view.channelSettings.thingId = thing.id
 
-                this.$router.push(`${this.localePath({ name: THINGS_LIST_LINK })}${this.view.channelSettings.route.hash}${id}`)
+                this.$router.push(this.localePath({
+                  name: this.$routes.things.list,
+                  hash: `${this.view.channelSettings.route.hash}-${id}`,
+                }))
 
                 this._loadChannels(thing.id)
               }
             } else {
-              this.$router.push(this.localePath({ name: THINGS_LIST_LINK }))
+              this.$router.push(this.localePath(this.$routes.things.list))
 
               return
             }
@@ -728,7 +722,7 @@
        * @param {String} [view]
        */
       closeView(view) {
-        this.$router.push(this.localePath({ name: THINGS_LIST_LINK }))
+        this.$router.push(this.localePath(this.$routes.things.list))
 
         this.view.opened.type = null
 
@@ -838,9 +832,9 @@
           }, {
             root: true,
           })
-            .catch(e => {
-              // eslint-disable-next-line
-              console.log(e)
+            .catch(() => {
+              // Channels could not be loaded, an unexpected error occur
+              this.$nuxt.error({ statusCode: 503, message: 'Channels could not be loaded' })
             })
         }
       },
@@ -858,10 +852,6 @@
             this.openView(this.view.channelSettings.name, this.$route.hash.substring(this.view.channelSettings.route.length))
           } else if (this.$route.hash.indexOf(this.view.settings.route.hash) !== -1) {
             this.openView(this.view.settings.name, this.$route.hash.substring(this.view.settings.route.length))
-          } else if (this.$route.hash.indexOf(this.view.about.route.hash) !== -1) {
-            this.openView(this.view.about.name, this.$route.hash.substring(this.view.about.route.length))
-          } else if (this.$route.hash.indexOf(this.view.network.route.hash) !== -1) {
-            this.openView(this.view.network.name, this.$route.hash.substring(this.view.network.route.length))
           }
         }
       },
@@ -875,7 +865,7 @@
         if (this.windowSize === 'xs') {
           this.offCanvasHeight = null
         } else {
-          this.offCanvasHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0) - 50
+          this.offCanvasHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
         }
       },
 
@@ -884,11 +874,47 @@
        *
        * @private
        */
-      _configureHeader() {
-        this.resetStore()
+      _configureNavigation() {
+        this.$store.dispatch('header/resetStore', null, {
+          root: true,
+        })
 
-        this.setHeading({
+        this.$store.dispatch('header/hideHamburger', null, {
+          root: true,
+        })
+
+        this.$store.dispatch('header/setHeading', {
           heading: this.$t('application.headings.things.list'),
+          subHeading: this.$tc('application.subHeadings.things.list', this.things.length, { count: this.things.length }),
+        }, {
+          root: true,
+        })
+
+        this.$store.dispatch('header/setAddButton', {
+          name: this.$t('application.buttons.add.title'),
+          callback: () => {
+            this.openThingConnect()
+          },
+        }, {
+          root: true,
+        })
+
+        this.$store.dispatch('header/addTab', {
+          name: this.$t('application.buttons.things.title'),
+          link: this.localePath(this.$routes.things.list),
+        }, {
+          root: true,
+        })
+
+        this.$store.dispatch('header/addTab', {
+          name: this.$t('application.buttons.groups.title'),
+          link: this.localePath(this.$routes.groups.list),
+        }, {
+          root: true,
+        })
+
+        this.$store.dispatch('bottomNavigation/resetStore', null, {
+          root: true,
         })
       },
 
@@ -904,7 +930,7 @@
 </script>
 
 <style rel="stylesheet/scss" lang="scss">
-  @import './index.scss';
+  @import 'index';
 </style>
 
 <i18n src="./locales.json" />

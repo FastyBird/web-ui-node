@@ -1,0 +1,22 @@
+{
+  "en": {
+    "headings": {
+      "rename": "Rename group"
+    },
+    "field": {
+      "title": {
+        "title": "Give group a name",
+        "validation": {
+          "required": "Please fill in group name."
+        }
+      },
+      "comment": {
+        "title": "Describe your group"
+      }
+    },
+    "messages": {
+      "edited": "Group {group} was successfully created.",
+      "notEdited": "Group {group} couldn't be created, please try again later."
+    }
+  }
+}

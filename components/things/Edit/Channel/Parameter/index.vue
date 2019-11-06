@@ -18,7 +18,7 @@
         This thing is offline. Therefore you can't edit its setting
       </p>
 
-      <fb-md-form-input
+      <fb-form-input
         v-if="parameter.isNumber"
         v-model="form.model"
         v-validate="`required|numeric|between:${parameter.min},${parameter.max}`"
@@ -33,7 +33,6 @@
         :required="true"
         :tab-index="2"
         type="number"
-        class="m-b-0"
       >
         <template
           v-if="translatedDescription !== null && !errors.has(`${form.scope}.${parameter.name}`)"
@@ -41,9 +40,9 @@
         >
           {{ translatedDescription }}
         </template>
-      </fb-md-form-input>
+      </fb-form-input>
 
-      <fb-md-form-input
+      <fb-form-input
         v-if="parameter.isText"
         v-model="form.model"
         v-validate="'required'"
@@ -56,7 +55,6 @@
         :required="true"
         :tab-index="2"
         type="text"
-        class="m-b-0"
       >
         <template
           v-if="translatedDescription !== null && !errors.has(`${form.scope}.${parameter.name}`)"
@@ -64,9 +62,9 @@
         >
           {{ translatedDescription }}
         </template>
-      </fb-md-form-input>
+      </fb-form-input>
 
-      <fb-md-form-select
+      <fb-form-select
         v-if="parameter.isSelect"
         v-model="form.model"
         :items="parameterItems"
@@ -85,7 +83,7 @@
         >
           {{ translatedDescription }}
         </template>
-      </fb-md-form-select>
+      </fb-form-select>
     </template>
   </fb-modal-form>
 </template>

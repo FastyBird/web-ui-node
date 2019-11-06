@@ -9,7 +9,7 @@
     <form @submit.prevent="submit">
       <div class="row">
         <div class="col-6">
-          <fb-md-form-input
+          <fb-form-input
             v-model="form.model.profile.details.first_name"
             v-validate="'required'"
             :data-vv-scope="form.scope"
@@ -25,11 +25,11 @@
             <template slot="help-line">
               {{ $t('field.firstName.help') }}
             </template>
-          </fb-md-form-input>
+          </fb-form-input>
         </div>
 
         <div class="col-6">
-          <fb-md-form-input
+          <fb-form-input
             v-model="form.model.profile.details.last_name"
             v-validate="'required'"
             :data-vv-scope="form.scope"
@@ -45,11 +45,11 @@
             <template slot="help-line">
               {{ $t('field.lastName.help') }}
             </template>
-          </fb-md-form-input>
+          </fb-form-input>
         </div>
       </div>
 
-      <fb-md-form-input
+      <fb-form-input
         v-model="form.model.email_address"
         v-validate="'required|email|checkEmail'"
         :data-vv-scope="form.scope"
@@ -65,9 +65,9 @@
         <template slot="help-line">
           {{ $t('field.emailAddress.help') }}
         </template>
-      </fb-md-form-input>
+      </fb-form-input>
 
-      <fb-md-form-input
+      <fb-form-input
         v-model="form.model.credentials.password"
         v-validate="'required'"
         :data-vv-scope="form.scope"
@@ -249,8 +249,8 @@
   }
 </script>
 
-<style rel="stylesheet/scss" lang="scss">
-  @import './index.scss';
+<style rel="stylesheet/scss" lang="scss" scoped>
+  @import 'index';
 </style>
 
 <i18n src="./locales.json" />

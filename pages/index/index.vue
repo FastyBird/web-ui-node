@@ -1,5 +1,5 @@
 <template>
-  <div class="fb-home-view__container p-a-md">
+  <div class="fb-home-view__container">
     <div
       v-if="profile !== null"
       class="text-center m-y-lg"
@@ -23,8 +23,6 @@
 </template>
 
 <script>
-  import { mapActions } from 'vuex'
-
   import Gravatar from 'vue-gravatar'
 
   export default {
@@ -48,15 +46,13 @@
     },
 
     created() {
-      this.resetStore()
-    },
+      this.$store.dispatch('header/resetStore', null, {
+        root: true,
+      })
 
-    methods: {
-
-      ...mapActions('header', [
-        'resetStore',
-      ]),
-
+      this.$store.dispatch('bottomNavigation/resetStore', null, {
+        root: true,
+      })
     },
 
   }

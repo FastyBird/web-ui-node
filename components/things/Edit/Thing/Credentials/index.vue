@@ -11,7 +11,7 @@
     </template>
 
     <template slot="form">
-      <fb-md-form-input
+      <fb-form-input
         v-model="form.model.username"
         v-validate="'required'"
         :data-vv-scope="form.scope"
@@ -21,10 +21,9 @@
         :label="$t('field.username.title')"
         :required="true"
         :tab-index="2"
-        class="m-b-0"
       />
 
-      <fb-md-form-input
+      <fb-form-input
         v-model="form.model.password"
         v-validate="'required'"
         :data-vv-scope="form.scope"
@@ -34,10 +33,9 @@
         :label="$t('field.password.title')"
         :required="true"
         :tab-index="3"
-        class="m-b-0"
       />
 
-      <fb-md-form-input
+      <fb-form-input
         v-model="form.model.thing_id"
         :data-vv-scope="form.scope"
         :error="errors.first(form.scope + '.thing_id')"
@@ -46,12 +44,11 @@
         :label="$t('field.clientId.title')"
         :readonly="true"
         :tab-index="4"
-        class="m-b-0"
       />
 
       <div class="row m-t-lg">
         <div class="col-md-8">
-          <fb-md-form-input
+          <fb-form-input
             v-model="form.model.server"
             :data-vv-scope="form.scope"
             :error="errors.first(form.scope + '.server')"
@@ -60,12 +57,11 @@
             :label="$t('field.server.title')"
             :readonly="true"
             :tab-index="5"
-            class="m-b-0"
           />
         </div>
 
         <div class="col-md-4">
-          <fb-md-form-input
+          <fb-form-input
             v-model="form.model.port"
             :data-vv-scope="form.scope"
             :error="errors.first(form.scope + '.port')"
@@ -74,7 +70,6 @@
             :label="$t('field.port.title')"
             :readonly="true"
             :tab-index="6"
-            class="m-b-0"
           />
         </div>
       </div>

@@ -1,34 +1,9 @@
-@import "~@fastybird-com/theme/assets/styles/variables";
-
 .fb-iot-things-detail-channel-energy-property {
-  &__container {
-    border-bottom: 1px solid $gray-lighter;
-    height: 55px;
-    width: 100%;
-  }
-
-  &__icon {
-    height: 30px;
-    width: 30px;
-    fill: $gray;
-    stroke: $gray;
-  }
-
-  &__heading {
-    small {
-      font-size: 80%;
-      display: block;
-    }
-  }
-
   &__value-container {
-    padding: 5px;
-    height: 100%;
-
     button {
       position: absolute;
-      top: -8px;
-      right: -8px;
+      top: 2px;
+      right: 2px;
     }
   }
 
@@ -38,15 +13,5 @@
 
   &__units {
     font-size: 10px;
-    margin-left: 5px;
-  }
-
-  &__container[data-state="off"] {
-    .fb-iot-things-detail-channel-energy-property {
-      &__icon {
-        fill: $gray-lighter;
-        stroke: $gray-lighter;
-      }
-    }
   }
 }

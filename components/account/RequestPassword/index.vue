@@ -31,9 +31,10 @@
 
       <form
         v-if="!isSubmitted"
+        class="p-t-md"
         @submit.prevent="submit"
       >
-        <fb-md-form-input
+        <fb-form-input
           v-model="form.model.credentials.uid"
           v-validate="'required|checkUid'"
           :data-vv-scope="form.scope"
@@ -43,7 +44,6 @@
           :label="$t('field.identity.uid.title')"
           :required="true"
           data-vv-validate-on="blur"
-          class="m-b-0"
         />
 
         <fb-button
@@ -224,8 +224,8 @@
   }
 </script>
 
-<style rel="stylesheet/scss" lang="scss">
-  @import './index.scss';
+<style rel="stylesheet/scss" lang="scss" scoped>
+  @import 'index';
 </style>
 
 <i18n src="./locales.json" />

@@ -1,0 +1,40 @@
+@import "~@fastybird-com/theme/assets/styles/variables";
+
+.fb-iot-groups-create {
+  &__container {
+    .row > div {
+      display: inline-block;
+      position: relative;
+      width: 20%;
+      float: left;
+      font-size: 12px;
+      padding: 0px;
+    }
+
+    .row > div:before {
+      content: "";
+      display: block;
+      padding-top: 100%;
+    }
+  }
+
+  &__icon {
+    /* Positioning */
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    padding: 5px;
+    margin: 10px;
+    text-align: center;
+    vertical-align: center;
+    text-transform: uppercase;
+    border: 1px solid $gray-lighter;
+    border-radius: 50%;
+
+    svg {
+      height: 100%;
+    }
+  }
+}

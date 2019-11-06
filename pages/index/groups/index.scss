@@ -1,0 +1,26 @@
+@import "~@fastybird-com/theme/assets/styles/variables";
+
+.fb-iot-groups-list-view {
+  &__items-container {
+    @media (max-width: $screen-xs-max) {
+      padding: 5px 0 0 0;
+      margin: 0;
+    }
+
+    @media (min-width: $screen-sm-min) {
+      padding: 15px 15px 0 30px;
+    }
+
+    > div[data-state="on"] {
+      border-left: 4px solid $brand-primary;
+    }
+
+    > div[data-state="off"] {
+      border-left: 4px solid $gray-lighter;
+    }
+  }
+
+  &__off-canvas-body {
+    overflow-y: auto;
+  }
+}

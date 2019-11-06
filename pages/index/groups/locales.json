@@ -1,0 +1,22 @@
+{
+  "en": {
+    "buttons": {
+      "things": {
+        "title": "Things"
+      },
+      "groups": {
+        "title": "Groups"
+      },
+      "create": {
+        "title": "Create group"
+      }
+    },
+    "texts": {
+      "loading": "Loading groups...",
+      "noGroups": "You don't have created any group"
+    },
+    "meta": {
+      "title": "Things groups"
+    }
+  }
+}

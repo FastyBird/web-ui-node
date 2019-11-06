@@ -9,7 +9,7 @@
     </template>
 
     <template slot="form">
-      <fb-md-form-input
+      <fb-form-input
         v-model="form.model.password.current"
         v-validate="'required|checkCurrentPassword'"
         :data-vv-scope="form.scope"
@@ -29,9 +29,9 @@
         >
           {{ $t('field.password.current.help') }}
         </template>
-      </fb-md-form-input>
+      </fb-form-input>
 
-      <fb-md-form-input
+      <fb-form-input
         v-model="form.model.password.new"
         v-validate="'required'"
         :data-vv-scope="form.scope"
@@ -50,9 +50,9 @@
         >
           {{ $t('field.password.new.help') }}
         </template>
-      </fb-md-form-input>
+      </fb-form-input>
 
-      <fb-md-form-input
+      <fb-form-input
         v-model="form.model.password.repeat"
         v-validate="'required'"
         :data-vv-scope="form.scope"
@@ -71,7 +71,7 @@
         >
           {{ $t('field.password.repeat.help') }}
         </template>
-      </fb-md-form-input>
+      </fb-form-input>
     </template>
   </fb-modal-form>
 </template>

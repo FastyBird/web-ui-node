@@ -4,11 +4,21 @@
       "thingSettings": "Thing settings",
       "generalSettings": "General settings",
       "channelsSettings": "Channel settings|Channels settings",
-      "moduleTimeSettings": "Thing time settings"
+      "moduleSensorSettings": "Thing sensor settings",
+      "moduleTimeSettings": "Thing time settings",
+      "manufacturerAndNetwork": "Manufacturer & Network info"
     },
     "texts": {
       "actual": "Actual",
-      "loading": "Loading channels..."
+      "loading": "Loading channels...",
+      "wifi": {
+        "name": "Wifi name",
+        "ip": "IP address"
+      },
+      "hardware": {
+        "model": "Model",
+        "manufacturer": "Manufacturer"
+      }
     },
     "buttons": {
       "remove": {
@@ -17,18 +27,16 @@
       "rename": {
         "title": "Rename thing"
       },
-      "about": {
-        "title": "About thing"
-      },
-      "networkInfo": {
-        "title": "Network info"
-      },
       "credentials": {
         "title": "Connection credentials"
       },
       "timeConfiguration": {
         "title": "Time settings",
         "description": "Configure thing timezone etc."
+      },
+      "sensorConfiguration": {
+        "title": "Sensor settings",
+        "description": "Configure thing sensors etc."
       },
       "energyCalibration": {
         "title": "Calibrate energy"

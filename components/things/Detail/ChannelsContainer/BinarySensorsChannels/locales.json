@@ -1,5 +1,16 @@
 {
   "en": {
-    "heading": "Digital sensor|Digital sensors"
+    "heading": "Digital sensor|Digital sensors",
+    "states": {
+      "on": {
+        "title": "On"
+      },
+      "off": {
+        "title": "Off"
+      },
+      "notAvailable": {
+        "title": "N/A"
+      }
+    }
   }
 }

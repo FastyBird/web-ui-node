@@ -1,0 +1,22 @@
+{
+  "en": {
+    "headings": {
+      "rename": "Rename group"
+    },
+    "field": {
+      "title": {
+        "title": "Group name",
+        "validation": {
+          "required": "Please fill in group name."
+        }
+      },
+      "comment": {
+        "title": "Group description"
+      }
+    },
+    "messages": {
+      "edited": "Group {group} was successfully renamed.",
+      "notEdited": "Group {group} couldn't be renamed, please try again later."
+    }
+  }
+}

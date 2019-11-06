@@ -11,21 +11,29 @@
         border-color: $gray;
       }
 
-      .switch-input.no-control:disabled ~ .switch-track {
+      .switch-input:checked ~ .switch-track {
+        background-color: $brand-primary;
+      }
+
+      .switch-input:checked ~ .switch-thumb {
+        border-color: $brand-primary;
+      }
+
+      .switch-input:disabled ~ .switch-track {
         background-color: $gray;
         cursor: not-allowed;
       }
 
-      .switch-input.no-control:disabled ~ .switch-thumb {
+      .switch-input:disabled ~ .switch-thumb {
         border-color: $gray;
       }
 
-      .switch-input.no-control:disabled:checked ~ .switch-track {
+      .switch-input:disabled:checked ~ .switch-track {
         background-color: $brand-primary;
         cursor: not-allowed;
       }
 
-      .switch-input.no-control:disabled:checked ~ .switch-thumb {
+      .switch-input:disabled:checked ~ .switch-thumb {
         border-color: $brand-primary;
       }
     }

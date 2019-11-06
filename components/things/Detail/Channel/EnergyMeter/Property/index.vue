@@ -6,25 +6,20 @@
     class="fb-iot-things-detail-channel-energy-property__container"
   >
     <template slot="icon">
-      <device-icon
-        :name="icon"
-        class="fb-iot-things-detail-channel-energy-property__icon"
-      />
+      <font-awesome-icon :icon="$channelPropertyIcon(thing, channel, property, 'plug')" />
+    </template>
+
+    <template slot="heading">
+      {{ $tChannelProperty(thing, channel, property) }}
+    </template>
+
+    <template slot="sub-heading">
+      {{ $tChannel(thing, channel) }}
     </template>
 
     <div
-      slot="name"
-      class="fb-iot-things-detail-channel-energy-property__heading m-t-sm"
-    >
-      <h5 class="fw-b m-y-0">
-        {{ $tChannelProperty(thing, channel, property) }}
-      </h5>
-      <small>{{ $tChannel(thing, channel) }}</small>
-    </div>
-
-    <div
       slot="channel"
-      class="fb-iot-things-detail-channel-energy-property__value-container"
+      class="fb-iot-things-detail-channel-energy-property__value-container p-r-sm"
     >
       <template v-if="thing.state">
         <span class="fb-iot-things-detail-channel-energy-property__value">{{ value }}</span>
@@ -93,27 +88,6 @@
           .first()
 
         return propertyValue !== null ? number.format(parseFloat(propertyValue.value), 2, ',', ' ') : '-'
-      },
-
-      /**
-       * Get icon for current property
-       *
-       * @returns {String}
-       */
-      icon() {
-        switch (this.property.property) {
-          case 'power':
-            return 'plug'
-
-          case 'current':
-          case 'voltage':
-            return 'bolt'
-
-          case 'energy':
-            return 'odometer'
-        }
-
-        return 'plug'
       },
 
     },

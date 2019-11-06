@@ -1,5 +1,4 @@
 export default {
-  welcome: 'hokuspokus',
   layout: {
     projectName: 'FastyBird.com',
     buttons: {
@@ -12,16 +11,34 @@ export default {
     headings: {
       offlineState: 'No internet connection',
       things: {
-        list: 'Things',
+        list: 'All things',
       },
-      triggers: {
-        list: 'Triggers',
-        create: 'Create trigger',
+      groups: {
+        list: 'All groups',
+        add: 'New group',
+      },
+      routines: {
+        list: 'All routines',
+        add: 'New routine',
+      },
+    },
+    subHeadings: {
+      things: {
+        list: 'no things | one thing | {count} tings',
+      },
+      groups: {
+        list: 'no groups | one group | {count} groups',
+      },
+      routines: {
+        list: 'no routines | one routine | {count} routines',
       },
     },
     buttons: {
+      edit: {
+        title: 'Edit',
+      },
       remove: {
-        title: 'Delete',
+        title: 'Remove',
       },
       save: {
         title: 'Save',
@@ -53,6 +70,18 @@ export default {
       add: {
         title: 'Add',
       },
+      routines: {
+        title: 'Routines',
+      },
+      favouriteAdd: {
+        title: 'Add to favourite',
+      },
+      things: {
+        title: 'Things',
+      },
+      groups: {
+        title: 'Groups',
+      },
     },
     tabs: {
       home: {
@@ -61,8 +90,8 @@ export default {
       things: {
         title: 'Things',
       },
-      triggers: {
-        title: 'Triggers',
+      routines: {
+        title: 'Routines',
       },
     },
     messages: {
@@ -76,7 +105,7 @@ export default {
       root: 'Cloud',
       home: 'Home',
       things: 'Things',
-      triggers: 'Triggers',
+      routines: 'Routines',
       schedules: 'Schedules',
     },
     userMenu: {
@@ -170,8 +199,9 @@ export default {
           },
         },
         led_mode: {
-          button: 'Status LED mode',
-          heading: 'Status LED mode',
+          button: 'Status indicator mode',
+          heading: 'Status indicator mode',
+          description: 'Define how the thing status indicator should operate. Indicator could be turned off to not disturb you.',
           values: {
             wifi_status: 'Wifi status',
             always_on: 'Always on',

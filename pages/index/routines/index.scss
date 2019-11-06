@@ -1,0 +1,47 @@
+@import "~@fastybird-com/theme/assets/styles/variables";
+
+.fb-routines-list-view {
+  &__navigation {
+    background-color: $brand-primary;
+    position: relative;
+  }
+
+  &__navigation-button {
+    color: darken($btn-primary-border, 15%);
+    font-weight: bolder;
+    letter-spacing: 1px;
+  }
+
+  &__navigation-button-active {
+    color: #fff;
+  }
+
+  &__add-button {
+    position: absolute;
+    top: 15px;
+    right: 25px;
+  }
+
+  &__items-container {
+    @media (max-width: $screen-xs-max) {
+      padding: 5px 0 0 0;
+      margin: 0;
+    }
+
+    @media (min-width: $screen-sm-min) {
+      padding: 15px 15px 0 30px;
+    }
+
+    > div[data-state="on"] {
+      border-left: 4px solid $brand-primary;
+    }
+
+    > div[data-state="off"] {
+      border-left: 4px solid $gray-lighter;
+    }
+  }
+
+  &__off-canvas-body {
+    overflow-y: auto;
+  }
+}

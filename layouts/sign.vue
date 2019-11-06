@@ -1,35 +1,35 @@
 <template>
-  <div id="app">
-    <div class="fb-sign-layout__container">
-      <div class="fb-sign-layout__box">
-        <fb-sign-header />
-
-        <nuxt />
-      </div>
-
-      <fb-sign-footer />
-    </div>
-
-    <fb-page-loading v-if="loadingOverlay" />
-  </div>
+  <fb-sign-layout
+    :loading-overlay="loadingOverlay"
+    :sign-in-link="localePath({ name: $routes.account.signIn })"
+    :sign-up-link="localePath({ name: $routes.account.signUp })"
+    :author-website="author.website"
+    :author-name="author.name"
+  >
+    <nuxt slot="content" />
+  </fb-sign-layout>
 </template>
 
 <script>
-  const FbSignHeader = () => import('@/node_modules/@fastybird-com/theme/components/Layout/FbSignHeader')
-  const FbSignFooter = () => import('@/node_modules/@fastybird-com/theme/components/Layout/FbSignFooter')
+  const FbSignLayout = () => import('@/node_modules/@fastybird-com/theme/layouts/sign')
+
+  import * as config from '@/configuration'
 
   export default {
 
     name: 'LayoutSign',
 
     components: {
-      FbSignHeader,
-      FbSignFooter,
+      FbSignLayout,
     },
 
     data() {
       return {
         loadingOverlay: false,
+        author: {
+          name: config.AUTHOR_NAME,
+          website: config.AUTHOR_WEBSITE,
+        },
       }
     },
 
@@ -45,17 +45,5 @@
       this.$bus.$off('wait-sign_in')
     },
 
-    head() {
-      return {
-        htmlAttrs: {
-          'data-layout': 'layout_sign',
-        },
-      }
-    },
-
   }
 </script>
-
-<style rel="stylesheet/scss" lang="scss">
-  @import '~@fastybird-com/theme/assets/layout/sign';
-</style>

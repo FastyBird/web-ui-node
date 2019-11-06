@@ -1,7 +1,5 @@
 <template>
-  <div>
-    <sign-up />
-  </div>
+  <sign-up />
 </template>
 
 <script>

@@ -1,64 +1,64 @@
-import Vue from 'vue'
-
-Vue.prototype.$tChannel = function(thing, channel) {
-  if (channel.label !== channel.name) {
-    return channel.label
-  }
-
-  const hardware = this.$store.getters['entities/hardware/query']()
-    .where('thing_id', thing.id)
-    .first()
-
-  if (hardware.isCustom) {
-    return channel.label
-  }
-
-  let channelName = channel.name
-
-  if (channelName.indexOf('_') === -1) {
-    if (this.$t(`things.vendors.${hardware.manufacturer}.channels.${channelName}.title`).indexOf('things.vendors.') === -1) {
-      return this.$t(`things.vendors.${hardware.manufacturer}.channels.${channelName}.title`)
+export default ({ app, store }, inject) => {
+  inject('tChannel', (thing, channel) => {
+    if (channel.label !== channel.name) {
+      return channel.label
     }
-  } else {
-    channelName = channelName.substring(0, (channelName.indexOf('_')))
-    const channelNum = channel.name.substring(channel.name.indexOf('_') + 1)
 
-    if (this.$t(`things.vendors.${hardware.manufacturer}.channels.${channelName}.title`).indexOf('things.vendors.') === -1) {
-      return `${this.$t(`things.vendors.${hardware.manufacturer}.channels.${channelName}.title`)} ${channelNum}`
+    const hardware = store.getters['entities/hardware/query']()
+      .where('thing_id', thing.id)
+      .first()
+
+    if (hardware.isCustom) {
+      return channel.label
     }
-  }
 
-  return channel.label
-}
+    let channelName = channel.name
 
-Vue.prototype.$tThingProperty = function(thing, property) {
-  const hardware = this.$store.getters['entities/hardware/query']()
-    .where('thing_id', thing.id)
-    .first()
+    if (channelName.indexOf('_') === -1) {
+      if (app.i18n.t(`things.vendors.${hardware.manufacturer}.channels.${channelName}.title`).indexOf('things.vendors.') === -1) {
+        return app.i18n.t(`things.vendors.${hardware.manufacturer}.channels.${channelName}.title`)
+      }
+    } else {
+      channelName = channelName.substring(0, (channelName.indexOf('_')))
+      const channelNum = channel.name.substring(channel.name.indexOf('_') + 1)
 
-  if (hardware.isCustom) {
+      if (app.i18n.t(`things.vendors.${hardware.manufacturer}.channels.${channelName}.title`).indexOf('things.vendors.') === -1) {
+        return `${app.i18n.t(`things.vendors.${hardware.manufacturer}.channels.${channelName}.title`)} ${channelNum}`
+      }
+    }
+
+    return channel.label
+  })
+
+  inject('tThingProperty', (thing, property) => {
+    const hardware = store.getters['entities/hardware/query']()
+      .where('thing_id', thing.id)
+      .first()
+
+    if (hardware.isCustom) {
+      return property.name
+    }
+
+    if (app.i18n.t(`things.vendors.${hardware.manufacturer}.properties.${property.name}.title`).indexOf('things.vendors.') === -1) {
+      return app.i18n.t(`things.vendors.${hardware.manufacturer}.properties.${property.name}.title`)
+    }
+
     return property.name
-  }
+  })
 
-  if (this.$t(`things.vendors.${hardware.manufacturer}.properties.${property.name}.title`).indexOf('things.vendors.') === -1) {
-    return this.$t(`things.vendors.${hardware.manufacturer}.properties.${property.name}.title`)
-  }
+  inject('tChannelProperty', (thing, channel, property) => {
+    const hardware = store.getters['entities/hardware/query']()
+      .where('thing_id', thing.id)
+      .first()
 
-  return property.name
-}
+    if (hardware.isCustom) {
+      return property.name
+    }
 
-Vue.prototype.$tChannelProperty = function(thing, channel, property) {
-  const hardware = this.$store.getters['entities/hardware/query']()
-    .where('thing_id', thing.id)
-    .first()
+    if (app.i18n.t(`things.vendors.${hardware.manufacturer}.properties.${property.name}.title`).indexOf('things.vendors.') === -1) {
+      return app.i18n.t(`things.vendors.${hardware.manufacturer}.properties.${property.name}.title`)
+    }
 
-  if (hardware.isCustom) {
     return property.name
-  }
-
-  if (this.$t(`things.vendors.${hardware.manufacturer}.properties.${property.name}.title`).indexOf('things.vendors.') === -1) {
-    return this.$t(`things.vendors.${hardware.manufacturer}.properties.${property.name}.title`)
-  }
-
-  return property.name
+  })
 }

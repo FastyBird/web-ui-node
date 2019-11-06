@@ -1,0 +1,11 @@
+@import "~@fastybird-com/theme/assets/styles/variables";
+
+.fb-routines-select-thing {
+  &__container {
+    .fb-list-item__container {
+      &[data-state="on"] {
+        border: 1px solid $gray-light;
+      }
+    }
+  }
+}

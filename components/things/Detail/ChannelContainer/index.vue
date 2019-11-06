@@ -1,45 +1,54 @@
 <template>
-  <div
+  <layout-list-item
     :data-state="thing.state ? 'on' : 'off'"
-    class="fb-iot-things-detail-channel-container__container p-x-md p-y m-a-0 row"
+    class="fb-iot-things-detail-channel-container__container"
   >
-    <div class="col-2 p-l-sm fb-iot-things-detail-channel-container__icon">
+    <template slot="icon">
       <template v-if="slotExists('icon')">
         <slot name="icon" />
       </template>
-      <things-channels-icon
+      <div
         v-else
-        :icon="icon"
-      />
-    </div>
-    <div class="col p-l-sm">
-      <template v-if="slotExists('name')">
-        <slot name="name" />
+        class="circle text-center"
+      >
+        <font-awesome-icon :icon="$channelIcon(thing, channel)" />
+      </div>
+    </template>
+
+    <template slot="heading">
+      <template v-if="slotExists('heading')">
+        <slot name="heading" />
       </template>
       <template v-else>
-        <h5 class="fw-b">
-          {{ $tChannel(thing, channel) }}
-        </h5>
+        {{ $tChannel(thing, channel) }}
       </template>
-    </div>
-    <div
+    </template>
+
+    <template
+      v-if="slotExists('sub-heading')"
+      slot="sub-heading"
+    >
+      <slot name="sub-heading" />
+    </template>
+
+    <template
       v-if="slotExists('channel')"
-      class="col-3 text-right p-x-0"
+      slot="detail"
     >
       <slot name="channel" />
-    </div>
-  </div>
+    </template>
+  </layout-list-item>
 </template>
 
 <script>
-  const ThingsChannelsIcon = () => import('../../Channels/Icon')
+  import LayoutListItem from '@/components/layout/ListItem'
 
   export default {
 
     name: 'ThingsDetailChannelContainer',
 
     components: {
-      ThingsChannelsIcon,
+      LayoutListItem,
     },
 
     props: {
@@ -56,29 +65,9 @@
 
     },
 
-    computed: {
-
-      icon() {
-        if (this.channel.isEnergy) {
-          return 'odometer'
-        } else if (this.channel.isSwitch) {
-          return 'plug'
-        } else if (this.channel.isLight) {
-          return 'lighting'
-        } else if (this.channel.isAnalogSensor) {
-          return 'generic-analog'
-        } else if (this.channel.isBinarySensor) {
-          return 'generic-digital'
-        }
-
-        return 'generic-analog'
-      },
-
-    },
-
   }
 </script>
 
 <style rel="stylesheet/scss" lang="scss">
-  @import './index.scss';
+  @import 'index';
 </style>

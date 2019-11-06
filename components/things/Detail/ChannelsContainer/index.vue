@@ -1,12 +1,12 @@
 <template functional>
   <div class="fb-iot-thing-detail-channels-container__container">
-    <div class="fb-iot-thing-detail-channels-container__heading p-x-md p-y-0 m-a-0">
-      <h3>
-        {{ props.heading }}
-      </h3>
-    </div>
+    <h3 class="fb-iot-thing-detail-channels-container__heading">
+      {{ props.heading }}
+    </h3>
 
-    <slot />
+    <div class="fb-iot-thing-detail-channels-container__items">
+      <slot />
+    </div>
   </div>
 </template>
 

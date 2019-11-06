@@ -1,0 +1,34 @@
+@import "~@fastybird-com/theme/assets/styles/variables";
+
+.fb-routines-edit-condition-thing {
+  &__heading {
+    border-bottom: 1px solid $gray-lighter;
+    height: auto;
+    width: 100%;
+    font-size: 95%;
+    margin: 0;
+    padding: 5px 10px;
+  }
+
+  &__channel-property {
+    .fb-field-container__container {
+      display: inline-block;
+
+      select {
+        width: 80px;
+      }
+    }
+
+    .combined {
+      .fb-field-container__container {
+        select {
+          width: 50px;
+        }
+
+        input {
+          width: 60px;
+        }
+      }
+    }
+  }
+}

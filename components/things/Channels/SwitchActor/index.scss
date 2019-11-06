@@ -12,10 +12,6 @@
   }
 
   &__container {
-    .switch {
-      margin-top: 7px;
-    }
-
     &[data-state="off"] {
       .switch-track {
         background-color: $gray-lighter

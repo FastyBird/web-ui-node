@@ -1,119 +1,67 @@
 <template>
-  <div id="app">
-    <div class="fb-default-layout__container">
-      <fb-phone-header
-        :profile="profile !== null"
-        :avatar="_.get(this, '$avatar', null)"
-        :user-name="_.get(profile, 'name')"
-        :user-email="_.get(profile, 'email')"
-        :user-menu-items="_.get(this, '$userMenuItems', [])"
-        class="hidden visible-xs"
-      />
+  <fb-default-layout
+    :loading-overlay="loadingOverlay"
+    :has-profile="profile !== null"
+    :user-name="_.get(profile, 'name')"
+    :user-email="_.get(profile, 'email')"
+    :menu-items="menuItems"
+    :user-menu-items="userMenuItems"
+    :bottom-menu-items="bottomMenuItems"
+    :home-link="localePath({ name: $routes.home })"
+    :app-version="version"
+    :author-website="author.website"
+    :author-name="author.name"
+  >
+    <nuxt slot="content" />
 
-      <fb-desktop-header class="hidden-xs" />
-
-      <div class="fb-default-layout__body">
-        <div class="fb-default-layout__sidebar-container">
-          <div class="fb-default-layout__sidebar-backdrop" />
-
-          <div class="fb-default-layout__sidebar-header">
-            <fb-logo :link="_.get(this, '$coreLinks.home', [])" />
-          </div>
-
-          <fb-navigation :items="_.get(this, '$menuItems', [])" />
-
-          <div
-            v-if="profile !== null"
-            class="fb-default-layout__sidebar-footer"
-          >
-            <fb-user-side-navigation
-              :avatar="_.get(this, '$avatar', null)"
-              :name="_.get(profile, 'name')"
-              :email="_.get(profile, 'email')"
-              :version="_.get(this, '$appVersion', '0.0.0')"
-              :items="_.get(this, '$userMenuItems', [])"
+    <template slot="other">
+      <fb-modal-info
+        v-show="connectionStatus === false"
+        :enable-closing="false"
+        icon="plug"
+      >
+        <template slot="info">
+          <div class="text-center">
+            <font-awesome-icon
+              icon="power-off"
+              class="icon-5x text-danger"
             />
+            <h3 class="text-danger">
+              {{ $t('application.headings.offlineState') }}
+            </h3>
+            <p>
+              {{ $t('application.messages.offlineState') }}
+            </p>
           </div>
-        </div>
+        </template>
+      </fb-modal-info>
 
-        <div
-          :style="document.minimalContentHeight !== null ? `height: ${document.minimalContentHeight}px` : ''"
-          class="fb-default-layout__content-container"
-        >
-          <div
-            :style="document.minimalContentHeight !== null ? `height: ${document.minimalContentHeight}px` : ''"
-            class="fb-default-layout__content-body"
-          >
-            <nuxt />
-          </div>
-        </div>
-
-        <div class="fb-default-layout__footer-container">
-          <div class="fb-default-layout__footer-body">
-            <small>&copy; 2017 <a
-              v-if="_.get(this, '$authorWebsite', null) !== null"
-              :href="_.get(this, '$authorWebsite', null)"
-              target="_blank"
-              rel="noreferrer"
-            >{{ _.get(this, '$authorName', null) }}</a></small>
-          </div>
-        </div>
-      </div>
-
-      <fb-bottom-navigation
-        :items="_.get(this, '$bottomMenu', [])"
-        class="hidden visible-xs"
+      <account-edit
+        v-if="view.accountEdit.show && account !== null"
+        :account="account"
+        @close="closeView('accountEdit')"
       />
-    </div>
 
-    <fb-modal-info
-      v-show="connectionStatus === false"
-      :enable-closing="false"
-      icon="plug"
-    >
-      <template slot="info">
-        <div class="text-center">
-          <font-awesome-icon
-            icon="power-off"
-            class="icon-5x text-danger"
-          />
-          <h3 class="text-danger">
-            {{ $t('application.headings.offlineState') }}
-          </h3>
-          <p>
-            {{ $t('application.messages.offlineState') }}
-          </p>
-        </div>
-      </template>
-    </fb-modal-info>
+      <profile-edit
+        v-if="view.profileEdit.show && account !== null && profile !== null"
+        :account="account"
+        :profile="profile"
+        @close="closeView('profileEdit')"
+      />
 
-    <account-edit
-      v-if="view.accountEdit.show && account !== null"
-      :account="account"
-      @close="closeView('accountEdit')"
-    />
+      <password-edit
+        v-if="view.passwordEdit.show && account !== null"
+        :account="account"
+        @close="closeView('passwordEdit')"
+      />
 
-    <profile-edit
-      v-if="view.profileEdit.show && account !== null && profile !== null"
-      :account="account"
-      :profile="profile"
-      @close="closeView('profileEdit')"
-    />
-
-    <password-edit
-      v-if="view.passwordEdit.show && account !== null"
-      :account="account"
-      @close="closeView('passwordEdit')"
-    />
-
-    <security-edit
-      v-if="view.securityEdit.show && account !== null"
-      :account="account"
-      @close="closeView('securityEdit')"
-    />
-
-    <fb-page-loading v-if="loadingOverlay" />
-  </div>
+      <security-edit
+        v-if="view.securityEdit.show && account !== null"
+        :account="account"
+        @close="closeView('securityEdit')"
+      />
+    </template>
+  </fb-default-layout>
 </template>
 
 <script>
@@ -124,12 +72,11 @@
   const PasswordEdit = () => import('@/components/account/PasswordEdit')
   const SecurityEdit = () => import('@/components/account/SecurityEdit')
 
-  const FbLogo = () => import('@/node_modules/@fastybird-com/theme/components/Layout/FbLogo')
-  const FbDesktopHeader = () => import('@/node_modules/@fastybird-com/theme/components/Layout/FbDesktopHeader')
-  const FbPhoneHeader = () => import('@/node_modules/@fastybird-com/theme/components/Layout/FbPhoneHeader')
-  const FbNavigation = () => import('@/node_modules/@fastybird-com/theme/components/Layout/FbNavigation')
-  const FbUserSideNavigation = () => import('@/node_modules/@fastybird-com/theme/components/Layout/FbUserSideNavigation')
-  const FbBottomNavigation = () => import('@/node_modules/@fastybird-com/theme/components/Layout/FbBottomNavigation')
+  const FbDefaultLayout = () => import('@/node_modules/@fastybird-com/theme/layouts/default')
+
+  import * as config from '@/configuration'
+
+  import { version } from './../package.json'
 
   export default {
 
@@ -141,20 +88,11 @@
       PasswordEdit,
       SecurityEdit,
 
-      FbLogo,
-      FbDesktopHeader,
-      FbPhoneHeader,
-      FbNavigation,
-      FbUserSideNavigation,
-      FbBottomNavigation,
+      FbDefaultLayout,
     },
 
     data() {
       return {
-        document: {
-          viewportHeight: null,
-          minimalContentHeight: null,
-        },
         loadingOverlay: false,
         view: {
           accountEdit: {
@@ -170,6 +108,14 @@
             show: false,
           },
         },
+        menuItems: [],
+        userMenuItems: [],
+        bottomMenuItems: [],
+        author: {
+          name: config.AUTHOR_NAME,
+          website: config.AUTHOR_WEBSITE,
+        },
+        version,
       }
     },
 
@@ -177,7 +123,6 @@
 
       ...mapState({
         connectionStatus: state => state.connectionStatus,
-        windowSize: state => state.theme.windowSize,
       }),
 
       session() {
@@ -213,7 +158,52 @@
 
     },
 
-    beforeMount() {
+    created() {
+      this.menuItems = this._.cloneDeep(config.MENU_ITEMS)
+      this.menuItems.forEach(item => {
+        if (item.hasOwnProperty('meta') && item.meta.hasOwnProperty('label')) {
+          // eslint-disable-next-line
+          item.meta.label = this.$t(item.meta.label)
+        }
+
+        if (item.hasOwnProperty('items')) {
+          item.items.forEach(subItem => {
+            if (subItem.hasOwnProperty('link')) {
+              // eslint-disable-next-line
+              subItem.link = this.localePath({ name: subItem.link })
+            }
+
+            if (subItem.hasOwnProperty('meta') && subItem.meta.hasOwnProperty('label')) {
+              // eslint-disable-next-line
+              subItem.meta.label = this.$t(subItem.meta.label)
+            }
+          })
+        }
+      })
+
+      this.userMenuItems = this._.cloneDeep(config.USER_MENU_ITEMS)
+      this.userMenuItems.forEach(item => {
+        if (item.hasOwnProperty('link')) {
+          // eslint-disable-next-line
+          item.link = this.localePath({ name: item.link })
+        }
+
+        if (item.hasOwnProperty('meta') && item.meta.hasOwnProperty('label')) {
+          // eslint-disable-next-line
+          item.meta.label = this.$t(item.meta.label)
+        }
+      })
+
+      this.bottomMenuItems = this._.cloneDeep(config.MOBILE_BOTTOM_TABS)
+      this.bottomMenuItems.forEach(item => {
+        // eslint-disable-next-line
+        item.link = this.localePath({ name: item.link })
+        // eslint-disable-next-line
+        item.name = this.$t(item.name)
+      })
+    },
+
+    mounted() {
       this.$bus.$on('openAccountSettings', () => {
         this.openView('accountEdit')
       })
@@ -234,23 +224,11 @@
         this.loadingOverlay = status
       })
 
-      this._calculateWindowHeight()
-
-      this.windowsResizeHandler()
-
-      window.addEventListener('visibilitychange', this.windowsResizeHandler)
-      window.addEventListener('DOMContentLoaded', this.windowsResizeHandler)
-      window.addEventListener('resize', this.windowsResizeHandler)
-
       window.addEventListener('online', this._setNetworkConnected)
       window.addEventListener('offline', this._setNetworkDisconnected)
     },
 
     beforeDestroy() {
-      window.removeEventListener('visibilitychange', this.windowsResizeHandler)
-      window.removeEventListener('DOMContentLoaded', this.windowsResizeHandler)
-      window.removeEventListener('resize', this.windowsResizeHandler)
-
       window.removeEventListener('online', this._setNetworkConnected)
       window.removeEventListener('offline', this._setNetworkDisconnected)
 
@@ -263,10 +241,6 @@
     },
 
     methods: {
-
-      ...mapActions('theme', {
-        setThemeWindowSize: 'setWindowSize',
-      }),
 
       ...mapActions([
         'setConnectionStatus',
@@ -294,27 +268,6 @@
         }
       },
 
-      /**
-       * Window resize handler
-       */
-      windowsResizeHandler() {
-        if (!document.hidden) {
-          if (matchMedia('(max-width: 575px)').matches) {
-            this.setThemeWindowSize({ size: 'xs' })
-          } else if (matchMedia('(max-width: 767px)').matches) {
-            this.setThemeWindowSize({ size: 'sm' })
-          } else if (matchMedia('(max-width: 991px)').matches) {
-            this.setThemeWindowSize({ size: 'md' })
-          } else if (matchMedia('(max-width: 1199px)').matches) {
-            this.setThemeWindowSize({ size: 'lg' })
-          } else {
-            this.setThemeWindowSize({ size: 'xl' })
-          }
-        }
-
-        this._calculateWindowHeight()
-      },
-
       _setNetworkConnected() {
         this.setConnectionStatus({ status: true })
       },
@@ -323,31 +276,7 @@
         this.setConnectionStatus({ status: false })
       },
 
-      /**
-       * Calculate viewport size after window resizing
-       *
-       * @private
-       */
-      _calculateWindowHeight() {
-        this.document.viewportHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
-
-        document.body.style.height = `${this.document.viewportHeight - 50}px`
-        this.document.minimalContentHeight = this.document.viewportHeight - 50
-      },
-
-    },
-
-    head() {
-      return {
-        htmlAttrs: {
-          'data-layout': 'layout_default',
-        },
-      }
     },
 
   }
 </script>
-
-<style rel="stylesheet/scss" lang="scss">
-  @import '~@fastybird-com/theme/assets/layout/default';
-</style>

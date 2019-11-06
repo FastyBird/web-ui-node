@@ -53,8 +53,8 @@
         class="fb-iot-things-channels-light__channel p-x-md p-y m-a-0 row"
       >
         <div class="col-2 p-l-sm">
-          <device-icon
-            name="lighting-special"
+          <font-awesome-icon
+            icon="lightbulb"
             class="fb-iot-things-channels-light__channel-icon m-t-md"
           />
         </div>
@@ -79,8 +79,8 @@
         class="fb-iot-things-channels-light__channel p-x-md p-y m-a-0 row"
       >
         <div class="col-2 p-l-sm">
-          <device-icon
-            name="lighting-special"
+          <font-awesome-icon
+            icon="lightbulb"
             class="fb-iot-things-channels-light__channel-icon m-t-md"
           />
         </div>
@@ -106,8 +106,8 @@
         class="fb-iot-things-channels-light__channel p-x-md p-y m-a-0 row"
       >
         <div class="col-2 p-l-sm">
-          <device-icon
-            name="knob"
+          <font-awesome-icon
+            icon="knob"
             class="fb-iot-things-channels-light__channel-icon m-t-md"
           />
         </div>
@@ -130,8 +130,8 @@
 
       <div class="fb-iot-things-channels-light__channel p-x-md p-y m-a-0 row">
         <div class="col-2 p-l-sm">
-          <device-icon
-            name="luminosity"
+          <font-awesome-icon
+            icon="sun"
             class="fb-iot-things-channels-light__channel-icon m-t-md"
           />
         </div>

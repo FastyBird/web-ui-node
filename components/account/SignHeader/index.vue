@@ -21,6 +21,6 @@
   }
 </script>
 
-<style rel="stylesheet/scss" lang="scss">
-  @import './index.scss';
+<style rel="stylesheet/scss" lang="scss" scoped>
+  @import 'index';
 </style>

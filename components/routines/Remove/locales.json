@@ -1,0 +1,12 @@
+{
+  "en": {
+    "headings": {
+      "remove": "Remove routine"
+    },
+    "messages": {
+      "confirmRemove": "Are you sure to remove routine {routine} ?",
+      "removed": "Routine {routine} was successfully removed.",
+      "notRemoved": "Routine {routine} couldn't be removed, please try again later."
+    }
+  }
+}

@@ -12,7 +12,7 @@
 
     <template slot="form">
       <template v-for="(parameter, index) in parameters">
-        <fb-md-form-input
+        <fb-form-input
           v-if="parameter.isNumber"
           :key="index"
           v-model="form.model[parameter.name]"
@@ -28,7 +28,6 @@
           :required="true"
           :tab-index="index + 2"
           type="number"
-          style="margin-bottom: 50px;"
         >
           <template
             v-if="translateDescription(parameter) !== null && !errors.has(`${form.scope}.${parameter.name}`)"
@@ -36,9 +35,9 @@
           >
             {{ translateDescription(parameter) }}
           </template>
-        </fb-md-form-input>
+        </fb-form-input>
 
-        <fb-md-form-input
+        <fb-form-input
           v-if="parameter.isText"
           :key="index"
           v-model="form.model[parameter.name]"
@@ -52,7 +51,6 @@
           :required="true"
           :tab-index="index + 2"
           type="text"
-          style="margin-bottom: 50px;"
         >
           <template
             v-if="translateDescription(parameter) !== null && !errors.has(`${form.scope}.${parameter.name}`)"
@@ -60,9 +58,9 @@
           >
             {{ translateDescription(parameter) }}
           </template>
-        </fb-md-form-input>
+        </fb-form-input>
 
-        <fb-md-form-select
+        <fb-form-select
           v-if="parameter.isSelect"
           :key="index"
           v-model="form.model[parameter.name]"
@@ -83,7 +81,7 @@
           >
             {{ translateDescription(parameter) }}
           </template>
-        </fb-md-form-select>
+        </fb-form-select>
       </template>
     </template>
   </fb-modal-form>

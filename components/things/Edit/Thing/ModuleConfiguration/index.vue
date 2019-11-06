@@ -12,7 +12,7 @@
 
     <template slot="form">
       <template v-for="(parameter, index) in parameters">
-        <fb-md-form-input
+        <fb-form-input
           v-if="parameter.isNumber"
           :key="index"
           v-model="form.model[parameter.name]"
@@ -28,7 +28,6 @@
           :required="true"
           :tab-index="index + 2"
           type="number"
-          class="m-b-sm"
         >
           <template
             v-if="translateDescription(parameter) !== null && !errors.has(`${form.scope}.${parameter.name}`)"
@@ -36,9 +35,9 @@
           >
             {{ translateDescription(parameter) }}
           </template>
-        </fb-md-form-input>
+        </fb-form-input>
 
-        <fb-md-form-input
+        <fb-form-input
           v-if="parameter.isText"
           :key="index"
           v-model="form.model[parameter.name]"
@@ -52,7 +51,6 @@
           :required="true"
           :tab-index="index + 2"
           type="text"
-          class="m-b-sm"
         >
           <template
             v-if="translateDescription(parameter) !== null && !errors.has(`${form.scope}.${parameter.name}`)"
@@ -60,9 +58,9 @@
           >
             {{ translateDescription(parameter) }}
           </template>
-        </fb-md-form-input>
+        </fb-form-input>
 
-        <fb-md-form-select
+        <fb-form-select
           v-if="parameter.isSelect"
           :key="index"
           v-model="form.model[parameter.name]"
@@ -75,7 +73,6 @@
           :label="translateLabel(parameter)"
           :tab-index="index + 2"
           :required="true"
-          class="m-b-sm"
         >
           <template
             v-if="translateDescription(parameter) !== null && !errors.has(`${form.scope}.${parameter.name}`)"
@@ -83,9 +80,9 @@
           >
             {{ translateDescription(parameter) }}
           </template>
-        </fb-md-form-select>
+        </fb-form-select>
 
-        <fb-md-form-checkbox
+        <fb-form-checkbox
           v-if="parameter.isBoolean"
           :key="index"
           v-model="form.model[parameter.name]"
@@ -93,10 +90,9 @@
           :error="errors.first(`${form.scope}.${parameter.name}`)"
           :has-error="errors.has(`${form.scope}.${parameter.name}`)"
           :name="parameter.name"
-          class="m-b-sm"
         >
           {{ translateLabel(parameter) }}
-        </fb-md-form-checkbox>
+        </fb-form-checkbox>
       </template>
     </template>
   </fb-modal-form>
@@ -159,21 +155,14 @@
        * @returns {Array}
        */
       parameters() {
-        const parameters = this.$store.getters['entities/thing_configuration/query']()
+        return this.$store.getters['entities/thing_configuration/query']()
           .where('thing_id', this.thing.id)
+          .where(item => {
+            return this._.get(item, 'name').indexOf(this.keyPrefix) === 0 &&
+              this._.get(item, 'name').indexOf('sensor_expected_') !== 0
+          })
           .orderBy('name')
           .all()
-
-        const filtered = []
-
-        parameters
-          .forEach(item => {
-            if (this._.get(item, 'name').indexOf(this.keyPrefix) === 0) {
-              filtered.push(item)
-            }
-          })
-
-        return filtered
       },
     },
 

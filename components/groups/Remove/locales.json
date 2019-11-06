@@ -1,0 +1,12 @@
+{
+  "en": {
+    "headings": {
+      "remove": "Remove group"
+    },
+    "messages": {
+      "confirmRemove": "Are you sure to remove group {group} ?",
+      "removed": "Group {group} was successfully removed.",
+      "notRemoved": "Group {group} couldn't be removed, please try again later."
+    }
+  }
+}

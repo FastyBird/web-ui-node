@@ -9,7 +9,7 @@
     </template>
 
     <template slot="form">
-      <fb-md-form-input
+      <fb-form-input
         v-model="form.model.emailAddress"
         v-validate="'required|email|checkEmail'"
         :data-vv-scope="form.scope"
@@ -30,9 +30,9 @@
         >
           {{ $t('field.emailAddress.help') }}
         </template>
-      </fb-md-form-input>
+      </fb-form-input>
 
-      <fb-md-form-input
+      <fb-form-input
         v-model="form.model.firstName"
         v-validate="'required'"
         :data-vv-scope="form.scope"
@@ -51,9 +51,9 @@
         >
           {{ $t('field.firstName.help') }}
         </template>
-      </fb-md-form-input>
+      </fb-form-input>
 
-      <fb-md-form-input
+      <fb-form-input
         v-model="form.model.lastName"
         v-validate="'required'"
         :data-vv-scope="form.scope"
@@ -72,9 +72,9 @@
         >
           {{ $t('field.lastName.help') }}
         </template>
-      </fb-md-form-input>
+      </fb-form-input>
 
-      <fb-md-form-input
+      <fb-form-input
         v-model="form.model.middleName"
         :data-vv-scope="form.scope"
         :error="errors.first(form.scope + '.middle_name')"

@@ -1,0 +1,21 @@
+@import "~@fastybird-com/theme/assets/styles/variables";
+
+.fb-routines-edit-action-thing {
+  &__heading {
+    border-bottom: 1px solid $gray-lighter;
+    height: auto;
+    width: 100%;
+    font-size: 95%;
+    margin: 0;
+    padding: 5px 10px;
+  }
+
+  &__values {
+    padding-top: 12px;
+
+    label {
+      padding-left: 6px;
+      padding-right: 6px;
+    }
+  }
+}

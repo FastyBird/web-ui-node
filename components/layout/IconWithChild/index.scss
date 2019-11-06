@@ -1,0 +1,22 @@
+@import "~@fastybird-com/theme/assets/variables/colors";
+@import "~@fastybird-com/theme/assets/mixins/utilities";
+
+.fb-icon-with-child {
+  &__container {
+    display: inline-block;
+    line-height: 1;
+    position: relative;
+
+    &-child {
+      bottom: 0;
+      @include box-shadow(0 0 0 2px #fff);
+      display: block;
+      position: absolute;
+      right: 0;
+      z-index: 2;
+      border-radius: 50%;
+      color: $brand-primary-contrast;
+      background-color: $brand-primary;
+    }
+  }
+}

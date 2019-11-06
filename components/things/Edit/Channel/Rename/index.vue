@@ -10,7 +10,7 @@
     </template>
 
     <template slot="form">
-      <fb-md-form-input
+      <fb-form-input
         v-model="form.model.title"
         v-validate="'required'"
         :data-vv-scope="form.scope"

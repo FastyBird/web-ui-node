@@ -1,0 +1,15 @@
+@import "~@fastybird-com/theme/assets/styles/variables";
+
+.fb-routines-detail-view {
+  &__navigation {
+    background-color: $brand-primary;
+    position: relative;
+    z-index: 1000;
+  }
+
+  &__add-button {
+    position: absolute;
+    top: -17px;
+    right: 25px;
+  }
+}

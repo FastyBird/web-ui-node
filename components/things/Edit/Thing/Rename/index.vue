@@ -10,7 +10,7 @@
     </template>
 
     <template slot="form">
-      <fb-md-form-input
+      <fb-form-input
         v-model="form.model.title"
         :data-vv-scope="form.scope"
         :error="errors.first(form.scope + '.title')"
@@ -19,10 +19,9 @@
         :label="$t('field.title.title')"
         :placeholder="thing.name"
         :tab-index="2"
-        class="m-b-0"
       />
 
-      <fb-md-form-text-area
+      <fb-form-text-area
         v-model="form.model.comment"
         :data-vv-scope="form.scope"
         :error="errors.first(form.scope + '.comment')"

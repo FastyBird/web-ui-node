@@ -1,0 +1,19 @@
+.fb-routines-create-view {
+  &__container {
+    .fb-btn span {
+      line-height: 2em;
+    }
+  }
+
+  &__heading {
+    font-weight: bold;
+    font-size: 13px;
+    margin: 0 0 10px 0;
+  }
+
+  &__conditions-container,
+  &__actions-container {
+    margin-left: 0 !important;
+    margin-right: 0 !important;;
+  }
+}

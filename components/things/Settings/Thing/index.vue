@@ -1,8 +1,10 @@
 <template>
-  <div class="p-a-sm fb-iot-things-settings-thing__container">
-    <h5 class="fw-b text-capitalize text-primary">
-      {{ $t('headings.thingSettings') }}
-    </h5>
+  <div class="fb-iot-things-settings-thing__container">
+    <div class="fb-iot-things-settings-thing__heading p-x-md p-y-0 m-a-0">
+      <h3>
+        {{ $t('headings.thingSettings') }}
+      </h3>
+    </div>
 
     <div class="list-group">
       <button
@@ -31,6 +33,23 @@
       </template>
 
       <button
+        v-if="hasSensorsSettings"
+        class="list-group-item"
+        role="button"
+        @click.prevent="openModuleForm('sensor_', $t('headings.moduleSensorSettings'))"
+      >
+        <span class="pull-right"><font-awesome-icon icon="angle-right" /></span>
+        <span
+          v-show="loading.sensorsSettings"
+          class="spinner spinner-primary spinner-sm sq-18 pos-r m-r-md"
+        />
+        {{ $t('buttons.sensorConfiguration.title') }}
+        <small class="d-b fz-sm">
+          {{ $t('buttons.sensorConfiguration.description') }}
+        </small>
+      </button>
+
+      <button
         v-if="hasTimeSettings"
         class="list-group-item"
         role="button"
@@ -38,7 +57,7 @@
       >
         <span class="pull-right"><font-awesome-icon icon="angle-right" /></span>
         <span
-          v-show="loading.moduleSettings"
+          v-show="loading.timeSettings"
           class="spinner spinner-primary spinner-sm sq-18 pos-r m-r-md"
         />
         {{ $t('buttons.timeConfiguration.title') }}
@@ -68,9 +87,11 @@
     />
 
     <template v-if="!fetchingChannels && channels.length">
-      <h5 class="fw-b text-capitalize text-primary">
-        {{ $tc('headings.channelsSettings', channels.length) }}
-      </h5>
+      <div class="fb-iot-things-settings-thing__heading p-x-md p-y-0 m-a-0">
+        <h3>
+          {{ $tc('headings.channelsSettings', channels.length) }}
+        </h3>
+      </div>
 
       <div class="list-group">
         <button
@@ -85,9 +106,11 @@
       </div>
     </template>
 
-    <h5 class="fw-b text-capitalize text-primary">
-      {{ $t('headings.generalSettings') }}
-    </h5>
+    <div class="fb-iot-things-settings-thing__heading p-x-md p-y-0 m-a-0">
+      <h3>
+        {{ $t('headings.generalSettings') }}
+      </h3>
+    </div>
 
     <div class="list-group">
       <button
@@ -107,7 +130,7 @@
         role="button"
         @click.prevent="openWindow('remove')"
       >
-        <span class="pull-right"><font-awesome-icon icon="angle-right" /></span>
+        <span class="pull-right"><font-awesome-icon icon="exclamation-triangle" /></span>
         <span
           v-show="loading.remove"
           class="spinner spinner-primary spinner-sm sq-18 pos-r m-r-md"
@@ -116,32 +139,42 @@
       </button>
     </div>
 
-    <div class="list-group">
-      <button
-        class="list-group-item"
-        role="button"
-        @click.prevent="openWindow('thingInfo')"
-      >
-        <span class="pull-right"><font-awesome-icon icon="angle-right" /></span>
-        <span
-          v-show="loading.thingInfo"
-          class="spinner spinner-primary spinner-sm sq-18 pos-r m-r-md"
-        />
-        {{ $t('buttons.about.title') }}
-      </button>
-      <button
-        class="list-group-item"
-        role="button"
-        @click.prevent="openWindow('networkInfo')"
-      >
-        <span class="pull-right"><font-awesome-icon icon="angle-right" /></span>
-        <span
-          v-show="loading.networkInfo"
-          class="spinner spinner-primary spinner-sm sq-18 pos-r m-r-md"
-        />
-        {{ $t('buttons.networkInfo.title') }}
-      </button>
+    <div class="fb-iot-things-settings-thing__heading p-x-md p-y-0 m-a-0">
+      <h3>
+        {{ $t('headings.manufacturerAndNetwork') }}
+      </h3>
     </div>
+
+    <ul class="media-list">
+      <li class="media p-x-md p-y-sm">
+        <div class="media-middle media-left">
+          <img
+            width="40"
+            height="40"
+            src="/manufacturers/itead.jpg"
+            :alt="hardwareManufacturer"
+          >
+        </div>
+        <div class="media-middle media-body">
+          <h5 class="m-y-0">
+            <strong>{{ $t('texts.hardware.manufacturer') }}:</strong> {{ hardwareManufacturer }}
+          </h5>
+          <small><strong>{{ $t('texts.hardware.model') }}:</strong> {{ hardwareModel }} - ver. {{ firmwareVersion }}</small>
+        </div>
+      </li>
+
+      <li class="media p-x-md p-y-sm m-t-0">
+        <div class="media-middle media-left">
+          <font-awesome-icon icon="wifi" />
+        </div>
+        <div class="media-middle media-body">
+          <h5 class="m-y-0">
+            <strong>{{ $t('texts.wifi.name') }}:</strong> {{ wifiSSID }}
+          </h5>
+          <small><strong>{{ $t('texts.wifi.ip') }}:</strong> {{ wifiIPAddress }}</small>
+        </div>
+      </li>
+    </ul>
 
     <things-edit-thing-credentials
       v-if="isCustom && credentials.show"
@@ -157,7 +190,7 @@
       :title="moduleSettings.title"
       :key-prefix="moduleSettings.prefix"
       :transparent-bg="transparentModal"
-      @loaded="loading.moduleSettings = false"
+      @loaded="moduleFormLoaded"
       @close="closeWindow('moduleSettings')"
     />
 
@@ -185,22 +218,6 @@
       @close="closeWindow('remove')"
     />
 
-    <things-info-thing
-      v-if="thingInfo.show"
-      :thing="thing"
-      :transparent-bg="transparentModal"
-      @loaded="loading.thingInfo = false"
-      @close="closeWindow('thingInfo')"
-    />
-
-    <things-info-network
-      v-if="networkInfo.show"
-      :thing="thing"
-      :transparent-bg="transparentModal"
-      @loaded="loading.networkInfo = false"
-      @close="closeWindow('networkInfo')"
-    />
-
     <things-edit-thing-parameter
       v-if="parameterForm.show"
       :thing="thing"
@@ -213,8 +230,6 @@
 </template>
 
 <script>
-  const ThingsInfoThing = () => import('../../Info/Thing')
-  const ThingsInfoNetwork = () => import('../../Info/Network')
   const ThingsEditThingCredentials = () => import('../../Edit/Thing/Credentials')
   const ThingsEditThingEnergyCalibration = () => import('../../Edit/Thing/EnergyCalibration')
   const ThingsEditThingModuleConfiguration = () => import('../../Edit/Thing/ModuleConfiguration')
@@ -229,8 +244,6 @@
     name: 'ThingsSettingsThing',
 
     components: {
-      ThingsInfoThing,
-      ThingsInfoNetwork,
       ThingsEditThingCredentials,
       ThingsEditThingEnergyCalibration,
       ThingsEditThingModuleConfiguration,
@@ -262,6 +275,8 @@
         loading: {
           credentials: false,
           moduleSettings: false,
+          sensorsSettings: false,
+          timeSettings: false,
           energyCalibration: false,
           rename: false,
           remove: false,
@@ -310,27 +325,14 @@
        * @returns {Array}
        */
       parameters() {
-        const parameters = this.$store.getters['entities/thing_configuration/query']()
+        return this.$store.getters['entities/thing_configuration/query']()
           .where('thing_id', this.thing.id)
+          .where(item => {
+            return this._.get(item, 'name').indexOf('ntp_') !== 0 &&
+              this._.get(item, 'name').indexOf('sensor_') !== 0
+          })
           .orderBy('name')
           .all()
-
-        let filtered = []
-
-        if (this._.get(this.hardware, 'isManufacturerItead')) {
-          parameters.forEach(item => {
-            if (
-              this._.get(item, 'name').indexOf('sensor_expected_') !== 0
-              && this._.get(item, 'name').indexOf('ntp_') !== 0
-            ) {
-              filtered.push(item)
-            }
-          })
-        } else {
-          filtered = parameters
-        }
-
-        return filtered
       },
 
       /**
@@ -345,6 +347,84 @@
       },
 
       /**
+       * Get thing model name
+       *
+       * @returns {String}
+       */
+      hardwareModel() {
+        if (!this._.get(this.hardware, 'isCustom', true)) {
+          return this.hardware.model
+        }
+
+        return 'N/A'
+      },
+
+      /**
+       * Get thing manufacturer name
+       *
+       * @returns {String}
+       */
+      hardwareManufacturer() {
+        if (this.hardware !== null && this._.get(this.hardware, 'manufacturer', null) !== null) {
+          return this.hardware.manufacturer
+        }
+
+        return 'N/A'
+      },
+
+      /**
+       * Find thing firmware info
+       *
+       * @returns {(Firmware|null)}
+       */
+      firmware() {
+        return this.$store.getters['entities/firmware/query']()
+          .where('thing_id', this.thing.id)
+          .first()
+      },
+
+      /**
+       * Get thing firmware version
+       *
+       * @returns {String}
+       */
+      firmwareVersion() {
+        if (this.firmware !== null && this._.get(this.firmware, 'version', null) !== null) {
+          return this.firmware.version
+        }
+
+        return 'N/A'
+      },
+
+      /**
+       * Get thing network wifi SSID name
+       *
+       * @returns {String}
+       */
+      wifiSSID() {
+        const property = this.$store.getters['entities/thing_property/query']()
+          .where('thing_id', this.thing.id)
+          .where('name', 'ssid')
+          .first()
+
+        return property !== null && property.value !== null ? property.value : 'N/A'
+      },
+
+      /**
+       * Get thing network IP address
+       *
+       * @returns {String}
+       */
+      wifiIPAddress() {
+        const property = this.$store.getters['entities/thing_property/query']()
+          .where('thing_id', this.thing.id)
+          .where('name', 'ip-address')
+          .first()
+
+        return property !== null && property.value !== null ? property.value : 'N/A'
+      },
+
+      /**
        * Check if thing has time settings options
        *
        * @returns {Boolean}
@@ -354,20 +434,31 @@
           return false
         }
 
-        const parameters = this.$store.getters['entities/thing_configuration/query']()
+        return this.$store.getters['entities/thing_configuration/query']()
           .where('thing_id', this.thing.id)
-          .orderBy('name')
-          .all()
+          .where(item => {
+            return this._.get(item, 'name').indexOf('ntp_') === 0
+          })
+          .count() > 0 ? true : false
+      },
 
-        let result = false
+      /**
+       * Check if thing has sensors settings options
+       *
+       * @returns {Boolean}
+       */
+      hasSensorsSettings() {
+        if (!this._.get(this.hardware, 'isManufacturerItead')) {
+          return false
+        }
 
-        parameters.forEach(item => {
-          if (this._.get(item, 'name').indexOf('ntp_') === 0) {
-            result = true
-          }
-        })
-
-        return result
+        return this.$store.getters['entities/thing_configuration/query']()
+          .where('thing_id', this.thing.id)
+          .where(item => {
+            return this._.get(item, 'name').indexOf('sensor_') === 0 &&
+              this._.get(item, 'name').indexOf('sensor_expected_') === -1
+          })
+          .count() > 0 ? true : false
       },
 
       /**
@@ -380,20 +471,12 @@
           return false
         }
 
-        const parameters = this.$store.getters['entities/thing_configuration/query']()
+        return this.$store.getters['entities/thing_configuration/query']()
           .where('thing_id', this.thing.id)
-          .orderBy('name')
-          .all()
-
-        let result = false
-
-        parameters.forEach(item => {
-          if (this._.get(item, 'name').indexOf('sensor_expected_') === 0) {
-            result = true
-          }
-        })
-
-        return result
+          .where(item => {
+            return this._.get(item, 'name').indexOf('sensor_expected_') === 0
+          })
+          .count() > 0 ? true : false
       },
 
       /**
@@ -542,7 +625,21 @@
 
         if (this.loading.hasOwnProperty('moduleSettings')) {
           this.loading.moduleSettings = true
+
+          if (prefix === 'sensor_') {
+            this.loading.sensorsSettings = true
+          }
+
+          if (prefix === 'ntp_') {
+            this.loading.timeSettings = true
+          }
         }
+      },
+
+      moduleFormLoaded() {
+        this.loading.moduleSettings = false
+        this.loading.sensorsSettings = false
+        this.loading.timeSettings = false
       },
 
       /**

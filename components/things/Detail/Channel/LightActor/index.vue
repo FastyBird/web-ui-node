@@ -9,9 +9,9 @@
       class="fb-iot-things-detail-channel-light__channel"
     >
       <template slot="icon">
-        <device-icon
-          name="lighting"
-          class="fb-iot-things-detail-channel-light__icon"
+        <font-awesome-icon
+          icon="lightbulb"
+          class="fb-iot-things-channels-light__channel-icon m-t-md"
         />
       </template>
 
@@ -25,9 +25,9 @@
       class="fb-iot-things-detail-channel-light__channel"
     >
       <template slot="icon">
-        <device-icon
-          name="lighting-special"
-          class="fb-iot-things-detail-channel-light__icon"
+        <font-awesome-icon
+          icon="lightbulb"
+          class="fb-iot-things-channels-light__channel-icon m-t-md"
         />
       </template>
 
@@ -58,9 +58,9 @@
       class="fb-iot-things-detail-channel-light__channel fb-iot-things-detail-channel-light__channel-brightness"
     >
       <template slot="icon">
-        <device-icon
-          name="luminosity"
-          class="fb-iot-things-detail-channel-light__icon m-t-md"
+        <font-awesome-icon
+          icon="sun"
+          class="fb-iot-things-channels-light__channel-icon m-t-md"
         />
       </template>
 
@@ -88,12 +88,12 @@
     />
   </div>
 </template>
-
+..
 <script>
   import VueSlider from 'vue-slider-component'
 
   const ThingsDetailChannelContainer = () => import('../../ChannelContainer')
-  const ThingsDetailChannelSwitch = () => import('../SwitchActor')
+  const ThingsDetailChannelSwitch = () => import('./../../../Channels/SwitchActor')
 
   const ThingsChannelsLight = () => import('../../../Channels/Light')
 

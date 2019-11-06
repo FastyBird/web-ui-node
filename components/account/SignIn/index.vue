@@ -2,8 +2,11 @@
   <div class="fb-account-sign-in__container">
     <sign-header :heading="$t('headings.signIn')" />
 
-    <form @submit.prevent="submit">
-      <fb-md-form-input
+    <form
+      class="p-t-md"
+      @submit.prevent="submit"
+    >
+      <fb-form-input
         v-model="form.model.credentials.uid"
         v-validate="'required|checkUid'"
         :data-vv-scope="form.scope"
@@ -14,10 +17,9 @@
         :required="true"
         :tab-index="2"
         data-vv-validate-on="blur"
-        class="m-b-0"
       />
 
-      <fb-md-form-input
+      <fb-form-input
         v-model="form.model.credentials.password"
         v-validate="'required'"
         :data-vv-scope="form.scope"
@@ -30,7 +32,7 @@
         type="password"
       />
 
-      <fb-md-form-checkbox
+      <fb-form-checkbox
         v-model="form.model.persistent"
         :data-vv-scope="form.scope"
         :name="'persistent'"
@@ -44,7 +46,7 @@
             {{ $t('buttons.forgotPassword.title') }}
           </router-link>
         </template>
-      </fb-md-form-checkbox>
+      </fb-form-checkbox>
 
       <fb-button
         block
@@ -168,12 +170,12 @@
        * Submit form values
        */
       submit() {
+        this.$bus.$emit('wait-sign_in', true)
+
         this.$validator.validateAll(this.form.scope)
           .then(result => {
             if (result) {
               const errorMessage = this.$t('application.messages.requestError')
-
-              this.$bus.$emit('wait-sign_in', true)
 
               this.$store.dispatch('entities/session/create', {
                 id: process.env.NUXT_ENV_SESSION_KEY,
@@ -202,7 +204,6 @@
                   this.$router.push(this.localePath({ name: HOME_LINK }))
                 })
                 .catch(e => {
-                  console.log(e)
                   this.$bus.$emit('wait-sign_in', false)
 
                   if (this._.get(e, 'exception', null) !== null) {
@@ -223,6 +224,8 @@
                   this.$router.push(this.localePath({ name: ACCOUNT_SIGN_IN_LINK }))
                 })
             } else {
+              this.$bus.$emit('wait-sign_in', false)
+
               this.$toasted.info(this.$t('application.messages.fixAllFormErrors'), {
                 action: {
                   text: this.$t('application.buttons.close.title'),
@@ -252,8 +255,8 @@
   }
 </script>
 
-<style rel="stylesheet/scss" lang="scss">
-  @import './index.scss';
+<style rel="stylesheet/scss" lang="scss" scoped>
+  @import 'index';
 </style>
 
 <i18n src="./locales.json" />

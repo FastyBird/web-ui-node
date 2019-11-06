@@ -16,11 +16,10 @@
 </template>
 
 <script>
-  import { mapState, mapActions } from 'vuex'
+  import { mapState } from 'vuex'
 
   import {
     THINGS_LIST_LINK,
-    THINGS_CHANNEL_SETTINGS_LINK,
   } from '@/configuration/routes'
 
   const ThingsDetailChannelLight = () => import('@/components/things/Detail/Channel/LightActor')
@@ -81,7 +80,7 @@
             return
           }
 
-          this._configureHeader()
+          this._configureNavigation()
         }
       },
 
@@ -98,7 +97,7 @@
             return
           }
 
-          this._configureHeader()
+          this._configureNavigation()
         }
       },
 
@@ -143,45 +142,39 @@
       }
 
       if (this.thing) {
-        this._configureHeader()
+        this._configureNavigation()
       }
     },
 
     methods: {
-
-      ...mapActions('header', [
-        'setLeftButton',
-        'setRightButton',
-        'showRightButton',
-        'setHeading',
-        'resetStore',
-      ]),
 
       /**
        * Configure page header for small devices
        *
        * @private
        */
-      _configureHeader() {
-        this.resetStore()
+      _configureNavigation() {
+        this.$store.dispatch('header/resetStore', null, {
+          root: true,
+        })
 
-        this.setLeftButton({
+        this.$store.dispatch('header/setLeftButton', {
           name: this.$t('application.buttons.back.title'),
           link: this.localePath({ name: THINGS_LIST_LINK }),
-          icon: 'angle-left',
+          icon: 'arrow-left',
+        }, {
+          root: true,
         })
 
-        this.showRightButton()
-
-        this.setRightButton({
-          name: this.$t('application.buttons.settings.title'),
-          link: this.localePath({ name: THINGS_CHANNEL_SETTINGS_LINK, params: { id: this.thing.id, channelId: this.channel.id } }),
-          icon: 'cogs',
+        this.$store.dispatch('header/hideRightButton', null, {
+          root: true,
         })
 
-        this.setHeading({
+        this.$store.dispatch('header/setHeading', {
           heading: this.thing.label,
           subHeading: this.$tChannel(this.thing, this.channel),
+        }, {
+          root: true,
         })
       },
 

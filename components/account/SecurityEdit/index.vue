@@ -13,7 +13,7 @@
         v-if="account.security_question !== null"
         class="m-b-md"
       >
-        <fb-md-form-input
+        <fb-form-input
           v-model="form.model.currentAnswer"
           v-validate="'required|checkCurrentAnswer'"
           :data-vv-scope="form.scope"
@@ -31,11 +31,11 @@
           >
             {{ $t('field.securityQuestion.currentAnswer.help') }}
           </template>
-        </fb-md-form-input>
+        </fb-form-input>
       </fieldset>
 
       <fieldset>
-        <fb-md-form-select
+        <fb-form-select
           v-model="form.model.question"
           v-validate="'required'"
           :data-vv-scope="form.scope"
@@ -47,7 +47,7 @@
           class="m-b-md"
         />
 
-        <fb-md-form-input
+        <fb-form-input
           v-model="form.model.otherQuestion"
           v-validate="form.model.question === 'custom' ? 'required':''"
           :data-vv-scope="form.scope"
@@ -66,9 +66,9 @@
           >
             {{ $t('field.securityQuestion.customQuestion.help') }}
           </template>
-        </fb-md-form-input>
+        </fb-form-input>
 
-        <fb-md-form-input
+        <fb-form-input
           v-model="form.model.answer"
           v-validate="'required'"
           :data-vv-scope="form.scope"
@@ -86,9 +86,9 @@
           >
             {{ $t('field.securityQuestion.answer.help') }}
           </template>
-        </fb-md-form-input>
+        </fb-form-input>
 
-        <fb-md-form-checkbox
+        <fb-form-checkbox
           v-model="form.model.lockingNotice"
           v-validate="'required'"
           :data-vv-scope="form.scope"
@@ -97,7 +97,7 @@
           :name="'locking_notice'"
         >
           {{ $t('field.securityQuestion.lockingNotice.title') }}
-        </fb-md-form-checkbox>
+        </fb-form-checkbox>
       </fieldset>
     </template>
   </fb-modal-form>

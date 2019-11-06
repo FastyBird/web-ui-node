@@ -2,52 +2,69 @@ import Vue from 'vue'
 
 import FastyBirdTheme from '@/node_modules/@fastybird-com/theme'
 
-import * as config from '@/configuration'
-import { version } from './../package.json'
+import * as routes from '@/configuration/routes'
 
 import HelpersMixin from '@/mixins/helpers'
-
-import {
-  HOME_LINK,
-  ACCOUNT_SIGN_IN_LINK,
-  ACCOUNT_SIGN_UP_LINK,
-} from '@/configuration/routes'
-
-Vue.prototype.$menuItems = config.MENU_ITEMS
-Vue.prototype.$bottomMenu = config.MOBILE_BOTTOM_TABS
-Vue.prototype.$userMenuItems = config.USER_MENU_ITEMS
-Vue.prototype.$authorName = config.AUTHOR_NAME
-Vue.prototype.$authorWebsite = config.AUTHOR_WEBSITE
-Vue.prototype.$appVersion = version
-Vue.prototype.$avatar = null
-Vue.prototype.$coreLinks = null
 
 Vue.mixin(HelpersMixin)
 
 Vue.use(FastyBirdTheme)
 
-export default ({ app }) => {
-  Vue.prototype.$coreLinks = {
-    home: app.localePath({ name: HOME_LINK }),
-    signInLnk: app.localePath({ name: ACCOUNT_SIGN_IN_LINK }),
-    signUpLnk: app.localePath({ name: ACCOUNT_SIGN_UP_LINK }),
-  }
-
-  const menuItems = config.MENU_ITEMS
-
-  menuItems[0].items.forEach(item => {
-    // eslint-disable-next-line
-    item.link = app.localePath({ name: item.link })
+export default ({ app }, inject) => {
+  inject('routes', {
+    home: routes.HOME_LINK,
+    account: {
+      signIn: routes.ACCOUNT_SIGN_IN_LINK,
+      signUp: routes.ACCOUNT_SIGN_UP_LINK,
+      resetPassword: routes.ACCOUNT_RESET_PASSWORD_LINK,
+    },
+    things: {
+      list: routes.THINGS_LIST_LINK,
+      detail: routes.THINGS_THING_DETAIL_LINK,
+      routines: routes.THINGS_THING_ROUTINES_LINK,
+      connect: routes.THINGS_THING_CONNECT_LINK,
+      channel: routes.THINGS_CHANNEL_DETAIL_LINK,
+    },
+    groups: {
+      list: routes.GROUPS_LIST_LINK,
+      detail: routes.GROUPS_GROUP_DETAIL_LINK,
+    },
+    routines: {
+      list: routes.ROUTINES_LIST_LINK,
+      detail: routes.ROUTINES_ROUTINE_DETAIL_LINK,
+      settings: routes.ROUTINES_ROUTINE_SETTINGS_LINK,
+      create: routes.ROUTINES_CREATE_LINK,
+    },
   })
 
-  Vue.prototype.$menuItems = menuItems
-
-  const bottomMenu = config.MOBILE_BOTTOM_TABS
-
-  bottomMenu.forEach(item => {
-    // eslint-disable-next-line
-    item.link = app.localePath({ name: item.link })
+  inject('flashMessage', (message, type = 'success') => {
+    if (type === 'success') {
+      app.$toast.success(message, {
+        action: {
+          text: app.i18n.t('application.buttons.close.title'),
+          onClick: (e, toastObject) => {
+            toastObject.goAway(0)
+          },
+        },
+      })
+    } else if (type === 'info') {
+      app.$toast.info(message, {
+        action: {
+          text: app.i18n.t('application.buttons.close.title'),
+          onClick: (e, toastObject) => {
+            toastObject.goAway(0)
+          },
+        },
+      })
+    } else if (type === 'error') {
+      app.$toast.error(message, {
+        action: {
+          text: app.i18n.t('application.buttons.close.title'),
+          onClick: (e, toastObject) => {
+            toastObject.goAway(0)
+          },
+        },
+      })
+    }
   })
-
-  Vue.prototype.$bottomMenu = bottomMenu
 }

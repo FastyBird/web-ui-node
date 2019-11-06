@@ -1,0 +1,19 @@
+{
+  "en": {
+    "headings": {
+      "groupSettings": "Group settings",
+      "generalSettings": "General settings"
+    },
+    "texts": {
+      "actual": "Actual"
+    },
+    "buttons": {
+      "remove": {
+        "title": "Remove group"
+      },
+      "rename": {
+        "title": "Rename group"
+      }
+    }
+  }
+}

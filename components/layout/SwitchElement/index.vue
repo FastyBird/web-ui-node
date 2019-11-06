@@ -3,7 +3,7 @@
     <input
       :checked="props.status"
       :disabled="props.disabled"
-      class="switch-input"
+      class="switch-input hide"
       type="checkbox"
       @change.prevent="listeners['change']()"
     >
@@ -34,6 +34,6 @@
   }
 </script>
 
-<style rel="stylesheet/scss" lang="scss">
+<style rel="stylesheet/scss" lang="scss" scoped>
   @import 'index';
 </style>
