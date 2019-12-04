@@ -1,42 +1,10 @@
 <template>
   <div class="fb-routines-list-view__container">
-    <div class="fb-routines-list-view__navigation">
-      <fb-button
-        :to="localePath($routes.routines.list)"
-        variant="primary"
-        uppercase
-        disabled
-        class="fb-routines-list-view__navigation-button fb-routines-list-view__navigation-button-active"
-      >
-        {{ $t('buttons.automation.title') }}
-      </fb-button>
-
-      <fb-button
-        :to="localePath($routes.routines.list)"
-        variant="primary"
-        uppercase
-        class="fb-routines-list-view__navigation-button"
-      >
-        {{ $t('buttons.schedules.title') }}
-      </fb-button>
-
-      <fb-button
-        variant="outline-primary"
-        uppercase
-        pill
-        class="fb-routines-list-view__add-button"
-        @click="openRoutineCreate"
-      >
-        <font-awesome-icon icon="plus" />
-      </fb-button>
-    </div>
-
-    <div class="fb-routines-list-view__items-container row p-t-md">
-      <routines-list-item
+    <div class="fb-routines-list-view__items-container">
+      <routine-list-item
         v-for="routine in routines"
         :key="routine.id"
         :routine="routine"
-        class="col-md-6 col-lg-4"
         @click="oneClick"
       />
     </div>
@@ -66,12 +34,20 @@
           name="fade"
           mode="out-in"
         >
-          <routines-detail
+          <routine-detail
             v-if="view.opened.type === view.detail.name"
             :routine="viewRoutine"
             :style="`height: ${offCanvasHeight}px`"
             class="fb-routines-list-view__off-canvas-body"
             @removed="closeView"
+          />
+
+          <routine-settings
+            v-if="viewRoutine !== null && view.opened.type === view.settings.name"
+            :routine="viewRoutine"
+            :style="`height: ${offCanvasHeight}px`"
+            class="fb-routines-list-view__off-canvas-body"
+            @removed="closeView(view.opened.type)"
           />
         </transition>
       </off-canvas-body>
@@ -79,72 +55,40 @@
 
     <fb-loading-box
       v-if="fetchingRoutines && routines.length === 0"
-      :text="$t('texts.loading')"
+      :text="$t('routines.texts.loadingRoutines')"
     />
 
-    <div
-      v-show="!fetchingRoutines && routines.length === 0"
-      class="p-x-md"
-    >
-      <div class="row">
-        <div class="col-8 offset-2 col-sm-6 offset-sm-3 col-md-4 offset-md-4 col-xl-2 offset-xl-5 p-t-lg">
-          <div class="text-center p-a-lg">
-            <span class="icon-with-child">
-              <font-awesome-icon
-                icon="project-diagram"
-                class="icon-5x text-muted m-y-lg"
-              />
-              <span
-                class="bg-primary circle sq-32 icon-2x icon-child m-y-lg"
-                style="padding-top: 1px;"
-              >
-                <font-awesome-icon icon="plus" />
-              </span>
-            </span>
-          </div>
-
-          <p class="text-center m-b-lg">
-            {{ $t('texts.noRoutines') }}
-          </p>
-        </div>
-      </div>
-    </div>
+    <no-results
+      v-if="!fetchingRoutines && routines.length === 0"
+      :message="$t('routines.texts.noRoutines')"
+      icon="project-diagram"
+    />
   </div>
 </template>
 
 <script>
-  import { mapState, mapActions } from 'vuex'
+  import { mapState } from 'vuex'
 
   import {
-    ROUTINES_LIST_LINK,
-    ROUTINES_ROUTINE_DETAIL_LINK,
-    ROUTINES_CREATE_LINK,
-
     ROUTINES_HASH_DETAIL,
+
+    ROUTINES_HASH_AUTOMATION,
+    ROUTINES_HASH_SCHEDULES,
   } from '@/configuration/routes'
 
   import FbComponentLoading from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoading'
   import FbComponentLoadingError from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoadingError'
 
-  import RoutinesListItem from '@/components/routines/List/Item'
+  import RoutineListItem from '@/components/routines/ListItem'
 
-  // Routine detail
-  const RoutinesDetail = () => ({
+  const RoutineDetail = () => ({
     component: import('@/components/routines/Detail'),
     loading: FbComponentLoading,
     error: FbComponentLoadingError,
     timeout: 5000,
   })
-
-  // Off canvas details view
-  const OffCanvas = () => ({
-    component: import('@/components/layout/OffCanvas'),
-    loading: FbComponentLoading,
-    error: FbComponentLoadingError,
-    timeout: 5000,
-  })
-  const OffCanvasBody = () => ({
-    component: import('@/components/layout/OffCanvas/Body'),
+  const RoutineSettings = () => ({
+    component: import('@/components/routines/Settings'),
     loading: FbComponentLoading,
     error: FbComponentLoadingError,
     timeout: 5000,
@@ -155,11 +99,9 @@
     name: 'RoutinesListPage',
 
     components: {
-      RoutinesListItem,
-      RoutinesDetail,
-
-      OffCanvas,
-      OffCanvasBody,
+      RoutineListItem,
+      RoutineDetail,
+      RoutineSettings,
     },
 
     transition: 'fade',
@@ -212,20 +154,20 @@
       },
 
       /**
-       * View thing data
+       * View device data
        *
-       * @returns {(Routine|null)}
+       * @returns {(Trigger|null)}
        */
       viewRoutine() {
         if (this.view.opened.type === null) {
           return null
         }
 
-        let routineId = 0
+        let triggerId = 0
 
         switch (this.view.opened.type) {
           case this.view.detail.name:
-            routineId = this.view.detail.id
+            triggerId = this.view.detail.id
             break
         }
 
@@ -233,7 +175,7 @@
           .with('actions')
           .with('conditions')
           .with('notifications')
-          .where('id', routineId)
+          .where('id', triggerId)
           .first()
       },
 
@@ -243,7 +185,33 @@
        * @returns {Boolean}
        */
       fetchingRoutines() {
-        return this._.get(this.$store, 'state.entities.trigger.semaphore.fetching.items', false)
+        return this.$store.getters['entities/trigger/fetching']()
+      },
+
+      /**
+       * Get detail window heading
+       *
+       * @returns {String}
+       */
+      detailHeading() {
+        if (this.view.opened.type === this.view.detail.name) {
+          return this.viewRoutine.name
+        }
+
+        return 'N/A'
+      },
+
+      /**
+       * Get detail window sub-heading
+       *
+       * @returns {(String|null)}
+       */
+      detailSubHeading() {
+        if (this.view.opened.type === this.view.detail.name) {
+          return this.viewRoutine.hasComment ? this.viewRoutine.comment : null
+        }
+
+        return null
       },
 
     },
@@ -271,7 +239,12 @@
       windowSize(val) {
         if ((val === 'xs')) {
           if (this.view.opened.type === this.view.detail.name) {
-            this.$router.push(this.localePath({ name: ROUTINES_ROUTINE_DETAIL_LINK, params: { id: this.view.detail.id } }))
+            this.$router.push(this.localePath({
+              name: this.$routes.routines.detail,
+              params: {
+                id: this.view.detail.id,
+              },
+            }))
 
             return
           }
@@ -288,7 +261,7 @@
 
     },
 
-    fetch({ app, store }) {
+    fetch({ app, store, error }) {
       if (!store.getters['entities/trigger/firstLoadFinished']()) {
         return store.dispatch('entities/trigger/fetch', null, {
           root: true,
@@ -310,10 +283,40 @@
             }, {
               root: true,
             })
+
+            store.dispatch('header/setAddButton', {
+              name: app.i18n.t('application.buttons.add.title'),
+              callback: null, // Null is set because of SSR and serialization
+            }, {
+              root: true,
+            })
+
+            store.dispatch('header/addTab', {
+              name: app.i18n.t('application.buttons.automation.title'),
+              link: app.localePath({
+                name: app.$routes.routines.list,
+                hash: ROUTINES_HASH_AUTOMATION,
+              }),
+            }, {
+              root: true,
+            })
+
+            store.dispatch('header/addTab', {
+              name: app.i18n.t('application.buttons.schedules.title'),
+              link: app.localePath({
+                name: app.$routes.routines.list,
+                hash: ROUTINES_HASH_SCHEDULES,
+              }),
+            }, {
+              root: true,
+            })
+
+            store.dispatch('bottomNavigation/resetStore', null, {
+              root: true,
+            })
           })
-          .catch(e => {
-            // eslint-disable-next-line
-            console.log(e)
+          .catch(() => {
+            error({ statusCode: 503, message: 'Something went wrong' })
           })
       }
     },
@@ -327,9 +330,8 @@
         this.$store.dispatch('entities/trigger/fetch', null, {
           root: true,
         })
-          .catch(e => {
-            // eslint-disable-next-line
-            console.log(e)
+          .catch(() => {
+            this.$nuxt.error({ statusCode: 503, message: 'Something went wrong' })
           })
       }
 
@@ -346,12 +348,6 @@
 
     methods: {
 
-      ...mapActions('header', [
-        'setHeading',
-        'setRightButton',
-        'resetStore',
-      ]),
-
       /**
        * Event fired by loaded component
        *
@@ -363,35 +359,9 @@
         }
       },
 
-      /**
-       * Get detail window heading
-       *
-       * @returns {String}
-       */
-      detailHeading() {
-        if (this.view.opened.type === this.view.detail.name) {
-          return this.viewRoutine.name
-        }
-
-        return 'N/A'
-      },
-
-      /**
-       * Get detail window sub-heading
-       *
-       * @returns {(String|null)}
-       */
-      detailSubHeading() {
-        if (this.view.opened.type === this.view.detail.name) {
-          return this.viewRoutine.hasComment ? this.viewRoutine.comment : null
-        }
-
-        return 'N/A'
-      },
-
       openRoutineCreate() {
         if (this.windowSize === 'xs') {
-          this.$router.push(this.localePath({ name: ROUTINES_CREATE_LINK }))
+          this.$router.push(this.localePath(this.$routes.routines.create))
         } else {
           this.openView('create')
         }
@@ -415,9 +385,17 @@
         switch (view) {
           case this.view.detail.name:
             if (this.windowSize === 'xs') {
-              this.$router.push(this.localePath({ name: ROUTINES_ROUTINE_DETAIL_LINK, params: { id } }))
+              this.$router.push(this.localePath({
+                name: this.$routes.routines.detail,
+                params: {
+                  id,
+                },
+              }))
             } else {
-              this.$router.push(`${this.localePath({ name: ROUTINES_LIST_LINK })}${this.view.detail.route.hash}${id}`)
+              this.$router.push(this.localePath({
+                name: this.$routes.routines.list,
+                hash: `${this.view.detail.route.hash}-${id}`,
+              }))
             }
             break
         }
@@ -441,7 +419,7 @@
        * @param {String} view
        */
       closeView(view) {
-        this.$router.push(this.localePath({ name: ROUTINES_LIST_LINK }))
+        this.$router.push(this.localePath(this.$routes.routines.list))
 
         this.view.opened.type = null
 
@@ -493,11 +471,7 @@
       _checkRoute() {
         if (this.$route.hash !== '') {
           if (this.$route.hash.search(this.view.detail.route.hash) !== -1) {
-            const routine = this._.find(this.routines, { id: this.$route.hash.substring(this.view.detail.route.length) })
-
-            if (routine) {
-              this.openView(this.view.detail.name, routine)
-            }
+            this.openView(this.view.detail.name, this.$route.hash.substring(this.view.detail.route.length))
           }
         }
       },
@@ -508,12 +482,10 @@
        * @private
        */
       _calculateWindowHeight() {
-        this.viewportHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
-
         if (this.windowSize === 'xs') {
           this.offCanvasHeight = null
         } else {
-          this.offCanvasHeight = this.viewportHeight - 50
+          this.offCanvasHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
         }
       },
 
@@ -538,6 +510,35 @@
           root: true,
         })
 
+        this.$store.dispatch('header/setAddButton', {
+          name: this.$t('application.buttons.add.title'),
+          callback: () => {
+            this.openRoutineCreate()
+          },
+        }, {
+          root: true,
+        })
+
+        this.$store.dispatch('header/addTab', {
+          name: this.$t('application.buttons.automation.title'),
+          link: this.localePath({
+            name: this.$routes.routines.list,
+            hash: ROUTINES_HASH_AUTOMATION,
+          }),
+        }, {
+          root: true,
+        })
+
+        this.$store.dispatch('header/addTab', {
+          name: this.$t('application.buttons.schedules.title'),
+          link: this.localePath({
+            name: this.$routes.routines.list,
+            hash: ROUTINES_HASH_SCHEDULES,
+          }),
+        }, {
+          root: true,
+        })
+
         this.$store.dispatch('bottomNavigation/resetStore', null, {
           root: true,
         })
@@ -547,7 +548,7 @@
 
     head() {
       return {
-        title: this.$t('meta.title'),
+        title: this.$t('meta.routines.list.title'),
       }
     },
 
@@ -557,5 +558,3 @@
 <style rel="stylesheet/scss" lang="scss" scoped>
   @import 'index';
 </style>
-
-<i18n src="./locales.json" />

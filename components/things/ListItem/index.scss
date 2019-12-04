@@ -1,8 +1,18 @@
-@import "~@fastybird-com/theme/assets/styles/variables";
+@import "~@fastybird-com/theme/assets/variables/colors";
 
 .fb-iot-things-list-item {
   &__container {
+    &[data-state="on"] {
+      > div {
+        border-left: 4px solid $brand-primary;
+      }
+    }
+
     &[data-state="off"] {
+      > div {
+        border-left: 4px solid $gray-lighter;
+      }
+
       .fb-list-item {
         &__icon svg,
         &__heading {
@@ -29,9 +39,10 @@
 
     .fb-spinner__container {
       width: 32px;
+      display: inline-block;
     }
 
-    .fb-iot-things-channels-switch__container {
+    .fb-iot-things-switch__container {
       float: right;
     }
   }

@@ -1,9 +1,13 @@
 import get from 'lodash/get'
 
 export default ({ store }, inject) => {
+  inject('groupIcon', (group) => {
+    return get(group, 'icon', 'folder')
+  })
+
   inject('thingIcon', (thing) => {
     const hardware = store.getters['entities/hardware/query']()
-      .where('thing_id', thing.id)
+      .where('device_id', thing.device_id)
       .first()
 
     if (hardware === null || hardware.isCustom) {
@@ -24,23 +28,7 @@ export default ({ store }, inject) => {
     return 'plug'
   })
 
-  inject('channelIcon', (thing, channel) => {
-    if (channel.isEnergy) {
-      return 'calculator'
-    } else if (channel.isSwitch) {
-      return 'toggle-on'
-    } else if (channel.isLight) {
-      return 'lightbulb'
-    } else if (channel.isAnalogSensor) {
-      return 'chart-line'
-    } else if (channel.isBinarySensor) {
-      return 'chart-bar'
-    }
-
-    return 'plug'
-  })
-
-  inject('channelPropertyIcon', (thing, channel, property, def = 'chart-bar') => {
+  inject('channelPropertyIcon', (thing, property, def = 'chart-bar') => {
     switch (property.property) {
       case 'temperature':
         return 'thermometer-half'

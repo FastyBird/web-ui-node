@@ -1,10 +1,20 @@
-@import "~@fastybird-com/theme/assets/styles/variables";
+@import "~@fastybird-com/theme/assets/variables/colors";
 
 .fb-routines-select-thing {
   &__container {
     .fb-list-item__container {
+      margin-left: 0;
+      margin-right: 0;
+
       &[data-state="on"] {
         border: 1px solid $gray-light;
+
+        .fb-list-item__detail-content {
+          svg:first-child {
+            color: $brand-primary;
+            margin-right: 10px;
+          }
+        }
       }
     }
   }

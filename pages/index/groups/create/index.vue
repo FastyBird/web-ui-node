@@ -1,6 +1,6 @@
 <template>
   <div class="fb-iot-groups-group-create-view__container">
-    <groups-create-group class="p-x-md p-t-md" />
+    <groups-create-group />
   </div>
 </template>
 
@@ -8,8 +8,6 @@
   import { mapState } from 'vuex'
 
   import {
-    GROUPS_LIST_LINK,
-
     GROUPS_HASH_CREATE,
   } from '@/configuration/routes'
 
@@ -37,7 +35,10 @@
 
       windowSize(val) {
         if (val !== 'xs') {
-          this.$router.push(`${this.localePath({ name: GROUPS_LIST_LINK })}${GROUPS_HASH_CREATE}`)
+          this.$router.push(this.localePath({
+            name: this.$routes.groups.list,
+            hash: GROUPS_HASH_CREATE,
+          }))
         }
       },
 
@@ -50,7 +51,7 @@
 
       store.dispatch('header/setLeftButton', {
         name: app.i18n.t('application.buttons.back.title'),
-        link: app.localePath({ name: GROUPS_LIST_LINK }),
+        link: app.localePath(app.$routes.groups.list),
         icon: 'arrow-left',
       }, {
         root: true,
@@ -87,7 +88,10 @@
 
     beforeMount() {
       if (this.windowSize !== null && this.windowSize !== 'xs') {
-        this.$router.push(`${this.localePath({ name: GROUPS_LIST_LINK })}${GROUPS_HASH_CREATE}`)
+        this.$router.push(this.localePath({
+          name: this.$routes.groups.list,
+          hash: GROUPS_HASH_CREATE,
+        }))
       }
 
       this._configureNavigation()
@@ -107,7 +111,7 @@
 
         this.$store.dispatch('header/setLeftButton', {
           name: this.$t('application.buttons.back.title'),
-          link: this.localePath({ name: GROUPS_LIST_LINK }),
+          link: this.localePath(this.$routes.groups.list),
           icon: 'arrow-left',
         }, {
           root: true,
@@ -146,11 +150,9 @@
 
     head() {
       return {
-        title: this.$t('meta.title'),
+        title: this.$t('meta.groups.create.title'),
       }
     },
 
   }
 </script>
-
-<i18n src="./locales.json" />

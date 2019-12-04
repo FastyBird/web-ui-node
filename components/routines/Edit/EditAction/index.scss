@@ -1,17 +1,30 @@
-@import "~@fastybird-com/theme/assets/styles/variables";
+@import "~@fastybird-com/theme/assets/variables/colors";
 
 .fb-routines-edit-action-thing {
-  &__heading {
-    border-bottom: 1px solid $gray-lighter;
-    height: auto;
-    width: 100%;
-    font-size: 95%;
-    margin: 0;
-    padding: 5px 10px;
+  &__container {
+    margin-left: -10px;
+    margin-right: -10px;
+    padding-bottom: 50px;
+
+    .fb-checkbox__container {
+      padding-top: 0;
+      padding-bottom: 0;
+      margin: -3px 0 0 0;
+    }
+
+    .fb-btn {
+      text-align: right;
+    }
+  }
+
+  &__channel-property {
+    margin-left: 0;
+    margin-right: 0;
   }
 
   &__values {
     padding-top: 12px;
+    float: right;
 
     label {
       padding-left: 6px;

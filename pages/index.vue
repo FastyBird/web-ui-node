@@ -43,7 +43,7 @@
         // Process cleanup
         this.$store.dispatch('entities/deleteAll')
         this.$store.dispatch('entities/session/reset')
-        this.$store.dispatch('entities/thing/reset')
+        this.$store.dispatch('entities/device/reset')
         this.$store.dispatch('entities/trigger/reset')
 
         this.$wamp.close()

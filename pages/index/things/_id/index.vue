@@ -1,36 +1,25 @@
 <template>
-  <div
-    class="fb-iot-things-thing-detail-view__container"
-  >
+  <div class="fb-iot-things-thing-detail-view__container">
     <fb-loading-box
-      v-if="(fetchingThing && thing === null) || fetchingChannels"
+      v-if="fetchingThing && thing === null"
       :text="$t('texts.loading')"
     />
 
-    <things-detail-thing
-      v-if="thing !== null && !fetchingChannels"
-      ref="detail"
-      :thing="thing"
-      :channels="channels"
-    />
+    <template v-else>
+      <thing-detail
+        ref="detail"
+        :thing="thing"
+      />
 
-    <things-settings-thing
-      v-if="settings"
-      ref="settings"
-      :thing="thing"
-      :channels="channels"
-      @removed="thingRemoved"
-      @channelSettings="openChannelSettings"
-    />
-
-    <things-settings-channel
-      v-if="channelSettings && channel !== null"
-      ref="channelSettings"
-      v-body-scroll-lock="channelSettings && channel !== null"
-      :thing="thing"
-      :channel="channel"
-      style="overflow: scroll;"
-    />
+      <thing-settings
+        v-if="settings"
+        ref="settings"
+        v-body-scroll-lock="true"
+        :thing="thing"
+        class="fb-iot-things-thing-detail-view__container-settings"
+        @removed="thingRemoved"
+      />
+    </template>
   </div>
 </template>
 
@@ -42,21 +31,18 @@
   import {
     THINGS_HASH_DETAIL,
     THINGS_HASH_SETTINGS,
-    THINGS_HASH_CHANNEL_SETTINGS,
   } from '@/configuration/routes'
 
-  import ThingsDetailThing from '@/components/things/Detail'
-  import ThingsSettingsThing from '@/components/things/Settings/Thing'
-  import ThingsSettingsChannel from '@/components/things/Settings/Channel'
+  import ThingDetail from '@/components/things/Detail'
+  import ThingSettings from '@/components/things/Settings'
 
   export default {
 
     name: 'ThingDetailPage',
 
     components: {
-      ThingsDetailThing,
-      ThingsSettingsThing,
-      ThingsSettingsChannel,
+      ThingDetail,
+      ThingSettings,
     },
 
     transition: 'fade',
@@ -65,8 +51,6 @@
       return {
         id: this.$route.params.id,
         settings: false,
-        channelSettings: false,
-        channel: null,
       }
     },
 
@@ -87,23 +71,13 @@
        */
       thing() {
         return this.$store.getters['entities/thing/query']()
-          .with('properties')
-          .with('socket')
-          .where('id', this.id)
+          .with('device')
+          .with('device.properties')
+          .with('device.socket')
+          .with('channel')
+          .with('channel.properties')
+          .where('channel_id', this.id)
           .first()
-      },
-
-      /**
-       * View thing channels data
-       *
-       * @returns {Array}
-       */
-      channels() {
-        return this.$store.getters['entities/channel/query']()
-          .with('properties')
-          .where('thing_id', this.id)
-          .orderBy('name')
-          .all()
       },
 
       /**
@@ -124,18 +98,16 @@
         return this.$store.getters['entities/thing/getting'](this.id)
       },
 
-      /**
-       * Flag signalizing that thing channels are loading from server
-       *
-       * @returns {Boolean}
-       */
-      fetchingChannels() {
-        return this.$store.getters['entities/channel/fetching'](this.id)
-      },
-
     },
 
     watch: {
+
+      /**
+       * Watch for thing updates
+       */
+      thing() {
+        this._configureNavigation()
+      },
 
       windowSize(val) {
         if (val !== 'xs') {
@@ -144,11 +116,6 @@
               this.$router.push(this.localePath({
                 name: this.$routes.things.list,
                 hash: `${THINGS_HASH_SETTINGS}-${this.id}`,
-              }))
-            } else if (this.$route.hash.indexOf(THINGS_HASH_CHANNEL_SETTINGS) !== -1) {
-              this.$router.push(this.localePath({
-                name: this.$routes.things.list,
-                hash: `${THINGS_HASH_CHANNEL_SETTINGS}-${this.channel.id}`,
               }))
             }
           } else {
@@ -178,10 +145,6 @@
         this._subscribeSockets()
       },
 
-      channelSettings() {
-        this._configureNavigationRightButton()
-      },
-
     },
 
     fetch({ app, store, params, error }) {
@@ -192,7 +155,11 @@
           root: true,
         })
           .then(() => {
-            const thing = store.getters['entities/thing/find'](params.id)
+            const thing = store.getters['entities/thing/query']()
+              .with('device')
+              .with('channel')
+              .where('channel_id', params.id)
+              .first()
 
             store.dispatch('header/resetStore', null, {
               root: true,
@@ -218,7 +185,7 @@
             })
 
             store.dispatch('header/setHeading', {
-              heading: thing.label,
+              heading: app.$tThing(thing),
               subHeading: thing.comment,
             }, {
               root: true,
@@ -239,7 +206,7 @@
             })
           })
           .catch(e => {
-            if (get(e, 'exception.response.status', 0) !== 404) {
+            if (get(e, 'exception.response.status', 0) === 404) {
               error({ statusCode: 404, message: 'Thing Not Found' })
             } else {
               error({ statusCode: 503, message: 'Something went wrong' })
@@ -278,22 +245,6 @@
           })
       }
 
-      if (
-        this.channels.length === 0 &&
-        !this.fetchingChannels &&
-        !this.$store.getters['entities/channel/firstLoadFinished'](this.id)
-      ) {
-        this.$store.dispatch('entities/channel/fetch', {
-          thing_id: this.id,
-        }, {
-          root: true,
-        })
-          .catch(() => {
-            // Channels could not be loaded, an unexpected error occur
-            this.$nuxt.error({ statusCode: 503, message: 'Channels could not be loaded' })
-          })
-      }
-
       if (!this.fetchingThing && !this.fetchingThings && this.thing === null) {
         this.$nuxt.error({ statusCode: 404, message: 'Thing Not Found' })
 
@@ -322,8 +273,8 @@
           this.$route.path !== this.localePath(this.$routes.things.list) &&
           this.exchangeConnected
         ) {
-          this.$store.dispatch('entities/thing_socket/unsubscribe', {
-            thing_id: this.id,
+          this.$store.dispatch('entities/device_socket/unsubscribe', {
+            device_id: this.thing.device_id,
           }, {
             root: true,
           })
@@ -337,34 +288,10 @@
     methods: {
 
       /**
-       * Thing was removed, navigate to thing list
+       * Thing was removed, navigate to things list
        */
       thingRemoved() {
-        // TODO
-      },
-
-      /**
-       * Navigate to channel settings page
-       *
-       * @param {Channel} channel
-       * @param {String} channel.id
-       */
-      openChannelSettings(channel) {
-        this.$set(this, 'channel', channel)
-        this.$set(this, 'channelSettings', true)
-
-        this.$nextTick(() => {
-          if (this._.get(this.$refs, 'channelSettings')) {
-            const component = this._.get(this.$refs, 'channelSettings')
-
-            this._setBlocksHeight('channelSettings', 'height')
-
-            // Scroll view to channel setting part
-            this.$scrollTo(component.$el, 500, {
-              offset: (-1 * this.$store.state.theme.marginTop),
-            })
-          }
-        })
+        this.$router.push(this.localePath(this.$routes.things.list))
       },
 
       /**
@@ -377,7 +304,7 @@
           if (this._.get(this.$refs, 'settings')) {
             const component = this._.get(this.$refs, 'settings')
 
-            this._setBlocksHeight('settings')
+            this._setBlocksHeight('settings', 'height')
 
             // Scroll view to setting part
             this.$scrollTo(component.$el, 500, {
@@ -398,22 +325,7 @@
             offset: (-1 * this.$store.state.theme.marginTop),
             onDone: () => {
               this.$set(this, 'settings', false)
-            },
-          })
-        }
-      },
-
-      /**
-       * Close thing channel settings part
-       */
-      _closeChannelSettings() {
-        if (this._.get(this.$refs, 'settings')) {
-          const component = this._.get(this.$refs, 'settings')
-
-          this.$scrollTo(component.$el, 500, {
-            offset: (-1 * this.$store.state.theme.marginTop),
-            onDone: () => {
-              this.$set(this, 'channelSettings', false)
+              this._configureNavigationRightButton()
             },
           })
         }
@@ -439,8 +351,8 @@
        */
       _subscribeSockets() {
         if (this.exchangeConnected) {
-          this.$store.dispatch('entities/thing_socket/subscribe', {
-            thing_id: this.thing.id,
+          this.$store.dispatch('entities/device_socket/subscribe', {
+            device_id: this.thing.device_id,
           }, {
             root: true,
           })
@@ -464,7 +376,7 @@
         })
 
         this.$store.dispatch('header/setHeading', {
-          heading: this.thing.label,
+          heading: this.$tThing(this.thing),
           subHeading: this.thing.comment,
         }, {
           root: true,
@@ -491,57 +403,40 @@
        * @private
        */
       _configureNavigationRightButton() {
-        if (this.channelSettings && this._.get(this.$refs, 'channelSettings')) {
-          this.$store.dispatch('header/hideLeftButton', null, {
-            root: true,
-          })
+        this.$store.dispatch('header/setLeftButton', {
+          name: this.$t('application.buttons.back.title'),
+          link: this.localePath(this.$routes.things.list),
+          icon: 'arrow-left',
+        }, {
+          root: true,
+        })
 
+        if (
+          this.settings &&
+          this._.get(this.$refs, 'settings') &&
+          this._.get(this.$refs, 'settings.$el').getBoundingClientRect().top <= (this.$store.state.theme.marginTop + 1)
+        ) {
           this.$store.dispatch('header/setRightButton', {
             name: this.$t('application.buttons.close.title'),
             callback: () => {
-              this._closeChannelSettings()
+              this._closeSettings()
             },
           }, {
             root: true,
           })
 
-          this._setOpenedChannelSettingsRoute()
+          this._setOpenedSettingsRoute()
         } else {
-          this.$store.dispatch('header/setLeftButton', {
-            name: this.$t('application.buttons.back.title'),
-            link: this.localePath({ name: this.$routes.things.list }),
-            icon: 'arrow-left',
+          this.$store.dispatch('header/setRightButton', {
+            name: this.$t('application.buttons.edit.title'),
+            callback: () => {
+              this._openSettings()
+            },
           }, {
             root: true,
           })
 
-          if (
-            this.settings &&
-            this._.get(this.$refs, 'settings') &&
-            this._.get(this.$refs, 'settings.$el').getBoundingClientRect().top <= (this.$store.state.theme.marginTop + 1)
-          ) {
-            this.$store.dispatch('header/setRightButton', {
-              name: this.$t('application.buttons.close.title'),
-              callback: () => {
-                this._closeSettings()
-              },
-            }, {
-              root: true,
-            })
-
-            this._setOpenedSettingsRoute()
-          } else {
-            this.$store.dispatch('header/setRightButton', {
-              name: this.$t('application.buttons.edit.title'),
-              callback: () => {
-                this._openSettings()
-              },
-            }, {
-              root: true,
-            })
-
-            this._setClosedSettingsRoute()
-          }
+          this._setClosedSettingsRoute()
         }
       },
 
@@ -561,8 +456,7 @@
        */
       _windowResizeHandler() {
         this._setBlocksHeight('detail')
-        this._setBlocksHeight('settings')
-        this._setBlocksHeight('channelSettings', 'height')
+        this._setBlocksHeight('settings', 'height')
 
         if (this.settings && this._.get(this.$refs, 'settings')) {
           const component = this._.get(this.$refs, 'settings')
@@ -594,26 +488,11 @@
        *
        * @private
        */
-      _setOpenedChannelSettingsRoute() {
-        this.$router.push(this.localePath({
-          name: this.$routes.things.detail,
-          params: {
-            id: this.thing.id,
-          },
-          hash: `${THINGS_HASH_CHANNEL_SETTINGS}-${this.channel.id}`,
-        }))
-      },
-
-      /**
-       * Change route accordingly to view position
-       *
-       * @private
-       */
       _setOpenedSettingsRoute() {
         this.$router.push(this.localePath({
           name: this.$routes.things.detail,
           params: {
-            id: this.thing.id,
+            id: this.thing.channel_id,
           },
           hash: THINGS_HASH_SETTINGS,
         }))
@@ -628,7 +507,7 @@
         this.$router.push(this.localePath({
           name: this.$routes.things.detail,
           params: {
-            id: this.thing.id,
+            id: this.thing.channel_id,
           },
         }))
       },
@@ -637,11 +516,13 @@
 
     head() {
       return {
-        title: this.$t('meta.title', { thing: this.thing.label }),
+        title: this.$t('meta.things.detail.title', { thing: this.$tThing(this.thing) }),
       }
     },
 
   }
 </script>
 
-<i18n src="./locales.json" />
+<style rel="stylesheet/scss" lang="scss">
+  @import 'index';
+</style>

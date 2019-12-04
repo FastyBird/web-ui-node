@@ -1,21 +1,24 @@
 <template>
-  <layout-list-item class="fb-routines-action__container">
+  <list-item class="fb-routines-action__container">
     <template slot="icon">
       <font-awesome-icon :icon="$thingIcon(thing)" />
     </template>
 
     <template slot="heading">
-      {{ thing.label }}
+      {{ $tThing(thing) }}
     </template>
 
     <template slot="sub-heading">
-      Switch turn on
+      <span
+        v-for="(row, index) in properties"
+        :key="index"
+        class="fb-routines-action__action"
+      >{{ $t(`routines.actions.${row.operation}`, { property: $tChannelProperty(thing, row.property).toLowerCase() }) }}</span>
     </template>
 
     <template slot="detail-large">
       <switch-element
         :status="enabled"
-        class="pull-left"
         @change="toggleThing"
       />
 
@@ -24,24 +27,16 @@
         variant="link"
         @click="editThing"
       >
-        {{ $t('buttons.edit.title') }}
+        {{ $t('application.buttons.edit.title') }}
       </fb-button>
     </template>
-  </layout-list-item>
+  </list-item>
 </template>
 
 <script>
-  import LayoutListItem from '@/components/layout/ListItem'
-  import SwitchElement from '@/components/layout/SwitchElement'
-
   export default {
 
     name: 'RoutinesEditListAction',
-
-    components: {
-      LayoutListItem,
-      SwitchElement,
-    },
 
     props: {
 
@@ -69,15 +64,37 @@
 
     computed: {
 
+      /**
+       * Action thing
+       *
+       * @returns {Thing}
+       */
       thing() {
-        return this.$store.getters['entities/thing/find'](this.action.thing)
+        return this.$store.getters['entities/thing/query']()
+          .with('device')
+          .with('channel')
+          .with('channel.properties')
+          .where('id', this.action.thing)
+          .first()
       },
 
+      /**
+       * Mapped properties with values
+       *
+       * @returns {Array}
+       */
       properties() {
-        return this.$store.getters['entities/channel_property/query']()
-          .with('channel')
-          .where('id', this.action.rows.map(item => { return item.property }))
-          .first()
+        const mapped = []
+
+        this.action.rows
+          .forEach(row => {
+            mapped.push({
+              operation: row.operation,
+              property: this.$store.getters['entities/channel_property/find'](row.property),
+            })
+          })
+
+        return mapped
       },
 
     },
@@ -97,8 +114,6 @@
   }
 </script>
 
-<style rel="stylesheet/scss" lang="scss" scoped>
+<style rel="stylesheet/scss" lang="scss">
   @import 'index';
 </style>
-
-<i18n src="./locales.json" />

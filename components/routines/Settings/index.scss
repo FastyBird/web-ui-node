@@ -1,47 +1,21 @@
-@import "~@fastybird-com/theme/assets/styles/variables";
+@import "~@fastybird-com/theme/assets/variables/colors";
 
-a.list-group-item.text-danger {
-  color: #ac6819;
-}
-
-.fb-routines-settings-thing {
-  &__container {
-    button {
-      outline: none;
+.fb-routines-settings-routine {
+  &__item {
+    &-icon {
+      float: right;
     }
 
-    @media (min-width: $screen-sm-min) {
-      padding: 5px 15px !important;
+    &-remove {
+      color: $brand-danger;
     }
 
-    .switch {
-      margin-top: 7px;
+    .fb-spinner__container {
+      margin-right: 15px;
     }
 
-    .switch-track {
-      background-color: $gray
-    }
-
-    .switch-thumb {
-      border-color: $gray;
-    }
-
-    .switch-input.no-control:disabled ~ .switch-track {
-      background-color: $gray;
-      cursor: not-allowed;
-    }
-
-    .switch-input.no-control:disabled ~ .switch-thumb {
-      border-color: $gray;
-    }
-
-    .switch-input.no-control:disabled:checked ~ .switch-track {
-      background-color: $brand-primary;
-      cursor: not-allowed;
-    }
-
-    .switch-input.no-control:disabled:checked ~ .switch-thumb {
-      border-color: $brand-primary;
+    .fb-switch-element__container {
+      float: right;
     }
   }
 }

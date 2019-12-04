@@ -170,7 +170,7 @@
           item.items.forEach(subItem => {
             if (subItem.hasOwnProperty('link')) {
               // eslint-disable-next-line
-              subItem.link = this.localePath({ name: subItem.link })
+              subItem.link = this.localePath({ name: subItem.link, hash: this._.get(item, 'hash') })
             }
 
             if (subItem.hasOwnProperty('meta') && subItem.meta.hasOwnProperty('label')) {
@@ -185,7 +185,7 @@
       this.userMenuItems.forEach(item => {
         if (item.hasOwnProperty('link')) {
           // eslint-disable-next-line
-          item.link = this.localePath({ name: item.link })
+          item.link = this.localePath({ name: item.link, hash: this._.get(item, 'hash') })
         }
 
         if (item.hasOwnProperty('meta') && item.meta.hasOwnProperty('label')) {
@@ -197,7 +197,7 @@
       this.bottomMenuItems = this._.cloneDeep(config.MOBILE_BOTTOM_TABS)
       this.bottomMenuItems.forEach(item => {
         // eslint-disable-next-line
-        item.link = this.localePath({ name: item.link })
+        item.link = this.localePath({ name: item.link, hash: this._.get(item, 'hash') })
         // eslint-disable-next-line
         item.name = this.$t(item.name)
       })

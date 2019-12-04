@@ -1,0 +1,49 @@
+@import "~@fastybird-com/theme/assets/variables/colors";
+
+.fb-result-err {
+  &__container {
+    width: 100px;
+    display: block;
+    margin: 40px auto 0;
+
+    circle,
+    line {
+      fill: none;
+      stroke-dasharray: 1000;
+      stroke-dashoffset: 0;
+      stroke: $brand-danger;
+      stroke-width: 6;
+      stroke-miterlimit: 10;
+    }
+
+    circle {
+      -webkit-animation: result-err-dash .9s ease-in-out;
+      animation: result-err-dash .9s ease-in-out;
+    }
+
+    line {
+      stroke-dashoffset: 1000;
+      stroke-linecap: round;
+      -webkit-animation: result-err-dash .9s .35s ease-in-out forwards;
+      animation: result-err-dash .9s .35s ease-in-out forwards;
+    }
+  }
+}
+
+@-webkit-keyframes result-err-dash {
+  0% {
+    stroke-dashoffset: 1000;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes result-err-dash {
+  0% {
+    stroke-dashoffset: 1000;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}

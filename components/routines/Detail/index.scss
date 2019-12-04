@@ -14,4 +14,10 @@ a.list-group-item.text-danger {
       padding: 5px 15px !important;
     }
   }
+
+  &__conditions-container,
+  &__actions-container {
+    margin-left: 0;
+    margin-right: 0;
+  }
 }

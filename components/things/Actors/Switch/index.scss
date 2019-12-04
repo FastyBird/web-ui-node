@@ -1,0 +1,61 @@
+@import "~@fastybird-com/theme/assets/variables/colors";
+
+.fb-iot-things-switch {
+  &__container {
+    text-align: center;
+  }
+
+  &__loading,
+  &__result {
+    width: 44px;
+    text-align: center;
+    display: inline-block;
+
+    .icon {
+      width: 32px;
+      line-height: 32px;
+      font-size: 28px;
+    }
+
+    &-ok,
+    &-err {
+      display: inline-block;
+      font-size: floor(32px * 0.5);
+      height: 32px;
+      line-height: 32px;
+      text-align: center;
+      width: 32px;
+      position: relative;
+    }
+
+    &-ok {
+      color: $brand-primary;
+    }
+
+    &-err {
+      color: $brand-warning;
+    }
+  }
+
+  &__loading > div {
+    display: inline-block;
+    font-size: floor(32px * 0.5);
+    height: 32px;
+    line-height: 32px;
+    text-align: center;
+    width: 32px;
+    position: relative;
+  }
+
+  &__container {
+    &[data-state="off"] {
+      .switch-track {
+        background-color: $gray-lighter
+      }
+
+      .switch-thumb {
+        border-color: $gray-lighter;
+      }
+    }
+  }
+}

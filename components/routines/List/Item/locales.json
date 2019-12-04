@@ -1,9 +1,0 @@
-{
-  "en": {
-    "texts": {
-      "conditions": "{count} condition|{count} conditions",
-      "actions": "{count} action|{count} actions",
-      "notifications": "{count} notification|{count} notifications"
-    }
-  }
-}

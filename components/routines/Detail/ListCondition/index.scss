@@ -1,0 +1,11 @@
+.fb-routines-condition {
+  &__container {
+    .fb-spinner__container {
+      position: unset;
+    }
+  }
+
+  &__condition:after:not(:last-child) {
+    content: ",";
+  }
+}

@@ -1,21 +1,20 @@
 <template>
-  <div class="fb-routines-edit-action-thing__container p-t-sm">
-    <template v-for="(groupChannels, group) in groupedChannels">
-      <div
-        v-if="groupChannels.length"
+  <div class="fb-routines-edit-action-thing__container">
+    <template v-for="(groupProperties, group) in groupedProperties">
+      <list-items-container
+        v-if="groupProperties.length"
         :key="group"
+        :heading="$t(`routines.groups.actors.${group}`)"
       >
-        <h3 class="fb-routines-edit-action-thing__heading">
-          {{ $t(`groups.${group}`) }}
-        </h3>
-
-        <channels-properties
-          v-model="model.configuration"
+        <property
+          v-for="property in groupProperties"
+          :key="property.id"
+          v-model="model"
           :thing="thing"
-          :channels="groupChannels"
+          :property="property"
           :action="action"
         />
-      </div>
+      </list-items-container>
     </template>
 
     <fb-button
@@ -24,10 +23,9 @@
       size="lg"
       block
       mobile
-      class="text-right"
       @click="edit"
     >
-      {{ $t('buttons.update.title') }}
+      {{ $t('routines.buttons.updateThing.title') }}
       <font-awesome-icon icon="sync-alt" />
     </fb-button>
 
@@ -37,26 +35,23 @@
       size="lg"
       block
       mobile
-      class="text-right"
       @click="add"
     >
-      {{ $t('buttons.add.title') }}
+      {{ $t('routines.buttons.addThing.title') }}
       <font-awesome-icon icon="plus" />
     </fb-button>
   </div>
 </template>
 
 <script>
-  import { orderBy } from 'natural-orderby'
-
-  import ChannelsProperties from './Properties'
+  import Property from './Property'
 
   export default {
 
     name: 'RoutinesEditEditAction',
 
     components: {
-      ChannelsProperties,
+      Property,
     },
 
     props: {
@@ -92,86 +87,55 @@
 
     data() {
       return {
-        model: {
-          configuration: [],
-        },
+        model: [],
       }
     },
 
     computed: {
 
-      /**
-       * Find all thing channels with settable properties
-       *
-       * @returns {Array}
-       */
-      channels() {
-        const items = []
-
-        const channels = this.$store.getters['entities/channel/query']()
-          .with('properties')
-          .where('thing_id', this.thing.id)
-          .whereHas('properties', (query) => {
-            query.where('is_settable', true)
-          })
-          .orderBy('structure_type')
-          .orderBy('name')
-          .all()
-
-        for (const channel of channels) {
-          items.push(channel)
-        }
-
-        return orderBy(
-          items,
-          [v => v.name],
-          ['asc'],
-        )
-      },
-
-      groupedChannels() {
+      groupedProperties() {
         return {
-          'analog': this.analogActorsChannels,
-          'binary': this.binaryActorsChannels,
-          'lights': this.lightChannels,
-          'switches': this.switchChannels,
+          'analog': this.analogActorsProperties,
+          'binary': this.binaryActorsProperties,
+          'lights': this.lightProperties,
+          'switches': this.switchProperties,
         }
       },
 
       /**
-       * Get all analog actors channels
+       * Get all analog actors properties
        *
        * @returns {Array}
        */
-      analogActorsChannels() {
-        return this._.filter(this.channels, 'isAnalogActor')
+      analogActorsProperties() {
+        return this._.filter(this._.get(this.thing, 'channel.properties', []), 'isAnalogActor')
       },
 
       /**
-       * Get all binary actors channels
+       * Get all binary actors properties
        *
        * @returns {Array}
        */
-      binaryActorsChannels() {
-        return this._.filter(this.channels, 'isBinaryActor')
+      binaryActorsProperties() {
+        return this._.filter(this._.get(this.thing, 'channel.properties', []), 'isBinaryActor')
       },
 
       /**
-       * Get all light channels
+       * Get all light properties
        *
        * @returns {Array}
        */
-      lightChannels() {
-        return this._.filter(this.channels, 'isLight')
+      lightProperties() {
+        return this._.filter(this._.get(this.thing, 'channel.properties', []), 'isLight')
       },
 
       /**
-       * Get all relay switch channels
+       * Get all relay switch properties
        *
        * @returns {Array}
        */
-      switchChannels() {
-        return this._.filter(this.channels, 'isSwitch')
+      switchProperties() {
+        return this._.filter(this._.get(this.thing, 'channel.properties', []), 'isSwitch')
       },
 
       /**
@@ -185,14 +149,6 @@
         })
 
         return typeof action !== 'undefined' ? action : null
-      },
-
-    },
-
-    watch: {
-
-      channels() {
-        this._initModel()
       },
 
     },
@@ -224,19 +180,17 @@
 
             this.$emit('remove', this.thing)
           },
-          icon: 'trash-alt',
         }, {
           root: true,
         })
       } else {
         this.$store.dispatch('header/setRightButton', {
-          name: this.$t('application.buttons.back.title'),
+          name: this.$t('application.buttons.close.title'),
           callback: () => {
             this._initModel()
 
             this.$emit('close')
           },
-          icon: 'times',
         }, {
           root: true,
         })
@@ -247,7 +201,8 @@
       })
 
       this.$store.dispatch('header/setHeading', {
-        heading: this.thing.label,
+        heading: this.$tThing(this.thing),
+        subHeading: this.thing.comment,
       }, {
         root: true,
       })
@@ -305,7 +260,7 @@
           rows: [],
         }
 
-        this.model.configuration.forEach(channel => {
+        this.model.forEach(channel => {
           channel.properties.forEach(property => {
             if (property.selected) {
               action.rows.push({
@@ -320,14 +275,7 @@
         if (action.rows.length) {
           this.$emit('add', action)
         } else {
-          this.$toasted.info(this.$t('messages.selectProperty'), {
-            condition: {
-              text: this.$t('application.buttons.close.title'),
-              onClick: (evnt, toastObject) => {
-                toastObject.goAway(0)
-              },
-            },
-          })
+          this.$flashMessage(this.$t('routines.messages.selectPropertyAction'), 'info')
         }
       },
 
@@ -337,48 +285,34 @@
        * @private
        */
       _initModel() {
-        this.model = {
-          configuration: [],
+        this.model = []
+
+        const operation = {
+          channel: this.thing.channel_id,
+          properties: [],
         }
 
-        const action = this.actions.find(item => {
-          return item.thing === this.thing.id
-        })
+        this._.get(this.thing, 'channel.properties', [])
+          .forEach(property => {
+            let defaultValue = null
 
-        this.channels.forEach(channel => {
-          const operation = {
-            channel: channel.id,
-            properties: [],
-          }
+            if (property.isBoolean) {
+              defaultValue = true
+            } else if (property.isEnum) {
+              defaultValue = this._getPropertyDefaultValue(property)
+            }
 
-          channel.properties
-            .forEach(property => {
-              let defaultValue = null
+            if (this.action) {
+              const storedProperty = this.action.rows.find(item => {
+                return item.property === property.id
+              })
 
-              if (property.isBoolean) {
-                defaultValue = true
-              } else if (property.isEnum) {
-                defaultValue = this._getPropertyDefaultValue(property)
-              }
-
-              if (typeof action !== 'undefined') {
-                const storedProperty = action.rows.find(item => {
-                  return item.property === property.id
+              if (typeof storedProperty !== 'undefined') {
+                operation.properties.push({
+                  property: property.id,
+                  selected: true,
+                  operation: storedProperty.operation,
                 })
-
-                if (typeof storedProperty !== 'undefined') {
-                  operation.properties.push({
-                    property: property.id,
-                    selected: true,
-                    operation: storedProperty.operation,
-                  })
-                } else {
-                  operation.properties.push({
-                    property: property.id,
-                    selected: false,
-                    operation: defaultValue,
-                  })
-                }
               } else {
                 operation.properties.push({
                   property: property.id,
@@ -386,10 +320,16 @@
                   operation: defaultValue,
                 })
               }
-            })
+            } else {
+              operation.properties.push({
+                property: property.id,
+                selected: false,
+                operation: defaultValue,
+              })
+            }
+          })
 
-          this.model.configuration.push(operation)
-        })
+        this.model.push(operation)
       },
 
       /**
@@ -427,5 +367,3 @@
 <style rel="stylesheet/scss" lang="scss">
   @import 'index';
 </style>
-
-<i18n src="./locales.json" />

@@ -1,7 +1,22 @@
 .fb-routines-create-view {
   &__container {
-    .fb-btn span {
-      line-height: 2em;
+    padding: 5px 10px;
+
+    .fb-btn:not(:last-child) {
+      svg {
+        margin-right: 15px;
+        float: left;
+        font-size: 2em;
+      }
+
+      span {
+        float: left;
+        line-height: 2em;
+      }
+    }
+
+    .fb-btn:last-child {
+      text-align: right;
     }
   }
 

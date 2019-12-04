@@ -7,6 +7,41 @@ export default {
       },
     },
   },
+  meta: {
+    groups: {
+      list: {
+        title: 'Things groups',
+      },
+      detail: {
+        title: 'Group: {group}',
+      },
+      create: {
+        title: 'Add new group',
+      },
+    },
+    things: {
+      list: {
+        title: 'Registered things',
+      },
+      detail: {
+        title: 'Thing: {thing}',
+      },
+      routines: {
+        title: 'Thing routines: {thing}',
+      },
+    },
+    routines: {
+      list: {
+        title: 'Configured routines',
+      },
+      detail: {
+        title: 'Routine: {routine}',
+      },
+      create: {
+        title: 'Add new routine',
+      },
+    },
+  },
   application: {
     headings: {
       offlineState: 'No internet connection',
@@ -82,6 +117,15 @@ export default {
       groups: {
         title: 'Groups',
       },
+      connect: {
+        title: 'Connect thing',
+      },
+      automation: {
+        title: 'Automation',
+      },
+      schedules: {
+        title: 'Schedules',
+      },
     },
     tabs: {
       home: {
@@ -106,7 +150,6 @@ export default {
       home: 'Home',
       things: 'Things',
       routines: 'Routines',
-      schedules: 'Schedules',
     },
     userMenu: {
       accountSettings: 'Account settings',
@@ -114,6 +157,12 @@ export default {
       passwordChange: 'Password change',
       securitySettings: 'Security settings',
       signOut: 'Sign out',
+    },
+    states: {
+      actual: 'Actual',
+      on: 'On',
+      off: 'Off',
+      notAvailable: 'N/A',
     },
   },
   home: {
@@ -123,7 +172,69 @@ export default {
       },
     },
   },
+  groups: {
+    headings: {
+      remove: 'Remove group',
+      rename: 'Rename group',
+      generalSettings: 'General settings',
+    },
+    messages: {
+      notFound: 'Group was not found, please try reload page.',
+      created: 'Group {group} was successfully created.',
+      notCreated: 'Group {group} couldn\'t be created, please try again later.',
+      confirmRemove: 'Are you sure to remove group {group} ?',
+      removed: 'Group {group} was successfully removed.',
+      notRemoved: 'Group {group} couldn\'t be removed, please try again later.',
+      edited: 'Group {group} was successfully renamed.',
+      notEdited: 'Group {group} couldn\'t be renamed, please try again later.',
+    },
+    texts: {
+      loadingGroups: 'Loading groups...',
+      loadingGroup: 'Loading group...',
+      noGroups: 'You don\'t have created any group',
+      noThings: 'This group is without assigned things',
+    },
+    fields: {
+      title: {
+        title: 'Give group a name',
+        validation: {
+          required: 'Please fill in group name.',
+        },
+      },
+      comment: {
+        title: 'Describe your group',
+      },
+    },
+    buttons: {
+      remove: {
+        title: 'Remove group',
+      },
+      rename: {
+        title: 'Rename group',
+      },
+    },
+  },
   things: {
+    headings: {
+      analogSensors: 'Analog sensor|Analog sensors',
+      analogActors: 'Analog actor|Analog actors',
+      binaryActors: 'Digital actor|Digital actors',
+      binarySensors: 'Digital sensor|Digital sensors',
+      energy: 'Energy',
+      environment: 'Environment',
+      lights: 'Light|Lights',
+      switches: 'Switch|Switches',
+      calibrate: 'Calibrate energy sensors',
+      clearCounter: 'Clear counter',
+      credentials: 'Thing MQTT credentials',
+      remove: 'Remove thing',
+      rename: 'Rename thing',
+      thingSettings: 'Thing settings',
+      generalSettings: 'General settings',
+      moduleSensorSettings: 'Thing sensor settings',
+      moduleTimeSettings: 'Thing time settings',
+      manufacturerAndNetwork: 'Manufacturer & Network info',
+    },
     messages: {
       edited: 'Thing {thing} was successfully edited.',
       notEdited: 'Thing {thing} couldn\'t be updated, please try again later.',
@@ -131,18 +242,88 @@ export default {
       commandNotAccepted: 'Last command was not accepted by thing <strong>{thing}</strong>.',
       notOnline: 'Thing <strong>{thing}</strong> is not connected to cloud.',
       notSupported: 'This function is not supported by <strong>{thing}</strong>.',
+      confirmClearCounter: 'Clear total consumption counter for thing {thing} ?',
+      confirmRemove: 'Are you sure to remove thing {thing} ?',
+      removed: 'Thing {thing} was successfully removed.',
+      notRemoved: 'Thing {thing} couldn\'t be removed, please try again later.',
+      renamed: 'Thing {thing} was successfully renamed.',
+      notRenamed: 'Thing {thing} couldn\'t be renamed, please try again later.',
+    },
+    texts: {
+      loadingThings: 'Loading things...',
+      loadingThing: 'Loading thing...',
+      noThings: 'You don\'t have assigned any thing',
+      noProperties: 'This thing is without controllable properties',
+      notFound: 'Thing was not found, please try reload page.',
+      wifi: {
+        name: 'Wifi name',
+        ip: 'IP address',
+      },
+      hardware: {
+        model: 'Model',
+        manufacturer: 'Manufacturer',
+      },
+    },
+    buttons: {
+      remove: {
+        title: 'Remove thing',
+      },
+      rename: {
+        title: 'Rename thing',
+      },
+      credentials: {
+        title: 'Connection credentials',
+      },
+      timeConfiguration: {
+        title: 'Time settings',
+        description: 'Configure thing timezone etc.',
+      },
+      sensorConfiguration: {
+        title: 'Sensor settings',
+        description: 'Configure thing sensors etc.',
+      },
+      energyCalibration: {
+        title: 'Calibrate energy',
+      },
     },
     vendors: {
+      global: {
+        title: {
+          title: 'Thing name',
+          validation: {
+            required: 'Please fill in thing name.',
+          },
+        },
+        comment: {
+          title: 'Thing description',
+        },
+        username: {
+          title: 'Thing MQTT username',
+          validation: {
+            required: 'Please fill in your thing username.',
+          },
+        },
+        password: {
+          title: 'Thing MQTT password',
+          validation: {
+            required: 'Please fill in your thing password.',
+          },
+        },
+        mqttServer: {
+          title: 'MQTT server address',
+        },
+        mqttPort: {
+          title: 'MQTT server port',
+        },
+      },
       itead: {
-        channels: {
+        properties: {
           switch: {
             title: 'Switch',
           },
           button: {
             title: 'Button',
           },
-        },
-        properties: {
           power: {
             title: 'Active power',
           },
@@ -219,6 +400,11 @@ export default {
             all_synchronized: 'All synchronized',
           },
         },
+        btn_delay: {
+          button: 'Double click delay',
+          heading: 'Double click delay',
+          description: 'Delay in milliseconds to detect a double click (from 0 to 1000ms).',
+        },
         ntp_offset: {
           button: 'Time zone',
           heading: 'Time zone',
@@ -228,11 +414,6 @@ export default {
           button: 'NTP server',
           heading: 'NTP server',
           description: 'Define server for time synchronization',
-        },
-        btn_delay: {
-          button: 'Double click delay',
-          heading: 'Double click delay',
-          description: 'Delay in milliseconds to detect a double click (from 0 to 1000ms).',
         },
         ntp_region: {
           button: 'DST region',
@@ -346,6 +527,161 @@ export default {
           description: 'In Watts (W). Calibrate your sensor connecting a pure resistive load (like a bulb) and enter here its nominal power or use a multimeter.',
         },
       },
+    },
+  },
+  routines: {
+    headings: {
+      selectThing: 'Things',
+      smsNotification: 'Send sms to',
+      emailNotification: 'Send email to',
+      conditions: 'Watching for states...',
+      actions: '...and performing actions',
+      rename: 'Rename routine',
+      refresh: 'Refresh routine',
+      remove: 'Remove routine',
+      generalSettings: 'General settings',
+    },
+    messages: {
+      notFound: 'Routine was not found, please try reload page.',
+      selectPropertyAction: 'Please select at least one property to control',
+      selectPropertyCondition: 'Please select at least one property to watch',
+      fillOperand: 'Please fill operand value for channel \'{channel}\' and property \'{property}\'',
+      missingCondition: 'You have to add at least one condition.',
+      missingActionOrNotification: 'You have to add at least one action or notification.',
+      notCreated: 'Routine {routine} couldn\'t be created, please try again later.',
+      conditionNotAdded: 'Condition couldn\'t be added into routine, please try again later.',
+      conditionNotRemoved: 'Condition couldn\'t be removed from routine, please try again later.',
+      conditionNotCreated: 'Condition couldn\'t be added to routine, please try again later.',
+      conditionNotUpdated: 'Condition couldn\'t be updated, please try again later.',
+      minimumConditions: 'Routine have to have at least one condition.',
+      actionNotAdded: 'Action couldn\'t be added into routine, please try again later.',
+      actionNotRemoved: 'Action couldn\'t be removed from routine, please try again later.',
+      actionNotCreated: 'Action couldn\'t be added to routine, please try again later.',
+      actionNotUpdated: 'Action couldn\'t be updated, please try again later.',
+      notificationNotAdded: 'Notification couldn\'t be added into the routine, please try again later.',
+      notificationNotRemoved: 'Notification couldn\'t be removed from routine, please try again later.',
+      minimumActionsNotification: 'Routine have to have at least one action or notification.',
+      confirmRefresh: 'Received new details for routine {routine}. Do you want to refresh it ?',
+      notRefreshed: 'Routine {routine} couldn\'t be refreshed, please try reload page.',
+      confirmRemove: 'Are you sure to remove routine {routine} ?',
+      notRemoved: 'Routine {routine} couldn\'t be removed, please try again later.',
+      notEdited: 'Routine {routine} couldn\'t be updated, please try again later.',
+    },
+    texts: {
+      loadingRoutines: 'Loading routines...',
+      loadingRoutine: 'Loading routine...',
+      noRoutines: 'You don\'t have created any routine',
+      loadingThings: 'Loading things...',
+      loadingThing: 'Loading thing...',
+      noThings: 'You don\'t have assigned any thing',
+    },
+    fields: {
+      name: {
+        title: 'Give routine a name',
+        validation: {
+          required: 'Please fill in routine name',
+        },
+      },
+      comment: {
+        title: 'Describe your routine',
+      },
+      type: {
+        title: 'Notification type',
+        prompt: '-- Please select type --',
+        values: {
+          sms: 'Send SMS',
+          email: 'Send e-mail',
+        },
+        validation: {
+          required: 'Selecting notification type is required.',
+        },
+      },
+      sms: {
+        title: 'SMS number',
+        validation: {
+          required: 'Please fill in mobile phone number.',
+        },
+      },
+      value: {
+        values: {
+          sms: 'SMS number',
+          email: 'E-mail address',
+        },
+        validation: {
+          required: 'This field is required.',
+          invalidAddress: 'This e-mail address is invalid.',
+        },
+      },
+      email: {
+        title: 'E-mail address',
+        prompt: '-- Please select e-mail --',
+        validation: {
+          required: 'You have to select saved e-mail address or custom address.',
+        },
+        values: {
+          custom: 'Send to custom address',
+        },
+      },
+    },
+    buttons: {
+      addThing: {
+        title: 'Add thing',
+      },
+      updateThing: {
+        title: 'Update thing',
+      },
+      save: {
+        title: 'Add routine',
+      },
+      enabled: {
+        title: 'Routine is enabled',
+      },
+      disabled: {
+        title: 'Routine is disabled',
+      },
+      rename: {
+        title: 'Rename routine',
+      },
+      remove: {
+        title: 'Remove routine',
+      },
+    },
+    groups: {
+      actors: {
+        analog: 'Analog actors',
+        binary: 'Binary actors',
+        lights: 'Lights',
+        switches: 'Switches',
+      },
+      sensors: {
+        analog: 'Analog sensors',
+        binary: 'Binary sensors',
+        energy: 'Energy meters',
+        environment: 'Environment meters',
+        events: 'Events',
+        buttons: 'Buttons',
+      },
+    },
+    variations: {
+      on: 'On',
+      off: 'Off',
+      toggle: 'Toggle',
+      press: 'Press',
+      click: 'Click',
+      dbl_click: 'Double click',
+      triple_click: 'Triple click',
+      lng_click: 'Long click',
+      lng_lng_click: 'Extra long click',
+    },
+    actions: {
+      toggle: 'Toggle {property} state',
+      on: 'Turn {property} on',
+      off: 'Turn {property} off',
+    },
+    conditions: {
+      above: '{property} value is above {value}',
+      eq: '{property} value is equal to {value}',
+      below: '{property} value is below {value}',
     },
   },
 }

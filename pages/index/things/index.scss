@@ -1,30 +1,30 @@
-@import "~@fastybird-com/theme/assets/variables/colors";
 @import "~@fastybird-com/theme/assets/variables/screen";
 @import "~@fastybird-com/theme/assets/mixins/utilities";
 
 .fb-iot-things-list-view {
   &__items-container {
-    @include gridRow;
+    @include gridRow(0, 0);
+
+    padding: 15px 5px 0 5px;
 
     @media (max-width: $screen-xs-max) {
-      padding: 15px 5px 0 5px;
+      padding: 15px 5px 60px 5px;
       margin: 0;
-    }
-
-    @media (min-width: $screen-sm-min) {
-      padding: 15px 15px 0 30px;
     }
 
     > div {
       @include gridCel(0, 0);
 
-      @media (min-width: $screen-md-min) {
+      @media (min-width: $screen-sm-min) {
         -webkit-box-flex: 0;
         -ms-flex: 0 0 50%;
         flex: 0 0 50%;
         max-width: 50%;
 
         @include gridCel;
+
+        padding-left: 5px;
+        padding-right: 5px;
       }
 
       @media (min-width: $screen-lg-min) {
@@ -32,18 +32,6 @@
         -ms-flex: 0 0 33.333333%;
         flex: 0 0 33.333333%;
         max-width: 33.333333%;
-      }
-    }
-
-    > div[data-state="on"] {
-      .fb-list-item__container {
-        border-left: 4px solid $brand-primary;
-      }
-    }
-
-    > div[data-state="off"] {
-      .fb-list-item__container {
-        border-left: 4px solid $gray-lighter;
       }
     }
   }

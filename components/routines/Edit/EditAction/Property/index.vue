@@ -1,6 +1,6 @@
 <template>
-  <layout-list-item
-    :key="channel.id + '-' + property.id"
+  <list-item
+    :key="property.id"
     class="fb-routines-edit-action-thing__channel-property"
     @click="toggleState"
   >
@@ -10,17 +10,11 @@
       <fb-form-checkbox
         v-model="stateModel"
         :name="`property_${property.id}`"
-        class="p-y-0"
-        style="margin: -3px 0 0 0;"
       />
     </template>
 
     <template slot="heading">
-      {{ $tChannelProperty(thing, channel, property) }}
-    </template>
-
-    <template slot="sub-heading">
-      {{ $tChannel(thing, channel) }}
+      {{ $tChannelProperty(thing, property) }}
     </template>
 
     <template slot="detail-large">
@@ -31,7 +25,7 @@
         button
         size="sm"
         variant="primary"
-        class="pull-right fb-routines-edit-action-thing__values"
+        class="fb-routines-edit-action-thing__values"
       >
         <fb-form-radio-button
           v-for="(item, key) in property.format.split(',')"
@@ -40,7 +34,7 @@
           name="value"
         >
           <template v-if="$te(`variations.${item}`)">
-            {{ $t(`variations.${item}`) }}
+            {{ $t(`routines.variations.${item}`) }}
           </template>
           <template v-else>
             {{ item }}
@@ -55,21 +49,13 @@
         @change="propertyChanged(property)"
       />
     </template>
-  </layout-list-item>
+  </list-item>
 </template>
 
 <script>
-  import LayoutListItem from '@/components/layout/ListItem'
-  import SwitchElement from '@/components/layout/SwitchElement'
-
   export default {
 
     name: 'RoutinesEditEditActionChannelsProperty',
-
-    components: {
-      LayoutListItem,
-      SwitchElement,
-    },
 
     props: {
 
@@ -79,11 +65,6 @@
       },
 
       thing: {
-        type: Object,
-        required: true,
-      },
-
-      channel: {
         type: Object,
         required: true,
       },
@@ -105,7 +86,7 @@
       stateModel: {
         get() {
           const channel = this.value.find(item => {
-            return item.channel === this.channel.id
+            return item.channel === this.thing.channel_id
           })
 
           if (typeof channel !== 'undefined') {
@@ -129,7 +110,7 @@
             for (const i in this.value) {
               if (
                 this.value.hasOwnProperty(i) &&
-                this.value[i].channel === this.channel.id
+                this.value[i].channel === this.thing.channel_id
               ) {
                 const channel = this.value[i]
 
@@ -156,7 +137,7 @@
       operationModel: {
         get() {
           const channel = this.value.find(item => {
-            return item.channel === this.channel.id
+            return item.channel === this.thing.channel_id
           })
 
           if (typeof channel !== 'undefined') {
@@ -180,7 +161,7 @@
             for (const i in this.value) {
               if (
                 this.value.hasOwnProperty(i) &&
-                this.value[i].channel === this.channel.id
+                this.value[i].channel === this.thing.channel_id
               ) {
                 const channel = this.value[i]
 
@@ -243,5 +224,3 @@
 
   }
 </script>
-
-<i18n src="./locales.json" />

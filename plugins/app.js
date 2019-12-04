@@ -1,14 +1,14 @@
 import Vue from 'vue'
 
-import FastyBirdTheme from '@/node_modules/@fastybird-com/theme'
-
 import * as routes from '@/configuration/routes'
 
 import HelpersMixin from '@/mixins/helpers'
 
 Vue.mixin(HelpersMixin)
 
-Vue.use(FastyBirdTheme)
+String.prototype.capitalize = function() {
+  return this.charAt(0).toUpperCase() + this.slice(1)
+}
 
 export default ({ app }, inject) => {
   inject('routes', {
@@ -23,16 +23,15 @@ export default ({ app }, inject) => {
       detail: routes.THINGS_THING_DETAIL_LINK,
       routines: routes.THINGS_THING_ROUTINES_LINK,
       connect: routes.THINGS_THING_CONNECT_LINK,
-      channel: routes.THINGS_CHANNEL_DETAIL_LINK,
     },
     groups: {
       list: routes.GROUPS_LIST_LINK,
       detail: routes.GROUPS_GROUP_DETAIL_LINK,
+      create: routes.GROUPS_GROUP_CREATE_LINK,
     },
     routines: {
       list: routes.ROUTINES_LIST_LINK,
       detail: routes.ROUTINES_ROUTINE_DETAIL_LINK,
-      settings: routes.ROUTINES_ROUTINE_SETTINGS_LINK,
       create: routes.ROUTINES_CREATE_LINK,
     },
   })

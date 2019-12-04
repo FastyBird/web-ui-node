@@ -1,42 +1,21 @@
 <template>
   <fb-loading-box
     v-if="fetchingThings && things.length === 0"
-    :text="$t('texts.loading')"
+    :text="$t('routines.texts.loadingThings')"
+  />
+
+  <no-results
+    v-else-if="!fetchingThings && things.length === 0"
+    :message="$t('routines.texts.noThings')"
+    icon="plug"
+    second-icon="exclamation-triangle"
   />
 
   <div
-    v-else-if="!fetchingThings && things.length === 0"
-    class="p-x-md"
-  >
-    <div class="row">
-      <div class="col-8 offset-2 col-sm-6 offset-sm-3 col-md-4 offset-md-4 col-xl-2 offset-xl-5 p-t-lg">
-        <div class="text-center p-a-lg">
-          <span class="icon-with-child">
-            <font-awesome-icon
-              icon="plug"
-              class="icon-5x text-muted m-y-lg"
-            />
-            <span
-              class="bg-primary circle sq-32 icon-2x icon-child m-y-lg"
-              style="padding-top: 1px;"
-            >
-              <font-awesome-icon icon="plus" />
-            </span>
-          </span>
-        </div>
-
-        <p class="text-center m-b-lg">
-          {{ $t('texts.noThings') }}
-        </p>
-      </div>
-    </div>
-  </div>
-
-  <div
     v-else
-    class="fb-routines-select-thing__container p-t-sm"
+    class="fb-routines-select-thing__container"
   >
-    <layout-list-item
+    <list-item
       v-for="thing in things"
       :key="thing.id"
       :data-state="isThingSelected(thing) ? 'on' : 'off'"
@@ -47,21 +26,17 @@
       </template>
 
       <template slot="heading">
-        {{ thing.label }}
+        {{ $tThing(thing) }}
       </template>
 
-      <template
-        v-if="thing.hasComment"
-        slot="sub-heading"
-      >
+      <template slot="sub-heading">
         {{ thing.comment }}
       </template>
 
       <template slot="detail">
         <font-awesome-icon
           v-if="isThingSelected(thing)"
-          icon="check"
-          class="text-primary m-r-md"
+          icon="check-circle"
         />
 
         <font-awesome-icon
@@ -69,20 +44,16 @@
           role="button"
         />
       </template>
-    </layout-list-item>
+    </list-item>
   </div>
 </template>
 
 <script>
-  import LayoutListItem from '@/components/layout/ListItem'
+  import { orderBy } from 'natural-orderby'
 
   export default {
 
     name: 'RoutinesEditSelectThing',
-
-    components: {
-      LayoutListItem,
-    },
 
     props: {
 
@@ -95,10 +66,7 @@
           value.forEach(item => {
             if (
               !item.hasOwnProperty('enabled') ||
-              !item.hasOwnProperty('thing') ||
-              !item.hasOwnProperty('properties') ||
-              !Array.isArray(item.rows) ||
-              !item.properties.length
+              !item.hasOwnProperty('thing')
             ) {
               return false
             }
@@ -118,37 +86,36 @@
     computed: {
 
       /**
-       * Find all registered things with channels with settable properties
+       * Find all registered things with settable properties
        *
        * @returns {Array}
        */
       things() {
-        const items = []
-
-        const things = this.$store.getters['entities/thing/query']()
-          .orderBy('label')
+        let things = this.$store.getters['entities/thing/query']()
+          .with('device')
+          .with('channel')
+          .with('channel.properties')
           .all()
 
-        for (const thing of things) {
-          const query = this.$store.getters['entities/channel/query']()
-            .with('properties')
-            .where('thing_id', thing.id)
-
-          if (this.onlySettable) {
-            query
-              .whereHas('properties', (subQuery) => {
-                subQuery.where('is_settable', true)
+        if (this.onlySettable) {
+          things = this._.filter(things, thing => {
+            const properties = this._.get(thing, 'channel.properties', [])
+              .filter(property => {
+                return property.is_settable
               })
-          }
 
-          const channels = query.all()
-
-          if (channels.length) {
-            items.push(thing)
-          }
+            return typeof properties !== 'undefined' && properties.length
+          })
         }
 
-        return items
+        return orderBy(
+          things,
+          [
+            v => v.label,
+            v => v.comment,
+          ],
+          ['asc'],
+        )
       },
 
       /**
@@ -202,13 +169,13 @@
       })
 
       this.$store.dispatch('header/setHeading', {
-        heading: this.$t('headings.selectThing'),
+        heading: this.$t('routines.headings.selectThing'),
       }, {
         root: true,
       })
 
       this.$store.dispatch('header/setHeadingIcon', {
-        icon: 'project-diagram',
+        icon: 'plug',
       }, {
         root: true,
       })
@@ -264,8 +231,6 @@
   }
 </script>
 
-<style rel="stylesheet/scss" lang="scss" scoped>
+<style rel="stylesheet/scss" lang="scss">
   @import 'index';
 </style>
-
-<i18n src="./locales.json" />

@@ -1,0 +1,29 @@
+@import "~@fastybird-com/theme/assets/variables/colors";
+
+.fb-routines-list-item {
+  &__container {
+    &[data-state="on"] {
+      > div {
+        border-left: 4px solid $brand-primary;
+      }
+    }
+
+    &[data-state="off"] {
+      > div {
+        border-left: 4px solid $gray-lighter;
+      }
+
+      .fb-list-item {
+        &__icon svg,
+        &__heading {
+          color: $gray-lighter;
+        }
+      }
+    }
+
+    svg,
+    .fb-spinner__container {
+      height: 53px;
+    }
+  }
+}

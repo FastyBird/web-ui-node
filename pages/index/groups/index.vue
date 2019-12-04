@@ -1,16 +1,15 @@
 <template>
   <div class="fb-iot-groups-list-view__container">
-    <div class="fb-iot-groups-list-view__items-container row p-t-md">
-      <groups-list-item
+    <div class="fb-iot-groups-list-view__items-container">
+      <group-list-item
         v-for="group in groups"
         :key="group.id"
         :group="group"
-        class="col-md-6 col-lg-4"
         @click="oneClick"
       />
     </div>
 
-    <!-- THING DETAIL FOR LARGE DEVICES //-->
+    <!-- DEVICE DETAIL FOR LARGE DEVICES //-->
     <off-canvas
       :show="(view.opened.type === view.detail.name || view.opened.type === view.settings.name) && windowSize !== 'xs'"
       @close="closeView(view.opened.type)"
@@ -59,16 +58,16 @@
           name="fade"
           mode="out-in"
         >
-          <groups-detail
-            v-if="viewThing !== null && view.opened.type === view.detail.name"
-            :group="viewThing"
+          <group-detail
+            v-if="viewDevice !== null && view.opened.type === view.detail.name"
+            :group="viewDevice"
             :style="`height: ${offCanvasHeight}px`"
             class="fb-iot-groups-list-view__off-canvas-body"
           />
 
-          <groups-settings-group
-            v-if="viewThing !== null && view.opened.type === view.settings.name"
-            :group="viewThing"
+          <group-settings
+            v-if="viewDevice !== null && view.opened.type === view.settings.name"
+            :group="viewDevice"
             :style="`height: ${offCanvasHeight}px`"
             class="fb-iot-groups-list-view__off-canvas-body"
             @removed="closeView(view.opened.type)"
@@ -79,12 +78,12 @@
 
     <fb-loading-box
       v-if="fetchingGroups && groups.length === 0"
-      :text="$t('texts.loading')"
+      :text="$t('groups.texts.loadingGroups')"
     />
 
     <no-results
-      v-show="!fetchingGroups && groups.length === 0"
-      :message="$t('texts.noGroups')"
+      v-if="!fetchingGroups && groups.length === 0"
+      :message="$t('groups.texts.noGroups')"
       icon="folder"
     />
   </div>
@@ -94,30 +93,25 @@
   import { mapState } from 'vuex'
 
   import {
-    GROUPS_LIST_LINK,
-    GROUPS_GROUP_DETAIL_LINK,
     GROUPS_GROUP_SETTINGS_LINK,
-    GROUPS_GROUP_CREATE_LINK,
 
     GROUPS_HASH_DETAIL,
     GROUPS_HASH_SETTINGS,
     GROUPS_HASH_CREATE,
-
-    THINGS_LIST_LINK,
   } from '@/configuration/routes'
 
   import FbComponentLoading from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoading'
   import FbComponentLoadingError from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoadingError'
 
-  import GroupsListItem from '@/components/groups/List/Item'
+  import GroupListItem from '@/components/groups/ListItem'
 
-  const GroupsDetail = () => ({
+  const GroupDetail = () => ({
     component: import('@/components/groups/Detail'),
     loading: FbComponentLoading,
     error: FbComponentLoadingError,
     timeout: 5000,
   })
-  const GroupsSettingsGroup = () => ({
+  const GroupSettings = () => ({
     component: import('@/components/groups/Settings'),
     loading: FbComponentLoading,
     error: FbComponentLoadingError,
@@ -125,33 +119,24 @@
   })
 
   // Off canvas details view
-  const OffCanvas = () => ({
-    component: import('@/components/layout/OffCanvas'),
-    loading: FbComponentLoading,
-    error: FbComponentLoadingError,
-    timeout: 5000,
-  })
+  import OffCanvas from '@/components/layout/OffCanvas'
+
   const OffCanvasBody = () => ({
     component: import('@/components/layout/OffCanvas/Body'),
     loading: FbComponentLoading,
     error: FbComponentLoadingError,
     timeout: 5000,
   })
-  const NoResults = () => ({
-    component: import('@/components/layout/NoResults'),
-    loading: FbComponentLoading,
-    error: FbComponentLoadingError,
-    timeout: 5000,
-  })
+  import NoResults from '@/components/layout/NoResults'
 
   export default {
 
     name: 'GroupsListPage',
 
     components: {
-      GroupsListItem,
-      GroupsDetail,
-      GroupsSettingsGroup,
+      GroupListItem,
+      GroupDetail,
+      GroupSettings,
 
       OffCanvas,
       OffCanvasBody,
@@ -319,7 +304,7 @@
 
             return
           } else if (this.view.opened.type === this.view.detail.name) {
-            this.$router.push(this.localePath({ name: GROUPS_GROUP_DETAIL_LINK, params: { id: this.view.detail.id } }))
+            this.$router.push(this.localePath({ name: this.$routes.groups.detail, params: { id: this.view.detail.id } }))
 
             return
           }
@@ -368,14 +353,14 @@
 
             store.dispatch('header/addTab', {
               name: app.i18n.t('application.buttons.things.title'),
-              link: app.localePath(THINGS_LIST_LINK),
+              link: app.localePath(app.$routes.things.list),
             }, {
               root: true,
             })
 
             store.dispatch('header/addTab', {
               name: app.i18n.t('application.buttons.groups.title'),
-              link: app.localePath(GROUPS_LIST_LINK),
+              link: app.localePath(app.$routes.groups.list),
             }, {
               root: true,
             })
@@ -409,14 +394,14 @@
 
             store.dispatch('header/addTab', {
               name: app.i18n.t('application.buttons.things.title'),
-              link: app.localePath(THINGS_LIST_LINK),
+              link: app.localePath(app.$routes.things.list),
             }, {
               root: true,
             })
 
             store.dispatch('header/addTab', {
               name: app.i18n.t('application.buttons.groups.title'),
-              link: app.localePath(GROUPS_LIST_LINK),
+              link: app.localePath(app.$routes.groups.list),
             }, {
               root: true,
             })
@@ -469,7 +454,7 @@
 
       openGroupCreate() {
         if (this.windowSize === 'xs') {
-          this.$router.push(this.localePath(GROUPS_GROUP_CREATE_LINK))
+          this.$router.push(this.localePath(this.$routes.groups.create))
         } else {
           this.openView('create')
         }
@@ -506,17 +491,34 @@
         switch (view) {
           case this.view.detail.name:
             if (this.windowSize === 'xs') {
-              this.$router.push(this.localePath({ name: GROUPS_GROUP_DETAIL_LINK, params: { id } }))
+              this.$router.push(this.localePath({
+                name: this.$routes.groups.detail,
+                params: {
+                  id,
+                },
+              }))
             } else {
-              this.$router.push(`${this.localePath({ name: GROUPS_LIST_LINK })}${this.view.detail.route.hash}${id}`)
+              this.$router.push(this.localePath({
+                name: this.$routes.groups.list,
+                hash: `${this.view.detail.route.hash}-${id}`,
+              }))
             }
             break
 
           case this.view.settings.name:
             if (this.windowSize === 'xs') {
-              this.$router.push(this.localePath({ name: GROUPS_GROUP_SETTINGS_LINK, params: { id } }))
+              this.$router.push(this.localePath({
+                name: this.$routes.groups.detail,
+                params: {
+                  id,
+                },
+                hash: GROUPS_HASH_SETTINGS,
+              }))
             } else {
-              this.$router.push(`${this.localePath({ name: GROUPS_LIST_LINK })}${this.view.settings.route.hash}${id}`)
+              this.$router.push(this.localePath({
+                name: this.$routes.groups.list,
+                hash: `${this.view.settings.route.hash}-${id}`,
+              }))
             }
             break
         }
@@ -540,7 +542,7 @@
        * @param {String} [view]
        */
       closeView(view) {
-        this.$router.push(this.localePath({ name: GROUPS_LIST_LINK }))
+        this.$router.push(this.localePath(this.$routes.groups.list))
 
         this.view.opened.type = null
 
@@ -668,14 +670,14 @@
 
         this.$store.dispatch('header/addTab', {
           name: this.$t('application.buttons.things.title'),
-          link: this.localePath(THINGS_LIST_LINK),
+          link: this.localePath(this.$routes.things.list),
         }, {
           root: true,
         })
 
         this.$store.dispatch('header/addTab', {
           name: this.$t('application.buttons.groups.title'),
-          link: this.localePath(GROUPS_LIST_LINK),
+          link: this.localePath(this.$routes.groups.list),
         }, {
           root: true,
         })
@@ -689,7 +691,7 @@
 
     head() {
       return {
-        title: this.$t('meta.title'),
+        title: this.$t('meta.groups.list.title'),
       }
     },
 
@@ -699,5 +701,3 @@
 <style rel="stylesheet/scss" lang="scss" scoped>
   @import 'index';
 </style>
-
-<i18n src="./locales.json" />

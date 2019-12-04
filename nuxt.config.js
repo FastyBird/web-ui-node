@@ -46,6 +46,8 @@ export default {
 
   plugins: [
     '@/plugins/app',
+    '@/plugins/app.client',
+    '@/plugins/template',
     '@/plugins/lodash',
     '@/plugins/event.bus',
     '@/plugins/io-server',
@@ -113,6 +115,7 @@ export default {
           'faChartBar',
           'faChartLine',
           'faCheck',
+          'faCheckCircle',
           'faChevronRight',
           'faClock',
           'faCogs',

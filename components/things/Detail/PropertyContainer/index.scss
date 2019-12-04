@@ -1,0 +1,34 @@
+@import "~@fastybird-com/theme/assets/variables/colors";
+
+.fb-iot-things-detail-property {
+  &__container {
+    margin-right: 0 !important;;
+    margin-left: 0 !important;
+
+    &[data-state="off"] {
+      .fb-list-item {
+        &__icon svg {
+          color: $gray-lighter;
+        }
+
+        &__heading,
+        &__detail-content {
+          color: $gray-lighter;
+        }
+      }
+    }
+
+    .fb-list-item {
+      &__detail-content {
+        svg,
+        .spinner {
+          height: 53px;
+        }
+
+        .fb-iot-things-switch__container {
+          float: right;
+        }
+      }
+    }
+  }
+}

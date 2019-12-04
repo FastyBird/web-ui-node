@@ -8,15 +8,15 @@
     @close="close"
   >
     <template slot="header">
-      {{ $t('headings.refresh') }}
+      {{ $t('routines.headings.refresh') }}
     </template>
 
     <template slot="question">
       <i18n
-        path="messages.confirmRefresh"
+        path="routines.messages.confirmRefresh"
         tag="p"
       >
-        <strong place="routine">{{ routine.name }}</strong>
+        <strong slot="routine">{{ routine.name }}</strong>
       </i18n>
     </template>
   </fb-confirmation-window>
@@ -46,7 +46,7 @@
       update(event) {
         event && event.preventDefault()
 
-        const errorMessage = this.$t('messages.notRefreshed', {
+        const errorMessage = this.$t('routines.messages.notRefreshed', {
           routine: this.routine.name,
         })
 
@@ -60,27 +60,9 @@
             if (e.hasOwnProperty('exception')) {
               this.handleFormError(e.exception, errorMessage)
             } else {
-              this.$toasted.error(errorMessage, {
-                action: {
-                  text: this.$t('application.buttons.close.title'),
-                  onClick: (evnt, toastObject) => {
-                    toastObject.goAway(0)
-                  },
-                },
-              })
+              this.$flashMessage(errorMessage, 'error')
             }
           })
-
-        this.$toasted.success(this.$t('messages.refreshed', {
-          routine: this.routine.name,
-        }), {
-          action: {
-            text: this.$t('application.buttons.close.title'),
-            onClick: (evnt, toastObject) => {
-              toastObject.goAway(0)
-            },
-          },
-        })
 
         this.$emit('refreshed')
       },
@@ -100,5 +82,3 @@
 
   }
 </script>
-
-<i18n src="./locales.json" />

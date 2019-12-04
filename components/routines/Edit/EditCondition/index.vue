@@ -1,39 +1,37 @@
 <template>
-  <div class="fb-routines-edit-condition-thing__container p-t-sm p-b-md m-b-lg">
-    <template v-for="(groupChannels, group) in groupedChannels.actors">
-      <div
-        v-if="groupChannels.length"
+  <div class="fb-routines-edit-condition-thing__container">
+    <template v-for="(groupProperties, group) in groupedProperties.actors">
+      <list-items-container
+        v-if="groupProperties.length"
         :key="group"
+        :heading="$t(`routines.groups.actors.${group}`)"
       >
-        <h3 class="fb-routines-edit-condition-thing__heading">
-          {{ $t(`groups.actors.${group}`) }}
-        </h3>
-
-        <channels-properties
-          v-model="model.configuration"
+        <property
+          v-for="property in groupProperties"
+          :key="property.id"
+          v-model="model"
           :thing="thing"
-          :channels="groupChannels"
+          :property="property"
           :condition="condition"
         />
-      </div>
+      </list-items-container>
     </template>
 
-    <template v-for="(groupChannels, group) in groupedChannels.sensors">
-      <div
-        v-if="groupChannels.length"
+    <template v-for="(groupProperties, group) in groupedProperties.sensors">
+      <list-items-container
+        v-if="groupProperties.length"
         :key="group"
+        :heading="$t(`routines.groups.sensors.${group}`)"
       >
-        <h3 class="fb-routines-edit-condition-thing__heading">
-          {{ $t(`groups.sensors.${group}`) }}
-        </h3>
-
-        <channels-properties
-          v-model="model.configuration"
+        <property
+          v-for="property in groupProperties"
+          :key="property.id"
+          v-model="model"
           :thing="thing"
-          :channels="groupChannels"
+          :property="property"
           :condition="condition"
         />
-      </div>
+      </list-items-container>
     </template>
 
     <fb-button
@@ -42,10 +40,9 @@
       size="lg"
       block
       mobile
-      class="text-right"
       @click="edit"
     >
-      {{ $t('buttons.update.title') }}
+      {{ $t('routines.buttons.updateThing.title') }}
       <font-awesome-icon icon="sync-alt" />
     </fb-button>
 
@@ -55,26 +52,23 @@
       size="lg"
       block
       mobile
-      class="text-right"
       @click="add"
     >
-      {{ $t('buttons.add.title') }}
+      {{ $t('routines.buttons.addThing.title') }}
       <font-awesome-icon icon="plus" />
     </fb-button>
   </div>
 </template>
 
 <script>
-  import { orderBy } from 'natural-orderby'
-
-  import ChannelsProperties from './Properties'
+  import Property from './Property'
 
   export default {
 
     name: 'RoutinesEditEditCondition',
 
     components: {
-      ChannelsProperties,
+      Property,
     },
 
     props: {
@@ -94,9 +88,9 @@
             if (
               !condition.hasOwnProperty('enabled') ||
               !condition.hasOwnProperty('thing') ||
-              !condition.hasOwnProperty('properties') ||
-              !Array.isArray(condition.properties) ||
-              !condition.properties.length
+              !condition.hasOwnProperty('rows') ||
+              !Array.isArray(condition.rows) ||
+              !condition.rows.length
             ) {
               return false
             }
@@ -110,147 +104,119 @@
 
     data() {
       return {
-        model: {
-          configuration: [],
-        },
+        model: [],
       }
     },
 
     computed: {
 
-      /**
-       * Find all thing channels with settable properties
-       *
-       * @returns {Array}
-       */
-      channels() {
-        const items = []
-
-        const channels = this.$store.getters['entities/channel/query']()
-          .with('properties')
-          .where('thing_id', this.thing.id)
-          .orderBy('structure_type')
-          .orderBy('name')
-          .all()
-
-        for (const channel of channels) {
-          items.push(channel)
-        }
-
-        return orderBy(
-          items,
-          [v => v.name],
-          ['asc'],
-        )
-      },
-
-      groupedChannels() {
+      groupedProperties() {
         return {
           'actors': {
-            'analog': this.analogActorsChannels,
-            'binary': this.binaryActorsChannels,
-            'lights': this.lightChannels,
-            'switches': this.switchChannels,
+            'analog': this.analogActorsProperties,
+            'binary': this.binaryActorsProperties,
+            'lights': this.lightProperties,
+            'switches': this.switchProperties,
           },
           'sensors': {
-            'analog': this.analogSensorsChannels,
-            'binary': this.binarySensorsChannels,
-            'energy': this.energyChannels,
-            'environment': this.environmentChannels,
-            'events': this.eventChannels,
-            'buttons': this.buttonChannels,
+            'analog': this.analogSensorsProperties,
+            'binary': this.binarySensorsProperties,
+            'energy': this.energyProperties,
+            'environment': this.environmentProperties,
+            'events': this.eventProperties,
+            'buttons': this.buttonProperties,
           },
         }
       },
 
       /**
-       * Get all analog sensors channels
+       * Get all analog sensors properties
        *
        * @returns {Array}
        */
-      analogSensorsChannels() {
-        return this._.filter(this.channels, 'isAnalogSensor')
+      analogSensorsProperties() {
+        return this._.filter(this._.get(this.thing, 'channel.properties', []), 'isAnalogSensor')
       },
 
       /**
-       * Get all analog actors channels
+       * Get all analog actors properties
        *
        * @returns {Array}
        */
-      analogActorsChannels() {
-        return this._.filter(this.channels, 'isAnalogActor')
+      analogActorsProperties() {
+        return this._.filter(this._.get(this.thing, 'channel.properties', []), 'isAnalogActor')
       },
 
       /**
-       * Get all binary sensors channels
+       * Get all binary sensors properties
        *
        * @returns {Array}
        */
-      binarySensorsChannels() {
-        return this._.filter(this.channels, 'isBinarySensor')
+      binarySensorsProperties() {
+        return this._.filter(this._.get(this.thing, 'channel.properties', []), 'isBinarySensor')
       },
 
       /**
-       * Get all binary actors channels
+       * Get all binary actors properties
        *
        * @returns {Array}
        */
-      binaryActorsChannels() {
-        return this._.filter(this.channels, 'isBinaryActor')
+      binaryActorsProperties() {
+        return this._.filter(this._.get(this.thing, 'channel.properties', []), 'isBinaryActor')
       },
 
       /**
-       * Get all light channels
+       * Get all light properties
        *
        * @returns {Array}
        */
-      lightChannels() {
-        return this._.filter(this.channels, 'isLight')
+      lightProperties() {
+        return this._.filter(this._.get(this.thing, 'channel.properties', []), 'isLight')
       },
 
       /**
-       * Get all energy meter channels
+       * Get all energy meter properties
        *
        * @returns {Array}
        */
-      energyChannels() {
-        return this._.filter(this.channels, 'isEnergy')
+      energyProperties() {
+        return this._.filter(this._.get(this.thing, 'channel.properties', []), 'isEnergy')
       },
 
       /**
-       * Get all energy meter channels
+       * Get all energy meter properties
        *
        * @returns {Array}
        */
-      environmentChannels() {
-        return this._.filter(this.channels, 'isEnvironment')
+      environmentProperties() {
+        return this._.filter(this._.get(this.thing, 'channel.properties', []), 'isEnvironment')
       },
 
       /**
-       * Get all relay switch channels
+       * Get all relay switch properties
        *
        * @returns {Array}
        */
-      switchChannels() {
-        return this._.filter(this.channels, 'isSwitch')
+      switchProperties() {
+        return this._.filter(this._.get(this.thing, 'channel.properties', []), 'isSwitch')
       },
 
       /**
-       * Get all event channels
+       * Get all event properties
        *
        * @returns {Array}
        */
-      eventChannels() {
-        return this._.filter(this.channels, 'isEvent')
+      eventProperties() {
+        return this._.filter(this._.get(this.thing, 'channel.properties', []), 'isEvent')
       },
 
       /**
-       * Get all button channels
+       * Get all button properties
        *
        * @returns {Array}
        */
-      buttonChannels() {
-        return this._.filter(this.channels, 'isButton')
+      buttonProperties() {
+        return this._.filter(this._.get(this.thing, 'channel.properties', []), 'isButton')
       },
 
       /**
@@ -264,14 +230,6 @@
         })
 
         return typeof condition !== 'undefined' ? condition : null
-      },
-
-    },
-
-    watch: {
-
-      channels() {
-        this._initModel()
       },
 
     },
@@ -303,19 +261,17 @@
 
             this.$emit('remove', this.thing)
           },
-          icon: 'trash-alt',
         }, {
           root: true,
         })
       } else {
         this.$store.dispatch('header/setRightButton', {
-          name: this.$t('application.buttons.back.title'),
+          name: this.$t('application.buttons.close.title'),
           callback: () => {
             this._initModel()
 
             this.$emit('close')
           },
-          icon: 'times',
         }, {
           root: true,
         })
@@ -326,7 +282,8 @@
       })
 
       this.$store.dispatch('header/setHeading', {
-        heading: this.thing.label,
+        heading: this.$tThing(this.thing),
+        subHeading: this.thing.comment,
       }, {
         root: true,
       })
@@ -386,7 +343,7 @@
 
         let missingOperand = false
 
-        this.model.configuration.forEach(channel => {
+        this.model.forEach(channel => {
           channel.properties.forEach(property => {
             if (property.selected && property.operand !== null) {
               condition.rows.push({
@@ -396,17 +353,10 @@
                 operand: property.operand,
               })
             } else if (property.selected && property.operand === null) {
-              this.$toasted.info(this.$t('messages.fillOperand', {
-                channel: this.$tChannel(this.thing, this.$store.getters['entities/channel/find'](channel.channel)),
-                property: this.$tChannelProperty(this.thing, this.$store.getters['entities/channel/find'](channel.channel), this.$store.getters['entities/channel_property/find'](property.property)),
-              }), {
-                condition: {
-                  text: this.$t('application.buttons.close.title'),
-                  onClick: (evnt, toastObject) => {
-                    toastObject.goAway(0)
-                  },
-                },
-              })
+              this.$flashMessage(this.$t('messages.fillOperand', {
+                thing: this.$tThing(this.thing),
+                property: this.$tChannelProperty(this.thing, this.$store.getters['entities/channel_property/find'](property.property)),
+              }), 'info')
 
               missingOperand = true
             }
@@ -416,14 +366,7 @@
         if (condition.rows.length && !missingOperand) {
           this.$emit('add', condition)
         } else if (!missingOperand) {
-          this.$toasted.info(this.$t('messages.selectProperty'), {
-            condition: {
-              text: this.$t('application.buttons.close.title'),
-              onClick: (evnt, toastObject) => {
-                toastObject.goAway(0)
-              },
-            },
-          })
+          this.$flashMessage(this.$t('messages.selectProperty'), 'info')
         }
       },
 
@@ -433,50 +376,35 @@
        * @private
        */
       _initModel() {
-        this.model = {
-          configuration: [],
+        this.model = []
+
+        const operator = {
+          channel: this.thing.channel_id,
+          properties: [],
         }
 
-        const condition = this.conditions.find(item => {
-          return item.thing === this.thing.id
-        })
+        this._.get(this.thing, 'channel.properties', [])
+          .forEach(property => {
+            let defaultOperand = null
 
-        this.channels.forEach(channel => {
-          const operator = {
-            channel: channel.id,
-            properties: [],
-          }
+            if (property.isBoolean) {
+              defaultOperand = true
+            } else if (property.isEnum) {
+              defaultOperand = this._getPropertyDefaultValue(property)
+            }
 
-          channel.properties
-            .forEach(property => {
-              let defaultOperand = null
+            if (this.condition) {
+              const storedProperty = this.condition.rows.find(item => {
+                return item.property === property.id
+              })
 
-              if (property.isBoolean) {
-                defaultOperand = true
-              } else if (property.isEnum) {
-                defaultOperand = this._getPropertyDefaultValue(property)
-              }
-
-              if (typeof condition !== 'undefined') {
-                const storedProperty = condition.rows.find(item => {
-                  return item.property === property.id
+              if (typeof storedProperty !== 'undefined') {
+                operator.properties.push({
+                  property: property.id,
+                  selected: true,
+                  operator: storedProperty.operator,
+                  operand: storedProperty.operand,
                 })
-
-                if (typeof storedProperty !== 'undefined') {
-                  operator.properties.push({
-                    property: property.id,
-                    selected: true,
-                    operator: storedProperty.operator,
-                    operand: storedProperty.operand,
-                  })
-                } else {
-                  operator.properties.push({
-                    property: property.id,
-                    selected: false,
-                    operator: 'eq',
-                    operand: defaultOperand,
-                  })
-                }
               } else {
                 operator.properties.push({
                   property: property.id,
@@ -485,10 +413,17 @@
                   operand: defaultOperand,
                 })
               }
-            })
+            } else {
+              operator.properties.push({
+                property: property.id,
+                selected: false,
+                operator: 'eq',
+                operand: defaultOperand,
+              })
+            }
+          })
 
-          this.model.configuration.push(operator)
-        })
+        this.model.push(operator)
       },
 
       /**
@@ -526,5 +461,3 @@
 <style rel="stylesheet/scss" lang="scss">
   @import 'index';
 </style>
-
-<i18n src="./locales.json" />

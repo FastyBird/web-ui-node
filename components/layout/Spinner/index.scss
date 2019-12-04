@@ -4,7 +4,6 @@
 .fb-spinner {
   &__container {
     position: relative;
-    display: inline-block;
 
     &:before,
     &:after {
@@ -63,7 +62,6 @@
 
     &-sm:before,
     &-sm:after {
-      border-width: 0;
       height: 18px;
       margin: half(-18px) 0 0 half(-18px);
       width: 18px;

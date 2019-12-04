@@ -2,7 +2,7 @@
   <div class="fb-iot-things-thing-settings-view__container">
     <fb-loading-box
       v-if="fetchingThing && thing === null"
-      :text="$t('texts.loading')"
+      :text="$t('things.texts.loadingThing')"
     />
   </div>
 </template>
@@ -11,9 +11,6 @@
   import { mapState } from 'vuex'
 
   import {
-    THINGS_LIST_LINK,
-    THINGS_THING_DETAIL_LINK,
-
     THINGS_HASH_ROUTINES,
   } from '@/configuration/routes'
 
@@ -46,23 +43,13 @@
        */
       thing() {
         return this.$store.getters['entities/thing/query']()
-          .with('properties')
-          .with('socket')
-          .where('id', this.id)
+          .with('device')
+          .with('device.properties')
+          .with('device.socket')
+          .with('channel')
+          .with('channel.properties')
+          .where('channel_id', this.id)
           .first()
-      },
-
-      /**
-       * View thing channels data
-       *
-       * @returns {Array}
-       */
-      channels() {
-        return this.$store.getters['entities/channel/query']()
-          .with('properties')
-          .where('thing_id', this.id)
-          .orderBy('name')
-          .all()
       },
 
       /**
@@ -90,7 +77,7 @@
       windowSize(val) {
         if (val !== 'xs') {
           this.$router.push(this.localePath({
-            name: THINGS_LIST_LINK,
+            name: this.$routes.things.list,
             hash: `${THINGS_HASH_ROUTINES}-${this.id}`,
           }))
         }
@@ -118,7 +105,11 @@
           root: true,
         })
           .then(() => {
-            const thing = store.getters['entities/thing/find'](params.id)
+            const thing = store.getters['entities/thing/query']()
+              .with('device')
+              .with('channel')
+              .where('channel_id', params.id)
+              .first()
 
             store.dispatch('header/resetStore', null, {
               root: true,
@@ -126,7 +117,7 @@
 
             store.dispatch('header/setLeftButton', {
               name: app.i18n.t('application.buttons.back.title'),
-              link: app.localePath({ name: THINGS_THING_DETAIL_LINK, params: { id: thing.id } }),
+              link: app.localePath({ name: this.$routes.things.detail, params: { id: thing.channel_id } }),
               icon: 'arrow-left',
             }, {
               root: true,
@@ -169,7 +160,7 @@
     beforeMount() {
       if (this.windowSize !== null && this.windowSize !== 'xs') {
         this.$router.push(this.localePath({
-          name: THINGS_LIST_LINK,
+          name: this.$routes.things.list,
           hash: `${THINGS_HASH_ROUTINES}-${this.id}`,
         }))
 
@@ -218,7 +209,7 @@
 
         this.$store.dispatch('header/setLeftButton', {
           name: this.$t('application.buttons.back.title'),
-          link: this.localePath({ name: THINGS_THING_DETAIL_LINK, params: { id: this.thing.id } }),
+          link: this.localePath({ name: this.$routes.things.detail, params: { id: this.thing.channel_id } }),
           icon: 'arrow-left',
         }, {
           root: true,
@@ -258,11 +249,9 @@
 
     head() {
       return {
-        title: this.$t('meta.title', { thing: this.thing.label }),
+        title: this.$t('meta.things.routines.title', { thing: this.$tThing(this.thing) }),
       }
     },
 
   }
 </script>
-
-<i18n src="./locales.json" />

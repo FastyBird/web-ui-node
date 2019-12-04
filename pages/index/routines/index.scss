@@ -1,43 +1,38 @@
-@import "~@fastybird-com/theme/assets/styles/variables";
+@import "~@fastybird-com/theme/assets/variables/screen";
+@import "~@fastybird-com/theme/assets/mixins/utilities";
 
 .fb-routines-list-view {
-  &__navigation {
-    background-color: $brand-primary;
-    position: relative;
-  }
-
-  &__navigation-button {
-    color: darken($btn-primary-border, 15%);
-    font-weight: bolder;
-    letter-spacing: 1px;
-  }
-
-  &__navigation-button-active {
-    color: #fff;
-  }
-
-  &__add-button {
-    position: absolute;
-    top: 15px;
-    right: 25px;
-  }
-
   &__items-container {
+    @include gridRow(0, 0);
+
+    padding: 15px 5px 0 5px;
+
     @media (max-width: $screen-xs-max) {
-      padding: 5px 0 0 0;
+      padding: 15px 5px 60px 5px;
       margin: 0;
     }
 
-    @media (min-width: $screen-sm-min) {
-      padding: 15px 15px 0 30px;
-    }
+    > div {
+      @include gridCel(0, 0);
 
-    > div[data-state="on"] {
-      border-left: 4px solid $brand-primary;
-    }
+      @media (min-width: $screen-sm-min) {
+        -webkit-box-flex: 0;
+        -ms-flex: 0 0 50%;
+        flex: 0 0 50%;
+        max-width: 50%;
 
-    > div[data-state="off"] {
-      border-left: 4px solid $gray-lighter;
+        @include gridCel;
+
+        padding-left: 5px;
+        padding-right: 5px;
+      }
+
+      @media (min-width: $screen-lg-min) {
+        -webkit-box-flex: 0;
+        -ms-flex: 0 0 33.333333%;
+        flex: 0 0 33.333333%;
+        max-width: 33.333333%;
+      }
     }
   }
 

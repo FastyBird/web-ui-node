@@ -1,39 +1,38 @@
 <template>
   <div class="fb-iot-groups-settings-group__container">
-    <div class="fb-iot-groups-settings-group__heading p-x-md p-y-0 m-a-0">
-      <h3>
-        {{ $t('headings.generalSettings') }}
-      </h3>
-    </div>
-
-    <div class="list-group">
-      <button
-        class="list-group-item"
-        role="button"
-        @click.prevent="openWindow('rename')"
+    <list-items-container :heading="$t('groups.headings.generalSettings')">
+      <settings-list-item
+        type="button"
+        class="fb-iot-groups-settings-group__item"
+        @click="openWindow('rename')"
       >
-        <span class="pull-right"><font-awesome-icon icon="angle-right" /></span>
-        <span
-          v-show="loading.rename"
-          class="spinner spinner-primary spinner-sm sq-18 pos-r m-r-md"
+        <span class="fb-iot-groups-settings-group__item-icon">
+          <font-awesome-icon icon="angle-right" />
+        </span>
+        <spinner
+          v-if="loading.rename"
+          size="sm"
         />
-        {{ $t('buttons.rename.title') }}
-      </button>
-      <button
-        class="list-group-item text-danger"
-        role="button"
-        @click.prevent="openWindow('remove')"
-      >
-        <span class="pull-right"><font-awesome-icon icon="exclamation-triangle" /></span>
-        <span
-          v-show="loading.remove"
-          class="spinner spinner-primary spinner-sm sq-18 pos-r m-r-md"
-        />
-        {{ $t('buttons.remove.title') }}
-      </button>
-    </div>
+        {{ $t('groups.buttons.rename.title') }}
+      </settings-list-item>
 
-    <groups-edit-group-rename
+      <settings-list-item
+        type="button"
+        class="fb-iot-groups-settings-group__item fb-iot-groups-settings-group__item-remove"
+        @click="openWindow('remove')"
+      >
+        <span class="fb-iot-groups-settings-group__item-icon">
+          <font-awesome-icon icon="exclamation-triangle" />
+        </span>
+        <spinner
+          v-if="loading.remove"
+          size="sm"
+        />
+        {{ $t('groups.buttons.remove.title') }}
+      </settings-list-item>
+    </list-items-container>
+
+    <group-rename
       v-if="rename.show"
       :group="group"
       :transparent-bg="transparentModal"
@@ -41,7 +40,7 @@
       @close="closeWindow('rename')"
     />
 
-    <groups-remove
+    <group-remove
       v-if="remove.show"
       :group="group"
       :transparent-bg="transparentModal"
@@ -52,27 +51,22 @@
 </template>
 
 <script>
-  const GroupsEditGroupRename = () => import('../Edit/Rename')
-  const GroupsRemove = () => import('../Remove')
+  const GroupRename = () => import('./Rename')
+  const GroupRemove = () => import('./Remove')
 
   export default {
 
     name: 'GroupsSettingsGroup',
 
     components: {
-      GroupsEditGroupRename,
-      GroupsRemove,
+      GroupRename,
+      GroupRemove,
     },
 
     props: {
 
       group: {
         type: Object,
-        required: true,
-      },
-
-      channels: {
-        type: Array,
         required: true,
       },
 
@@ -135,5 +129,3 @@
 <style rel="stylesheet/scss" lang="scss">
   @import 'index';
 </style>
-
-<i18n src="./locales.json" />

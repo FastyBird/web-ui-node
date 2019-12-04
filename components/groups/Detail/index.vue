@@ -16,7 +16,7 @@
     </div>
 
     <p class="text-center m-t-md m-b-lg">
-      {{ $t('texts.noThings') }}
+      {{ $t('groups.texts.noThings') }}
     </p>
   </div>
 </template>
@@ -52,7 +52,7 @@
           return true
         }
 
-        this.group.things_ids.forEach(item => {
+        this.group.channels_ids.forEach(item => {
           if (this.$store.getters['entities/thing/getting'](item.id)) {
             return true
           }
@@ -65,9 +65,3 @@
 
   }
 </script>
-
-<style rel="stylesheet/scss" lang="scss">
-  @import 'index';
-</style>
-
-<i18n src="./locales.json" />

@@ -1,8 +1,7 @@
 <template>
   <div class="fb-routines-create-view__container">
     <form
-      v-show="view.opened.type === null"
-      class="p-x-sm p-t-sm"
+      v-show="view.opened === null"
       @submit.prevent="submit"
     >
       <fb-form-input
@@ -12,7 +11,7 @@
         :error="errors.first(form.scope + '.name')"
         :has-error="errors.has(form.scope + '.name')"
         :name="'name'"
-        :label="$t('field.name.title')"
+        :label="$t('routines.fields.name.title')"
         :required="true"
         :tab-index="1"
       />
@@ -23,7 +22,7 @@
         :error="errors.first(form.scope + '.comment')"
         :has-error="errors.has(form.scope + '.comment')"
         :name="'comment'"
-        :label="$t('field.comment.title')"
+        :label="$t('routines.fields.comment.title')"
         :tab-index="2"
       />
 
@@ -34,21 +33,14 @@
       <fb-button
         variant="outline-default"
         block
-        class="text-left"
         @click="openView(view.condition.name)"
       >
-        <font-awesome-icon
-          icon="plus-circle"
-          class="icon-2x m-r-md pull-left"
-        />
-        <span class="pull-left">{{ $t('buttons.addThing.title') }}</span>
+        <font-awesome-icon icon="plus-circle" />
+        <span>{{ $t('routines.buttons.addThing.title') }}</span>
       </fb-button>
 
-      <div
-        v-if="view.opened.type === null"
-        class="p-t-sm"
-      >
-        <routines-edit-list-condition
+      <template v-if="view.opened === null">
+        <list-condition
           v-for="(condition, index) in conditions"
           :key="`c-${index}`"
           :condition="condition"
@@ -56,7 +48,7 @@
           @edit="editCondition(index)"
           @toggle="toggleConditionState(index)"
         />
-      </div>
+      </template>
 
       <hr>
 
@@ -67,21 +59,14 @@
       <fb-button
         variant="outline-default"
         block
-        class="text-left"
         @click="openView(view.action.name)"
       >
-        <font-awesome-icon
-          icon="plus-circle"
-          class="icon-2x m-r-md pull-left"
-        />
-        <span class="pull-left">{{ $t('buttons.addThing.title') }}</span>
+        <font-awesome-icon icon="plus-circle" />
+        <span>{{ $t('routines.buttons.addThing.title') }}</span>
       </fb-button>
 
-      <div
-        v-if="view.opened.type === null"
-        class="p-t-sm"
-      >
-        <routines-edit-list-action
+      <template v-if="view.opened === null">
+        <list-action
           v-for="(action, index) in actions"
           :key="`a-${index}`"
           :action="action"
@@ -89,31 +74,30 @@
           @edit="editAction(index)"
           @toggle="toggleActionState(index)"
         />
-      </div>
+      </template>
 
       <fb-button
         variant="primary"
         size="lg"
         block
         mobile
-        class="text-right"
         @click="submit"
       >
-        {{ $t('buttons.save.title') }}
+        {{ $t('routines.buttons.save.title') }}
         <font-awesome-icon icon="plus" />
       </fb-button>
     </form>
 
-    <routines-edit-select-thing
-      v-if="view.opened.type === view.action.name || view.opened.type === view.condition.name"
-      :items="view[view.opened.type].items"
-      :only-settable="view.opened.type === view.action.name"
+    <select-thing
+      v-if="view.opened === view.action.name || view.opened === view.condition.name"
+      :items="view[view.opened].items"
+      :only-settable="view.opened === view.action.name"
       @select="thingSelected"
-      @close="closeView(view.opened.type)"
+      @close="closeView(view.opened)"
     />
 
-    <routines-edit-edit-condition
-      v-if="view.opened.type === view.conditionThing.name"
+    <edit-condition
+      v-if="view.opened === view.conditionThing.name"
       :thing="view.conditionThing.thing"
       :conditions="conditions"
       @add="addCondition"
@@ -122,8 +106,8 @@
       @remove="removeCondition"
     />
 
-    <routines-edit-edit-condition
-      v-if="view.opened.type === view.conditionThingEdit.name"
+    <edit-condition
+      v-if="view.opened === view.conditionThingEdit.name"
       :thing="view.conditionThingEdit.thing"
       :conditions="conditions"
       @add="addCondition"
@@ -132,8 +116,8 @@
       @remove="removeCondition"
     />
 
-    <routines-edit-edit-action
-      v-if="view.opened.type === view.actionThing.name"
+    <edit-action
+      v-if="view.opened === view.actionThing.name"
       :thing="view.actionThing.thing"
       :actions="actions"
       @add="addAction"
@@ -142,8 +126,8 @@
       @remove="removeAction"
     />
 
-    <routines-edit-edit-action
-      v-if="view.opened.type === view.actionThingEdit.name"
+    <edit-action
+      v-if="view.opened === view.actionThingEdit.name"
       :thing="view.actionThingEdit.thing"
       :actions="actions"
       @add="addAction"
@@ -158,30 +142,27 @@
   import { mapState } from 'vuex'
 
   import {
-    ROUTINES_LIST_LINK,
-    ROUTINES_ROUTINE_DETAIL_LINK,
-
     ROUTINES_HASH_CREATE,
   } from '@/configuration/routes'
 
-  const RoutinesEditSelectThing = () => import('@/components/routines/Edit/SelectThing')
+  const SelectThing = () => import('@/components/routines/Edit/SelectThing')
 
-  const RoutinesEditListCondition = () => import('@/components/routines/Edit/ListCondition')
-  const RoutinesEditEditCondition = () => import('@/components/routines/Edit/EditCondition')
-  const RoutinesEditListAction = () => import('@/components/routines/Edit/ListAction')
-  const RoutinesEditEditAction = () => import('@/components/routines/Edit/EditAction')
+  const ListCondition = () => import('@/components/routines/Edit/ListCondition')
+  const EditCondition = () => import('@/components/routines/Edit/EditCondition')
+  const ListAction = () => import('@/components/routines/Edit/ListAction')
+  const EditAction = () => import('@/components/routines/Edit/EditAction')
 
   export default {
 
     name: 'RoutineCreatePage',
 
     components: {
-      RoutinesEditSelectThing,
+      SelectThing,
 
-      RoutinesEditListCondition,
-      RoutinesEditEditCondition,
-      RoutinesEditListAction,
-      RoutinesEditEditAction,
+      ListCondition,
+      EditCondition,
+      ListAction,
+      EditAction,
     },
 
     transition: 'fade',
@@ -199,9 +180,7 @@
           },
         },
         view: {
-          opened: {
-            type: null,
-          },
+          opened: null,
           condition: {
             name: 'condition',
             items: [],
@@ -274,7 +253,7 @@
 
       store.dispatch('header/setLeftButton', {
         name: app.i18n.t('application.buttons.back.title'),
-        link: app.localePath({ name: ROUTINES_LIST_LINK }),
+        link: app.localePath(app.$routes.routines.list),
         icon: 'arrow-left',
       }, {
         root: true,
@@ -311,7 +290,10 @@
 
     beforeMount() {
       if (this.windowSize !== null && this.windowSize !== 'xs') {
-        this.$router.push(`${this.localePath({ name: ROUTINES_LIST_LINK })}${ROUTINES_HASH_CREATE}`)
+        this.$router.push(this.localePath({
+          name: this.$routes.routines.list,
+          hash: `${ROUTINES_HASH_CREATE}`,
+        }))
 
         return
       }
@@ -322,7 +304,7 @@
         en: {
           custom: {
             name: {
-              required: this.$t('field.name.validation.required'),
+              required: this.$t('routines.fields.name.validation.required'),
             },
           },
         },
@@ -337,12 +319,12 @@
        * @param {Thing} thing
        */
       thingSelected(thing) {
-        if (this.view.opened.type === this.view.action.name) {
+        if (this.view.opened === this.view.action.name) {
           this.view.actionThing.thing = thing
           this.view.actionThing.items = this.actions
 
           this.openView(this.view.actionThing.name)
-        } else if (this.view.opened.type === this.view.condition.name) {
+        } else if (this.view.opened === this.view.condition.name) {
           this.view.conditionThing.thing = thing
           this.view.conditionThing.items = this.conditions
 
@@ -386,7 +368,12 @@
        */
       editCondition(index) {
         if (this.form.model.conditions.hasOwnProperty(index)) {
-          this.view.conditionThingEdit.thing = this.$store.getters['entities/thing/find'](this.form.model.conditions[index].thing)
+          this.view.conditionThingEdit.thing = this.$store.getters['entities/thing/query']()
+            .with('device')
+            .with('channel')
+            .with('channel.properties')
+            .where('id', this.form.model.conditions[index].thing)
+            .first()
 
           this.openView(this.view.conditionThingEdit.name)
         }
@@ -461,7 +448,12 @@
        */
       editAction(index) {
         if (this.form.model.actions.hasOwnProperty(index)) {
-          this.view.actionThingEdit.thing = this.$store.getters['entities/thing/find'](this.form.model.actions[index].thing)
+          this.view.actionThingEdit.thing = this.$store.getters['entities/thing/query']()
+            .with('device')
+            .with('channel')
+            .with('channel.properties')
+            .where('id', this.form.model.actions[index].thing)
+            .first()
 
           this.openView(this.view.actionThingEdit.name)
         }
@@ -501,6 +493,53 @@
       },
 
       /**
+       * NOTIFICATIONS
+       */
+
+      /**
+       * Add notification settings to collection
+       *
+       * @param {Object} data
+       */
+      addNotification(data) {
+        for (const notification of this.form.model.notifications) {
+          if (JSON.stringify(notification) === JSON.stringify(data)) {
+            this.$flashMessage(this.$t('routines.messages.sameNotificationAdded'), 'error')
+
+            return
+          }
+        }
+
+        this.form.model.notifications.push(data)
+
+        this.closeView('notification')
+      },
+
+      /**
+       * Change notification state
+       *
+       * @param {Number} index
+       */
+      toggleNotificationState(index) {
+        if (this.form.model.notifications.hasOwnProperty(index)) {
+          this.form.model.notifications[index].enabled = !this.form.model.notifications[index].enabled
+        }
+      },
+
+      /**
+       * Remove notification settings from collection
+       *
+       * @param {Number} index
+       */
+      removeNotification(index) {
+        if (
+          this.form.model.notifications.hasOwnProperty(index)
+        ) {
+          this.form.model.notifications.splice(index, 1)
+        }
+      },
+
+      /**
        * ROUTINE GLOBAL
        */
 
@@ -509,18 +548,18 @@
           .then(result => {
             if (result) {
               if (this.form.model.conditions.length <= 0) {
-                this.$flashMessage(this.$t('messages.missingCondition'), 'error')
+                this.$flashMessage(this.$t('routines.messages.missingCondition'), 'error')
 
                 return
               }
 
               if (this.form.model.actions.length <= 0 && this.form.model.notifications.length <= 0) {
-                this.$flashMessage(this.$t('messages.missingActionOrNotification'), 'error')
+                this.$flashMessage(this.$t('routines.messages.missingActionOrNotification'), 'error')
 
                 return
               }
 
-              const errorMessage = this.$t('messages.notCreated', {
+              const errorMessage = this.$t('routines.messages.notCreated', {
                 routine: this.form.model.name,
               })
 
@@ -531,7 +570,7 @@
                   mappedConditions.push({
                     type: 'channel_property',
                     enabled: condition.enabled,
-                    thing: condition.channel,
+                    thing: condition.thing,
                     channel: row.channel,
                     property: row.property,
                     operator: row.operator,
@@ -547,7 +586,7 @@
                   mappedActions.push({
                     type: 'channel_property',
                     enabled: action.enabled,
-                    thing: action.channel,
+                    thing: action.thing,
                     channel: row.channel,
                     property: row.property,
                     value: row.operation,
@@ -569,27 +608,24 @@
                 root: true,
               })
                 .then(routine => {
-                  this.$flashMessage(this.$t('messages.created', {
-                    routine: this.form.model.name,
+                  this.$router.push(this.localePath({
+                    name: this.$routes.routines.detail,
+                    params: {
+                      id: routine.id,
+                    },
                   }))
-
-                  this.$router.push(this.localePath({ name: ROUTINES_ROUTINE_DETAIL_LINK, params: { id: routine.id } }))
                 })
                 .catch(e => {
-                  console.log(e)
                   if (e.hasOwnProperty('exception')) {
                     this.handleFormError(e.exception, errorMessage)
                   } else {
                     this.$flashMessage(errorMessage, 'error')
                   }
                 })
-            } else {
-              this.$flashMessage(this.$t('application.messages.fixAllFormErrors'), 'info')
             }
           })
-          .catch((e) => {
-            console.log(e)
-            this.$flashMessage(this.$t('application.messages.fixAllFormErrors'), 'info')
+          .catch(() => {
+            // Nothing to do here
           })
       },
 
@@ -597,35 +633,7 @@
        * Close create action and navigate to list
        */
       closeCreate() {
-        this.$router.push(this.localePath({ name: ROUTINES_LIST_LINK }))
-      },
-
-      /**
-       * Add notification settings to collection
-       *
-       * @param {Object} data
-       */
-      addNotification(data) {
-        for (const notification of this.form.model.notifications) {
-          if (JSON.stringify(notification) === JSON.stringify(data)) {
-            this.$flashMessage(this.$t('messages.sameNotificationAdded'), 'error')
-
-            return
-          }
-        }
-
-        this.form.model.notifications.push(data)
-
-        this.closeView('notification')
-      },
-
-      /**
-       * Remove notification settings from collection
-       *
-       * @param {Number} index
-       */
-      removeNotification(index) {
-        this.form.model.notifications.splice(index, 1)
+        this.$router.push(this.localePath(this.$routes.routines.list))
       },
 
       /**
@@ -636,7 +644,7 @@
        */
       openView(view, item) {
         if (this.view.hasOwnProperty(view)) {
-          this.view.opened.type = view
+          this.view.opened = view
 
           if (this.view[view].hasOwnProperty('item') && typeof item !== 'undefined') {
             this.view[view].item = item
@@ -657,7 +665,7 @@
        */
       closeView(view) {
         if (this.view.hasOwnProperty(view)) {
-          this.view.opened.type = null
+          this.view.opened = null
 
           if (this.view[view].hasOwnProperty('item')) {
             this.view[view].item = null
@@ -666,7 +674,7 @@
 
         this.$store.dispatch('header/setLeftButton', {
           name: this.$t('application.buttons.back.title'),
-          link: this.localePath({ name: ROUTINES_LIST_LINK }),
+          link: this.localePath(this.$routes.routines.list),
           icon: 'arrow-left',
         }, {
           root: true,
@@ -681,6 +689,8 @@
         })
 
         this.errors.clear(this.form.scope)
+
+        this._configureNavigation()
       },
 
       _sortItemsThings(items) {
@@ -699,7 +709,7 @@
       },
 
       /**
-       * Configure page header for small devices
+       * Configure page header for small things
        *
        * @private
        */
@@ -710,7 +720,7 @@
 
         this.$store.dispatch('header/setLeftButton', {
           name: this.$t('application.buttons.back.title'),
-          link: this.localePath({ name: ROUTINES_LIST_LINK }),
+          link: this.localePath(this.$routes.routines.list),
           icon: 'arrow-left',
         }, {
           root: true,
@@ -747,11 +757,15 @@
 
     },
 
+    head() {
+      return {
+        title: this.$t('meta.routines.create.title'),
+      }
+    },
+
   }
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
   @import 'index';
 </style>
-
-<i18n src="./locales.json" />

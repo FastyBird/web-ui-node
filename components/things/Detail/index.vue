@@ -3,56 +3,81 @@
     :data-state="thing.state ? 'on' : 'off'"
     class="fb-iot-things-detail__container"
   >
-    <fb-loading-box
-      v-if="fetchingChannels"
-      :text="$t('texts.loading')"
-    />
+    <list-items-container
+      v-if="analogSensorsProperties.length"
+      :heading="$tc('things.headings.analogSensors', analogSensorsProperties.length)"
+    >
+      <analog-sensor
+        v-for="property in analogSensorsProperties"
+        :key="property.id"
+        :thing="thing"
+        :property="property"
+      />
+    </list-items-container>
 
-    <things-detail-channels-container-switch-channels
-      v-if="switchChannels.length"
-      :thing="thing"
-      :channels="switchChannels"
-    />
+    <list-items-container
+      v-if="binarySensorsProperties.length"
+      :heading="$tc('things.headings.binarySensors', binarySensorsProperties.length)"
+    >
+      <binary-sensor
+        v-for="property in binarySensorsProperties"
+        :key="property.id"
+        :thing="thing"
+        :property="property"
+      />
+    </list-items-container>
 
-    <things-detail-channels-container-analog-sensor-channels
-      v-if="analogSensorsChannels.length"
-      :thing="thing"
-      :channels="analogSensorsChannels"
-    />
+    <list-items-container
+      v-if="binaryActorsProperties.length"
+      :heading="$tc('things.headings.binaryActors', binaryActorsProperties.length)"
+    >
+      <binary-actor
+        v-for="property in binaryActorsProperties"
+        :key="property.id"
+        :thing="thing"
+        :property="property"
+      />
+    </list-items-container>
 
-    <things-detail-channels-container-binary-sensor-channels
-      v-if="binarySensorsChannels.length"
-      :thing="thing"
-      :channels="binarySensorsChannels"
-    />
+    <list-items-container
+      v-if="energyProperties.length"
+      :heading="$tc('things.headings.energy', energyProperties.length)"
+    >
+      <energy-meter
+        v-for="property in energyProperties"
+        :key="property.id"
+        :thing="thing"
+        :property="property"
+      />
+    </list-items-container>
 
-    <things-detail-channels-container-binary-actor-channels
-      v-if="binaryActorsChannels.length"
-      :thing="thing"
-      :channels="binaryActorsChannels"
-    />
+    <list-items-container
+      v-if="environmentProperties.length"
+      :heading="$tc('things.headings.environment', environmentProperties.length)"
+    >
+      <environment-meter
+        v-for="property in environmentProperties"
+        :key="property.id"
+        :thing="thing"
+        :property="property"
+      />
+    </list-items-container>
 
-    <things-detail-channels-container-light-channels
-      v-if="lightChannels.length"
-      :thing="thing"
-      :channels="lightChannels"
-    />
-
-    <things-detail-channels-container-energy-channels
-      v-if="energyChannels.length"
-      :thing="thing"
-      :channels="energyChannels"
-    />
-
-    <things-detail-channels-container-environments-channels
-      v-if="environmentChannels.length"
-      :thing="thing"
-      :channels="environmentChannels"
-    />
+    <list-items-container
+      v-if="switchProperties.length"
+      :heading="$tc('things.headings.switches', switchProperties.length)"
+    >
+      <switch-actor
+        v-for="property in switchProperties"
+        :key="property.id"
+        :thing="thing"
+        :property="property"
+      />
+    </list-items-container>
 
     <no-results
-      v-if="!fetchingChannels && !switchChannels.length && !analogSensorsChannels.length && !analogActorsChannels.length && !binarySensorsChannels.length && !binaryActorsChannels.length && !lightChannels.length && !energyChannels.length && !environmentChannels.length"
-      :message="$t('texts.noChannels')"
+      v-if="!switchProperties.length && !analogSensorsProperties.length && !analogActorsProperties.length && !binarySensorsProperties.length && !binaryActorsProperties.length && !lightProperties.length && !energyProperties.length && !environmentProperties.length"
+      :message="$t('things.texts.noProperties')"
       icon="cube"
       second-icon="plug"
     />
@@ -60,68 +85,24 @@
 </template>
 
 <script>
-  import FbComponentLoading from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoading'
-  import FbComponentLoadingError from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoadingError'
-
-  const ThingsDetailChannelsContainerAnalogSensorChannels = () => ({
-    component: import('./ChannelsContainer/AnalogSensorsChannels'),
-    loading: FbComponentLoading,
-    error: FbComponentLoadingError,
-    timeout: 5000,
-  })
-  const ThingsDetailChannelsContainerBinaryActorChannels = () => ({
-    component: import('./ChannelsContainer/BinaryActorsChannels'),
-    loading: FbComponentLoading,
-    error: FbComponentLoadingError,
-    timeout: 5000,
-  })
-  const ThingsDetailChannelsContainerBinarySensorChannels = () => ({
-    component: import('./ChannelsContainer/BinarySensorsChannels'),
-    loading: FbComponentLoading,
-    error: FbComponentLoadingError,
-    timeout: 5000,
-  })
-  const ThingsDetailChannelsContainerEnergyChannels = () => ({
-    component: import('./ChannelsContainer/EnergyMetersChannels'),
-    loading: FbComponentLoading,
-    error: FbComponentLoadingError,
-    timeout: 5000,
-  })
-  const ThingsDetailChannelsContainerEnvironmentsChannels = () => ({
-    component: import('./ChannelsContainer/EnvironmentsChannels'),
-    loading: FbComponentLoading,
-    error: FbComponentLoadingError,
-    timeout: 5000,
-  })
-  const ThingsDetailChannelsContainerLightChannels = () => ({
-    component: import('./ChannelsContainer/LightActorsChannels'),
-    loading: FbComponentLoading,
-    error: FbComponentLoadingError,
-    timeout: 5000,
-  })
-  const ThingsDetailChannelsContainerSwitchChannels = () => ({
-    component: import('./ChannelsContainer/SwitchActorsChannels'),
-    loading: FbComponentLoading,
-    error: FbComponentLoadingError,
-    timeout: 5000,
-  })
-
-  import NoResults from '@/components/layout/NoResults'
+  import AnalogSensor from './Property/AnalogSensor'
+  import BinaryActor from './Property/BinaryActor'
+  import BinarySensor from './Property/BinarySensor'
+  import EnergyMeter from './Property/EnergyMeter'
+  import EnvironmentMeter from './Property/EnvironmentMeter'
+  import SwitchActor from './Property/SwitchActor'
 
   export default {
 
     name: 'ThingsDetail',
 
     components: {
-      ThingsDetailChannelsContainerAnalogSensorChannels,
-      ThingsDetailChannelsContainerBinaryActorChannels,
-      ThingsDetailChannelsContainerBinarySensorChannels,
-      ThingsDetailChannelsContainerEnergyChannels,
-      ThingsDetailChannelsContainerEnvironmentsChannels,
-      ThingsDetailChannelsContainerLightChannels,
-      ThingsDetailChannelsContainerSwitchChannels,
-
-      NoResults,
+      AnalogSensor,
+      BinaryActor,
+      BinarySensor,
+      EnergyMeter,
+      EnvironmentMeter,
+      SwitchActor,
     },
 
     props: {
@@ -131,104 +112,80 @@
         required: true,
       },
 
-      channels: {
-        type: Array,
-        required: true,
-      },
-
     },
 
     computed: {
 
       /**
-       * Flag signalizing that thing channels are loading from server
-       *
-       * @returns {Boolean}
-       */
-      fetchingChannels() {
-        if (this.$store.getters['entities/channel/fetching'](this.thing.id)) {
-          return true
-        }
-
-        this.thing.channel_ids.forEach(item => {
-          if (this.$store.getters['entities/channel/getting'](item.id)) {
-            return true
-          }
-        })
-
-        return false
-      },
-
-      /**
-       * Get all analog sensors channels
+       * Get all analog sensors properties
        *
        * @returns {Array}
        */
-      analogSensorsChannels() {
-        return this._.filter(this.channels, 'isAnalogSensor')
+      analogSensorsProperties() {
+        return this._.filter(this._.get(this.thing, 'channel.properties', []), 'isAnalogSensor')
       },
 
       /**
-       * Get all analog actors channels
+       * Get all analog actors properties
        *
        * @returns {Array}
        */
-      analogActorsChannels() {
-        return this._.filter(this.channels, 'isAnalogActor')
+      analogActorsProperties() {
+        return this._.filter(this._.get(this.thing, 'channel.properties', []), 'isAnalogActor')
       },
 
       /**
-       * Get all binary sensors channels
+       * Get all binary sensors properties
        *
        * @returns {Array}
        */
-      binarySensorsChannels() {
-        return this._.filter(this.channels, 'isBinarySensor')
+      binarySensorsProperties() {
+        return this._.filter(this._.get(this.thing, 'channel.properties', []), 'isBinarySensor')
       },
 
       /**
-       * Get all binary actors channels
+       * Get all binary actors properties
        *
        * @returns {Array}
        */
-      binaryActorsChannels() {
-        return this._.filter(this.channels, 'isBinaryActor')
+      binaryActorsProperties() {
+        return this._.filter(this._.get(this.thing, 'channel.properties', []), 'isBinaryActor')
       },
 
       /**
-       * Get all light channels
+       * Get all light properties
        *
        * @returns {Array}
        */
-      lightChannels() {
-        return this._.filter(this.channels, 'isLight')
+      lightProperties() {
+        return this._.filter(this._.get(this.thing, 'channel.properties', []), 'isLight')
       },
 
       /**
-       * Get all energy meter channels
+       * Get all energy meter properties
        *
        * @returns {Array}
        */
-      energyChannels() {
-        return this._.filter(this.channels, 'isEnergy')
+      energyProperties() {
+        return this._.filter(this._.get(this.thing, 'channel.properties', []), 'isEnergy')
       },
 
       /**
-       * Get all energy meter channels
+       * Get all energy meter properties
        *
        * @returns {Array}
        */
-      environmentChannels() {
-        return this._.filter(this.channels, 'isEnvironment')
+      environmentProperties() {
+        return this._.filter(this._.get(this.thing, 'channel.properties', []), 'isEnvironment')
       },
 
       /**
-       * Get all relay switch channels
+       * Get all relay switch properties
        *
        * @returns {Array}
        */
-      switchChannels() {
-        return this._.filter(this.channels, 'isSwitch')
+      switchProperties() {
+        return this._.filter(this._.get(this.thing, 'channel.properties', []), 'isSwitch')
       },
 
     },
@@ -239,5 +196,3 @@
 <style rel="stylesheet/scss" lang="scss">
   @import 'index';
 </style>
-
-<i18n src="./locales.json" />

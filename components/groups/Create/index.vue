@@ -8,7 +8,7 @@
         :error="errors.first(form.scope + '.title')"
         :has-error="errors.has(form.scope + '.title')"
         :name="'title'"
-        :label="$t('field.title.title')"
+        :label="$t('groups.fields.title.title')"
         :required="true"
       />
 
@@ -18,7 +18,7 @@
         :error="errors.first(form.scope + '.comment')"
         :has-error="errors.has(form.scope + '.comment')"
         :name="'comment'"
-        :label="$t('field.comment.title')"
+        :label="$t('groups.fields.comment.title')"
         :tab-index="3"
       />
 
@@ -191,7 +191,7 @@
         en: {
           custom: {
             title: {
-              required: this.$t('field.title.validation.required'),
+              required: this.$t('groups.fields.title.validation.required'),
             },
           },
         },
@@ -215,7 +215,7 @@
         this.$validator.validateAll(this.form.scope)
           .then(result => {
             if (result) {
-              const errorMessage = this.$t('messages.notCreated')
+              const errorMessage = this.$t('groups.messages.notCreated')
 
               this.$store.dispatch('entities/group/create', {
                 data: this.form.model,
@@ -237,7 +237,7 @@
                   }
                 })
 
-              this.$toasted.success(this.$t('messages.created', {
+              this.$toasted.success(this.$t('groups.messages.created', {
                 group: this.form.model.title,
               }), {
                 action: {
@@ -304,5 +304,3 @@
 <style rel="stylesheet/scss" lang="scss">
   @import 'index';
 </style>
-
-<i18n src="./locales.json" />

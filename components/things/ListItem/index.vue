@@ -1,49 +1,42 @@
 <template>
-  <div
+  <list-item
     :data-state="thing.state ? 'on' : 'off'"
     class="fb-iot-things-list-item__container"
     @click="oneClick"
   >
-    <layout-list-item>
-      <template slot="icon">
-        <icon-with-child :primary-icon="$thingIcon(thing)" />
-      </template>
+    <template slot="icon">
+      <icon-with-child :primary-icon="$thingIcon(thing)" />
+    </template>
 
-      <template slot="heading">
-        {{ thing.label }}
-      </template>
+    <template slot="heading">
+      {{ $tThing(thing) }}
+    </template>
 
-      <template
-        v-if="thing.hasComment"
-        slot="sub-heading"
-      >
-        {{ thing.comment }}
-      </template>
+    <template slot="sub-heading">
+      {{ thing.comment }}
+    </template>
 
-      <template
-        v-if="(fetchingChannels || !channelsFirstLoadFinished) || switchChannels.length === 1 || environmentChannels.length === 1"
-        slot="detail"
-      >
-        <spinner v-if="fetchingChannels || !channelsFirstLoadFinished" />
+    <template
+      v-if="switchProperty || environmentProperty"
+      slot="detail"
+    >
+      <switch-actor
+        v-if="switchProperty"
+        :thing="thing"
+        :property="switchProperty"
+      />
 
-        <switch-actor
-          v-else-if="switchChannels.length === 1"
-          :thing="thing"
-          :channel="_.get(switchChannels, '[0]', null)"
-        />
-
-        <div v-else-if="environmentChannels.length === 1">
-          <template v-if="thing.state">
-            <span class="fb-iot-things-list-item__value">{{ environmentChannelPropertyValue }}</span>
-            <span class="fb-iot-things-list-item__units">{{ _.get(environmentChannelProperty, 'units', null) }}</span>
-          </template>
-          <template v-else>
-            <span class="fb-iot-things-list-item__value">{{ $t('states.notAvailable.title') }}</span>
-          </template>
-        </div>
-      </template>
-    </layout-list-item>
-  </div>
+      <div v-else-if="environmentProperty">
+        <template v-if="thing.state">
+          <span class="fb-iot-things-list-item__value">{{ environmentPropertyValue }}</span>
+          <span class="fb-iot-things-list-item__units">{{ _.get(environmentProperty, 'units', null) }}</span>
+        </template>
+        <template v-else>
+          <span class="fb-iot-things-list-item__value">{{ $t('application.states.notAvailable') }}</span>
+        </template>
+      </div>
+    </template>
+  </list-item>
 </template>
 
 <script>
@@ -51,21 +44,13 @@
 
   import number from '@/helpers/number'
 
-  import IconWithChild from '@/components/layout/IconWithChild'
-  import LayoutListItem from '@/components/layout/ListItem'
-  import Spinner from '@/components/layout/Spinner'
-
-  import SwitchActor from '@/components/things/Channels/SwitchActor'
+  import SwitchActor from '@/components/things/Actors/Switch'
 
   export default {
 
     name: 'ThingsListItem',
 
     components: {
-      IconWithChild,
-      LayoutListItem,
-      Spinner,
-
       SwitchActor,
     },
 
@@ -85,55 +70,35 @@
       }),
 
       /**
-       * Thing channels data
+       * Get switch property from channel
        *
-       * @returns {Channel[]}
+       * @returns {(ChannelProperty|null)}
        */
-      channels() {
-        return this.$store.getters['entities/channel/query']()
-          .with('properties')
-          .where('thing_id', this.thing.id)
-          .orderBy('name')
-          .all()
+      switchProperty() {
+        const property = this._.first(this._.filter(this._.get(this.thing, 'channel.properties', []), 'isSwitch'))
+
+        return typeof property !== 'undefined' ? property : null
       },
 
       /**
-       * Get all relay switch channels
+       * Get environment property from channel
        *
-       * @returns {Array}
+       * @returns {(ChannelProperty|null)}
        */
-      switchChannels() {
-        return this._.filter(this.channels, 'isSwitch')
-      },
-
-      /**
-       * Get all energy meter channels
-       *
-       * @returns {Array}
-       */
-      environmentChannels() {
+      environmentProperty() {
         if (this._.get(this.hardware, 'isManufacturerItead') && this._.get(this.hardware, 'model') === 'sonoff_sc') {
-          return this._.filter(this.channels, 'isEnvironment')
+          const property = this._.first(this._.filter(this._.get(this.thing, 'channel.properties', []), 'isEnvironment'))
+
+          return typeof property !== 'undefined' ? property : null
         }
 
-        return []
+        return null
       },
 
-      /**
-       * Get value for current property
-       *
-       * @returns {String}
-       */
-      environmentChannelProperty() {
-        const properties = this._.get(this.environmentChannels, '[0].properties', []).filter(property => property.property === 'temperature')
-
-        return properties.length ? properties[0] : null
-      },
-
-      environmentChannelPropertyValue() {
+      environmentPropertyValue() {
         const propertyValue = this.$store.getters['entities/channel_property_value/query']()
-          .where('channel_id', this._.get(this.environmentChannels, '[0].id', null))
-          .where('property_id', this._.get(this.environmentChannelProperty, 'id', null))
+          .where('channel_id', this._.get(this.thing, 'channel.id', null))
+          .where('property_id', this._.get(this.environmentProperty, 'id', null))
           .first()
 
         return propertyValue !== null ? number.format(parseFloat(propertyValue.value), 2, ',', ' ') : '-'
@@ -146,35 +111,13 @@
        */
       hardware() {
         return this.$store.getters['entities/hardware/query']()
-          .where('thing_id', this.thing.id)
+          .where('device_id', this.thing.device_id)
           .first()
-      },
-
-      /**
-       * Flag signalizing that thing channels are loading from server
-       *
-       * @returns {Boolean}
-       */
-      fetchingChannels() {
-        return this.$store.getters['entities/channel/fetching'](this.thing.id)
-      },
-
-      /**
-       * Flag signalizing that thing channels were loaded from server
-       *
-       * @returns {Boolean}
-       */
-      channelsFirstLoadFinished() {
-        return this.$store.getters['entities/channel/firstLoadFinished'](this.thing.id)
       },
 
     },
 
     watch: {
-
-      fetchingChannels() {
-        this._subscribeSockets()
-      },
 
       exchangeConnected() {
         this._subscribeSockets()
@@ -183,33 +126,17 @@
     },
 
     beforeMount() {
-      if (
-        this.channels.length === 0 &&
-        !this.fetchingChannels &&
-        !this.channelsFirstLoadFinished
-      ) {
-        this.$store.dispatch('entities/channel/fetch', {
-          thing_id: this.thing.id,
-        }, {
-          root: true,
-        })
-          .catch(e => {
-            // eslint-disable-next-line
-            console.log(e)
-          })
-      }
-
       this._subscribeSockets()
     },
 
     beforeDestroy() {
       if (
-        (this.switchChannels.length === 1 || this.environmentChannels.length === 1) &&
+        (this.switchProperty || this.environmentProperty) &&
         this.exchangeConnected
       ) {
-        if (this.$route.path !== this.localePath({ name: this.$routes.things.detail, params: { id: this.thing.id } })) {
-          this.$store.dispatch('entities/thing_socket/unsubscribe', {
-            thing_id: this.thing.id,
+        if (this.$route.path !== this.localePath({ name: this.$routes.things.detail, params: { id: this.thing.channel_id } })) {
+          this.$store.dispatch('entities/device_socket/unsubscribe', {
+            device_id: this.thing.device_id,
           }, {
             root: true,
           })
@@ -235,11 +162,11 @@
        */
       _subscribeSockets() {
         if (
-          (this.switchChannels.length === 1 || this.environmentChannels.length === 1) &&
+          (this.switchProperty || this.environmentProperty) &&
           this.exchangeConnected
         ) {
-          this.$store.dispatch('entities/thing_socket/subscribe', {
-            thing_id: this.thing.id,
+          this.$store.dispatch('entities/device_socket/subscribe', {
+            device_id: this.thing.device_id,
           }, {
             root: true,
           })

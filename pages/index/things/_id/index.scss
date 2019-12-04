@@ -1,0 +1,11 @@
+.fb-iot-things-thing-detail-view {
+  &__container {
+    &-settings {
+      overflow: scroll;
+    }
+
+    &-channel-settings {
+      overflow: scroll;
+    }
+  }
+}

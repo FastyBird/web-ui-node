@@ -1,129 +1,38 @@
 <template>
-  <div class="p-a-sm fb-routines-detail__container">
-    <h5 class="fw-b text-capitalize text-primary">
-      {{ $t('headings.conditions') }}
-    </h5>
-
-    <div class="list-group m-b-sm">
-      <component
-        :is="conditionType(condition)"
-        v-for="condition in routine.conditions"
-        :key="condition.id"
+  <div class="fb-routines-detail__container">
+    <list-items-container :heading="$t('routines.headings.conditions')">
+      <list-condition
+        v-for="(condition, index) in conditions"
+        :key="`c-${index}`"
         :condition="condition"
-        :removing-enabled="routine.conditions.length > 1"
-        class="list-group-item"
-        @remove="removeCondition(condition)"
+        class="fb-routines-detail__conditions-container"
+        @toggle="toggleConditionState(index)"
       />
-    </div>
+    </list-items-container>
 
-    <fb-button
-      variant="outline-primary"
-      size="sm"
-      :class="['m-b-md', {'spinner': loading.condition, 'spinner-inverse': loading.condition, 'spinner-sm': loading.condition }]"
-      @click.prevent="openView('condition')"
-    >
-      {{ $t('buttons.addCondition.title') }}
-    </fb-button>
-
-    <h5 class="fw-b text-capitalize text-primary">
-      {{ $t('headings.actions') }}
-    </h5>
-
-    <div
-      v-if="routine.actions.length > 0"
-      class="list-group m-b-sm"
-    >
-      <component
-        :is="actionType(action)"
-        v-for="action in routine.actions"
-        :key="action.id"
+    <list-items-container :heading="$t('routines.headings.actions')">
+      <list-action
+        v-for="(action, index) in actions"
+        :key="`a-${index}`"
         :action="action"
-        :removing-enabled="enabledRemovingActionNotification"
-        class="list-group-item"
-        @remove="removeAction(action)"
+        class="fb-routines-detail__actions-container"
+        @toggle="toggleActionState(index)"
       />
-    </div>
-
-    <fb-button
-      variant="outline-primary"
-      size="sm"
-      :class="['m-b-md', {'spinner': loading.action, 'spinner-inverse': loading.action, 'spinner-sm': loading.action }]"
-      @click.prevent="openView('action')"
-    >
-      {{ $t('buttons.addAction.title') }}
-    </fb-button>
-
-    <h5 class="fw-b text-capitalize text-primary">
-      {{ $t('headings.notifications') }}
-    </h5>
-
-    <div
-      v-if="routine.notifications.length > 0"
-      class="list-group m-b-sm"
-    >
-      <component
-        :is="notificationType(notification)"
-        v-for="notification in routine.notifications"
-        :key="notification.id"
-        :notification="notification"
-        :removing-enabled="enabledRemovingActionNotification"
-        class="list-group-item"
-        @remove="removeNotification(notification)"
-      />
-    </div>
-
-    <fb-button
-      variant="outline-primary"
-      size="sm"
-      :class="['m-b-md', {'spinner': loading.notification, 'spinner-inverse': loading.notification, 'spinner-sm': loading.notification }]"
-      @click.prevent="openView('notification')"
-    >
-      {{ $t('buttons.addNotification.title') }}
-    </fb-button>
-
-    <routines-create-notification
-      v-if="view.notification.show"
-      :transparent-bg="transparentModal"
-      @loaded="loading.notification = false"
-      @add="addNotification"
-      @close="closeView('notification')"
-    />
-
-    <routines-detail-refresh-confirm
-      v-if="view.updateConfirm.show"
-      :routine="routine"
-      :transparent-bg="transparentModal"
-      @loaded="loading.updateConfirm = false"
-      @close="closeView('updateConfirm')"
-      @refreshed="itemRefreshed"
-    />
+    </list-items-container>
   </div>
 </template>
 
 <script>
-  import { mapState } from 'vuex'
-
-  const RoutinesDetailConditionChannelProperty = () => import('./ConditionChannelProperty')
-  const RoutinesDetailConditionThingProperty = () => import('./ConditionThingProperty')
-  const RoutinesDetailActionChannelProperty = () => import('./ActionChannelProperty')
-  const RoutinesDetailNotificationEmail = () => import('./NotificationEmail')
-  const RoutinesDetailNotificationSms = () => import('./NotificationSms')
-  const RoutinesDetailRefreshConfirm = () => import('./RefreshConfirm')
-  const RoutinesCreateNotification = () => import('../Create/Notification')
+  const ListAction = () => import('./ListAction')
+  const ListCondition = () => import('./ListCondition')
 
   export default {
 
     name: 'RoutinesDetail',
 
     components: {
-      RoutinesDetailConditionThingProperty,
-      RoutinesDetailConditionChannelProperty,
-      RoutinesDetailActionChannelProperty,
-      RoutinesDetailNotificationEmail,
-      RoutinesDetailNotificationSms,
-      RoutinesDetailRefreshConfirm,
-
-      RoutinesCreateNotification,
+      ListAction,
+      ListCondition,
     },
 
     props: {
@@ -135,77 +44,84 @@
 
     },
 
-    data() {
-      return {
-        transparentModal: false,
-        loading: {
-          condition: false,
-          action: false,
-          notification: false,
-          updateConfirm: false,
-        },
-        view: {
-          condition: {
-            show: false,
-          },
-          action: {
-            show: false,
-          },
-          notification: {
-            show: false,
-          },
-          updateConfirm: {
-            show: false,
-          },
-        },
-      }
-    },
-
     computed: {
 
-      ...mapState('entities', {
-        queue: state => state.trigger.queue,
-      }),
-
       /**
-       * Check if remove item is enabled
+       * Remap trigger conditions to routine conditions
        *
-       * @returns {boolean}
+       * @returns {Array}
        */
-      enabledRemovingActionNotification() {
-        return !(
-          (this.routine.actions.length <= 1 && this.routine.notifications.length < 1)
-          || (this.routine.notifications.length <= 1 && this.routine.actions.length < 1)
-        )
-      },
+      conditions() {
+        const conditions = []
 
-    },
+        this._.get(this.routine, 'conditions', [])
+          .forEach(condition => {
+            conditions.push({
+              thing: condition.channel_id,
+              enabled: condition.enabled,
+              device_id: condition.device_id,
+              channel_id: condition.channel_id,
+              rows: [],
+            })
+          })
 
-    watch: {
-
-      routine(val) {
-        this.form.model.enabled = val.enabled
-      },
-
-      'queue.update'(val) {
-        for (const item of val) {
-          if (item === this.routine.id) {
-            this.openView('updateConfirm')
+        for (const i in conditions) {
+          if (conditions.hasOwnProperty(i)) {
+            this._.filter(this._.get(this.routine, 'conditions', []), { 'channel_id': conditions[i].channel_id })
+              .forEach(condition => {
+                conditions[i].rows.push({
+                  id: condition.id,
+                  property_id: condition.property_id,
+                  operands: condition.operands,
+                  operator: condition.operator,
+                })
+              })
           }
         }
+
+        return conditions
       },
 
-    },
+      /**
+       * Remap trigger actions to routine actions
+       *
+       * @returns {Array}
+       */
+      actions() {
+        const actions = []
 
-    created() {
-      this.transparentModal = this.$parent.$options.name !== 'Layout'
+        this._.get(this.routine, 'actions', [])
+          .forEach(action => {
+            actions.push({
+              thing: action.channel_id,
+              enabled: action.enabled,
+              device_id: action.device_id,
+              channel_id: action.channel_id,
+              rows: [],
+            })
+          })
+
+        for (const i in actions) {
+          if (actions.hasOwnProperty(i)) {
+            this._.filter(this._.get(this.routine, 'actions', []), { 'channel_id': actions[i].channel_id })
+              .forEach(action => {
+                actions[i].rows.push({
+                  id: action.id,
+                  property_id: action.property_id,
+                  operation: action.value,
+                })
+              })
+          }
+        }
+
+        return actions
+      },
+
     },
 
     beforeMount() {
       if (!this.$store.getters['entities/thing/firstLoadFinished']()) {
-        this.$store.dispatch('entities/thing/fetch', {
-          include_channels: true,
-        }, {
+        this.$store.dispatch('entities/thing/fetch', null, {
           root: true,
         })
           .catch(e => {
@@ -215,150 +131,66 @@
       }
     },
 
-    mounted() {
-      this.$store.dispatch('entities/trigger/lockForEditing', {
-        id: this.routine.id,
-      }, {
-        root: true,
-      })
-        .catch(() => {
-          // Something wen wrong
-        })
-    },
-
-    destroyed() {
-      this.$store.dispatch('entities/trigger/unlockForEditing', {
-        id: this.routine.id,
-      }, {
-        root: true,
-      })
-        .catch(() => {
-          // Something wen wrong
-        })
-    },
-
     methods: {
 
       /**
-       * Determine component type for condition
+       * Change condition state
        *
-       * @param {Object} condition
-       *
-       * @returns {(String|null)}
+       * @param {Number} index
        */
-      conditionType(condition) {
-        if (condition.isThingProperty) {
-          return 'RoutinesDetailConditionThingProperty'
-        } else if (condition.isChannelProperty) {
-          return 'RoutinesDetailConditionChannelProperty'
-        }
-
-        return null
-      },
-
-      /**
-       * Determine component type for action
-       *
-       * @param {Object} action
-       *
-       * @returns {(String|null)}
-       */
-      actionType(action) {
-        if (action.isThingProperty) {
-          return 'RoutinesDetailActionThingProperty'
-        } else if (action.isChannelProperty) {
-          return 'RoutinesDetailActionChannelProperty'
-        }
-
-        return null
-      },
-
-      /**
-       * Determine component type for notification
-       *
-       * @param {Object} notification
-       *
-       * @returns {(String|null)}
-       */
-      notificationType(notification) {
-        if (
-          notification.isEmail
-          || notification.isCustomEmail
-        ) {
-          return 'RoutinesDetailNotificationEmail'
-        } else if (notification.isSms) {
-          return 'RoutinesDetailNotificationSms'
-        }
-
-        return null
-      },
-
-      /**
-       * Open routine edit form
-       *
-       * @param {String} type
-       */
-      openView(type) {
-        this.view[type].show = true
-
-        if (this.loading.hasOwnProperty(type)) {
-          this.loading[type] = true
-        }
-      },
-
-      /**
-       * Close routine edit window
-       *
-       * @param {String} type
-       */
-      closeView(type) {
-        this.view[type].show = false
-      },
-
-      itemRefreshed() {
-        this.closeView('updateConfirm')
-      },
-
-      /**
-       * Add new condition to routine
-       *
-       * @param {Object} data
-       */
-      addCondition(data) {
-        const errorMessage = this.$t('messages.conditionNotAdded')
-
-        this.$store.dispatch('entities/condition/add', {
-          routine: this.routine,
-          data,
-        }, {
-          root: true,
-        })
-          .catch(e => {
-            console.log(e)
-            if (e.hasOwnProperty('exception')) {
-              this.handleFormError(e.exception, errorMessage)
-            } else {
-              this.$toasted.error(errorMessage, {
-                action: {
-                  text: this.$t('application.buttons.close.title'),
-                  onClick: (evnt, toastObject) => {
-                    toastObject.goAway(0)
-                  },
+      toggleConditionState(index) {
+        if (this.conditions.hasOwnProperty(index)) {
+          this.conditions[index].rows
+            .forEach(condition => {
+              this.$store.dispatch('entities/condition/edit', {
+                id: condition.id,
+                data: {
+                  enabled: !this.conditions[index].enabled,
                 },
+              }, {
+                root: true,
               })
-            }
-          })
+                .catch(e => {
+                  const errorMessage = this.$t('routines.messages.conditionNotUpdated')
 
-        this.closeView('condition')
+                  if (e.hasOwnProperty('exception')) {
+                    this.handleFormError(e.exception, errorMessage)
+                  } else {
+                    this.$flashMessage(errorMessage, 'error')
+                  }
+                })
+            })
+        }
+      },
 
-        this.$toasted.success(this.$t('messages.conditionAdded'), {
-          action: {
-            text: this.$t('application.buttons.close.title'),
-            onClick: (evnt, toastObject) => {
-              toastObject.goAway(0)
-            },
-          },
-        })
+      /**
+       * Change action state
+       *
+       * @param {Number} index
+       */
+      toggleActionState(index) {
+        if (this.actions.hasOwnProperty(index)) {
+          this.actions[index].rows
+            .forEach(action => {
+              this.$store.dispatch('entities/action/edit', {
+                id: action.id,
+                data: {
+                  enabled: !this.actions[index].enabled,
+                },
+              }, {
+                root: true,
+              })
+                .catch(e => {
+                  const errorMessage = this.$t('routines.messages.actionNotUpdated')
+
+                  if (e.hasOwnProperty('exception')) {
+                    this.handleFormError(e.exception, errorMessage)
+                  } else {
+                    this.$flashMessage(errorMessage, 'error')
+                  }
+                })
+            })
+        }
       },
 
       /**
@@ -368,19 +200,12 @@
        */
       removeCondition(condition) {
         if (this.routine.conditions.length <= 1) {
-          this.$toasted.error(this.$t('messages.minimumConditions'), {
-            action: {
-              text: this.$t('application.buttons.close.title'),
-              onClick: (evnt, toastObject) => {
-                toastObject.goAway(0)
-              },
-            },
-          })
+          this.$flashMessage(this.$t('routines.messages.minimumConditions'), 'error')
 
           return
         }
 
-        const errorMessage = this.$t('messages.conditionNotRemoved')
+        const errorMessage = this.$t('routines.messages.conditionNotRemoved')
 
         this.$store.dispatch('entities/condition/remove', {
           id: condition.id,
@@ -391,66 +216,9 @@
             if (e.hasOwnProperty('exception')) {
               this.handleFormError(e.exception, errorMessage)
             } else {
-              this.$toasted.error(errorMessage, {
-                action: {
-                  text: this.$t('application.buttons.close.title'),
-                  onClick: (evnt, toastObject) => {
-                    toastObject.goAway(0)
-                  },
-                },
-              })
+              this.$flashMessage(errorMessage, 'error')
             }
           })
-
-        this.$toasted.success(this.$t('messages.conditionRemoved'), {
-          action: {
-            text: this.$t('application.buttons.close.title'),
-            onClick: (evnt, toastObject) => {
-              toastObject.goAway(0)
-            },
-          },
-        })
-      },
-
-      /**
-       * Add new action to routine
-       *
-       * @param {Object} data
-       */
-      addAction(data) {
-        const errorMessage = this.$t('messages.actionNotAdded')
-
-        this.$store.dispatch('entities/action/add', {
-          routine: this.routine,
-          data,
-        }, {
-          root: true,
-        })
-          .catch(e => {
-            if (e.hasOwnProperty('exception')) {
-              this.handleFormError(e.exception, errorMessage)
-            } else {
-              this.$toasted.error(errorMessage, {
-                action: {
-                  text: this.$t('application.buttons.close.title'),
-                  onClick: (evnt, toastObject) => {
-                    toastObject.goAway(0)
-                  },
-                },
-              })
-            }
-          })
-
-        this.closeView('action')
-
-        this.$toasted.success(this.$t('messages.actionAdded'), {
-          action: {
-            text: this.$t('application.buttons.close.title'),
-            onClick: (evnt, toastObject) => {
-              toastObject.goAway(0)
-            },
-          },
-        })
       },
 
       /**
@@ -460,19 +228,12 @@
        */
       removeAction(action) {
         if (!this.enabledRemovingActionNotification) {
-          this.$toasted.error(this.$t('messages.minimumActionsNotification'), {
-            action: {
-              text: this.$t('application.buttons.close.title'),
-              onClick: (evnt, toastObject) => {
-                toastObject.goAway(0)
-              },
-            },
-          })
+          this.$flashMessage(this.$t('routines.messages.minimumActionsNotification'), 'error')
 
           return
         }
 
-        const errorMessage = this.$t('messages.actionNotRemoved')
+        const errorMessage = this.$t('routines.messages.actionNotRemoved')
 
         this.$store.dispatch('entities/action/remove', {
           id: action.id,
@@ -483,66 +244,9 @@
             if (e.hasOwnProperty('exception')) {
               this.handleFormError(e.exception, errorMessage)
             } else {
-              this.$toasted.error(errorMessage, {
-                action: {
-                  text: this.$t('application.buttons.close.title'),
-                  onClick: (evnt, toastObject) => {
-                    toastObject.goAway(0)
-                  },
-                },
-              })
+              this.$flashMessage(errorMessage, 'error')
             }
           })
-
-        this.$toasted.success(this.$t('messages.actionRemoved'), {
-          action: {
-            text: this.$t('application.buttons.close.title'),
-            onClick: (evnt, toastObject) => {
-              toastObject.goAway(0)
-            },
-          },
-        })
-      },
-
-      /**
-       * Add new notification to routine
-       *
-       * @param {Object} data
-       */
-      addNotification(data) {
-        const errorMessage = this.$t('messages.notificationNotAdded')
-
-        this.$store.dispatch('entities/notification/add', {
-          routine: this.routine,
-          data,
-        }, {
-          root: true,
-        })
-          .catch(e => {
-            if (e.hasOwnProperty('exception')) {
-              this.handleFormError(e.exception, errorMessage)
-            } else {
-              this.$toasted.error(errorMessage, {
-                action: {
-                  text: this.$t('application.buttons.close.title'),
-                  onClick: (evnt, toastObject) => {
-                    toastObject.goAway(0)
-                  },
-                },
-              })
-            }
-          })
-
-        this.closeView('notification')
-
-        this.$toasted.success(this.$t('messages.notificationAdded'), {
-          action: {
-            text: this.$t('application.buttons.close.title'),
-            onClick: (evnt, toastObject) => {
-              toastObject.goAway(0)
-            },
-          },
-        })
       },
 
       /**
@@ -552,19 +256,12 @@
        */
       removeNotification(notification) {
         if (!this.enabledRemovingActionNotification) {
-          this.$toasted.error(this.$t('messages.minimumActionsNotification'), {
-            action: {
-              text: this.$t('application.buttons.close.title'),
-              onClick: (evnt, toastObject) => {
-                toastObject.goAway(0)
-              },
-            },
-          })
+          this.$flashMessage(this.$t('routines.messages.minimumActionsNotification'), 'error')
 
           return
         }
 
-        const errorMessage = this.$t('messages.notificationNotRemoved')
+        const errorMessage = this.$t('routines.messages.notificationNotRemoved')
 
         this.$store.dispatch('entities/notification/remove', {
           id: notification.id,
@@ -575,25 +272,9 @@
             if (e.hasOwnProperty('exception')) {
               this.handleFormError(e.exception, errorMessage)
             } else {
-              this.$toasted.error(errorMessage, {
-                action: {
-                  text: this.$t('application.buttons.close.title'),
-                  onClick: (evnt, toastObject) => {
-                    toastObject.goAway(0)
-                  },
-                },
-              })
+              this.$flashMessage(errorMessage, 'error')
             }
           })
-
-        this.$toasted.success(this.$t('messages.notificationRemoved'), {
-          action: {
-            text: this.$t('application.buttons.close.title'),
-            onClick: (evnt, toastObject) => {
-              toastObject.goAway(0)
-            },
-          },
-        })
       },
 
     },
@@ -601,8 +282,6 @@
   }
 </script>
 
-<style rel="stylesheet/scss" lang="scss" scoped>
+<style rel="stylesheet/scss" lang="scss">
   @import 'index';
 </style>
-
-<i18n src="./locales.json" />

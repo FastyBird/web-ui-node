@@ -1,89 +1,27 @@
-@import "~@fastybird-com/theme/assets/styles/variables";
-
-.list-group {
-  padding: 0 10px;
-
-  .list-group-item {
-    margin: 5px 0;
-    border-radius: 4px;
-  }
-}
-
-.list-group-item.text-danger {
-  color: $brand-danger;
-}
+@import "~@fastybird-com/theme/assets/variables/colors";
+@import "~@fastybird-com/theme/assets/variables/borders";
 
 .fb-iot-groups-settings-group {
-  &__container {
-    button {
-      outline: none;
+  &__item {
+    &-icon {
+      float: right;
     }
 
-    @media (min-width: $screen-sm-min) {
-      padding: 5px 15px !important;
+    &-remove {
+      color: $brand-danger;
     }
 
-    .switch {
-      margin-top: 7px;
+    .fb-spinner__container {
+      margin-right: 15px;
     }
 
-    .switch-track {
-      background-color: $gray
+    .fb-switch-element__container {
+      float: right;
     }
 
-    .switch-thumb {
-      border-color: $gray;
-    }
-
-    .switch-input.no-control:disabled ~ .switch-track {
-      background-color: $gray;
-      cursor: not-allowed;
-    }
-
-    .switch-input.no-control:disabled ~ .switch-thumb {
-      border-color: $gray;
-    }
-
-    .switch-input.no-control:disabled:checked ~ .switch-track {
-      background-color: $brand-primary;
-      cursor: not-allowed;
-    }
-
-    .switch-input.no-control:disabled:checked ~ .switch-thumb {
-      border-color: $brand-primary;
-    }
-
-    .media-middle.media-left {
-      border: 1px solid $gray;
-      border-radius: $border-radius-base;
-      padding: 5px;
-
-      img {
-        width: 30px;
-        height: 30px;
-      }
-
-      svg {
-        width: 30px;
-        height: 25px;
-      }
-    }
-
-    .media-middle.media-body {
-      padding-left: 10px;
-    }
-  }
-
-  &__heading {
-    margin-top: 0;
-    border-bottom: 1px solid $gray-lighter;
-    height: auto;
-    width: 100%;
-
-    h3 {
-      font-size: 95%;
-      margin: 0;
-      padding: 5px 0;
+    small {
+      display: block;
+      font-size: 80%;
     }
   }
 }
