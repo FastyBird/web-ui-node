@@ -11,19 +11,19 @@
 
     <!-- ROUTINE DETAIL FOR LARGE DEVICES //-->
     <off-canvas
-      :show="view.opened.type !== null && windowSize !== 'xs'"
-      @close="closeView(view.opened.type)"
+      :show="view.opened !== null && windowSize !== 'xs'"
+      @close="closeView(view.opened)"
     >
       <off-canvas-body
-        v-if="view.opened.type !== null && windowSize !== 'xs'"
+        v-if="viewRoutine !== null && view.opened !== null && windowSize !== 'xs'"
         slot="body"
-        :heading="detailHeading()"
-        :sub-heading="detailSubHeading()"
+        :heading="detailHeading"
+        :sub-heading="detailSubHeading"
       >
         <template slot="left-button">
           <button
             class="button"
-            @click.prevent="closeView(view.opened.type)"
+            @click.prevent="closeView(view.opened)"
           >
             <font-awesome-icon icon="times" />
           </button>
@@ -35,19 +35,18 @@
           mode="out-in"
         >
           <routine-detail
-            v-if="view.opened.type === view.detail.name"
+            v-if="view.opened === view.items.detail.name"
+            :routine="viewRoutine"
+            :style="`height: ${offCanvasHeight}px`"
+            class="fb-routines-list-view__off-canvas-body"
+          />
+
+          <routine-settings
+            v-if="view.opened === view.items.settings.name"
             :routine="viewRoutine"
             :style="`height: ${offCanvasHeight}px`"
             class="fb-routines-list-view__off-canvas-body"
             @removed="closeView"
-          />
-
-          <routine-settings
-            v-if="viewRoutine !== null && view.opened.type === view.settings.name"
-            :routine="viewRoutine"
-            :style="`height: ${offCanvasHeight}px`"
-            class="fb-routines-list-view__off-canvas-body"
-            @removed="closeView(view.opened.type)"
           />
         </transition>
       </off-canvas-body>
@@ -71,6 +70,7 @@
 
   import {
     ROUTINES_HASH_DETAIL,
+    ROUTINES_HASH_SETTINGS,
 
     ROUTINES_HASH_AUTOMATION,
     ROUTINES_HASH_SCHEDULES,
@@ -112,15 +112,23 @@
           detail: null,
         },
         view: {
-          opened: {
-            type: null,
-          },
-          detail: {
-            name: 'detail',
-            id: null,
-            route: {
-              hash: ROUTINES_HASH_DETAIL,
-              length: 8,
+          opened: null,
+          items: {
+            detail: {
+              name: 'detail',
+              id: null,
+              route: {
+                hash: ROUTINES_HASH_DETAIL,
+                length: 8,
+              },
+            },
+            settings: {
+              name: 'settings',
+              id: null,
+              route: {
+                hash: ROUTINES_HASH_SETTINGS,
+                length: 10,
+              },
             },
           },
         },
@@ -159,15 +167,15 @@
        * @returns {(Trigger|null)}
        */
       viewRoutine() {
-        if (this.view.opened.type === null) {
+        if (this.view.opened === null) {
           return null
         }
 
         let triggerId = 0
 
-        switch (this.view.opened.type) {
-          case this.view.detail.name:
-            triggerId = this.view.detail.id
+        switch (this.view.opened) {
+          case this.view.items.detail.name:
+            triggerId = this.view.items.detail.id
             break
         }
 
@@ -194,7 +202,7 @@
        * @returns {String}
        */
       detailHeading() {
-        if (this.view.opened.type === this.view.detail.name) {
+        if (this.view.opened === this.view.items.detail.name) {
           return this.viewRoutine.name
         }
 
@@ -207,7 +215,7 @@
        * @returns {(String|null)}
        */
       detailSubHeading() {
-        if (this.view.opened.type === this.view.detail.name) {
+        if (this.view.opened === this.view.items.detail.name) {
           return this.viewRoutine.hasComment ? this.viewRoutine.comment : null
         }
 
@@ -222,13 +230,12 @@
         if (this._.get(val, 'hash', '') === '') {
           this.closeView()
         } else if (this._.get(val, 'hash', '') !== '') {
-          for (const viewName in this.view) {
+          for (const viewName in this.view.items) {
             if (
-              this.view.hasOwnProperty(viewName)
-              && viewName !== 'opened'
-              && val.hash.indexOf(this._.get(this.view[viewName], 'route.hash', '')) !== -1
+              this.view.items.hasOwnProperty(viewName)&&
+              val.hash.indexOf(this._.get(this.view.items[viewName], 'route.hash', '')) !== -1
             ) {
-              this.openView(viewName, val.hash.substring(this._.get(this.view[viewName], 'route.length', 0)))
+              this.openView(this.view.items[viewName].name, val.hash.substring(this._.get(this.view.items[viewName], 'route.length', 0)))
 
               return
             }
@@ -237,20 +244,18 @@
       },
 
       windowSize(val) {
-        if ((val === 'xs')) {
-          if (this.view.opened.type === this.view.detail.name) {
+        if (val === 'xs') {
+          if (this.view.opened === this.view.items.detail.name) {
             this.$router.push(this.localePath({
               name: this.$routes.routines.detail,
               params: {
-                id: this.view.detail.id,
+                id: this.view.items.detail.id,
               },
             }))
 
             return
           }
         }
-
-        this._calculateWindowHeight()
       },
 
       fetchingRoutines(val) {
@@ -344,6 +349,12 @@
       if (!this.fetchingRoutines) {
         this._checkRoute()
       }
+
+      window.addEventListener('resize', this._calculateWindowHeight)
+    },
+
+    beforeDestroy() {
+      window.removeEventListener('resize', this._calculateWindowHeight)
     },
 
     methods: {
@@ -359,58 +370,45 @@
         }
       },
 
-      openRoutineCreate() {
-        if (this.windowSize === 'xs') {
-          this.$router.push(this.localePath(this.$routes.routines.create))
-        } else {
-          this.openView('create')
-        }
-      },
-
       /**
        * Open routines view
        *
        * @param {String} view
-       * @param {String} id
+       * @param {String} [id]
        */
       openView(view, id) {
-        for (const viewName in this.view) {
-          if (this.view.hasOwnProperty(viewName)) {
-            if (this.view[viewName].hasOwnProperty('id')) {
-              this.view[viewName].id = null
-            }
+        if (this.view.items.hasOwnProperty(view)) {
+          switch (view) {
+            case this.view.items.detail.name:
+              if (this.windowSize === 'xs') {
+                this.$router.push(this.localePath({
+                  name: this.$routes.routines.detail,
+                  params: {
+                    id,
+                  },
+                }))
+              } else {
+                this.$router.push(this.localePath({
+                  name: this.$routes.routines.list,
+                  hash: `${this.view.items.detail.route.hash}-${id}`,
+                }))
+              }
+              break
           }
-        }
 
-        switch (view) {
-          case this.view.detail.name:
-            if (this.windowSize === 'xs') {
-              this.$router.push(this.localePath({
-                name: this.$routes.routines.detail,
-                params: {
-                  id,
-                },
-              }))
-            } else {
-              this.$router.push(this.localePath({
-                name: this.$routes.routines.list,
-                hash: `${this.view.detail.route.hash}-${id}`,
-              }))
-            }
-            break
-        }
+          this.view.opened = view
 
-        if (this.view.hasOwnProperty(view)) {
-          this.view.opened.type = view
-
-          if (this.view[view].hasOwnProperty('id') && typeof id !== 'undefined') {
-            this.view[view].id = id
+          if (this.view.items[view].hasOwnProperty('id') && typeof id !== 'undefined') {
+            this.view.items[view].id = id
           }
         }
 
         if (this.loading.hasOwnProperty(view) && typeof id !== 'undefined') {
           this.loading[view] = id
         }
+
+        // Reconfigure navigation after changes
+        this._configureNavigation()
       },
 
       /**
@@ -421,11 +419,11 @@
       closeView(view) {
         this.$router.push(this.localePath(this.$routes.routines.list))
 
-        this.view.opened.type = null
+        this.view.opened = null
 
-        if (typeof view !== 'undefined' && this.view.hasOwnProperty(view)) {
-          if (this.view[view].hasOwnProperty('id')) {
-            this.view[view].id = null
+        if (typeof view !== 'undefined' && this.view.items.hasOwnProperty(view)) {
+          if (this.view.items[view].hasOwnProperty('id')) {
+            this.view.items[view].id = null
           }
         }
 
@@ -456,7 +454,7 @@
           const that = this
 
           this.click.timer = setTimeout(() => {
-            that.openView(this.view.detail.name, item.id)
+            that.openView(this.view.items.detail.name, item.id)
 
             that.click.clicks = 0
           }, this.click.delay)
@@ -470,22 +468,9 @@
        */
       _checkRoute() {
         if (this.$route.hash !== '') {
-          if (this.$route.hash.search(this.view.detail.route.hash) !== -1) {
-            this.openView(this.view.detail.name, this.$route.hash.substring(this.view.detail.route.length))
+          if (this.$route.hash.search(this.view.items.detail.route.hash) !== -1) {
+            this.openView(this.view.items.detail.name, this.$route.hash.substring(this.view.items.detail.route.length))
           }
-        }
-      },
-
-      /**
-       * Calculate viewport size after window resizing
-       *
-       * @private
-       */
-      _calculateWindowHeight() {
-        if (this.windowSize === 'xs') {
-          this.offCanvasHeight = null
-        } else {
-          this.offCanvasHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
         }
       },
 
@@ -513,7 +498,11 @@
         this.$store.dispatch('header/setAddButton', {
           name: this.$t('application.buttons.add.title'),
           callback: () => {
-            this.openRoutineCreate()
+            if (this.windowSize === 'xs') {
+              this.$router.push(this.localePath(this.$routes.routines.create))
+            } else {
+              this.openView('create')
+            }
           },
         }, {
           root: true,
@@ -542,6 +531,19 @@
         this.$store.dispatch('bottomNavigation/resetStore', null, {
           root: true,
         })
+      },
+
+      /**
+       * Calculate viewport size after window resizing
+       *
+       * @private
+       */
+      _calculateWindowHeight() {
+        if (this.windowSize === 'xs') {
+          this.offCanvasHeight = null
+        } else {
+          this.offCanvasHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
+        }
       },
 
     },

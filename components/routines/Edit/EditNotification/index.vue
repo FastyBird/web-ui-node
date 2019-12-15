@@ -22,7 +22,6 @@
         :required="true"
         :blank-select="$t('field.type.prompt')"
         name="type"
-        class="m-b-0"
       />
 
       <template v-if="form.model.type === 'sms'">
@@ -36,7 +35,6 @@
           :required="true"
           data-vv-validate-on="blur"
           name="value"
-          class="m-b-0"
         />
       </template>
       <template v-else-if="form.model.type === 'email'">
@@ -52,7 +50,6 @@
           :blank-select="$t('field.email.prompt')"
           data-vv-validate-on="blur"
           name="email"
-          class="m-b-0"
         />
 
         <template v-if="form.model.email === 'custom'">
@@ -66,7 +63,6 @@
             :label="$t('field.value.values.email')"
             :required="true"
             data-vv-validate-on="blur"
-            class="m-b-0"
           />
         </template>
       </template>

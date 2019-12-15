@@ -8,13 +8,13 @@
     <template v-else>
       <template v-if="routine !== null">
         <routine-detail
-          v-if="view.opened === view.detail.name || view.opened === view.settings.name"
+          v-if="view.opened === view.items.detail.name || view.opened === view.items.settings.name"
           ref="detail"
           :routine="routine"
         />
 
         <routine-settings
-          v-if="view.opened === view.settings.name"
+          v-if="view.opened === view.items.settings.name"
           ref="settings"
           v-body-scroll-lock="true"
           :routine="routine"
@@ -24,9 +24,9 @@
       </template>
 
       <fb-modal-window
-        v-if="view.opened === view.type.name"
+        v-if="view.opened === view.items.type.name"
         :show-header="false"
-        @close="openView(view.detail.name)"
+        @close="openView(view.items.detail.name)"
       >
         <template slot="modal-body">
           <fb-button
@@ -35,9 +35,9 @@
             variant="outline-primary"
             size="lg"
             name="close"
-            @click.prevent="openView(view.condition.name)"
+            @click.prevent="openView(view.items.condition.name)"
           >
-            Thing to condition
+            {{ $t('routines.buttons.thingToCondition.title') }}
           </fb-button>
 
           <fb-divider
@@ -51,9 +51,9 @@
             variant="outline-primary"
             size="lg"
             name="close"
-            @click.prevent="openView(view.action.name)"
+            @click.prevent="openView(view.items.action.name)"
           >
-            Thing to action
+            {{ $t('routines.buttons.thingToAction.title') }}
           </fb-button>
         </template>
 
@@ -63,7 +63,7 @@
             variant="link"
             size="lg"
             name="close"
-            @click.prevent="openView(view.detail.name)"
+            @click.prevent="openView(view.items.detail.name)"
           >
             {{ $t('application.buttons.close.title') }}
           </fb-button>
@@ -71,32 +71,34 @@
       </fb-modal-window>
 
       <select-thing
-        v-if="view.opened === view.action.name || view.opened === view.condition.name"
-        :items="view[view.opened].items"
-        :only-settable="view.opened === view.action.name"
+        v-if="view.opened === view.items.action.name || view.opened === view.items.condition.name"
+        :items="view.items[view.opened].items"
+        :only-settable="view.opened === view.items.action.name"
         class="fb-routines-detail-view__container-things"
         @select="thingSelected"
-        @close="openView(view.detail.name)"
+        @close="openView(view.items.detail.name)"
       />
 
       <edit-condition
-        v-if="view.opened === view.conditionThing.name"
-        :thing="view.conditionThing.thing"
-        :conditions="[]"
+        v-if="view.opened === view.items.conditionThing.name"
+        :thing="view.items.conditionThing.thing"
+        :condition="view.items.conditionThing.item"
         class="fb-routines-detail-view__container-thing"
         @add="addCondition"
-        @back="openView(view.condition.name)"
-        @close="openView(view.detail.name)"
+        @remove="removeCondition"
+        @back="openView(view.items.condition.name)"
+        @close="openView(view.items.detail.name)"
       />
 
       <edit-action
-        v-if="view.opened === view.actionThing.name"
-        :thing="view.actionThing.thing"
-        :actions="[]"
+        v-if="view.opened === view.items.actionThing.name"
+        :thing="view.items.actionThing.thing"
+        :action="view.items.actionThing.item"
         class="fb-routines-detail-view__container-thing"
         @add="addAction"
-        @back="openView(view.action.name)"
-        @close="openView(view.detail.name)"
+        @remove="removeAction"
+        @back="openView(view.items.action.name)"
+        @close="openView(view.items.detail.name)"
       />
     </template>
   </div>
@@ -137,39 +139,42 @@
     data() {
       return {
         id: this.$route.params.id,
-        settings: false,
         view: {
           opened: 'detail', // Detail is by default
-          detail: {
-            name: 'detail',
-            route: {
-              hash: ROUTINES_HASH_DETAIL,
+          items: {
+            detail: {
+              name: 'detail',
+              route: {
+                hash: ROUTINES_HASH_DETAIL,
+              },
             },
-          },
-          settings: {
-            name: 'settings',
-            route: {
-              hash: ROUTINES_HASH_SETTINGS,
+            settings: {
+              name: 'settings',
+              route: {
+                hash: ROUTINES_HASH_SETTINGS,
+              },
             },
-          },
-          type: {
-            name: 'type',
-          },
-          condition: {
-            name: 'condition',
-            items: [],
-          },
-          conditionThing: {
-            name: 'conditionThing',
-            thing: null,
-          },
-          action: {
-            name: 'action',
-            items: [],
-          },
-          actionThing: {
-            name: 'actionThing',
-            thing: null,
+            type: {
+              name: 'type',
+            },
+            condition: {
+              name: 'condition',
+              items: [],
+            },
+            conditionThing: {
+              name: 'conditionThing',
+              thing: null,
+              items: [],
+            },
+            action: {
+              name: 'action',
+              items: [],
+            },
+            actionThing: {
+              name: 'actionThing',
+              thing: null,
+              items: [],
+            },
           },
         },
       }
@@ -211,6 +216,19 @@
        */
       fetchingRoutine() {
         return this.$store.getters['entities/trigger/getting'](this.id)
+      },
+
+      /**
+       * Count total things count (actions)
+       *
+       * @returns {Number}
+       */
+      thingsCount() {
+        return this._.uniq(this._.get(this.routine, 'actions', [])
+          .map(item => {
+            return item.channel_id
+          }))
+          .length
       },
 
     },
@@ -291,7 +309,7 @@
 
               store.dispatch('header/setHeading', {
                 heading: routine.name,
-                subHeading: 'Automatic routine',
+                subHeading: routine.isAutomatic ? app.i18n.t('routines.headings.automaticRoutine') : app.i18n.t('routines.headings.manualRoutine'),
               }, {
                 root: true,
               })
@@ -311,7 +329,7 @@
               })
 
               store.dispatch('header/setInfoText', {
-                text: '5 things',
+                text: '-',
               }, {
                 root: true,
               })
@@ -411,34 +429,122 @@
        * @param {String} view
        */
       openView(view) {
-        if (this.view.hasOwnProperty(view)) {
-          if (this.view[view].hasOwnProperty('id')) {
-            this.view[view].id = null
+        if (this.view.items.hasOwnProperty(view)) {
+          switch (view) {
+            case this.view.items.settings.name:
+              this.$router.push(this.localePath({
+                name: this.$routes.routines.detail,
+                params: {
+                  id: this.id,
+                },
+                hash: this.view.items.settings.route.hash,
+              }))
+
+              this.$nextTick(() => {
+                if (this._.get(this.$refs, 'settings')) {
+                  const component = this._.get(this.$refs, 'settings')
+
+                  this._setBlocksHeight('settings', 'height')
+
+                  // Scroll view to setting part
+                  this.$scrollTo(component.$el, 500, {
+                    offset: (-1 * this.$store.state.theme.marginTop),
+                  })
+                }
+              })
+              break
+
+            default:
+              this.$router.push(this.localePath({
+                name: this.$routes.routines.detail,
+                params: {
+                  id: this.id,
+                },
+              }))
+              break
           }
-        }
 
-        switch (view) {
-          case this.view.settings.name:
-            this.$router.push(this.localePath({
-              name: this.$routes.routines.detail,
-              params: {
-                id: this.id,
-              },
-              hash: this.view.settings.route.hash,
-            }))
-            break
+          switch (view) {
+            case this.view.items.condition.name:
+              const conditionThings = []
 
-          default:
-            this.$router.push(this.localePath({
-              name: this.$routes.routines.detail,
-              params: {
-                id: this.id,
-              },
-            }))
-            break
-        }
+              this._.get(this.routine, 'conditions', [])
+                .forEach(condition => {
+                  if (typeof conditionThings.find(({ thing }) => thing === condition.channel_id) === 'undefined') {
+                    conditionThings.push({
+                      thing: condition.channel_id,
+                    })
+                  }
+                })
 
-        if (this.view.hasOwnProperty(view)) {
+              this.view.items[view].items = conditionThings
+              break
+
+            case this.view.items.conditionThing.name:
+              const storedCondition = this._.get(this.routine, 'conditions', []).find(({ channel_id }) => channel_id === this.view.items.conditionThing.thing.id)
+
+              if (typeof storedCondition !== 'undefined') {
+                const condition = {
+                  thing: storedCondition.channel_id,
+                  enabled: storedCondition.enabled,
+                  rows: [],
+                }
+
+                this._.filter(this._.get(this.routine, 'conditions', []), { 'channel_id': storedCondition.channel_id })
+                  .forEach(item => {
+                    condition.rows.push({
+                      property: item.property_id,
+                      operand: this._.first(item.operands),
+                      operator: item.operator,
+                    })
+                  })
+
+                this.view.items[view].item = condition
+              } else {
+                this.view.items[view].item = null
+              }
+              break
+
+            case this.view.items.action.name:
+              const actionThings = []
+
+              this._.get(this.routine, 'actions', [])
+                .forEach(action => {
+                  if (typeof actionThings.find(({ thing }) => thing === action.channel_id) === 'undefined') {
+                    actionThings.push({
+                      thing: action.channel_id,
+                    })
+                  }
+                })
+
+              this.view.items[view].items = actionThings
+              break
+
+            case this.view.items.actionThing.name:
+              const storedAction = this._.get(this.routine, 'actions', []).find(({ channel_id }) => channel_id === this.view.items.actionThing.thing.id)
+
+              if (typeof storedAction !== 'undefined') {
+                const action = {
+                  thing: storedAction.channel_id,
+                  enabled: storedAction.enabled,
+                  rows: [],
+                }
+
+                this._.filter(this._.get(this.routine, 'actions', []), { 'channel_id': storedAction.channel_id })
+                  .forEach(item => {
+                    action.rows.push({
+                      property: item.property_id,
+                      operation: item.value,
+                    })
+                  })
+
+                this.view.items[view].item = action
+              } else {
+                this.view.items[view].item = null
+              }
+              break
+          }
+
           this.view.opened = view
         }
 
@@ -452,16 +558,14 @@
        * @param {Thing} thing
        */
       thingSelected(thing) {
-        if (this.view.opened === this.view.action.name) {
-          this.view.actionThing.thing = thing
-          this.view.actionThing.items = this.actions
+        if (this.view.opened === this.view.items.action.name) {
+          this.view.items.actionThing.thing = thing
 
-          this.openView(this.view.actionThing.name)
-        } else if (this.view.opened === this.view.condition.name) {
-          this.view.conditionThing.thing = thing
-          this.view.conditionThing.items = this.conditions
+          this.openView(this.view.items.actionThing.name)
+        } else if (this.view.opened === this.view.items.condition.name) {
+          this.view.items.conditionThing.thing = thing
 
-          this.openView(this.view.conditionThing.name)
+          this.openView(this.view.items.conditionThing.name)
         }
       },
 
@@ -471,51 +575,52 @@
        * @param {Object} data
        */
       addCondition(data) {
-        this.openView(this.view.detail.name)
+        this.openView(this.view.items.detail.name)
 
-        const create = []
-        const update = []
+        const storedConditions = this._.filter(this._.get(this.routine, 'conditions', []), ({ channel_id }) => channel_id === data.thing)
 
-        this._.get(this.routine, 'conditions', [])
-          .forEach(condition => {
-            if (condition.isChannelProperty) {
-              this._.get(data, 'rows', [])
-                .forEach((row, index) => {
-                  if (
-                    condition.channel_id === this._.get(row, 'channel') &&
-                    condition.property_id === this._.get(row, 'property')
-                  ) {
-                    update.push({
-                      id: condition.id,
-                      operator: this._.get(row, 'operator'),
-                      operands: [this._.get(row, 'operand')],
-                      enabled: this._.get(data, 'enabled', false),
-                    })
-
-                    if (data.hasOwnProperty('rows') && data.rows.hasOwnProperty(index)) {
-                      data.rows.splice(index, 1)
-                    }
-                  }
-                })
-            }
-          })
+        const toCreate = []
+        const toUpdate = []
+        const toDelete = []
 
         this._.get(data, 'rows', [])
           .forEach(row => {
-            create.push({
-              trigger: this._.get(row, 'channel'),
-              property: this._.get(row, 'property'),
-              operator: this._.get(row, 'operator'),
-              operands: [this._.get(row, 'operand')],
-              enabled: this._.get(data, 'enabled', false),
-            })
+            const condition = this._.get(this.routine, 'conditions', []).find(item => item.channel_id === this._.get(data, 'thing') && item.property_id === this._.get(row, 'property'))
+
+            // Editing existing condition
+            if (typeof condition !== 'undefined') {
+              toUpdate.push({
+                id: condition.id,
+                enabled: this._.get(data, 'enabled', false),
+                operator: this._.get(row, 'operator'),
+                operands: [this._.get(row, 'operand')],
+              })
+            // Updating new condition
+            } else {
+              toCreate.push({
+                trigger: this._.get(data, 'thing'),
+                enabled: this._.get(data, 'enabled', false),
+                property: this._.get(row, 'property'),
+                operator: this._.get(row, 'operator'),
+                operands: [this._.get(row, 'operand')],
+              })
+            }
+          })
+
+        storedConditions
+          .forEach(condition => {
+            if (typeof toUpdate.find(({ id }) => id === condition.id) === 'undefined') {
+              toDelete.push({
+                id: condition.id,
+              })
+            }
           })
 
         const errorMessageNotCreated = this.$t('routines.messages.conditionNotCreated', {
           routine: this.routine.name,
         })
 
-        create
+        toCreate
           .forEach(item => {
             this.$store.dispatch('entities/condition/add', {
               trigger: this.routine,
@@ -536,7 +641,7 @@
           routine: this.routine.name,
         })
 
-        update
+        toUpdate
           .forEach(item => {
             this.$store.dispatch('entities/condition/edit', {
               id: item.id,
@@ -552,6 +657,31 @@
                 }
               })
           })
+
+        const errorMessageNotRemoved = this.$t('routines.messages.conditionNotRemoved', {
+          routine: this.routine.name,
+        })
+
+        toDelete
+          .forEach(item => {
+            this.$store.dispatch('entities/condition/remove', {
+              id: item.id,
+            }, {
+              root: true,
+            })
+              .catch(e => {
+                if (e.hasOwnProperty('exception')) {
+                  this.handleFormError(e.exception, errorMessageNotRemoved)
+                } else {
+                  this.$flashMessage(errorMessageNotRemoved, 'error')
+                }
+              })
+          })
+      },
+
+      removeCondition(thing) {
+        // TODO: remove
+        console.log(thing)
       },
 
       /**
@@ -560,49 +690,50 @@
        * @param {Object} data
        */
       addAction(data) {
-        this.openView(this.view.detail.name)
+        this.openView(this.view.items.detail.name)
 
-        const create = []
-        const update = []
+        const storedActions = this._.filter(this._.get(this.routine, 'actions', []), ({ channel_id }) => channel_id === data.thing)
 
-        this._.get(this.routine, 'actions', [])
-          .forEach(action => {
-            if (action.isChannelProperty) {
-              this._.get(data, 'rows', [])
-                .forEach((row, index) => {
-                  if (
-                    action.channel_id === this._.get(row, 'channel') &&
-                    action.property_id === this._.get(row, 'property')
-                  ) {
-                    update.push({
-                      id: action.id,
-                      value: this._.get(row, 'operation'),
-                      enabled: this._.get(data, 'enabled', false),
-                    })
-
-                    if (data.hasOwnProperty('rows') && data.rows.hasOwnProperty(index)) {
-                      data.rows.splice(index, 1)
-                    }
-                  }
-                })
-            }
-          })
+        const toCreate = []
+        const toUpdate = []
+        const toDelete = []
 
         this._.get(data, 'rows', [])
           .forEach(row => {
-            create.push({
-              channel: this._.get(row, 'channel'),
-              property: this._.get(row, 'property'),
-              value: this._.get(row, 'operation'),
-              enabled: this._.get(data, 'enabled', false),
-            })
+            const action = this._.get(this.routine, 'actions', []).find(item => item.channel_id === this._.get(data, 'thing') && item.property_id === this._.get(row, 'property'))
+
+            // Editing existing action
+            if (typeof action !== 'undefined') {
+              toUpdate.push({
+                id: action.id,
+                enabled: this._.get(data, 'enabled', false),
+                value: this._.get(row, 'operation'),
+              })
+            // Updating new action
+            } else {
+              toCreate.push({
+                channel: this._.get(data, 'thing'),
+                enabled: this._.get(data, 'enabled', false),
+                property: this._.get(row, 'property'),
+                value: this._.get(row, 'operation'),
+              })
+            }
+          })
+
+        storedActions
+          .forEach(action => {
+            if (typeof toUpdate.find(({ id }) => id === action.id) === 'undefined') {
+              toDelete.push({
+                id: action.id,
+              })
+            }
           })
 
         const errorMessageNotCreated = this.$t('routines.messages.actionNotCreated', {
           routine: this.routine.name,
         })
 
-        create
+        toCreate
           .forEach(item => {
             this.$store.dispatch('entities/action/add', {
               trigger: this.routine,
@@ -623,7 +754,7 @@
           routine: this.routine.name,
         })
 
-        update
+        toUpdate
           .forEach(item => {
             this.$store.dispatch('entities/action/edit', {
               id: item.id,
@@ -639,31 +770,36 @@
                 }
               })
           })
+
+        const errorMessageNotRemoved = this.$t('routines.messages.actionNotRemoved', {
+          routine: this.routine.name,
+        })
+
+        toDelete
+          .forEach(item => {
+            this.$store.dispatch('entities/action/remove', {
+              id: item.id,
+            }, {
+              root: true,
+            })
+              .catch(e => {
+                if (e.hasOwnProperty('exception')) {
+                  this.handleFormError(e.exception, errorMessageNotRemoved)
+                } else {
+                  this.$flashMessage(errorMessageNotRemoved, 'error')
+                }
+              })
+          })
+      },
+
+      removeAction(thing) {
+        // TODO: remove
+        console.log(thing)
       },
 
       _openEditIcon() {
         console.log('Edit icon here')
         // Edit icon action...
-      },
-
-      /**
-       * Open routine settings part
-       */
-      _openSettings() {
-        this.openView(this.view.settings.name)
-
-        this.$nextTick(() => {
-          if (this._.get(this.$refs, 'settings')) {
-            const component = this._.get(this.$refs, 'settings')
-
-            this._setBlocksHeight('settings', 'height')
-
-            // Scroll view to setting part
-            this.$scrollTo(component.$el, 500, {
-              offset: (-1 * this.$store.state.theme.marginTop),
-            })
-          }
-        })
       },
 
       /**
@@ -684,7 +820,7 @@
           root: true,
         })
 
-        if (this.view.opened === this.view.settings.name) {
+        if (this.view.opened === this.view.items.settings.name) {
           this.$store.dispatch('header/setRightButton', {
             name: this.$t('application.buttons.close.title'),
             callback: () => {
@@ -694,7 +830,7 @@
                 this.$scrollTo(component.$el, 500, {
                   offset: (-1 * this.$store.state.theme.marginTop),
                   onDone: () => {
-                    this.openView(this.view.detail.name)
+                    this.openView(this.view.items.detail.name)
                   },
                 })
               }
@@ -706,11 +842,11 @@
           this.$store.dispatch('header/resetAddButton', null, {
             root: true,
           })
-        } else if (this.view.opened === this.view.detail.name) {
+        } else if (this.view.opened === this.view.items.detail.name) {
           this.$store.dispatch('header/setRightButton', {
             name: this.$t('application.buttons.edit.title'),
             callback: () => {
-              this._openSettings()
+              this.openView(this.view.items.settings.name)
             },
           }, {
             root: true,
@@ -719,7 +855,7 @@
           this.$store.dispatch('header/setAddButton', {
             name: this.$t('application.buttons.add.title'),
             callback: () => {
-              this.openView(this.view.type.name)
+              this.openView(this.view.items.type.name)
             },
           }, {
             root: true,
@@ -732,7 +868,7 @@
 
         this.$store.dispatch('header/setHeading', {
           heading: this.routine.name,
-          subHeading: 'Automatic routine',
+          subHeading: this.routine.isAutomatic ? this.$t('routines.headings.automaticRoutine') : this.$t('routines.headings.manualRoutine'),
         }, {
           root: true,
         })
@@ -747,7 +883,7 @@
         })
 
         this.$store.dispatch('header/setInfoText', {
-          text: '5 things',
+          text: this.$tc('routines.texts.routineThings', this.thingsCount, { count: this.thingsCount }),
         }, {
           root: true,
         })
@@ -769,7 +905,7 @@
       _checkRoute() {
         if (this.$route.hash !== '') {
           if (this.$route.hash.indexOf(ROUTINES_HASH_SETTINGS) !== -1) {
-            this._openSettings()
+            this.openView(this.view.items.settings.name)
           }
         }
       },
@@ -783,11 +919,8 @@
         this._setBlocksHeight('detail')
         this._setBlocksHeight('settings', 'height')
 
-        if (
-          this.view.opened === this.view.settings.name &&
-          this._.get(this.$refs, 'settings')
-        ) {
-          const component = this._.get(this.$refs, 'settings')
+        if (this._.get(this.$refs, this.view.opened)) {
+          const component = this._.get(this.$refs, this.view.opened)
 
           this.$scrollTo(component.$el, 1, {
             offset: (-1 * this.$store.state.theme.marginTop),

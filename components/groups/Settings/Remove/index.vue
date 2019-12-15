@@ -57,10 +57,6 @@
           group: this.group.label,
         })
 
-        const successMessage = this.$t('groups.messages.removed', {
-          group: this.group.label,
-        })
-
         this.$store.dispatch('entities/group/remove', {
           id: this.group.id,
         }, {
@@ -70,25 +66,9 @@
             if (this._.get(e, 'exception', null) !== null) {
               this.handleFormError(e.exception, errorMessage)
             } else {
-              this.$toasted.error(errorMessage, {
-                action: {
-                  text: this.$t('application.buttons.close.title'),
-                  onClick: (evnt, toastObject) => {
-                    toastObject.goAway(0)
-                  },
-                },
-              })
+              this.$flashMessage(errorMessage, 'error')
             }
           })
-
-        this.$toasted.success(successMessage, {
-          action: {
-            text: this.$t('application.buttons.close.title'),
-            onClick: (evnt, toastObject) => {
-              toastObject.goAway(0)
-            },
-          },
-        })
 
         this.$emit('close')
 

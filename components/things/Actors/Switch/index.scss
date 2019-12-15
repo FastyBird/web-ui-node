@@ -3,6 +3,10 @@
 .fb-iot-things-switch {
   &__container {
     text-align: center;
+
+    .fb-spinner__container {
+      margin-top: -10px;
+    }
   }
 
   &__loading,
@@ -49,11 +53,11 @@
 
   &__container {
     &[data-state="off"] {
-      .switch-track {
+      .fb-switch-element__container input:disabled ~ .fb-switch-element__track {
         background-color: $gray-lighter
       }
 
-      .switch-thumb {
+      .fb-switch-element__container input:disabled ~ .fb-switch-element__thumb {
         border-color: $gray-lighter;
       }
     }

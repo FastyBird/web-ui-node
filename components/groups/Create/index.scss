@@ -1,20 +1,36 @@
 @import "~@fastybird-com/theme/assets/styles/variables";
+@import "~@fastybird-com/theme/assets/mixins/utilities";
 
 .fb-iot-groups-create {
-  &__container {
-    .row > div {
-      display: inline-block;
-      position: relative;
-      width: 20%;
-      float: left;
-      font-size: 12px;
-      padding: 0;
-    }
+  &__icons {
+    padding-left: 15px;
+    padding-right: 15px;
 
-    .row > div:before {
-      content: "";
-      display: block;
-      padding-top: 100%;
+    > div {
+      @include gridRow;
+
+      > div {
+        @include gridCel(0, 0);
+
+        -webkit-box-flex: 0;
+        -ms-flex: 0 0 33.333333%;
+        flex: 0 0 33.333333%;
+        width: 20%;
+        max-width: 33.333333%;
+
+        text-align: center;
+        display: inline-block;
+        position: relative;
+        float: left;
+        font-size: 12px;
+        padding: 0;
+
+        &:before {
+          content: "";
+          display: block;
+          padding-top: 100%;
+        }
+      }
     }
   }
 
@@ -35,6 +51,7 @@
 
     svg {
       height: 100%;
+      font-size: 3em;
     }
   }
 }

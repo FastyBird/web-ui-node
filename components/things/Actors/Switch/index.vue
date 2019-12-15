@@ -4,10 +4,11 @@
     class="fb-iot-things-switch__container"
     role="button"
   >
-    <switch-element
+    <fb-switch-element
       v-if="propertyCommand === null"
       :status="propertyValue"
       :disabled="!thing.state || _.get(thing, 'device.socket') === null"
+      variant="primary"
       @change="toggleChannelState"
     />
 
@@ -31,7 +32,10 @@
       v-show="propertyCommand !== null && propertyCommand !== 'ok' && propertyCommand !== 'err'"
       class="fb-iot-things-switch__loading"
     >
-      <div class="spinner spinner-primary" />
+      <fb-spinner
+        variant="primary"
+        size="sm"
+      />
     </div>
   </div>
 </template>

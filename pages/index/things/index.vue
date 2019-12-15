@@ -31,7 +31,7 @@
             />
             <font-awesome-icon
               v-else
-              icon="arrow-lef"
+              icon="arrow-left"
             />
           </button>
         </template>
@@ -257,9 +257,9 @@
        */
       detailHeading() {
         if (this.view.opened.type === this.view.detail.name) {
-          return this.viewThing.label
+          return this.$tThing(this.viewThing)
         } else if (this.view.opened.type === this.view.settings.name) {
-          return this.viewThing.label
+          return this.$tThing(this.viewThing)
         }
 
         return 'N/A'
@@ -272,9 +272,9 @@
        */
       detailSubHeading() {
         if (this.view.opened.type === this.view.detail.name) {
-          return this.viewThing.hasComment ? this.viewThing.comment : null
+          return this.$tThingDevice(this.viewThing)
         } else if (this.view.opened.type === this.view.settings.name) {
-          return this.viewThing.hasComment ? this.viewThing.comment : null
+          return this.$tThingDevice(this.viewThing)
         }
 
         return null
@@ -336,9 +336,9 @@
       },
 
       exchangeConnected(val) {
-        if (val && this.view.opened.type !== null) {
+        if (val && this.view.opened.type !== null && this.viewThing) {
           this.$store.dispatch('entities/device_socket/subscribe', {
-            device_id: this.view[this.view.opened.type].id,
+            device_id: this.viewThing.device_id,
           }, {
             root: true,
           })
@@ -482,6 +482,8 @@
                   id,
                 },
               }))
+
+              return
             } else {
               this.$router.push(this.localePath({
                 name: this.$routes.things.list,
@@ -499,6 +501,8 @@
                 },
                 hash: THINGS_HASH_SETTINGS,
               }))
+
+              return
             } else {
               this.$router.push(this.localePath({
                 name: this.$routes.things.list,
@@ -520,9 +524,9 @@
           this.loading[view] = id
         }
 
-        if (this.exchangeConnected) {
+        if (this.exchangeConnected && this.viewThing) {
           this.$store.dispatch('entities/device_socket/subscribe', {
-            device_id: this.view[this.view.opened.type].id,
+            device_id: this.viewThing.device_id,
           }, {
             root: true,
           })

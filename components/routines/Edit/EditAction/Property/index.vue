@@ -18,8 +18,16 @@
     </template>
 
     <template slot="detail-large">
+      <fb-switch-element
+        v-if="property.isBoolean"
+        :status="operationModel"
+        :disabled="!stateModel"
+        variant="primary"
+        @change="propertyChanged"
+      />
+
       <fb-form-radio-buttons-group
-        v-if="property.isEnum"
+        v-else-if="property.isEnum"
         v-model="operationModel"
         name="value"
         button
@@ -41,13 +49,6 @@
           </template>
         </fb-form-radio-button>
       </fb-form-radio-buttons-group>
-
-      <switch-element
-        v-if="property.isBoolean"
-        :status="operationModel"
-        :disabled="!stateModel"
-        @change="propertyChanged(property)"
-      />
     </template>
   </list-item>
 </template>
@@ -60,7 +61,7 @@
     props: {
 
       value: {
-        type: Array,
+        type: Object,
         required: true,
       },
 
@@ -74,29 +75,16 @@
         required: true,
       },
 
-      action: {
-        type: Object,
-        default: null,
-      },
-
     },
 
     computed: {
 
       stateModel: {
         get() {
-          const channel = this.value.find(item => {
-            return item.channel === this.thing.channel_id
-          })
+          const row = this._.get(this.value, 'rows', []).find(({ property }) => property === this.property.id)
 
-          if (typeof channel !== 'undefined') {
-            const property = channel.properties.find(item => {
-              return item.property === this.property.id
-            })
-
-            if (typeof property !== 'undefined') {
-              return !!property.selected
-            }
+          if (typeof row !== 'undefined') {
+            return !!row.selected
           }
 
           return false
@@ -105,49 +93,26 @@
           const parent = this.$parent || this.$root
 
           if (parent) {
-            const result = []
-
-            for (const i in this.value) {
+            for (const j in this.value.rows) {
               if (
-                this.value.hasOwnProperty(i) &&
-                this.value[i].channel === this.thing.channel_id
+                this.value.rows.hasOwnProperty(j) &&
+                this.value.rows[j].property === this.property.id
               ) {
-                const channel = this.value[i]
-
-                for (const j in channel.properties) {
-                  if (
-                    channel.properties.hasOwnProperty(j) &&
-                    channel.properties[j].property === this.property.id
-                  ) {
-                    channel.properties[j].selected = val
-                  }
-                }
-
-                result.push(channel)
-              } else {
-                result.push(this.value[i])
+                this.value.rows[j].selected = val
               }
-
-              parent.$emit.apply(parent, ['input'].concat([result]))
             }
+
+            parent.$emit.apply(parent, ['input'].concat([this.value]))
           }
         },
       },
 
       operationModel: {
         get() {
-          const channel = this.value.find(item => {
-            return item.channel === this.thing.channel_id
-          })
+          const row = this._.get(this.value, 'rows', []).find(({ property }) => property === this.property.id)
 
-          if (typeof channel !== 'undefined') {
-            const property = channel.properties.find(item => {
-              return item.property === this.property.id
-            })
-
-            if (typeof property !== 'undefined') {
-              return property.operation
-            }
+          if (typeof row !== 'undefined') {
+            return row.operation
           }
 
           return null
@@ -156,31 +121,16 @@
           const parent = this.$parent || this.$root
 
           if (parent) {
-            const result = []
-
-            for (const i in this.value) {
+            for (const j in this.value.rows) {
               if (
-                this.value.hasOwnProperty(i) &&
-                this.value[i].channel === this.thing.channel_id
+                this.value.rows.hasOwnProperty(j) &&
+                this.value.rows[j].property === this.property.id
               ) {
-                const channel = this.value[i]
-
-                for (const j in channel.properties) {
-                  if (
-                    channel.properties.hasOwnProperty(j) &&
-                    channel.properties[j].property === this.property.id
-                  ) {
-                    channel.properties[j].operation = val
-                  }
-                }
-
-                result.push(channel)
-              } else {
-                result.push(this.value[i])
+                this.value.rows[j].operation = val
               }
-
-              parent.$emit.apply(parent, ['input'].concat([result]))
             }
+
+            parent.$emit.apply(parent, ['input'].concat([this.value]))
           }
         },
       },
@@ -200,7 +150,7 @@
     methods: {
 
       propertyChanged() {
-        // Just placeholder
+        this.operationModel = !this.operationModel
       },
 
       toggleState(event) {

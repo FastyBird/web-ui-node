@@ -38,8 +38,9 @@
     </template>
 
     <template slot="detail-large">
-      <switch-element
+      <fb-switch-element
         :status="enabled"
+        variant="primary"
         @change="toggleThing"
       />
 

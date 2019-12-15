@@ -25,9 +25,16 @@
   &__box {
     @include gridRow;
 
+    margin: 0;
+
     border: 1px solid $gray-lighter;
     border-radius: 4px;
-    margin: 0;
+
+    &:not(:last-child) {
+      @media (min-width: $screen-sm-min) {
+        border-bottom: 1px solid $gray-lighter;
+      }
+    }
   }
 
   &__icon {
@@ -39,9 +46,9 @@
     @include gridCel(0, 0);
 
     -webkit-box-flex: 0;
-    -ms-flex: 0 0 8.333333%;
-    flex: 0 0 8.333333%;
-    max-width: 8.333333%;
+    -ms-flex: 0 0 14%;
+    flex: 0 0 14%;
+    max-width: 14%;
 
     @media (max-width: $screen-xs-max) {
       -webkit-box-flex: 0;
@@ -92,6 +99,7 @@
     font-size: 15px;
     line-height: 53px;
     height: 53px;
+    color: $gray-light;
 
     text-align: right;
 
@@ -122,9 +130,9 @@
 
   &__detail-content {
     -webkit-box-flex: 0;
-    -ms-flex: 0 0 16.666667%;
-    flex: 0 0 16.666667%;
-    max-width: 16.666667%;
+    -ms-flex: 0 0 20%;
+    flex: 0 0 20%;
+    max-width: 20%;
 
     @media (max-width: $screen-xs-max) {
       -webkit-box-flex: 0;

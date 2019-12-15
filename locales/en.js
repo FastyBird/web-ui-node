@@ -316,7 +316,57 @@ export default {
           title: 'MQTT server port',
         },
       },
+      fastybird: {
+        things: {
+          fastybird_wifi_gw: {
+            title: 'FastyBird WiFi Gateway',
+          },
+          fastybird_3ch_power_strip_r1: {
+            title: 'FastyBird Smart Power Strip',
+            channels: {
+              'socket-one': 'Socket 1',
+              'socket-two': 'Socket 2',
+              'socket-three': 'Socket 3',
+            },
+          },
+          '8ch_buttons': {
+            title: 'FastyBird 8CH Buttons',
+          },
+          '16ch_buttons': {
+            title: 'FastyBird 16CH Buttons',
+            channels: {
+              event: 'Button {number}',
+            },
+          },
+        },
+      },
       itead: {
+        things: {
+          sonoff_basic: {
+            title: 'Sonoff Smart Switch',
+            channels: {
+              output: 'Output',
+            },
+          },
+          sonoff_s20: {
+            title: 'Sonoff Smart Socket',
+            channels: {
+              socket: 'Wall Socket',
+            },
+          },
+          sonoff_sc: {
+            title: 'Sonoff Environent Unit',
+            channels: {
+              environment: 'Environment',
+            },
+          },
+          sonoff_pow: {
+            title: 'Sonoff Power Metter',
+            channels: {
+              energy: 'Energy',
+            },
+          },
+        },
         properties: {
           switch: {
             title: 'Switch',
@@ -491,16 +541,16 @@ export default {
           description: 'Save aggregated data to thing memory after these many reports. Set it to 0 to disable this feature',
         },
         sensor_power_units: {
-          button: 'Power units',
-          heading: 'Power units',
+          button: 'Power unit',
+          heading: 'Power unit',
           values: {
             watts: 'Watts (W)',
             kilowatts: 'Kilowatts (kW)',
           },
         },
         sensor_energy_units: {
-          button: 'Energy units',
-          heading: 'Energy units',
+          button: 'Energy unit',
+          heading: 'Energy unit',
           values: {
             joules: 'Joules (J)',
             kilowatts_hours: 'Kilowatts-hours (kWh)',
@@ -540,6 +590,10 @@ export default {
       refresh: 'Refresh routine',
       remove: 'Remove routine',
       generalSettings: 'General settings',
+      addCondition: 'Add a thing condition to this routine?',
+      addAction: 'Add a thing action to this routine?',
+      automaticRoutine: 'Automatic routine',
+      manualRoutine: 'Manual routine',
     },
     messages: {
       notFound: 'Routine was not found, please try reload page.',
@@ -574,6 +628,7 @@ export default {
       loadingThings: 'Loading things...',
       loadingThing: 'Loading thing...',
       noThings: 'You don\'t have assigned any thing',
+      routineThings: 'no things | {count} thing | {count} tings',
     },
     fields: {
       name: {
@@ -644,6 +699,12 @@ export default {
       },
       remove: {
         title: 'Remove routine',
+      },
+      thingToCondition: {
+        title: 'Thing to condition',
+      },
+      thingToAction: {
+        title: 'Thing to action',
       },
     },
     groups: {

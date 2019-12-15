@@ -4,7 +4,7 @@
     class="fb-routines-action__container"
   >
     <template slot="icon">
-      <spinner size="sm" />
+      <fb-spinner size="sm" />
     </template>
 
     <template slot="heading">
@@ -37,8 +37,9 @@
     </template>
 
     <template slot="detail">
-      <switch-element
+      <fb-switch-element
         :status="enabled"
+        variant="primary"
         @change="toggleThing"
       />
     </template>
@@ -57,8 +58,8 @@
         required: true,
         validator: (value) => {
           return !(
-            !value.hasOwnProperty('enabled') ||
             !value.hasOwnProperty('thing') ||
+            !value.hasOwnProperty('enabled') ||
             !value.hasOwnProperty('rows') ||
             !Array.isArray(value.rows) ||
             !value.rows.length

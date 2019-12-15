@@ -6,7 +6,7 @@
     <template slot="property">
       <template v-if="thing.state">
         <span class="fb-iot-things-detail-analog-sensor__value">{{ propertyValue }}</span>
-        <span class="fb-iot-things-detail-analog-sensor__units">{{ _.get(property, 'units', null) }}</span>
+        <span class="fb-iot-things-detail-analog-sensor__unit">{{ _.get(property, 'unit', null) }}</span>
       </template>
       <template v-else>
         <span class="fb-iot-things-detail-analog-sensor__value">{{ $t('application.states.notAvailable') }}</span>

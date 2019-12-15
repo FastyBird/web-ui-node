@@ -3,10 +3,11 @@
     v-if="parameter.isBoolean"
     class="fb-iot-things-settings-thing__item"
   >
-    <switch-element
+    <fb-switch-element
       :ref="parameter.name"
       :status="parameter.value"
       :disabled="!thing.state"
+      variant="primary"
       @change="$emit('submit')"
     />
     <template
@@ -28,7 +29,7 @@
     <span class="fb-iot-things-settings-thing__item-icon">
       <font-awesome-icon icon="angle-right" />
     </span>
-    <spinner
+    <fb-spinner
       v-if="loading"
       size="sm"
     />

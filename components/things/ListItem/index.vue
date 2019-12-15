@@ -13,7 +13,7 @@
     </template>
 
     <template slot="sub-heading">
-      {{ thing.comment }}
+      {{ $tThingDevice(thing) }}
     </template>
 
     <template
@@ -29,7 +29,7 @@
       <div v-else-if="environmentProperty">
         <template v-if="thing.state">
           <span class="fb-iot-things-list-item__value">{{ environmentPropertyValue }}</span>
-          <span class="fb-iot-things-list-item__units">{{ _.get(environmentProperty, 'units', null) }}</span>
+          <span class="fb-iot-things-list-item__unit">{{ _.get(environmentProperty, 'unit', null) }}</span>
         </template>
         <template v-else>
           <span class="fb-iot-things-list-item__value">{{ $t('application.states.notAvailable') }}</span>

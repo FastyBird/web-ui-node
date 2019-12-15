@@ -13,7 +13,7 @@
         <span class="fb-iot-things-settings-thing__item-icon">
           <font-awesome-icon icon="angle-right" />
         </span>
-        <spinner
+        <fb-spinner
           v-if="loading.credentials"
           size="sm"
         />
@@ -41,7 +41,7 @@
         <span class="fb-iot-things-settings-thing__item-icon">
           <font-awesome-icon icon="angle-right" />
         </span>
-        <spinner
+        <fb-spinner
           v-if="loading.sensorsSettings"
           size="sm"
         />
@@ -60,7 +60,7 @@
         <span class="fb-iot-things-settings-thing__item-icon">
           <font-awesome-icon icon="angle-right" />
         </span>
-        <spinner
+        <fb-spinner
           v-if="loading.timeSettings"
           size="sm"
         />
@@ -79,7 +79,7 @@
         <span class="fb-iot-things-settings-thing__item-icon">
           <font-awesome-icon icon="angle-right" />
         </span>
-        <spinner
+        <fb-spinner
           v-if="loading.energyCalibration"
           size="sm"
         />
@@ -107,7 +107,7 @@
         <span class="fb-iot-things-settings-thing__item-icon">
           <font-awesome-icon icon="angle-right" />
         </span>
-        <spinner
+        <fb-spinner
           v-if="loading.rename"
           size="sm"
         />
@@ -122,7 +122,7 @@
         <span class="fb-iot-things-settings-thing__item-icon">
           <font-awesome-icon icon="exclamation-triangle" />
         </span>
-        <spinner
+        <fb-spinner
           v-if="loading.remove"
           size="sm"
         />
@@ -415,7 +415,7 @@
       wifiSSID() {
         const property = this.$store.getters['entities/device_property/query']()
           .where('device_id', this.thing.device_id)
-          .where('name', 'ssid')
+          .where('property', 'ssid')
           .first()
 
         return property !== null && property.value !== null ? property.value : 'N/A'
@@ -429,7 +429,7 @@
       wifiIPAddress() {
         const property = this.$store.getters['entities/device_property/query']()
           .where('device_id', this.thing.device_id)
-          .where('name', 'ip-address')
+          .where('property', 'ip-address')
           .first()
 
         return property !== null && property.value !== null ? property.value : 'N/A'
@@ -689,10 +689,6 @@
             root: true,
           })
         }
-
-        this.$flashMessage(this.$t('things.messages.edited', {
-          thing: this.$tThing(this.thing),
-        }))
       },
 
     },

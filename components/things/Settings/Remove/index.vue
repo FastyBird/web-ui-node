@@ -57,10 +57,6 @@
           thing: this.$tThing(this.thing),
         })
 
-        const successMessage = this.$t('things.messages.removed', {
-          thing: this.$tThing(this.thing),
-        })
-
         this.$store.dispatch('entities/thing/remove', {
           id: this.thing.id,
         }, {
@@ -74,11 +70,7 @@
             }
           })
 
-        this.$flashMessage(successMessage)
-
-        this.$emit('close')
-
-        this.$router.push(this.localePath(this.$routes.things.list))
+        this.$emit('removed')
       },
 
       /**

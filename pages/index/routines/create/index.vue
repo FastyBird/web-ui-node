@@ -27,13 +27,13 @@
       />
 
       <h3 class="fb-routines-create-view__heading">
-        Add a thing condition to this routine?
+        {{ $t('routines.headings.addCondition') }}
       </h3>
 
       <fb-button
         variant="outline-default"
         block
-        @click="openView(view.condition.name)"
+        @click="openView(view.items.condition.name)"
       >
         <font-awesome-icon icon="plus-circle" />
         <span>{{ $t('routines.buttons.addThing.title') }}</span>
@@ -53,13 +53,13 @@
       <hr>
 
       <h3 class="fb-routines-create-view__heading">
-        Add a thing action to this routine?
+        {{ $t('routines.headings.addAction') }}
       </h3>
 
       <fb-button
         variant="outline-default"
         block
-        @click="openView(view.action.name)"
+        @click="openView(view.items.action.name)"
       >
         <font-awesome-icon icon="plus-circle" />
         <span>{{ $t('routines.buttons.addThing.title') }}</span>
@@ -89,51 +89,49 @@
     </form>
 
     <select-thing
-      v-if="view.opened === view.action.name || view.opened === view.condition.name"
-      :items="view[view.opened].items"
-      :only-settable="view.opened === view.action.name"
+      v-if="view.opened === view.items.action.name || view.opened === view.items.condition.name"
+      :items="view.items[view.opened].items"
+      :only-settable="view.opened === view.items.action.name"
       @select="thingSelected"
       @close="closeView(view.opened)"
     />
 
     <edit-condition
-      v-if="view.opened === view.conditionThing.name"
-      :thing="view.conditionThing.thing"
-      :conditions="conditions"
+      v-if="view.opened === view.items.conditionThing.name"
+      :thing="view.items.conditionThing.thing"
       @add="addCondition"
-      @back="openView(view.condition.name)"
-      @close="closeView(view.conditionThing.name)"
       @remove="removeCondition"
+      @back="openView(view.items.condition.name)"
+      @close="closeView(view.items.conditionThing.name)"
     />
 
     <edit-condition
-      v-if="view.opened === view.conditionThingEdit.name"
-      :thing="view.conditionThingEdit.thing"
-      :conditions="conditions"
+      v-if="view.opened === view.items.conditionThingEdit.name"
+      :thing="view.items.conditionThingEdit.thing"
+      :condition="view.items.conditionThingEdit.item"
       @add="addCondition"
-      @back="closeView(view.conditionThingEdit.name)"
-      @close="closeView(view.conditionThingEdit.name)"
       @remove="removeCondition"
+      @back="closeView(view.items.conditionThingEdit.name)"
+      @close="closeView(view.items.conditionThingEdit.name)"
     />
 
     <edit-action
-      v-if="view.opened === view.actionThing.name"
-      :thing="view.actionThing.thing"
-      :actions="actions"
+      v-if="view.opened === view.items.actionThing.name"
+      :thing="view.items.actionThing.thing"
       @add="addAction"
-      @back="openView(view.action.name)"
-      @close="closeView(view.actionThing.name)"
       @remove="removeAction"
+      @back="openView(view.items.action.name)"
+      @close="closeView(view.items.actionThing.name)"
     />
 
     <edit-action
-      v-if="view.opened === view.actionThingEdit.name"
-      :thing="view.actionThingEdit.thing"
-      :actions="actions"
+      v-if="view.opened === view.items.actionThingEdit.name"
+      :thing="view.items.actionThingEdit.thing"
+      :action="view.items.actionThingEdit.item"
       @add="addAction"
-      @back="closeView(view.actionThingEdit.name)"
-      @close="closeView(view.actionThingEdit.name)"
       @remove="removeAction"
+      @back="closeView(view.items.actionThingEdit.name)"
+      @close="closeView(view.items.actionThingEdit.name)"
     />
   </div>
 </template>
@@ -181,32 +179,36 @@
         },
         view: {
           opened: null,
-          condition: {
-            name: 'condition',
-            items: [],
-          },
-          conditionThing: {
-            name: 'conditionThing',
-            thing: null,
-          },
-          conditionThingEdit: {
-            name: 'conditionThingEdit',
-            thing: null,
-          },
-          action: {
-            name: 'action',
-            items: [],
-          },
-          actionThing: {
-            name: 'actionThing',
-            thing: null,
-          },
-          actionThingEdit: {
-            name: 'actionThingEdit',
-            thing: null,
-          },
-          notification: {
-            name: 'notification',
+          items: {
+            condition: {
+              name: 'condition',
+              items: [],
+            },
+            conditionThing: {
+              name: 'conditionThing',
+              thing: null,
+            },
+            conditionThingEdit: {
+              name: 'conditionThingEdit',
+              thing: null,
+              item: null,
+            },
+            action: {
+              name: 'action',
+              items: [],
+            },
+            actionThing: {
+              name: 'actionThing',
+              thing: null,
+            },
+            actionThingEdit: {
+              name: 'actionThingEdit',
+              thing: null,
+              item: null,
+            },
+            notification: {
+              name: 'notification',
+            },
           },
         },
       }
@@ -319,16 +321,14 @@
        * @param {Thing} thing
        */
       thingSelected(thing) {
-        if (this.view.opened === this.view.action.name) {
-          this.view.actionThing.thing = thing
-          this.view.actionThing.items = this.actions
+        if (this.view.opened === this.view.items.action.name) {
+          this.view.items.actionThing.thing = thing
 
-          this.openView(this.view.actionThing.name)
-        } else if (this.view.opened === this.view.condition.name) {
-          this.view.conditionThing.thing = thing
-          this.view.conditionThing.items = this.conditions
+          this.openView(this.view.items.actionThing.name)
+        } else if (this.view.opened === this.view.items.condition.name) {
+          this.view.items.conditionThing.thing = thing
 
-          this.openView(this.view.conditionThing.name)
+          this.openView(this.view.items.conditionThing.name)
         }
       },
 
@@ -342,7 +342,7 @@
        * @param {Object} data
        */
       addCondition(data) {
-        this.closeView(this.view.conditionThing.name)
+        this.closeView(this.view.items.conditionThing.name)
 
         for (const index in this.form.model.conditions) {
           if (this.form.model.conditions.hasOwnProperty(index)) {
@@ -368,14 +368,18 @@
        */
       editCondition(index) {
         if (this.form.model.conditions.hasOwnProperty(index)) {
-          this.view.conditionThingEdit.thing = this.$store.getters['entities/thing/query']()
+          this.view.items.conditionThingEdit.thing = this.$store.getters['entities/thing/query']()
             .with('device')
             .with('channel')
             .with('channel.properties')
             .where('id', this.form.model.conditions[index].thing)
             .first()
 
-          this.openView(this.view.conditionThingEdit.name)
+          if (this.form.model.conditions.hasOwnProperty(index)) {
+            this.view.items.conditionThingEdit.item = this.form.model.conditions[index]
+          }
+
+          this.openView(this.view.items.conditionThingEdit.name)
         }
       },
 
@@ -405,10 +409,10 @@
           }
         }
 
-        if (this.view.opened === this.view.conditionThingEdit.name) {
-          this.closeView(this.view.conditionThingEdit.name)
+        if (this.view.opened === this.view.items.conditionThingEdit.name) {
+          this.closeView(this.view.items.conditionThingEdit.name)
         } else {
-          this.openView(this.view.condition.name)
+          this.openView(this.view.items.condition.name)
         }
       },
 
@@ -422,7 +426,7 @@
        * @param {Object} data
        */
       addAction(data) {
-        this.closeView(this.view.actionThing.name)
+        this.closeView(this.view.items.actionThing.name)
 
         for (const index in this.form.model.actions) {
           if (this.form.model.actions.hasOwnProperty(index)) {
@@ -448,14 +452,18 @@
        */
       editAction(index) {
         if (this.form.model.actions.hasOwnProperty(index)) {
-          this.view.actionThingEdit.thing = this.$store.getters['entities/thing/query']()
+          this.view.items.actionThingEdit.thing = this.$store.getters['entities/thing/query']()
             .with('device')
             .with('channel')
             .with('channel.properties')
             .where('id', this.form.model.actions[index].thing)
             .first()
 
-          this.openView(this.view.actionThingEdit.name)
+          if (this.form.model.actions.hasOwnProperty(index)) {
+            this.view.items.actionThingEdit.item = this.form.model.actions[index]
+          }
+
+          this.openView(this.view.items.actionThingEdit.name)
         }
       },
 
@@ -485,10 +493,10 @@
           }
         }
 
-        if (this.view.opened === this.view.actionThingEdit.name) {
-          this.closeView(this.view.actionThingEdit.name)
+        if (this.view.opened === this.view.items.actionThingEdit.name) {
+          this.closeView(this.view.items.actionThingEdit.name)
         } else {
-          this.openView(this.view.action.name)
+          this.openView(this.view.items.action.name)
         }
       },
 
@@ -559,6 +567,8 @@
                 return
               }
 
+              this.$bus.$emit('wait-page_reloading', true)
+
               const errorMessage = this.$t('routines.messages.notCreated', {
                 routine: this.form.model.name,
               })
@@ -570,8 +580,7 @@
                   mappedConditions.push({
                     type: 'channel_property',
                     enabled: condition.enabled,
-                    thing: condition.thing,
-                    channel: row.channel,
+                    channel: condition.thing,
                     property: row.property,
                     operator: row.operator,
                     operands: [row.operand],
@@ -586,8 +595,7 @@
                   mappedActions.push({
                     type: 'channel_property',
                     enabled: action.enabled,
-                    thing: action.thing,
-                    channel: row.channel,
+                    channel: action.thing,
                     property: row.property,
                     value: row.operation,
                   })
@@ -596,7 +604,6 @@
 
               this.$store.dispatch('entities/trigger/add', {
                 automatic: true,
-                direct: false,
                 data: {
                   name: this.form.model.name,
                   comment: this.form.model.comment,
@@ -608,6 +615,8 @@
                 root: true,
               })
                 .then(routine => {
+                  this.$bus.$emit('wait-page_reloading', false)
+
                   this.$router.push(this.localePath({
                     name: this.$routes.routines.detail,
                     params: {
@@ -616,6 +625,8 @@
                   }))
                 })
                 .catch(e => {
+                  this.$bus.$emit('wait-page_reloading', false)
+
                   if (e.hasOwnProperty('exception')) {
                     this.handleFormError(e.exception, errorMessage)
                   } else {
@@ -643,17 +654,17 @@
        * @param {Object} [item]
        */
       openView(view, item) {
-        if (this.view.hasOwnProperty(view)) {
+        if (this.view.items.hasOwnProperty(view)) {
           this.view.opened = view
 
-          if (this.view[view].hasOwnProperty('item') && typeof item !== 'undefined') {
-            this.view[view].item = item
+          if (this.view.items[view].hasOwnProperty('item') && typeof item !== 'undefined') {
+            this.view.items[view].item = item
           }
 
-          if (view === this.view.action.name) {
-            this.view[view].items = this.actions
-          } else if (view === this.view.condition.name) {
-            this.view[view].items = this.conditions
+          if (view === this.view.items.action.name) {
+            this.view.items[view].items = this.actions
+          } else if (view === this.view.items.condition.name) {
+            this.view.items[view].items = this.conditions
           }
         }
       },
@@ -664,29 +675,13 @@
        * @param {String} view
        */
       closeView(view) {
-        if (this.view.hasOwnProperty(view)) {
+        if (this.view.items.hasOwnProperty(view)) {
           this.view.opened = null
 
-          if (this.view[view].hasOwnProperty('item')) {
-            this.view[view].item = null
+          if (this.view.items[view].hasOwnProperty('item')) {
+            this.view.items[view].item = null
           }
         }
-
-        this.$store.dispatch('header/setLeftButton', {
-          name: this.$t('application.buttons.back.title'),
-          link: this.localePath(this.$routes.routines.list),
-          icon: 'arrow-left',
-        }, {
-          root: true,
-        })
-
-        this.$store.dispatch('header/resetRightButton', null, {
-          root: true,
-        })
-
-        this.$store.dispatch('header/hideRightButton', null, {
-          root: true,
-        })
 
         this.errors.clear(this.form.scope)
 

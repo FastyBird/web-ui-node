@@ -10,7 +10,7 @@
     >
       <template v-if="thing.state">
         <span class="fb-iot-things-detail-environment-property__value">{{ propertyValue }}</span>
-        <span class="fb-iot-things-detail-environment-property__units">{{ _.get(property, 'units', null) }}</span>
+        <span class="fb-iot-things-detail-environment-property__unit">{{ _.get(property, 'unit', null) }}</span>
       </template>
       <template v-else>
         <span class="fb-iot-things-detail-environment-property__value">{{ $t('application.states.notAvailable') }}</span>
@@ -95,30 +95,30 @@
           switch (this.property.property) {
             case 'air_quality':
               if (value > 7) {
-                return this.$t(`things.vendors.${this.hardware.manufacturer}.properties.${this._.get(this.property, 'name', 'none')}.values.unhealthy`)
+                return this.$t(`things.vendors.${this.hardware.manufacturer}.properties.${this._.get(this.property, 'property', 'none')}.values.unhealthy`)
               } else if (value > 4) {
-                return this.$t(`things.vendors.${this.hardware.manufacturer}.properties.${this._.get(this.property, 'name', 'none')}.values.moderate`)
+                return this.$t(`things.vendors.${this.hardware.manufacturer}.properties.${this._.get(this.property, 'property', 'none')}.values.moderate`)
               }
 
-              return this.$t(`things.vendors.${this.hardware.manufacturer}.properties.${this._.get(this.property, 'name', 'none')}.values.good`)
+              return this.$t(`things.vendors.${this.hardware.manufacturer}.properties.${this._.get(this.property, 'property', 'none')}.values.good`)
 
             case 'light_level':
               if (value > 8) {
-                return this.$t(`things.vendors.${this.hardware.manufacturer}.properties.${this._.get(this.property, 'name', 'none')}.values.dusky`)
+                return this.$t(`things.vendors.${this.hardware.manufacturer}.properties.${this._.get(this.property, 'property', 'none')}.values.dusky`)
               } else if (value > 4) {
-                return this.$t(`things.vendors.${this.hardware.manufacturer}.properties.${this._.get(this.property, 'name', 'none')}.values.normal`)
+                return this.$t(`things.vendors.${this.hardware.manufacturer}.properties.${this._.get(this.property, 'property', 'none')}.values.normal`)
               }
 
-              return this.$t(`things.vendors.${this.hardware.manufacturer}.properties.${this._.get(this.property, 'name', 'none')}.values.bright`)
+              return this.$t(`things.vendors.${this.hardware.manufacturer}.properties.${this._.get(this.property, 'property', 'none')}.values.bright`)
 
             case 'noise_level':
               if (value > 6) {
-                return this.$t(`things.vendors.${this.hardware.manufacturer}.properties.${this._.get(this.property, 'name', 'none')}.values.noisy`)
+                return this.$t(`things.vendors.${this.hardware.manufacturer}.properties.${this._.get(this.property, 'property', 'none')}.values.noisy`)
               } else if (value > 3) {
-                return this.$t(`things.vendors.${this.hardware.manufacturer}.properties.${this._.get(this.property, 'name', 'none')}.values.normal`)
+                return this.$t(`things.vendors.${this.hardware.manufacturer}.properties.${this._.get(this.property, 'property', 'none')}.values.normal`)
               }
 
-              return this.$t(`things.vendors.${this.hardware.manufacturer}.properties.${this._.get(this.property, 'name', 'none')}.values.quiet`)
+              return this.$t(`things.vendors.${this.hardware.manufacturer}.properties.${this._.get(this.property, 'property', 'none')}.values.quiet`)
           }
         }
 

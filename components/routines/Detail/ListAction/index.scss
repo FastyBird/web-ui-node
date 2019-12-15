@@ -5,7 +5,8 @@
     }
   }
 
-  &__action:after:not(:last-child) {
+  &__action:not(:last-child):after {
     content: ",";
+    margin-right: 5px;
   }
 }

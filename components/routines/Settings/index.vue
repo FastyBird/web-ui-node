@@ -2,9 +2,10 @@
   <div class="fb-routines-settings-routine__container">
     <list-items-container :heading="$t('routines.headings.generalSettings')">
       <settings-list-item class="fb-routines-settings-routine__item">
-        <switch-element
+        <fb-switch-element
           ref="enabled"
           :status="form.model.enabled"
+          variant="primary"
           @change="toggleRoutineState"
         />
         <template v-if="routine.enabled">
@@ -23,7 +24,7 @@
         <span class="fb-routines-settings-routine__item-icon">
           <font-awesome-icon icon="angle-right" />
         </span>
-        <spinner
+        <fb-spinner
           v-if="loading.rename"
           size="sm"
         />
@@ -38,7 +39,7 @@
         <span class="fb-routines-settings-routine__item-icon">
           <font-awesome-icon icon="exclamation-triangle" />
         </span>
-        <spinner
+        <fb-spinner
           v-if="loading.remove"
           size="sm"
         />

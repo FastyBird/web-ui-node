@@ -6,19 +6,22 @@
     />
 
     <template v-else>
-      <thing-detail
-        ref="detail"
-        :thing="thing"
-      />
+      <template v-if="thing !== null">
+        <thing-detail
+          v-if="view.opened === view.items.detail.name || view.opened === view.items.settings.name"
+          ref="detail"
+          :thing="thing"
+        />
 
-      <thing-settings
-        v-if="settings"
-        ref="settings"
-        v-body-scroll-lock="true"
-        :thing="thing"
-        class="fb-iot-things-thing-detail-view__container-settings"
-        @removed="thingRemoved"
-      />
+        <thing-settings
+          v-if="view.opened === view.items.settings.name"
+          ref="settings"
+          v-body-scroll-lock="true"
+          :thing="thing"
+          class="fb-iot-things-thing-detail-view__container-settings"
+          @removed="thingRemoved"
+        />
+      </template>
     </template>
   </div>
 </template>
@@ -50,7 +53,23 @@
     data() {
       return {
         id: this.$route.params.id,
-        settings: false,
+        view: {
+          opened: 'detail', // Detail is by default
+          items: {
+            detail: {
+              name: 'detail',
+              route: {
+                hash: THINGS_HASH_DETAIL,
+              },
+            },
+            settings: {
+              name: 'settings',
+              route: {
+                hash: THINGS_HASH_SETTINGS,
+              },
+            },
+          },
+        },
       }
     },
 
@@ -105,8 +124,10 @@
       /**
        * Watch for thing updates
        */
-      thing() {
-        this._configureNavigation()
+      thing(val) {
+        if (val) {
+          this._configureNavigation()
+        }
       },
 
       windowSize(val) {
@@ -161,49 +182,53 @@
               .where('channel_id', params.id)
               .first()
 
-            store.dispatch('header/resetStore', null, {
-              root: true,
-            })
+            if (thing) {
+              store.dispatch('header/resetStore', null, {
+                root: true,
+              })
 
-            store.dispatch('header/setLeftButton', {
-              name: app.i18n.t('application.buttons.back.title'),
-              link: app.localePath(app.$routes.things.list),
-              icon: 'arrow-left',
-            }, {
-              root: true,
-            })
+              store.dispatch('header/setLeftButton', {
+                name: app.i18n.t('application.buttons.back.title'),
+                link: app.localePath(app.$routes.things.list),
+                icon: 'arrow-left',
+              }, {
+                root: true,
+              })
 
-            store.dispatch('header/setRightButton', {
-              name: app.i18n.t('application.buttons.edit.title'),
-              callback: null, // Null is set because of SSR and serialization
-            }, {
-              root: true,
-            })
+              store.dispatch('header/setRightButton', {
+                name: app.i18n.t('application.buttons.edit.title'),
+                callback: null, // Null is set because of SSR and serialization
+              }, {
+                root: true,
+              })
 
-            store.dispatch('header/setFullRowHeading', null, {
-              root: true,
-            })
+              store.dispatch('header/setFullRowHeading', null, {
+                root: true,
+              })
 
-            store.dispatch('header/setHeading', {
-              heading: app.$tThing(thing),
-              subHeading: thing.comment,
-            }, {
-              root: true,
-            })
+              store.dispatch('header/setHeading', {
+                heading: app.$tThing(thing),
+                subHeading: app.$tThingDevice(thing),
+              }, {
+                root: true,
+              })
 
-            store.dispatch('header/setHeadingIcon', {
-              icon: app.$thingIcon(thing),
-            }, {
-              root: true,
-            })
+              store.dispatch('header/setHeadingIcon', {
+                icon: app.$thingIcon(thing),
+              }, {
+                root: true,
+              })
 
-            store.dispatch('bottomNavigation/resetStore', null, {
-              root: true,
-            })
+              store.dispatch('bottomNavigation/resetStore', null, {
+                root: true,
+              })
 
-            store.dispatch('bottomNavigation/hideNavigation', null, {
-              root: true,
-            })
+              store.dispatch('bottomNavigation/hideNavigation', null, {
+                root: true,
+              })
+            } else {
+              error({ statusCode: 404, message: 'Thing Not Found' })
+            }
           })
           .catch(e => {
             if (get(e, 'exception.response.status', 0) === 404) {
@@ -261,10 +286,15 @@
     mounted() {
       this._checkRoute()
 
-      this._setBlocksHeight('detail')
+      this.$nextTick(() => {
+        this._setBlocksHeight('detail')
+      })
 
-      window.addEventListener('scroll', this._windowScrolledHandler)
       window.addEventListener('resize', this._windowResizeHandler)
+    },
+
+    updated() {
+      this._setBlocksHeight('detail')
     },
 
     beforeDestroy() {
@@ -281,7 +311,6 @@
         }
       }
 
-      window.removeEventListener('scroll', this._windowScrolledHandler)
       window.removeEventListener('resize', this._windowResizeHandler)
     },
 
@@ -295,68 +324,51 @@
       },
 
       /**
-       * Open thing settings part
-       */
-      _openSettings() {
-        this.$set(this, 'settings', true)
-
-        this.$nextTick(() => {
-          if (this._.get(this.$refs, 'settings')) {
-            const component = this._.get(this.$refs, 'settings')
-
-            this._setBlocksHeight('settings', 'height')
-
-            // Scroll view to setting part
-            this.$scrollTo(component.$el, 500, {
-              offset: (-1 * this.$store.state.theme.marginTop),
-            })
-          }
-        })
-      },
-
-      /**
-       * Close thing settings part
-       */
-      _closeSettings() {
-        if (this._.get(this.$refs, 'detail')) {
-          const component = this._.get(this.$refs, 'detail')
-
-          this.$scrollTo(component.$el, 500, {
-            offset: (-1 * this.$store.state.theme.marginTop),
-            onDone: () => {
-              this.$set(this, 'settings', false)
-              this._configureNavigationRightButton()
-            },
-          })
-        }
-      },
-
-      /**
-       * Check route and if is needed open detail window
+       * Open things view
        *
-       * @private
+       * @param {String} view
        */
-      _checkRoute() {
-        if (this.$route.hash !== '') {
-          if (this.$route.hash.indexOf(THINGS_HASH_SETTINGS) !== -1) {
-            this._openSettings()
-          }
-        }
-      },
+      openView(view) {
+        if (this.view.items.hasOwnProperty(view)) {
+          switch (view) {
+            case this.view.items.settings.name:
+              this.$router.push(this.localePath({
+                name: this.$routes.things.detail,
+                params: {
+                  id: this.id,
+                },
+                hash: this.view.items.settings.route.hash,
+              }))
 
-      /**
-       * If it is possible and necessary, connect thing to sockets
-       *
-       * @private
-       */
-      _subscribeSockets() {
-        if (this.exchangeConnected) {
-          this.$store.dispatch('entities/device_socket/subscribe', {
-            device_id: this.thing.device_id,
-          }, {
-            root: true,
-          })
+              this.$nextTick(() => {
+                if (this._.get(this.$refs, 'settings')) {
+                  const component = this._.get(this.$refs, 'settings')
+
+                  this._setBlocksHeight('settings', 'height')
+
+                  // Scroll view to setting part
+                  this.$scrollTo(component.$el, 500, {
+                    offset: (-1 * this.$store.state.theme.marginTop),
+                  })
+                }
+              })
+              break
+
+            default:
+              this.$router.push(this.localePath({
+                name: this.$routes.things.detail,
+                params: {
+                  id: this.id,
+                },
+              }))
+              break
+          }
+
+          this.view.opened = view
         }
+
+        // Reconfigure navigation after changes
+        this._configureNavigation()
       },
 
       /**
@@ -369,7 +381,42 @@
           root: true,
         })
 
-        this._configureNavigationRightButton()
+        this.$store.dispatch('header/setLeftButton', {
+          name: this.$t('application.buttons.back.title'),
+          link: this.localePath(this.$routes.things.list),
+          icon: 'arrow-left',
+        }, {
+          root: true,
+        })
+
+        if (this.view.opened === this.view.items.settings.name) {
+          this.$store.dispatch('header/setRightButton', {
+            name: this.$t('application.buttons.close.title'),
+            callback: () => {
+              if (this._.get(this.$refs, 'detail')) {
+                const component = this._.get(this.$refs, 'detail')
+
+                this.$scrollTo(component.$el, 500, {
+                  offset: (-1 * this.$store.state.theme.marginTop),
+                  onDone: () => {
+                    this.openView(this.view.items.detail.name)
+                  },
+                })
+              }
+            },
+          }, {
+            root: true,
+          })
+        } else {
+          this.$store.dispatch('header/setRightButton', {
+            name: this.$t('application.buttons.edit.title'),
+            callback: () => {
+              this.openView(this.view.items.settings.name)
+            },
+          }, {
+            root: true,
+          })
+        }
 
         this.$store.dispatch('header/setFullRowHeading', null, {
           root: true,
@@ -377,7 +424,7 @@
 
         this.$store.dispatch('header/setHeading', {
           heading: this.$tThing(this.thing),
-          subHeading: this.thing.comment,
+          subHeading: this.$tThingDevice(this.thing),
         }, {
           root: true,
         })
@@ -398,55 +445,31 @@
       },
 
       /**
-       * Configure page header right navigation button
+       * Check route and if is needed open detail window
        *
        * @private
        */
-      _configureNavigationRightButton() {
-        this.$store.dispatch('header/setLeftButton', {
-          name: this.$t('application.buttons.back.title'),
-          link: this.localePath(this.$routes.things.list),
-          icon: 'arrow-left',
-        }, {
-          root: true,
-        })
-
-        if (
-          this.settings &&
-          this._.get(this.$refs, 'settings') &&
-          this._.get(this.$refs, 'settings.$el').getBoundingClientRect().top <= (this.$store.state.theme.marginTop + 1)
-        ) {
-          this.$store.dispatch('header/setRightButton', {
-            name: this.$t('application.buttons.close.title'),
-            callback: () => {
-              this._closeSettings()
-            },
-          }, {
-            root: true,
-          })
-
-          this._setOpenedSettingsRoute()
-        } else {
-          this.$store.dispatch('header/setRightButton', {
-            name: this.$t('application.buttons.edit.title'),
-            callback: () => {
-              this._openSettings()
-            },
-          }, {
-            root: true,
-          })
-
-          this._setClosedSettingsRoute()
+      _checkRoute() {
+        if (this.$route.hash !== '') {
+          if (this.$route.hash.indexOf(THINGS_HASH_SETTINGS) !== -1) {
+            this.openView(this.view.items.settings.name)
+          }
         }
       },
 
       /**
-       * Update view according to view position
+       * If it is possible and necessary, connect thing to sockets
        *
        * @private
        */
-      _windowScrolledHandler() {
-        this._configureNavigationRightButton()
+      _subscribeSockets() {
+        if (this.exchangeConnected) {
+          this.$store.dispatch('entities/device_socket/subscribe', {
+            device_id: this.thing.device_id,
+          }, {
+            root: true,
+          })
+        }
       },
 
       /**
@@ -458,8 +481,8 @@
         this._setBlocksHeight('detail')
         this._setBlocksHeight('settings', 'height')
 
-        if (this.settings && this._.get(this.$refs, 'settings')) {
-          const component = this._.get(this.$refs, 'settings')
+        if (this._.get(this.$refs, this.view.opened)) {
+          const component = this._.get(this.$refs, this.view.opened)
 
           this.$scrollTo(component.$el, 1, {
             offset: (-1 * this.$store.state.theme.marginTop),
@@ -481,35 +504,6 @@
 
           component.$el.style[attribute] = `${document.querySelector('body').clientHeight}px`
         }
-      },
-
-      /**
-       * Change route accordingly to view position
-       *
-       * @private
-       */
-      _setOpenedSettingsRoute() {
-        this.$router.push(this.localePath({
-          name: this.$routes.things.detail,
-          params: {
-            id: this.thing.channel_id,
-          },
-          hash: THINGS_HASH_SETTINGS,
-        }))
-      },
-
-      /**
-       * Change route accordingly to view position
-       *
-       * @private
-       */
-      _setClosedSettingsRoute() {
-        this.$router.push(this.localePath({
-          name: this.$routes.things.detail,
-          params: {
-            id: this.thing.channel_id,
-          },
-        }))
       },
 
     },

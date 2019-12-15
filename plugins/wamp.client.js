@@ -21,8 +21,14 @@ function WampV1(host, store) {
 
 WampV1.prototype.open = function() {
   if (!this.isConnected) {
-    // Open WS connection to server
-    this.socket = new WebSocket(this.wsuri)
+    try {
+      // Open WS connection to server
+      this.socket = new WebSocket(this.wsuri)
+    } catch (e) {
+      this.reconnect()
+
+      return
+    }
 
     // Connection established with WS server
     this.socket.addEventListener('open', () => {

@@ -30,7 +30,7 @@
       </template>
 
       <template slot="sub-heading">
-        {{ thing.comment }}
+        {{ $tThingDevice(thing) }}
       </template>
 
       <template slot="detail">
@@ -64,10 +64,7 @@
         },
         validator: (value) => {
           value.forEach(item => {
-            if (
-              !item.hasOwnProperty('enabled') ||
-              !item.hasOwnProperty('thing')
-            ) {
+            if (!item.hasOwnProperty('thing')) {
               return false
             }
           })

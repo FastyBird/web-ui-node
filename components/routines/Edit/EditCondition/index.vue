@@ -12,7 +12,6 @@
           v-model="model"
           :thing="thing"
           :property="property"
-          :condition="condition"
         />
       </list-items-container>
     </template>
@@ -29,7 +28,6 @@
           v-model="model"
           :thing="thing"
           :property="property"
-          :condition="condition"
         />
       </list-items-container>
     </template>
@@ -78,25 +76,17 @@
         required: true,
       },
 
-      conditions: {
-        type: Array,
-        default: () => {
-          return []
-        },
+      condition: {
+        type: Object,
+        default: null,
         validator: (value) => {
-          value.forEach(condition => {
-            if (
-              !condition.hasOwnProperty('enabled') ||
-              !condition.hasOwnProperty('thing') ||
-              !condition.hasOwnProperty('rows') ||
-              !Array.isArray(condition.rows) ||
-              !condition.rows.length
-            ) {
-              return false
-            }
-          })
-
-          return true
+          return !(
+            !value.hasOwnProperty('thing') ||
+            !value.hasOwnProperty('enabled') ||
+            !value.hasOwnProperty('rows') ||
+            !Array.isArray(value.rows) ||
+            !value.rows.length
+          )
         },
       },
 
@@ -104,7 +94,7 @@
 
     data() {
       return {
-        model: [],
+        model: {},
       }
     },
 
@@ -219,19 +209,6 @@
         return this._.filter(this._.get(this.thing, 'channel.properties', []), 'isButton')
       },
 
-      /**
-       * Get assigned condition if exists
-       *
-       * @returns {Object|null}
-       */
-      condition() {
-        const condition = this.conditions.find(item => {
-          return item.thing === this.thing.id
-        })
-
-        return typeof condition !== 'undefined' ? condition : null
-      },
-
     },
 
     created() {
@@ -283,7 +260,7 @@
 
       this.$store.dispatch('header/setHeading', {
         heading: this.$tThing(this.thing),
-        subHeading: this.thing.comment,
+        subHeading: this.$tThingDevice(this.thing),
       }, {
         root: true,
       })
@@ -338,35 +315,30 @@
         const condition = {
           thing: this.condition ? this.condition.thing : this.thing.id,
           enabled: this.condition ? this.condition.enabled : true,
-          rows: [],
+          rows: this._.filter(this._.get(this.model, 'rows', []), 'selected')
+            .map(row => {
+              return {
+                property: row.property,
+                operator: row.operator,
+                operand: row.operand,
+              }
+            }),
         }
 
-        let missingOperand = false
+        const missingOperand = this._.filter(condition.rows, ({ operand }) => operand === null)
 
-        this.model.forEach(channel => {
-          channel.properties.forEach(property => {
-            if (property.selected && property.operand !== null) {
-              condition.rows.push({
-                channel: channel.channel,
-                property: property.property,
-                operator: property.operator,
-                operand: property.operand,
-              })
-            } else if (property.selected && property.operand === null) {
-              this.$flashMessage(this.$t('messages.fillOperand', {
-                thing: this.$tThing(this.thing),
-                property: this.$tChannelProperty(this.thing, this.$store.getters['entities/channel_property/find'](property.property)),
-              }), 'info')
-
-              missingOperand = true
-            }
+        missingOperand
+          .forEach(row => {
+            this.$flashMessage(this.$t('routines.messages.fillConditionOperand', {
+              thing: this.$tThing(this.thing),
+              property: this.$tChannelProperty(this.thing, this.$store.getters['entities/channel_property/find'](row.property)),
+            }), 'info')
           })
-        })
 
-        if (condition.rows.length && !missingOperand) {
+        if (condition.rows.length && missingOperand.length === 0) {
           this.$emit('add', condition)
-        } else if (!missingOperand) {
-          this.$flashMessage(this.$t('messages.selectProperty'), 'info')
+        } else if (missingOperand.length === 0) {
+          this.$flashMessage(this.$t('routines.messages.selectPropertyCondition'), 'info')
         }
       },
 
@@ -376,13 +348,12 @@
        * @private
        */
       _initModel() {
-        this.model = []
-
-        const operator = {
-          channel: this.thing.channel_id,
-          properties: [],
+        this.model = {
+          thing: this.thing.id,
+          rows: [],
         }
 
+        // Iterate over all thing[device channel] properties
         this._.get(this.thing, 'channel.properties', [])
           .forEach(property => {
             let defaultOperand = null
@@ -394,19 +365,17 @@
             }
 
             if (this.condition) {
-              const storedProperty = this.condition.rows.find(item => {
-                return item.property === property.id
-              })
+              const storedProperty = this.condition.rows.find(row => row.property === property.id)
 
               if (typeof storedProperty !== 'undefined') {
-                operator.properties.push({
+                this.model.rows.push({
                   property: property.id,
                   selected: true,
                   operator: storedProperty.operator,
                   operand: storedProperty.operand,
                 })
               } else {
-                operator.properties.push({
+                this.model.rows.push({
                   property: property.id,
                   selected: false,
                   operator: 'eq',
@@ -414,7 +383,7 @@
                 })
               }
             } else {
-              operator.properties.push({
+              this.model.rows.push({
                 property: property.id,
                 selected: false,
                 operator: 'eq',
@@ -422,8 +391,6 @@
               })
             }
           })
-
-        this.model.push(operator)
       },
 
       /**

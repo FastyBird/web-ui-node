@@ -5,6 +5,7 @@ import find from 'lodash/find'
 import filter from 'lodash/filter'
 import first from 'lodash/first'
 import cloneDeep from 'lodash/cloneDeep'
+import uniq from 'lodash/uniq'
 
 const lodash = {
   get,
@@ -12,6 +13,7 @@ const lodash = {
   filter,
   first,
   cloneDeep,
+  uniq,
 }
 
 Vue._ = lodash

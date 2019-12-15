@@ -22,138 +22,104 @@
         :tab-index="3"
       />
 
-      <div class="row">
-        <div class="col-4 text-center">
-          <a
-            href="#"
-            class="fb-iot-groups-create__icon"
-          >
-            <font-awesome-icon
-              icon="blender"
-              class="icon-3x"
-            />
-          </a>
-        </div>
-        <div class="col-4 text-center">
-          <a
-            href="#"
-            class="fb-iot-groups-create__icon"
-          >
-            <font-awesome-icon
-              icon="baby"
-              class="icon-3x"
-            />
-          </a>
-        </div>
-        <div class="col-4 text-center">
-          <a
-            href="#"
-            class="fb-iot-groups-create__icon"
-          >
-            <font-awesome-icon
-              icon="bath"
-              class="icon-3x"
-            />
-          </a>
-        </div>
-        <div class="col-4 text-center">
-          <a
-            href="#"
-            class="fb-iot-groups-create__icon"
-          >
-            <font-awesome-icon
-              icon="shower"
-              class="icon-3x"
-            />
-          </a>
-        </div>
-        <div class="col-4 text-center">
-          <a
-            href="#"
-            class="fb-iot-groups-create__icon"
-          >
-            <font-awesome-icon
-              icon="toilet"
-              class="icon-3x"
-            />
-          </a>
-        </div>
-        <div class="col-4 text-center">
-          <a
-            href="#"
-            class="fb-iot-groups-create__icon"
-          >
-            <font-awesome-icon
-              icon="chair"
-              class="icon-3x"
-            />
-          </a>
-        </div>
-        <div class="col-4 text-center">
-          <a
-            href="#"
-            class="fb-iot-groups-create__icon"
-          >
-            <font-awesome-icon
-              icon="couch"
-              class="icon-3x"
-            />
-          </a>
-        </div>
-        <div class="col-4 text-center">
-          <a
-            href="#"
-            class="fb-iot-groups-create__icon"
-          >
-            <font-awesome-icon
-              icon="tv"
-              class="icon-3x"
-            />
-          </a>
-        </div>
-        <div class="col-4 text-center">
-          <a
-            href="#"
-            class="fb-iot-groups-create__icon"
-          >
-            <font-awesome-icon
-              icon="gamepad"
-              class="icon-3x"
-            />
-          </a>
-        </div>
-        <div class="col-4 text-center">
-          <a
-            href="#"
-            class="fb-iot-groups-create__icon"
-          >
-            <font-awesome-icon
-              icon="hot-tub"
-              class="icon-3x"
-            />
-          </a>
-        </div>
-        <div class="col-4 text-center">
-          <a
-            href="#"
-            class="fb-iot-groups-create__icon"
-          >
-            <font-awesome-icon
-              icon="swimming-pool"
-              class="icon-3x"
-            />
-          </a>
-        </div>
-        <div class="col-4 text-center">
-          <a
-            href="#"
-            class="fb-iot-groups-create__icon"
-          >
-            <font-awesome-icon
-              icon="bed"
-              class="icon-3x"
-            />
-          </a>
+      <div class="fb-iot-groups-create__icons">
+        <div>
+          <div>
+            <a
+              href="#"
+              class="fb-iot-groups-create__icon"
+            >
+              <font-awesome-icon icon="blender" />
+            </a>
+          </div>
+          <div>
+            <a
+              href="#"
+              class="fb-iot-groups-create__icon"
+            >
+              <font-awesome-icon icon="baby" />
+            </a>
+          </div>
+          <div>
+            <a
+              href="#"
+              class="fb-iot-groups-create__icon"
+            >
+              <font-awesome-icon icon="bath" />
+            </a>
+          </div>
+          <div>
+            <a
+              href="#"
+              class="fb-iot-groups-create__icon"
+            >
+              <font-awesome-icon icon="shower" />
+            </a>
+          </div>
+          <div>
+            <a
+              href="#"
+              class="fb-iot-groups-create__icon"
+            >
+              <font-awesome-icon icon="toilet" />
+            </a>
+          </div>
+          <div>
+            <a
+              href="#"
+              class="fb-iot-groups-create__icon"
+            >
+              <font-awesome-icon icon="chair" />
+            </a>
+          </div>
+          <div>
+            <a
+              href="#"
+              class="fb-iot-groups-create__icon"
+            >
+              <font-awesome-icon icon="couch" />
+            </a>
+          </div>
+          <div>
+            <a
+              href="#"
+              class="fb-iot-groups-create__icon"
+            >
+              <font-awesome-icon icon="tv" />
+            </a>
+          </div>
+          <div>
+            <a
+              href="#"
+              class="fb-iot-groups-create__icon"
+            >
+              <font-awesome-icon icon="gamepad" />
+            </a>
+          </div>
+          <div>
+            <a
+              href="#"
+              class="fb-iot-groups-create__icon"
+            >
+              <font-awesome-icon icon="hot-tub" />
+            </a>
+          </div>
+          <div>
+            <a
+              href="#"
+              class="fb-iot-groups-create__icon"
+            >
+              <font-awesome-icon icon="swimming-pool" />
+            </a>
+          </div>
+          <div>
+            <a
+              href="#"
+              class="fb-iot-groups-create__icon"
+            >
+              <font-awesome-icon icon="bed" />
+            </a>
+          </div>
         </div>
       </div>
     </form>
@@ -226,51 +192,19 @@
                   if (this._.get(e, 'exception', null) !== null) {
                     this.handleFormError(e.exception, errorMessage)
                   } else {
-                    this.$toasted.error(errorMessage, {
-                      action: {
-                        text: this.$t('application.buttons.close.title'),
-                        onClick: (evnt, toastObject) => {
-                          toastObject.goAway(0)
-                        },
-                      },
-                    })
+                    this.$flashMessage(errorMessage, 'error')
                   }
                 })
-
-              this.$toasted.success(this.$t('groups.messages.created', {
-                group: this.form.model.title,
-              }), {
-                action: {
-                  text: this.$t('application.buttons.close.title'),
-                  onClick: (evnt, toastObject) => {
-                    toastObject.goAway(0)
-                  },
-                },
-              })
 
               this._initModel()
 
               this.$emit('close')
             } else {
-              this.$toasted.info(this.$t('application.messages.fixAllFormErrors'), {
-                action: {
-                  text: this.$t('application.buttons.close.title'),
-                  onClick: (evnt, toastObject) => {
-                    toastObject.goAway(0)
-                  },
-                },
-              })
+              this.$flashMessage(this.$t('application.messages.fixAllFormErrors'), 'info')
             }
           })
           .catch(() => {
-            this.$toasted.info(this.$t('application.messages.fixAllFormErrors'), {
-              action: {
-                text: this.$t('application.buttons.close.title'),
-                onClick: (evnt, toastObject) => {
-                  toastObject.goAway(0)
-                },
-              },
-            })
+            this.$flashMessage(this.$t('application.messages.fixAllFormErrors'), 'info')
           })
       },
 

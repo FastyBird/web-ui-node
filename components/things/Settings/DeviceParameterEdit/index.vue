@@ -1,6 +1,7 @@
 <template>
   <fb-modal-form
     :transparent-bg="transparentBg"
+    :lock-submit-button="form.result !== null"
     icon="cogs"
     @submit="submit"
     @close="close"
@@ -10,80 +11,84 @@
     </template>
 
     <template slot="form">
-      <p
-        v-if="!thing.state"
-        class="alert alert-warning"
-        role="alert"
-      >
-        This thing is offline. Therefore you can't edit its setting
-      </p>
-
-      <fb-form-input
-        v-if="parameter.isNumber"
-        v-model="form.model"
-        v-validate="`required|numeric|between:${parameter.min},${parameter.max}`"
-        :data-vv-scope="form.scope"
-        :data-vv-as="translatedLabel"
-        :data-vv-min="parameter.min"
-        :data-vv-max="parameter.max"
-        :error="errors.first(`${form.scope}.${parameter.name}`)"
-        :has-error="errors.has(`${form.scope}.${parameter.name}`)"
-        :name="parameter.name"
-        :label="translatedLabel"
-        :required="true"
-        :tab-index="2"
-        type="number"
-      >
-        <template
-          v-if="translatedDescription !== null && !errors.has(`${form.scope}.${parameter.name}`)"
-          slot="help-line"
+      <template v-if="form.result === null">
+        <p
+          v-if="!thing.state"
+          class="alert alert-warning"
+          role="alert"
         >
-          {{ translatedDescription }}
-        </template>
-      </fb-form-input>
+          This thing is offline. Therefore you can't edit its setting
+        </p>
 
-      <fb-form-input
-        v-if="parameter.isText"
-        v-model="form.model"
-        v-validate="'required'"
-        :data-vv-scope="form.scope"
-        :data-vv-as="translatedLabel"
-        :error="errors.first(`${form.scope}.${parameter.name}`)"
-        :has-error="errors.has(`${form.scope}.${parameter.name}`)"
-        :name="parameter.name"
-        :label="translatedLabel"
-        :required="true"
-        :tab-index="2"
-        type="text"
-      >
-        <template
-          v-if="translatedDescription !== null && !errors.has(`${form.scope}.${parameter.name}`)"
-          slot="help-line"
+        <fb-form-input
+          v-if="parameter.isNumber"
+          v-model="form.model"
+          v-validate="`required|numeric|between:${parameter.min},${parameter.max}`"
+          :data-vv-scope="form.scope"
+          :data-vv-as="translatedLabel"
+          :data-vv-min="parameter.min"
+          :data-vv-max="parameter.max"
+          :error="errors.first(`${form.scope}.${parameter.name}`)"
+          :has-error="errors.has(`${form.scope}.${parameter.name}`)"
+          :name="parameter.name"
+          :label="translatedLabel"
+          :required="true"
+          :tab-index="2"
+          type="number"
         >
-          {{ translatedDescription }}
-        </template>
-      </fb-form-input>
+          <template
+            v-if="translatedDescription !== null && !errors.has(`${form.scope}.${parameter.name}`)"
+            slot="help-line"
+          >
+            {{ translatedDescription }}
+          </template>
+        </fb-form-input>
 
-      <fb-form-select
-        v-if="parameter.isSelect"
-        v-model="form.model"
-        :items="parameterItems"
-        :data-vv-scope="form.scope"
-        :data-vv-as="translatedLabel"
-        :error="errors.first(`${form.scope}.${parameter.name}`)"
-        :has-error="errors.has(`${form.scope}.${parameter.name}`)"
-        :name="parameter.name"
-        :label="translatedLabel"
-        :tab-index="2"
-        :required="true"
-      >
-        <template
-          v-if="translatedDescription !== null && !errors.has(`${form.scope}.${parameter.name}`)"
-          slot="help-line"
+        <fb-form-input
+          v-if="parameter.isText"
+          v-model="form.model"
+          v-validate="'required'"
+          :data-vv-scope="form.scope"
+          :data-vv-as="translatedLabel"
+          :error="errors.first(`${form.scope}.${parameter.name}`)"
+          :has-error="errors.has(`${form.scope}.${parameter.name}`)"
+          :name="parameter.name"
+          :label="translatedLabel"
+          :required="true"
+          :tab-index="2"
+          type="text"
         >
-          {{ translatedDescription }}
-        </template>
-      </fb-form-select>
+          <template
+            v-if="translatedDescription !== null && !errors.has(`${form.scope}.${parameter.name}`)"
+            slot="help-line"
+          >
+            {{ translatedDescription }}
+          </template>
+        </fb-form-input>
+
+        <fb-form-select
+          v-if="parameter.isSelect"
+          v-model="form.model"
+          :items="parameterItems"
+          :data-vv-scope="form.scope"
+          :data-vv-as="translatedLabel"
+          :error="errors.first(`${form.scope}.${parameter.name}`)"
+          :has-error="errors.has(`${form.scope}.${parameter.name}`)"
+          :name="parameter.name"
+          :label="translatedLabel"
+          :tab-index="2"
+          :required="true"
+        >
+          <template
+            v-if="translatedDescription !== null && !errors.has(`${form.scope}.${parameter.name}`)"
+            slot="help-line"
+          >
+            {{ translatedDescription }}
+          </template>
+        </fb-form-select>
+      </template>
+
+      <result-ok v-if="form.result === true" />
     </template>
   </fb-modal-form>
 </template>
@@ -117,6 +122,7 @@
         form: {
           scope: 'io_server_thing_edit_property',
           model: null,
+          result: null,
         },
       }
     },
@@ -262,11 +268,9 @@
                 root: true,
               })
 
-              this.$flashMessage(this.$t('things.messages.edited', {
-                thing: this.$tThing(this.thing),
-              }))
+              this.form.result = true
 
-              this.$emit('close')
+              this.$timer.start('close')
             } else {
               this.$flashMessage(this.$t('application.messages.fixAllFormErrors'), 'info')
             }
@@ -298,6 +302,12 @@
         this.errors.clear(this.form.scope)
       },
 
+    },
+
+    timers: {
+      close: {
+        time: 2000,
+      },
     },
 
   }

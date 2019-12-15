@@ -12,7 +12,6 @@
           v-model="model"
           :thing="thing"
           :property="property"
-          :action="action"
         />
       </list-items-container>
     </template>
@@ -61,25 +60,17 @@
         required: true,
       },
 
-      actions: {
-        type: Array,
-        default: () => {
-          return []
-        },
+      action: {
+        type: Object,
+        default: null,
         validator: (value) => {
-          value.forEach(action => {
-            if (
-              !action.hasOwnProperty('enabled') ||
-              !action.hasOwnProperty('thing') ||
-              !action.hasOwnProperty('rows') ||
-              !Array.isArray(action.rows) ||
-              !action.rows.length
-            ) {
-              return false
-            }
-          })
-
-          return true
+          return !(
+            !value.hasOwnProperty('thing') ||
+            !value.hasOwnProperty('enabled') ||
+            !value.hasOwnProperty('rows') ||
+            !Array.isArray(value.rows) ||
+            !value.rows.length
+          )
         },
       },
 
@@ -87,7 +78,7 @@
 
     data() {
       return {
-        model: [],
+        model: {},
       }
     },
 
@@ -136,19 +127,6 @@
        */
       switchProperties() {
         return this._.filter(this._.get(this.thing, 'channel.properties', []), 'isSwitch')
-      },
-
-      /**
-       * Get assigned action if exists
-       *
-       * @returns {Object|null}
-       */
-      action() {
-        const action = this.actions.find(item => {
-          return item.thing === this.thing.id
-        })
-
-        return typeof action !== 'undefined' ? action : null
       },
 
     },
@@ -202,7 +180,7 @@
 
       this.$store.dispatch('header/setHeading', {
         heading: this.$tThing(this.thing),
-        subHeading: this.thing.comment,
+        subHeading: this.$tThingDevice(this.thing),
       }, {
         root: true,
       })
@@ -257,20 +235,14 @@
         const action = {
           thing: this.action ? this.action.thing : this.thing.id,
           enabled: this.action ? this.action.enabled : true,
-          rows: [],
+          rows: this._.filter(this._.get(this.model, 'rows', []), 'selected')
+            .map(row => {
+              return {
+                property: row.property,
+                operation: row.operation,
+              }
+            }),
         }
-
-        this.model.forEach(channel => {
-          channel.properties.forEach(property => {
-            if (property.selected) {
-              action.rows.push({
-                channel: channel.channel,
-                property: property.property,
-                operation: property.operation,
-              })
-            }
-          })
-        })
 
         if (action.rows.length) {
           this.$emit('add', action)
@@ -285,13 +257,12 @@
        * @private
        */
       _initModel() {
-        this.model = []
-
-        const operation = {
-          channel: this.thing.channel_id,
-          properties: [],
+        this.model = {
+          thing: this.thing.id,
+          rows: [],
         }
 
+        // Iterate over all thing[device channel] properties
         this._.get(this.thing, 'channel.properties', [])
           .forEach(property => {
             let defaultValue = null
@@ -303,33 +274,29 @@
             }
 
             if (this.action) {
-              const storedProperty = this.action.rows.find(item => {
-                return item.property === property.id
-              })
+              const storedProperty = this.action.rows.find(row => row.property === property.id)
 
               if (typeof storedProperty !== 'undefined') {
-                operation.properties.push({
+                this.model.rows.push({
                   property: property.id,
                   selected: true,
                   operation: storedProperty.operation,
                 })
               } else {
-                operation.properties.push({
+                this.model.rows.push({
                   property: property.id,
                   selected: false,
                   operation: defaultValue,
                 })
               }
             } else {
-              operation.properties.push({
+              this.model.rows.push({
                 property: property.id,
                 selected: false,
                 operation: defaultValue,
               })
             }
           })
-
-        this.model.push(operation)
       },
 
       /**

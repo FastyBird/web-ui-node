@@ -9,7 +9,7 @@
         <span class="fb-iot-groups-settings-group__item-icon">
           <font-awesome-icon icon="angle-right" />
         </span>
-        <spinner
+        <fb-spinner
           v-if="loading.rename"
           size="sm"
         />
@@ -24,7 +24,7 @@
         <span class="fb-iot-groups-settings-group__item-icon">
           <font-awesome-icon icon="exclamation-triangle" />
         </span>
-        <spinner
+        <fb-spinner
           v-if="loading.remove"
           size="sm"
         />

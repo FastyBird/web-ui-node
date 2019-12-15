@@ -18,6 +18,18 @@
     >
       {{ routine.comment }}
     </template>
+
+    <template slot="detail">
+      <div class="fb-routines-list-item__info">
+        <small>{{ $tc('routines.texts.routineThings', thingsCount, { count: thingsCount }) }}</small>
+
+        <font-awesome-icon
+          icon="chevron-right"
+          role="button"
+          style="float: right;"
+        />
+      </div>
+    </template>
   </list-item>
 </template>
 
@@ -31,6 +43,23 @@
       routine: {
         type: Object,
         required: true,
+      },
+
+    },
+
+    computed: {
+
+      /**
+       * Count total things count (actions)
+       *
+       * @returns {Number}
+       */
+      thingsCount() {
+        return this._.uniq(this._.get(this.routine, 'actions', [])
+          .map(item => {
+            return item.channel_id
+          }))
+          .length
       },
 
     },

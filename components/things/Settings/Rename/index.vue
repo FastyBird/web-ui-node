@@ -1,6 +1,7 @@
 <template>
   <fb-modal-form
     :transparent-bg="transparentBg"
+    :lock-submit-button="form.result !== null"
     icon="pencil-alt"
     @submit="submit"
     @close="close"
@@ -10,28 +11,32 @@
     </template>
 
     <template slot="form">
-      <fb-form-input
-        v-model="form.model.title"
-        v-validate="'required'"
-        :data-vv-scope="form.scope"
-        :error="errors.first(form.scope + '.title')"
-        :has-error="errors.has(form.scope + '.title')"
-        :name="'title'"
-        :label="$t('things.vendors.global.title.title')"
-        :placeholder="thing.name"
-        :required="true"
-        :tab-index="2"
-      />
+      <template v-if="form.result === null">
+        <fb-form-input
+          v-model="form.model.title"
+          v-validate="'required'"
+          :data-vv-scope="form.scope"
+          :error="errors.first(form.scope + '.title')"
+          :has-error="errors.has(form.scope + '.title')"
+          :name="'title'"
+          :label="$t('things.vendors.global.title.title')"
+          :placeholder="thing.name"
+          :required="true"
+          :tab-index="2"
+        />
 
-      <fb-form-text-area
-        v-model="form.model.comment"
-        :data-vv-scope="form.scope"
-        :error="errors.first(form.scope + '.comment')"
-        :has-error="errors.has(form.scope + '.comment')"
-        :name="'comment'"
-        :label="$t('things.vendors.global.comment.title')"
-        :tab-index="3"
-      />
+        <fb-form-text-area
+          v-model="form.model.comment"
+          :data-vv-scope="form.scope"
+          :error="errors.first(form.scope + '.comment')"
+          :has-error="errors.has(form.scope + '.comment')"
+          :name="'comment'"
+          :label="$t('things.vendors.global.comment.title')"
+          :tab-index="3"
+        />
+      </template>
+
+      <result-ok v-if="form.result === true" />
     </template>
   </fb-modal-form>
 </template>
@@ -60,6 +65,7 @@
         form: {
           scope: 'io_server_thing_edit_name',
           model: {},
+          result: null,
         },
       }
     },
@@ -113,13 +119,9 @@
                   }
                 })
 
-              this.$flashMessage(this.$t('things.messages.renamed', {
-                thing: this.form.model.title,
-              }))
+              this.form.result = true
 
-              this._initModel()
-
-              this.$emit('close')
+              this.$timer.start('close')
             } else {
               this.$flashMessage(this.$t('application.messages.fixAllFormErrors'), 'info')
             }
@@ -149,13 +151,19 @@
        */
       _initModel() {
         this.form.model = {
-          title: this.thing.title,
-          comment: this.thing.comment,
+          title: this.$tThing(this.thing),
+          comment: this.$tThingDevice(this.thing),
         }
 
         this.errors.clear(this.form.scope)
       },
 
+    },
+
+    timers: {
+      close: {
+        time: 2000,
+      },
     },
 
   }

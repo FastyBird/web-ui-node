@@ -56,13 +56,15 @@
 
         this._.get(this.routine, 'conditions', [])
           .forEach(condition => {
-            conditions.push({
-              thing: condition.channel_id,
-              enabled: condition.enabled,
-              device_id: condition.device_id,
-              channel_id: condition.channel_id,
-              rows: [],
-            })
+            if (typeof conditions.find(({ channel_id }) => channel_id === condition.channel_id) === 'undefined') {
+              conditions.push({
+                thing: condition.channel_id,
+                enabled: condition.enabled,
+                device_id: condition.device_id,
+                channel_id: condition.channel_id,
+                rows: [],
+              })
+            }
           })
 
         for (const i in conditions) {
@@ -92,13 +94,15 @@
 
         this._.get(this.routine, 'actions', [])
           .forEach(action => {
-            actions.push({
-              thing: action.channel_id,
-              enabled: action.enabled,
-              device_id: action.device_id,
-              channel_id: action.channel_id,
-              rows: [],
-            })
+            if (typeof actions.find(({ channel_id }) => channel_id === action.channel_id) === 'undefined') {
+              actions.push({
+                thing: action.channel_id,
+                enabled: action.enabled,
+                device_id: action.device_id,
+                channel_id: action.channel_id,
+                rows: [],
+              })
+            }
           })
 
         for (const i in actions) {

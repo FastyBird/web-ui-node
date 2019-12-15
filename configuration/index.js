@@ -7,7 +7,7 @@ import {
 export const AUTHOR_NAME = 'FastyBird s.r.o.'
 export const AUTHOR_WEBSITE = 'https://www.fastybird.com'
 
-export const MQTT_SERVER_ADDRESS = process.env.VUE_APP_MQTT_SERVER_ADDRESS
+export const MQTT_SERVER_ADDRESS = process.env.NUXT_ENV_MQTT_SERVER_ADDRESS
 export const MQTT_SERVER_PORT = '1883'
 export const MQTT_SERVER_SECURED_PORT = '8883'
 

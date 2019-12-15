@@ -14,8 +14,6 @@ import OffCanvasBody from '@/components/layout/OffCanvas/Body'
 import ResultOk from '@/components/layout/ResultOk'
 import ResultError from '@/components/layout/ResultError'
 import SettingsListItem from '@/components/layout/SettingsListItem'
-import Spinner from '@/components/layout/Spinner'
-import SwitchElement from '@/components/layout/SwitchElement'
 
 Vue.component('IconWithChild', IconWithChild)
 Vue.component('ListItem', ListItem)
@@ -26,5 +24,3 @@ Vue.component('OffCanvasBody', OffCanvasBody)
 Vue.component('ResultOk', ResultOk)
 Vue.component('ResultError', ResultError)
 Vue.component('SettingsListItem', SettingsListItem)
-Vue.component('Spinner', Spinner)
-Vue.component('SwitchElement', SwitchElement)

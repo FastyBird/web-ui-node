@@ -128,8 +128,8 @@
             })
 
             store.dispatch('header/setHeading', {
-              heading: thing.label,
-              subHeading: thing.comment,
+              heading: app.$tThing(thing),
+              subHeading: app.$tThingDevice(thing),
             }, {
               root: true,
             })
@@ -224,8 +224,8 @@
         })
 
         this.$store.dispatch('header/setHeading', {
-          heading: this.thing.label,
-          subHeading: this.thing.comment,
+          heading: this.$tThing(this.thing),
+          subHeading: this.$tThingDevice(this.thing),
         }, {
           root: true,
         })
