@@ -121,12 +121,19 @@
 
     watch: {
 
-      /**
-       * Watch for thing updates
-       */
-      thing(val) {
-        if (val) {
-          this._configureNavigation()
+      '$route'(val) {
+        if (this._.get(val, 'hash', '') !== '') {
+          for (const viewName in this.view.items) {
+            if (
+              this.view.items.hasOwnProperty(viewName)
+              && this.view.items[viewName].name !== this.view.opened
+              && val.hash.indexOf(this._.get(this.view.items[viewName], 'route.hash', '')) !== -1
+            ) {
+              this.openView(this.view.items[viewName].name)
+
+              return
+            }
+          }
         }
       },
 

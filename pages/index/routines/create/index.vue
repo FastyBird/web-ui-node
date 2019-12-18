@@ -704,7 +704,7 @@
       },
 
       /**
-       * Configure page header for small things
+       * Configure page header for small devices
        *
        * @private
        */
