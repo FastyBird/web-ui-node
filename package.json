@@ -5,13 +5,16 @@
   "author": "FastyBird s.r.o.",
   "private": true,
   "scripts": {
-    "dev": "nuxt",
-    "staging": "cross-env NODE_ENV=staging nuxt build",
+    "dev": "cross-env BUILD_CONF=development nuxt",
+    "staging": "cross-env BUILD_CONF=staging nuxt build",
     "build": "nuxt build",
+    "dev:app": "cross-env NODE_ENV=development BUILD_TARGET=electron BUILD_CONF=staging node .electron/index.js",
+    "build:app": "cross-env NODE_ENV=production BUILD_TARGET=electron BUILD_CONF=production node .electron/index.js",
     "start": "nuxt start",
     "generate": "nuxt generate",
     "lint": "eslint --ext .js,.vue --ignore-path .gitignore .",
-    "test": "jest"
+    "test": "jest",
+    "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
     "@fastybird-com/io-logic": "bitbucket:fastybird/fastybird-io-logic#master",
@@ -48,16 +51,30 @@
     "@types/node": "^12.7.8",
     "@vue/eslint-config-standard": "^4.0.0",
     "@vue/test-utils": "^1.0.0-beta.27",
+    "@xpda-dev/core": "^0.1.5",
+    "@xpda-dev/electron-builder": "^0.1.1",
+    "@xpda-dev/electron-launcher": "^0.1.1",
+    "@xpda-dev/webpack-step": "^0.1.2",
     "babel-eslint": "^10.0.1",
     "babel-jest": "^24.1.0",
+    "browser-env": "3.3.0",
     "cross-env": "^6.0.3",
+    "deepmerge": "4.2.2",
+    "electron": "5.0.10",
+    "electron-builder": "22.2.0",
+    "electron-debug": "3.0.1",
     "eslint": "^6.1.0",
+    "eslint-friendly-formatter": "4.0.1",
+    "eslint-loader": "3.0.2",
     "eslint-plugin-nuxt": ">=0.4.2",
     "eslint-plugin-vue": "^5.2.3",
     "jest": "^24.1.0",
     "node-sass": "^4.12.0",
     "patch-package": "^6.2.0",
     "sass-loader": "^8.0.0",
-    "vue-jest": "^4.0.0-0"
+    "vue-devtools": "^5.1.3",
+    "vue-jest": "^4.0.0-0",
+    "webpack": "4.41.3",
+    "webpack-node-externals": "1.7.2"
   }
 }

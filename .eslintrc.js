@@ -75,5 +75,6 @@ module.exports = {
     // allow debugger during development
     'no-debugger': (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging') ? 'error' : 'off',
     'vue/script-indent': ['error', 2, { 'baseIndent': 1, 'switchCase': 1 }],
+    'nuxt/no-cjs-in-config': 'off',
   },
 }

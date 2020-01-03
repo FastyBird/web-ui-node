@@ -1,25 +1,23 @@
-import uuid from 'uuid'
+const path = require('path')
+const fs = require('fs')
 
-import i18n from './locales'
+const i18n = require('./locales')
 
-import * as path from 'path'
-import * as fs from 'fs'
+const conf = process.env.BUILD_CONF
 
-const env = process.env.NODE_ENV
-
-const envPath = path.resolve(process.cwd(), `.env.${env}`)
+const confEnvPath = path.resolve(process.cwd(), `.env.${conf}`)
 const defaultEnvPath = path.resolve(process.cwd(), '.env')
 
 require('dotenv').config({
-  path: fs.existsSync(envPath) ? envPath : defaultEnvPath,
+  path: fs.existsSync(confEnvPath) ? confEnvPath : defaultEnvPath,
 })
 
-// Generate session key
-process.env.NUXT_ENV_SESSION_KEY = uuid.v4()
+// Generated session key
+process.env.NUXT_ENV_SESSION_KEY = '93b448d8-8b48-4606-9d99-96c4007b856d'
 
-export default {
+module.exports = {
 
-  mode: 'universal',
+  mode: process.env.BUILD_TARGET === 'electron' ? 'spa' : 'universal',
 
   head: {
     title: 'IOT control app',
@@ -67,7 +65,6 @@ export default {
     '@nuxtjs/toast',
     '@nuxtjs/proxy',
     '@nuxtjs/device',
-    '@nuxtjs/recaptcha',
     '@nuxtjs/sentry',
     'cookie-universal-nuxt',
     'nuxt-validate',
@@ -192,13 +189,6 @@ export default {
       ws: true,
       changeOrigin: true,
     },
-  },
-
-  recaptcha: {
-    // hideBadge: true,
-    language: 'en',
-    siteKey: '6LedC7wUAAAAAOiHil05tomliroggdD1d0vCRz7Q',
-    version: 3,
   },
 
   //oneSignal: {
