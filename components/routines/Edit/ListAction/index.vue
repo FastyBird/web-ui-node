@@ -1,5 +1,8 @@
 <template>
-  <list-item class="fb-routines-action__container">
+  <list-item
+    :show-status="true"
+    :status="enabled"
+  >
     <template slot="icon">
       <font-awesome-icon :icon="$thingIcon(thing)" />
     </template>
@@ -12,21 +15,19 @@
       <span
         v-for="(row, index) in properties"
         :key="index"
-        class="fb-routines-action__action"
       >{{ $t(`routines.actions.${row.operation}`, { property: $tChannelProperty(thing, row.property).toLowerCase() }) }}</span>
     </template>
 
     <template slot="detail-large">
-      <fb-switch-element
-        :status="enabled"
-        variant="primary"
-        @change="toggleThing"
+      <fb-form-checkbox
+        v-model="enabled"
+        name="enabled"
       />
 
       <fb-button
         size="sm"
         variant="link"
-        @click="editThing"
+        @click="edit"
       >
         {{ $t('application.buttons.edit.title') }}
       </fb-button>
@@ -91,7 +92,7 @@
           .forEach(row => {
             mapped.push({
               operation: row.operation,
-              property: this.$store.getters['entities/channel_property/find'](row.property),
+              property: this.$store.getters['entities/channel_property/find'](row.property_id),
             })
           })
 
@@ -100,13 +101,17 @@
 
     },
 
-    methods: {
+    watch: {
 
-      toggleThing() {
+      enabled() {
         this.$emit('toggle')
       },
 
-      editThing() {
+    },
+
+    methods: {
+
+      edit() {
         this.$emit('edit')
       },
 
@@ -114,7 +119,3 @@
 
   }
 </script>
-
-<style rel="stylesheet/scss" lang="scss">
-  @import 'index';
-</style>

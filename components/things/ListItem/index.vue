@@ -1,6 +1,7 @@
 <template>
   <list-item
-    :data-state="thing.state ? 'on' : 'off'"
+    :show-status="true"
+    :status="thing.state"
     class="fb-iot-things-list-item__container"
     @click="oneClick"
   >
@@ -87,9 +88,10 @@
        */
       environmentProperty() {
         if (this._.get(this.hardware, 'isManufacturerItead') && this._.get(this.hardware, 'model') === 'sonoff_sc') {
-          const property = this._.first(this._.filter(this._.get(this.thing, 'channel.properties', []), 'isEnvironment'))
+          const envProperty = this._.filter(this._.get(this.thing, 'channel.properties', []), 'isEnvironment')
+            .find(({ property }) => property === 'temperature')
 
-          return typeof property !== 'undefined' ? property : null
+          return typeof envProperty !== 'undefined' ? envProperty : null
         }
 
         return null

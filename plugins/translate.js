@@ -1,3 +1,5 @@
+import get from 'lodash/get'
+
 export default ({ app, store }, inject) => {
   inject('tThing', (thing) => {
     const hardware = store.getters['entities/hardware/query']()
@@ -5,15 +7,15 @@ export default ({ app, store }, inject) => {
       .first()
 
     if (!hardware || hardware.isCustom) {
-      return thing.label.capitalize()
+      return get(thing, 'channel.label', '').capitalize()
     }
 
-    let channel = thing.label
+    let channel = get(thing, 'channel.label', '')
     let channelNum = 0
 
-    if (thing.label.indexOf('_') !== -1) {
-      channel = thing.label.substring(0, (thing.label.indexOf('_')))
-      channelNum = parseInt(thing.label.substring(thing.label.indexOf('_') + 1), 10)
+    if (get(thing, 'channel.label', '').indexOf('_') !== -1) {
+      channel = get(thing, 'channel.label', '').substring(0, (get(thing, 'channel.label', '').indexOf('_')))
+      channelNum = parseInt(get(thing, 'channel.label', '').substring(get(thing, 'channel.label', '').indexOf('_') + 1), 10)
 
       if (app.i18n.t(`things.vendors.${hardware.manufacturer}.things.${hardware.model}.channels.${channel}`).indexOf('things.vendors.') === -1) {
         return app.i18n.t(`things.vendors.${hardware.manufacturer}.things.${hardware.model}.channels.${channel}`, { number: (channelNum + 1) })
@@ -24,7 +26,7 @@ export default ({ app, store }, inject) => {
       return app.i18n.t(`things.vendors.${hardware.manufacturer}.things.${hardware.model}.channels.${channel}`)
     }
 
-    return thing.label.capitalize()
+    return get(thing, 'channel.label', '').capitalize()
   })
 
   inject('tThingDevice', (thing) => {
@@ -33,14 +35,14 @@ export default ({ app, store }, inject) => {
       .first()
 
     if (!hardware || hardware.isCustom) {
-      return thing.comment.capitalize()
+      return get(thing, 'device.name', '').capitalize()
     }
 
     if (app.i18n.t(`things.vendors.${hardware.manufacturer}.things.${hardware.model}.title`).indexOf('things.vendors.') === -1) {
       return app.i18n.t(`things.vendors.${hardware.manufacturer}.things.${hardware.model}.title`)
     }
 
-    return thing.comment.capitalize()
+    return get(thing, 'device.name', '').capitalize()
   })
 
   inject('tThingProperty', (thing, property) => {

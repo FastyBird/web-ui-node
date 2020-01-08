@@ -8,7 +8,7 @@
     <template v-else>
       <template v-if="routine !== null">
         <routine-detail
-          v-if="view.opened === view.items.detail.name || view.opened === view.items.settings.name"
+          v-if="view.opened === view.items.detail.name || view.opened === view.items.settings.name || view.opened === view.items.type.name"
           ref="detail"
           :routine="routine"
         />
@@ -23,18 +23,17 @@
         />
       </template>
 
-      <fb-modal-window
-        v-if="view.opened === view.items.type.name"
-        :show-header="false"
+      <mobile-bottom-menu
+        :show-header="true"
+        :show="view.opened === view.items.type.name"
+        :heading="'Add new'"
         @close="openView(view.items.detail.name)"
       >
-        <template slot="modal-body">
+        <template slot="items">
           <fb-button
-            uppercase
             block
-            variant="outline-primary"
-            size="lg"
-            name="close"
+            variant="link"
+            name="condition"
             @click.prevent="openView(view.items.condition.name)"
           >
             {{ $t('routines.buttons.thingToCondition.title') }}
@@ -46,32 +45,18 @@
           />
 
           <fb-button
-            uppercase
             block
-            variant="outline-primary"
-            size="lg"
-            name="close"
+            variant="link"
+            name="action"
             @click.prevent="openView(view.items.action.name)"
           >
             {{ $t('routines.buttons.thingToAction.title') }}
           </fb-button>
         </template>
-
-        <template slot="modal-footer">
-          <fb-button
-            uppercase
-            variant="link"
-            size="lg"
-            name="close"
-            @click.prevent="openView(view.items.detail.name)"
-          >
-            {{ $t('application.buttons.close.title') }}
-          </fb-button>
-        </template>
-      </fb-modal-window>
+      </mobile-bottom-menu>
 
       <select-thing
-        v-if="view.opened === view.items.action.name || view.opened === view.items.condition.name"
+        v-if="view.opened === view.items.condition.name || view.opened === view.items.action.name"
         :items="view.items[view.opened].items"
         :only-settable="view.opened === view.items.action.name"
         class="fb-routines-detail-view__container-things"
@@ -85,7 +70,7 @@
         :condition="view.items.conditionThing.item"
         class="fb-routines-detail-view__container-thing"
         @add="addCondition"
-        @remove="removeCondition"
+        @remove="removeRoutineCondition"
         @back="openView(view.items.condition.name)"
         @close="openView(view.items.detail.name)"
       />
@@ -96,7 +81,7 @@
         :action="view.items.actionThing.item"
         class="fb-routines-detail-view__container-thing"
         @add="addAction"
-        @remove="removeAction"
+        @remove="removeRoutineAction"
         @back="openView(view.items.action.name)"
         @close="openView(view.items.detail.name)"
       />
@@ -121,6 +106,8 @@
   const EditCondition = () => import('@/components/routines/Edit/EditCondition')
   const EditAction = () => import('@/components/routines/Edit/EditAction')
 
+  import triggersMixin from '@/mixins/triggers'
+
   export default {
 
     name: 'RoutineDetailPage',
@@ -135,6 +122,8 @@
     },
 
     transition: 'fade',
+
+    mixins: [triggersMixin],
 
     data() {
       return {
@@ -260,14 +249,8 @@
       },
 
       fetchingRoutine(val) {
-        if (!val) {
-          if (this.routine === null) {
-            this.$nuxt.error({ statusCode: 404, message: 'Routine Not Found' })
-
-            return
-          }
-
-          this._configureNavigation()
+        if (!val && this.routine === null) {
+          this.$nuxt.error({ statusCode: 404, message: 'Routine Not Found' })
         }
       },
 
@@ -430,7 +413,9 @@
        */
       openView(view) {
         if (this.view.items.hasOwnProperty(view)) {
+          // Updating window route
           switch (view) {
+            // Settings page
             case this.view.items.settings.name:
               this.$router.push(this.localePath({
                 name: this.$routes.routines.detail,
@@ -454,6 +439,7 @@
               })
               break
 
+            // Other pages
             default:
               this.$router.push(this.localePath({
                 name: this.$routes.routines.detail,
@@ -465,6 +451,7 @@
           }
 
           switch (view) {
+            // Show things list for condition select
             case this.view.items.condition.name:
               const conditionThings = []
 
@@ -480,8 +467,10 @@
               this.view.items[view].items = conditionThings
               break
 
+            // Show window for configuring condition
             case this.view.items.conditionThing.name:
-              const storedCondition = this._.get(this.routine, 'conditions', []).find(({ channel_id }) => channel_id === this.view.items.conditionThing.thing.id)
+              const storedCondition = this._.get(this.routine, 'conditions', [])
+                .find(({ channel_id }) => channel_id === this.view.items.conditionThing.thing.id)
 
               if (typeof storedCondition !== 'undefined') {
                 const condition = {
@@ -493,7 +482,7 @@
                 this._.filter(this._.get(this.routine, 'conditions', []), { 'channel_id': storedCondition.channel_id })
                   .forEach(item => {
                     condition.rows.push({
-                      property: item.property_id,
+                      property_id: item.property_id,
                       operand: this._.first(item.operands),
                       operator: item.operator,
                     })
@@ -505,6 +494,7 @@
               }
               break
 
+            // Show things list for action select
             case this.view.items.action.name:
               const actionThings = []
 
@@ -520,8 +510,10 @@
               this.view.items[view].items = actionThings
               break
 
+            // Show window for configuring action
             case this.view.items.actionThing.name:
-              const storedAction = this._.get(this.routine, 'actions', []).find(({ channel_id }) => channel_id === this.view.items.actionThing.thing.id)
+              const storedAction = this._.get(this.routine, 'actions', [])
+                .find(({ channel_id }) => channel_id === this.view.items.actionThing.thing.id)
 
               if (typeof storedAction !== 'undefined') {
                 const action = {
@@ -533,7 +525,7 @@
                 this._.filter(this._.get(this.routine, 'actions', []), { 'channel_id': storedAction.channel_id })
                   .forEach(item => {
                     action.rows.push({
-                      property: item.property_id,
+                      property_id: item.property_id,
                       operation: item.value,
                     })
                   })
@@ -566,6 +558,8 @@
           this.view.items.conditionThing.thing = thing
 
           this.openView(this.view.items.conditionThing.name)
+        } else {
+          this.closeView()
         }
       },
 
@@ -585,7 +579,8 @@
 
         this._.get(data, 'rows', [])
           .forEach(row => {
-            const condition = this._.get(this.routine, 'conditions', []).find(item => item.channel_id === this._.get(data, 'thing') && item.property_id === this._.get(row, 'property'))
+            const condition = this._.get(this.routine, 'conditions', [])
+              .find(item => item.channel_id === this._.get(data, 'thing') && item.property_id === this._.get(row, 'property_id'))
 
             // Editing existing condition
             if (typeof condition !== 'undefined') {
@@ -595,12 +590,12 @@
                 operator: this._.get(row, 'operator'),
                 operands: [this._.get(row, 'operand')],
               })
-            // Updating new condition
+              // Updating new condition
             } else {
               toCreate.push({
                 trigger: this._.get(data, 'thing'),
                 enabled: this._.get(data, 'enabled', false),
-                property: this._.get(row, 'property'),
+                property: this._.get(row, 'property_id'),
                 operator: this._.get(row, 'operator'),
                 operands: [this._.get(row, 'operand')],
               })
@@ -679,9 +674,19 @@
           })
       },
 
-      removeCondition(thing) {
-        // TODO: remove
-        console.log(thing)
+      /**
+       * Remove thing condition via edit window
+       *
+       * @param {Object} thing
+       */
+      removeRoutineCondition(thing) {
+        this.openView(this.view.items.detail.name)
+
+        const thingConditions = this._.filter(this.mapConditions(this.routine), condition => condition.thing === thing.id)
+
+        thingConditions.forEach(condition => {
+          this.removeCondition(condition)
+        })
       },
 
       /**
@@ -700,7 +705,8 @@
 
         this._.get(data, 'rows', [])
           .forEach(row => {
-            const action = this._.get(this.routine, 'actions', []).find(item => item.channel_id === this._.get(data, 'thing') && item.property_id === this._.get(row, 'property'))
+            const action = this._.get(this.routine, 'actions', [])
+              .find(item => item.channel_id === this._.get(data, 'thing') && item.property_id === this._.get(row, 'property_id'))
 
             // Editing existing action
             if (typeof action !== 'undefined') {
@@ -709,12 +715,12 @@
                 enabled: this._.get(data, 'enabled', false),
                 value: this._.get(row, 'operation'),
               })
-            // Updating new action
+              // Updating new action
             } else {
               toCreate.push({
                 channel: this._.get(data, 'thing'),
                 enabled: this._.get(data, 'enabled', false),
-                property: this._.get(row, 'property'),
+                property: this._.get(row, 'property_id'),
                 value: this._.get(row, 'operation'),
               })
             }
@@ -792,9 +798,19 @@
           })
       },
 
-      removeAction(thing) {
-        // TODO: remove
-        console.log(thing)
+      /**
+       * Remove thing action via edit window
+       *
+       * @param {Object} thing
+       */
+      removeRoutineAction(thing) {
+        this.openView(this.view.items.detail.name)
+
+        const thingActions = this._.filter(this.mapActions(this.routine), action => action.thing === thing.id)
+
+        thingActions.forEach(action => {
+          this.removeAction(action)
+        })
       },
 
       _openEditIcon() {
@@ -842,7 +858,7 @@
           this.$store.dispatch('header/resetAddButton', null, {
             root: true,
           })
-        } else if (this.view.opened === this.view.items.detail.name) {
+        } else if (this.view.opened === this.view.items.detail.name || this.view.opened === this.view.items.type.name) {
           this.$store.dispatch('header/setRightButton', {
             name: this.$t('application.buttons.edit.title'),
             callback: () => {

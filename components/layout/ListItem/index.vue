@@ -1,6 +1,7 @@
 <template>
   <div
-    class="fb-list-item__container"
+    :data-state="status ? 'on' : 'off'"
+    :class="['fb-list-item__container', {'fb-list-item__container-with-status' : showStatus}]"
     @click="oneClick($event)"
   >
     <div class="fb-list-item__box">
@@ -48,6 +49,20 @@
   export default {
 
     name: 'ListItem',
+
+    props: {
+
+      showStatus: {
+        type: Boolean,
+        default: false,
+      },
+
+      status: {
+        type: Boolean,
+        default: false,
+      },
+
+    },
 
     methods: {
 

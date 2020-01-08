@@ -68,7 +68,9 @@ module.exports = {
     '@nuxtjs/sentry',
     'cookie-universal-nuxt',
     'nuxt-validate',
-    'nuxt-i18n',
+    ['nuxt-i18n', {
+      seo: false,
+    }],
     'nuxt-fontawesome',
     'vue-scrollto/nuxt',
   ],

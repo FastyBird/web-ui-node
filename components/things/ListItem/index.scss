@@ -2,29 +2,6 @@
 
 .fb-iot-things-list-item {
   &__container {
-    &[data-state="on"] {
-      > div {
-        border-left: 4px solid $brand-primary;
-      }
-    }
-
-    &[data-state="off"] {
-      > div {
-        border-left: 4px solid $gray-lighter;
-      }
-
-      .fb-list-item {
-        &__icon svg,
-        &__heading {
-          color: $gray-lighter;
-        }
-      }
-
-      .fb-icon-with-child__container-child {
-        background-color: $brand-danger;
-      }
-    }
-
     .fb-icon-with-child__container-child {
       width: 8px;
       height: 8px;
@@ -32,14 +9,16 @@
       right: -3px !important;
     }
 
-    svg,
-    .fb-spinner__container {
+    svg {
       height: 53px;
     }
 
     .fb-spinner__container {
       width: 32px;
       display: inline-block;
+      position: relative;
+      float: right;
+      margin-top: 15px;
     }
 
     .fb-iot-things-switch__container {

@@ -1,10 +1,4 @@
-.fb-routines-action {
-  &__container {
-    .fb-spinner__container {
-      position: unset;
-    }
-  }
-
+.fb-things-trigger-action {
   &__action:not(:last-child):after {
     content: ",";
     margin-right: 5px;

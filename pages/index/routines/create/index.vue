@@ -581,7 +581,7 @@
                     type: 'channel_property',
                     enabled: condition.enabled,
                     channel: condition.thing,
-                    property: row.property,
+                    property: row.property_id,
                     operator: row.operator,
                     operands: [row.operand],
                   })
@@ -596,7 +596,7 @@
                     type: 'channel_property',
                     enabled: action.enabled,
                     channel: action.thing,
-                    property: row.property,
+                    property: row.property_id,
                     value: row.operation,
                   })
                 })

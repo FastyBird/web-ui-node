@@ -105,9 +105,27 @@
                 thing: this.$tThing(this.thing),
               })
 
-              this.$store.dispatch('entities/thing/edit', {
-                id: this.thing.id,
-                data: this.form.model,
+              this.$store.dispatch('entities/channel/edit', {
+                id: this.thing.channel_id,
+                data: {
+                  title: this.form.model.title,
+                },
+              }, {
+                root: true,
+              })
+                .catch(e => {
+                  if (this._.get(e, 'exception', null) !== null) {
+                    this.handleFormError(e.exception, errorMessage)
+                  } else {
+                    this.$flashMessage(errorMessage, 'error')
+                  }
+                })
+
+              this.$store.dispatch('entities/device/edit', {
+                id: this.thing.device_id,
+                data: {
+                  title: this.form.model.comment,
+                },
               }, {
                 root: true,
               })

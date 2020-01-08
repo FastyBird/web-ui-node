@@ -1,10 +1,4 @@
 .fb-routines-condition {
-  &__container {
-    .fb-spinner__container {
-      position: unset;
-    }
-  }
-
   &__condition:not(:last-child):after {
     content: ",";
     margin-right: 5px;

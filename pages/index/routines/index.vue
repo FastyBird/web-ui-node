@@ -57,11 +57,22 @@
       :text="$t('routines.texts.loadingRoutines')"
     />
 
-    <no-results
-      v-if="!fetchingRoutines && routines.length === 0"
-      :message="$t('routines.texts.noRoutines')"
-      icon="project-diagram"
-    />
+    <template v-if="!fetchingRoutines && routines.length === 0">
+      <no-results
+        :message="$t('routines.texts.noRoutines')"
+        icon="project-diagram"
+      />
+
+      <div class="fb-routines-list-view__new-routine">
+        <fb-button
+          variant="outline-primary"
+          name="press"
+          @click.prevent="createNewRoutine"
+        >
+          {{ $t('routines.buttons.addNew.title') }}
+        </fb-button>
+      </div>
+    </template>
   </div>
 </template>
 
@@ -157,6 +168,7 @@
           .with('actions')
           .with('conditions')
           .with('notifications')
+          .where('isForChannel', false)
           .orderBy('name')
           .all()
       },
@@ -359,6 +371,14 @@
 
     methods: {
 
+      createNewRoutine() {
+        if (this.windowSize === 'xs') {
+          this.$router.push(this.localePath(this.$routes.routines.create))
+        } else {
+          this.openView('create')
+        }
+      },
+
       /**
        * Event fired by loaded component
        *
@@ -495,18 +515,16 @@
           root: true,
         })
 
-        this.$store.dispatch('header/setAddButton', {
-          name: this.$t('application.buttons.add.title'),
-          callback: () => {
-            if (this.windowSize === 'xs') {
-              this.$router.push(this.localePath(this.$routes.routines.create))
-            } else {
-              this.openView('create')
-            }
-          },
-        }, {
-          root: true,
-        })
+        if (this.routines.length) {
+          this.$store.dispatch('header/setAddButton', {
+            name: this.$t('application.buttons.add.title'),
+            callback: () => {
+              this.createNewRoutine()
+            },
+          }, {
+            root: true,
+          })
+        }
 
         this.$store.dispatch('header/addTab', {
           name: this.$t('application.buttons.automation.title'),

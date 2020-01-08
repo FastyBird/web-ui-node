@@ -8,7 +8,7 @@
     padding: 15px 5px 35px 5px;
 
     @media (max-width: $screen-xs-max) {
-      padding: 15px 5px 60px 5px;
+      padding: 15px 5px;
       margin: 0;
     }
 
@@ -34,6 +34,11 @@
         max-width: 33.333333%;
       }
     }
+  }
+
+  &__new-routine {
+    text-align: center;
+    margin: 10px 0;
   }
 
   &__off-canvas-body {

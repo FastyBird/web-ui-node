@@ -354,8 +354,7 @@
               })
             }
           })
-          .catch((e) => {
-            console.log(e)
+          .catch(() => {
             this.$toasted.info(this.$t('application.messages.fixAllFormErrors'), {
               action: {
                 text: this.$t('application.buttons.close.title'),

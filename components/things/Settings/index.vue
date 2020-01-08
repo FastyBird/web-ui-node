@@ -3,7 +3,10 @@
     :data-state="thing.state ? 'on' : 'off'"
     class="fb-iot-things-settings-thing__container"
   >
-    <list-items-container :heading="$t('things.headings.thingSettings')">
+    <list-items-container
+      v-if="isCustom || hasSettings"
+      :heading="$t('things.headings.thingSettings')"
+    >
       <settings-list-item
         v-if="isCustom"
         type="button"
@@ -488,6 +491,19 @@
             return this._.get(item, 'name').indexOf('sensor_expected_') === 0
           })
           .count() > 0 ? true : false
+      },
+
+      /**
+       * Check if thing has some custom settings
+       *
+       * @returns {Boolean}
+       */
+      hasSettings() {
+        return !!(this.deviceParameters.length
+          || this.channelParameters.length
+          || this.hasTimeSettings
+          || this.hasSensorsSettings
+          || this.hasEnergyCalibration)
       },
 
     },

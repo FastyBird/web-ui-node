@@ -98,7 +98,7 @@
 
       stateModel: {
         get() {
-          const row = this._.get(this.value, 'rows', []).find(({ property }) => property === this.property.id)
+          const row = this._.get(this.value, 'rows', []).find(({ property_id }) => property_id === this.property.id)
 
           if (typeof row !== 'undefined') {
             return !!row.selected
@@ -113,7 +113,7 @@
             for (const j in this.value.rows) {
               if (
                 this.value.rows.hasOwnProperty(j) &&
-                this.value.rows[j].property === this.property.id
+                this.value.rows[j].property_id === this.property.id
               ) {
                 this.value.rows[j].selected = val
               }
@@ -126,7 +126,7 @@
 
       operandModel: {
         get() {
-          const row = this._.get(this.value, 'rows', []).find(({ property }) => property === this.property.id)
+          const row = this._.get(this.value, 'rows', []).find(({ property_id }) => property_id === this.property.id)
 
           if (typeof row !== 'undefined') {
             return row.operand
@@ -141,7 +141,7 @@
             for (const j in this.value.rows) {
               if (
                 this.value.rows.hasOwnProperty(j) &&
-                this.value.rows[j].property === this.property.id
+                this.value.rows[j].property_id === this.property.id
               ) {
                 this.value.rows[j].operand = val
               }
@@ -154,7 +154,7 @@
 
       operatorModel: {
         get() {
-          const row = this._.get(this.value, 'rows', []).find(({ property }) => property === this.property.id)
+          const row = this._.get(this.value, 'rows', []).find(({ property_id }) => property_id === this.property.id)
 
           if (typeof row !== 'undefined') {
             return row.operator
@@ -169,7 +169,7 @@
             for (const j in this.value.rows) {
               if (
                 this.value.rows.hasOwnProperty(j) &&
-                this.value.rows[j].property === this.property.id
+                this.value.rows[j].property_id === this.property.id
               ) {
                 this.value.rows[j].operator = val
               }

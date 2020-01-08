@@ -134,6 +134,19 @@
               return
             }
           }
+        } else {
+          if (this.view.opened !== this.view.items.detail.name) {
+            if (this._.get(this.$refs, 'detail')) {
+              const component = this._.get(this.$refs, 'detail')
+
+              this.$scrollTo(component.$el, 500, {
+                offset: (-1 * this.$store.state.theme.marginTop),
+                onDone: () => {
+                  this.openView(this.view.items.detail.name)
+                },
+              })
+            }
+          }
         }
       },
 

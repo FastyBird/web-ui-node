@@ -7,6 +7,7 @@
         :condition="condition"
         class="fb-routines-detail__conditions-container"
         @toggle="toggleConditionState(index)"
+        @remove="confirmRemoveCondition(index)"
       />
     </list-items-container>
 
@@ -17,14 +18,55 @@
         :action="action"
         class="fb-routines-detail__actions-container"
         @toggle="toggleActionState(index)"
+        @remove="confirmRemoveAction(index)"
       />
     </list-items-container>
+
+    <fb-confirmation-window
+      v-if="remove.show"
+      :transparent-bg="transparentModal"
+      icon="trash"
+      @confirmed="removeItem"
+      @close="resetRemoveConfirmation"
+    >
+      <template v-if="remove.type === 'condition'">
+        <template slot="header">
+          {{ $t('routines.headings.removeCondition') }}
+        </template>
+
+        <template slot="question">
+          <i18n
+            path="routines.messages.confirmRemoveCondition"
+            tag="p"
+          >
+            <strong slot="thing">{{ $tThing(remove.thing) }}</strong>
+          </i18n>
+        </template>
+      </template>
+
+      <template v-if="remove.type === 'action'">
+        <template slot="header">
+          {{ $t('routines.headings.removeAction') }}
+        </template>
+
+        <template slot="question">
+          <i18n
+            path="routines.messages.confirmRemoveAction"
+            tag="p"
+          >
+            <strong slot="thing">{{ $tThing(remove.thing) }}</strong>
+          </i18n>
+        </template>
+      </template>
+    </fb-confirmation-window>
   </div>
 </template>
 
 <script>
   const ListAction = () => import('./ListAction')
   const ListCondition = () => import('./ListCondition')
+
+  import triggersMixin from '@/mixins/triggers'
 
   export default {
 
@@ -35,6 +77,8 @@
       ListCondition,
     },
 
+    mixins: [triggersMixin],
+
     props: {
 
       routine: {
@@ -42,6 +86,18 @@
         required: true,
       },
 
+    },
+
+    data() {
+      return {
+        transparentModal: false,
+        remove: {
+          show: false,
+          type: null,
+          index: null,
+          thing: null,
+        },
+      }
     },
 
     computed: {
@@ -52,36 +108,7 @@
        * @returns {Array}
        */
       conditions() {
-        const conditions = []
-
-        this._.get(this.routine, 'conditions', [])
-          .forEach(condition => {
-            if (typeof conditions.find(({ channel_id }) => channel_id === condition.channel_id) === 'undefined') {
-              conditions.push({
-                thing: condition.channel_id,
-                enabled: condition.enabled,
-                device_id: condition.device_id,
-                channel_id: condition.channel_id,
-                rows: [],
-              })
-            }
-          })
-
-        for (const i in conditions) {
-          if (conditions.hasOwnProperty(i)) {
-            this._.filter(this._.get(this.routine, 'conditions', []), { 'channel_id': conditions[i].channel_id })
-              .forEach(condition => {
-                conditions[i].rows.push({
-                  id: condition.id,
-                  property_id: condition.property_id,
-                  operands: condition.operands,
-                  operator: condition.operator,
-                })
-              })
-          }
-        }
-
-        return conditions
+        return this.mapConditions(this.routine)
       },
 
       /**
@@ -90,37 +117,31 @@
        * @returns {Array}
        */
       actions() {
-        const actions = []
-
-        this._.get(this.routine, 'actions', [])
-          .forEach(action => {
-            if (typeof actions.find(({ channel_id }) => channel_id === action.channel_id) === 'undefined') {
-              actions.push({
-                thing: action.channel_id,
-                enabled: action.enabled,
-                device_id: action.device_id,
-                channel_id: action.channel_id,
-                rows: [],
-              })
-            }
-          })
-
-        for (const i in actions) {
-          if (actions.hasOwnProperty(i)) {
-            this._.filter(this._.get(this.routine, 'actions', []), { 'channel_id': actions[i].channel_id })
-              .forEach(action => {
-                actions[i].rows.push({
-                  id: action.id,
-                  property_id: action.property_id,
-                  operation: action.value,
-                })
-              })
-          }
-        }
-
-        return actions
+        return this.mapActions(this.routine)
       },
 
+      /**
+       * Remap trigger notifications to routine notifications
+       *
+       * @returns {Array}
+       */
+      notifications() {
+        return []
+      },
+
+      /**
+       * Flag signalizing that action or notification could be removed
+       *
+       * @returns {Boolean}
+       */
+      enabledRemovingActionNotification() {
+        return this.actions.length > 1 || this.notifications.length > 1
+      },
+
+    },
+
+    created() {
+      this.transparentModal = this.$parent.$options.name !== 'Layout'
     },
 
     beforeMount() {
@@ -128,9 +149,8 @@
         this.$store.dispatch('entities/thing/fetch', null, {
           root: true,
         })
-          .catch(e => {
-            // eslint-disable-next-line
-            console.log(e)
+          .catch(() => {
+            this.$nuxt.error({ statusCode: 503, message: 'Something went wrong' })
           })
       }
     },
@@ -144,26 +164,7 @@
        */
       toggleConditionState(index) {
         if (this.conditions.hasOwnProperty(index)) {
-          this.conditions[index].rows
-            .forEach(condition => {
-              this.$store.dispatch('entities/condition/edit', {
-                id: condition.id,
-                data: {
-                  enabled: !this.conditions[index].enabled,
-                },
-              }, {
-                root: true,
-              })
-                .catch(e => {
-                  const errorMessage = this.$t('routines.messages.conditionNotUpdated')
-
-                  if (e.hasOwnProperty('exception')) {
-                    this.handleFormError(e.exception, errorMessage)
-                  } else {
-                    this.$flashMessage(errorMessage, 'error')
-                  }
-                })
-            })
+          this.changeConditionState(this.conditions[index], !this.conditions[index].enabled)
         }
       },
 
@@ -174,111 +175,111 @@
        */
       toggleActionState(index) {
         if (this.actions.hasOwnProperty(index)) {
-          this.actions[index].rows
-            .forEach(action => {
-              this.$store.dispatch('entities/action/edit', {
-                id: action.id,
-                data: {
-                  enabled: !this.actions[index].enabled,
-                },
-              }, {
-                root: true,
-              })
-                .catch(e => {
-                  const errorMessage = this.$t('routines.messages.actionNotUpdated')
-
-                  if (e.hasOwnProperty('exception')) {
-                    this.handleFormError(e.exception, errorMessage)
-                  } else {
-                    this.$flashMessage(errorMessage, 'error')
-                  }
-                })
-            })
+          this.changeActionState(this.actions[index], !this.actions[index].enabled)
         }
       },
 
       /**
-       * Remove condition from routine
+       * Show remove confirmation window for condition
        *
-       * @param {Object} condition
+       * @param {Number} index
        */
-      removeCondition(condition) {
-        if (this.routine.conditions.length <= 1) {
-          this.$flashMessage(this.$t('routines.messages.minimumConditions'), 'error')
-
-          return
-        }
-
-        const errorMessage = this.$t('routines.messages.conditionNotRemoved')
-
-        this.$store.dispatch('entities/condition/remove', {
-          id: condition.id,
-        }, {
-          root: true,
-        })
-          .catch(e => {
-            if (e.hasOwnProperty('exception')) {
-              this.handleFormError(e.exception, errorMessage)
-            } else {
-              this.$flashMessage(errorMessage, 'error')
-            }
-          })
+      confirmRemoveCondition(index) {
+        this.remove.show = true
+        this.remove.type = 'condition'
+        this.remove.index = index
+        this.remove.thing = this._findThing(this.conditions[index].thing)
       },
 
       /**
-       * Remove action from routine
+       * Show remove confirmation window for action
        *
-       * @param {Object} action
+       * @param {Number} index
        */
-      removeAction(action) {
-        if (!this.enabledRemovingActionNotification) {
-          this.$flashMessage(this.$t('routines.messages.minimumActionsNotification'), 'error')
+      confirmRemoveAction(index) {
+        this.remove.show = true
+        this.remove.type = 'action'
+        this.remove.index = index
+        this.remove.thing = this._findThing(this.actions[index].thing)
+      },
 
-          return
+      /**
+       * Close remove confirmation window
+       */
+      resetRemoveConfirmation() {
+        this.remove.show = false
+        this.remove.type = null
+        this.remove.index = null
+        this.remove.thing = null
+      },
+
+      /**
+       * Remove was confirmed
+       */
+      removeItem() {
+        if (this.remove.type === 'condition') {
+          if (this.routine.conditions.length <= 1) {
+            this.$flashMessage(this.$t('routines.messages.minimumConditions'), 'error')
+
+            return
+          }
+
+          if (this.conditions.hasOwnProperty(this.remove.index)) {
+            this.removeCondition(this.conditions[this.remove.index])
+
+            this.resetRemoveConfirmation()
+          }
+        } else if (this.remove.type === 'action') {
+          if (!this.enabledRemovingActionNotification) {
+            this.$flashMessage(this.$t('routines.messages.minimumActionsNotification'), 'error')
+
+            return
+          }
+
+          if (this.actions.hasOwnProperty(this.remove.index)) {
+            this.removeAction(this.actions[this.remove.index])
+
+            this.resetRemoveConfirmation()
+          }
+        } else if (this.remove.type === 'notification') {
+          this.removeNotification(this.remove.index)
+
+          this.resetRemoveConfirmation()
+        } else {
+          this.resetRemoveConfirmation()
         }
-
-        const errorMessage = this.$t('routines.messages.actionNotRemoved')
-
-        this.$store.dispatch('entities/action/remove', {
-          id: action.id,
-        }, {
-          root: true,
-        })
-          .catch(e => {
-            if (e.hasOwnProperty('exception')) {
-              this.handleFormError(e.exception, errorMessage)
-            } else {
-              this.$flashMessage(errorMessage, 'error')
-            }
-          })
       },
 
       /**
        * Remove notification from routine
        *
-       * @param {Object} notification
+       * @param {Number} index
        */
-      removeNotification(notification) {
+      removeNotification(index) {
+        this.resetRemoveConfirmation()
+
         if (!this.enabledRemovingActionNotification) {
           this.$flashMessage(this.$t('routines.messages.minimumActionsNotification'), 'error')
 
           return
         }
 
-        const errorMessage = this.$t('routines.messages.notificationNotRemoved')
+        if (this.notifications.hasOwnProperty(index)) {
+          const errorMessage = this.$t('routines.messages.notificationNotRemoved')
 
-        this.$store.dispatch('entities/notification/remove', {
-          id: notification.id,
-        }, {
-          root: true,
-        })
-          .catch(e => {
-            if (e.hasOwnProperty('exception')) {
-              this.handleFormError(e.exception, errorMessage)
-            } else {
-              this.$flashMessage(errorMessage, 'error')
-            }
+          this.$store.dispatch('entities/notification/remove', {
+            id: this.notifications[index].id,
+          }, {
+            root: true,
           })
+            .catch(e => {
+              if (e.hasOwnProperty('exception')) {
+                this.handleFormError(e.exception, errorMessage)
+              } else {
+                this.$flashMessage(errorMessage, 'error')
+              }
+            })
+        }
       },
 
     },

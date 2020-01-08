@@ -1,6 +1,7 @@
 <template>
   <list-item
-    :data-state="routine.enabled ? 'on' : 'off'"
+    :show-status="true"
+    :status="routine.enabled"
     class="fb-routines-list-item__container"
     @click="oneClick"
   >
@@ -12,11 +13,8 @@
       {{ routine.name }}
     </template>
 
-    <template
-      v-if="routine.hasComment"
-      slot="sub-heading"
-    >
-      {{ routine.comment }}
+    <template slot="sub-heading">
+      {{ subHeading }}
     </template>
 
     <template slot="detail">
@@ -26,7 +24,6 @@
         <font-awesome-icon
           icon="chevron-right"
           role="button"
-          style="float: right;"
         />
       </div>
     </template>
@@ -60,6 +57,17 @@
             return item.channel_id
           }))
           .length
+      },
+
+      /**
+       * @returns {String}
+       */
+      subHeading() {
+        if (this.routine.hasComment) {
+          return this.routine.comment
+        }
+
+        return this.routine.isAutomatic ? this.$t('routines.headings.automaticRoutine') : this.$t('routines.headings.manualRoutine')
       },
 
     },

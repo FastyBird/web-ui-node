@@ -26,26 +26,8 @@ export default class Thing extends Model {
     }
   }
 
-  get title() {
-    return get(this, 'channel.title')
-  }
-
   get name() {
     return get(this, 'channel.name')
-  }
-
-  get comment() {
-    if (get(this, 'channel.hasComment')) {
-      return get(this, 'channel.comment')
-    } else if (get(this, 'device.title')) {
-      return get(this, 'device.title')
-    }
-
-    return get(this, 'device.name')
-  }
-
-  get label() {
-    return get(this, 'channel.label')
   }
 
   get state() {

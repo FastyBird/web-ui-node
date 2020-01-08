@@ -45,16 +45,10 @@
       },
 
       isButtonThing() {
-        if (
-          this._.get(this.hardware, 'isManufacturerFastyBird', false) &&
+        return !!(this._.get(this.hardware, 'isManufacturerFastyBird', false) &&
           (
             this._.get(this.hardware, 'model') === '8ch_buttons' || this._.get(this.hardware, 'model') === '16ch_buttons'
-          )
-        ) {
-          return true
-        }
-
-        return false
+          ))
       },
 
     },

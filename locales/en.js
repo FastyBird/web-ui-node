@@ -59,7 +59,7 @@ export default {
     },
     subHeadings: {
       things: {
-        list: 'no things | one thing | {count} tings',
+        list: 'no things | one thing | {count} things',
       },
       groups: {
         list: 'no groups | one group | {count} groups',
@@ -128,8 +128,8 @@ export default {
       },
     },
     tabs: {
-      home: {
-        title: 'Home',
+      dashboard: {
+        title: 'Dashboard',
       },
       things: {
         title: 'Things',
@@ -147,7 +147,7 @@ export default {
     },
     menu: {
       root: 'Cloud',
-      home: 'Home',
+      dashboard: 'Dashboard',
       things: 'Things',
       routines: 'Routines',
     },
@@ -234,6 +234,11 @@ export default {
       moduleSensorSettings: 'Thing sensor settings',
       moduleTimeSettings: 'Thing time settings',
       manufacturerAndNetwork: 'Manufacturer & Network info',
+      newButton: 'Add new action when...',
+      removeAction: 'Remove action',
+      buttonActionPressed: 'Button pressed',
+      buttonActionClicked: 'Button clicked',
+      buttonActionDblClicked: 'Button double-clicked',
     },
     messages: {
       edited: 'Thing {thing} was successfully edited.',
@@ -248,6 +253,9 @@ export default {
       notRemoved: 'Thing {thing} couldn\'t be removed, please try again later.',
       renamed: 'Thing {thing} was successfully renamed.',
       notRenamed: 'Thing {thing} couldn\'t be renamed, please try again later.',
+      triggerNotCreated: 'Configured action couldn\'t be created, please try again later.',
+      actionNotRemoved: 'Selected action couldn\'t be removed, please try again later.',
+      confirmRemoveAction: 'Are you sure to remove thing {thing} action ?',
     },
     texts: {
       loadingThings: 'Loading things...',
@@ -263,6 +271,8 @@ export default {
         model: 'Model',
         manufacturer: 'Manufacturer',
       },
+      noThingsActions: 'You don\'t have assigned any action to this thing',
+      loadingTriggers: 'Loading details...',
     },
     buttons: {
       remove: {
@@ -284,6 +294,18 @@ export default {
       },
       energyCalibration: {
         title: 'Calibrate energy',
+      },
+      press: {
+        title: 'Button is pressed',
+      },
+      click: {
+        title: 'Button is clicked',
+      },
+      dblClick: {
+        title: 'Button is double-clicked',
+      },
+      addAction: {
+        title: 'Add new action',
       },
     },
     vendors: {
@@ -338,6 +360,11 @@ export default {
               event: 'Button {number}',
             },
           },
+        },
+        actions: {
+          toggle: 'Toggle {property} state',
+          on: 'Turn {property} on',
+          off: 'Turn {property} off',
         },
       },
       itead: {
@@ -576,6 +603,11 @@ export default {
           heading: 'Expected power',
           description: 'In Watts (W). Calibrate your sensor connecting a pure resistive load (like a bulb) and enter here its nominal power or use a multimeter.',
         },
+        actions: {
+          toggle: 'Toggle {property} state',
+          on: 'Turn {property} on',
+          off: 'Turn {property} off',
+        },
       },
     },
   },
@@ -594,6 +626,8 @@ export default {
       addAction: 'Add a thing action to this routine?',
       automaticRoutine: 'Automatic routine',
       manualRoutine: 'Manual routine',
+      removeCondition: 'Remove condition',
+      removeAction: 'Remove action',
     },
     messages: {
       notFound: 'Routine was not found, please try reload page.',
@@ -620,6 +654,8 @@ export default {
       confirmRemove: 'Are you sure to remove routine {routine} ?',
       notRemoved: 'Routine {routine} couldn\'t be removed, please try again later.',
       notEdited: 'Routine {routine} couldn\'t be updated, please try again later.',
+      confirmRemoveCondition: 'Are you sure to remove routine condition with thing {thing} ?',
+      confirmRemoveAction: 'Are you sure to remove routine action with thing {thing} ?',
     },
     texts: {
       loadingRoutines: 'Loading routines...',
@@ -628,7 +664,7 @@ export default {
       loadingThings: 'Loading things...',
       loadingThing: 'Loading thing...',
       noThings: 'You don\'t have assigned any thing',
-      routineThings: 'no things | {count} thing | {count} tings',
+      routineThings: 'no things | {count} thing | {count} things',
     },
     fields: {
       name: {
@@ -705,6 +741,9 @@ export default {
       },
       thingToAction: {
         title: 'Thing to action',
+      },
+      addNew: {
+        title: 'Add new routine',
       },
     },
     groups: {

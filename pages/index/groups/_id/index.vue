@@ -91,8 +91,8 @@
         return orderBy(
           items,
           [
-            v => v.label,
-            v => v.comment,
+            v => this.$tThing(v),
+            v => this.$tThingDevice(v),
           ],
           ['asc'],
         )

@@ -89,30 +89,6 @@
 
     mounted() {
       this.$emit('loaded')
-
-      if (this.$parent.$options.name !== 'RoutinesDetail') {
-        this.$store.dispatch('entities/trigger/lockForEditing', {
-          id: this.routine.id,
-        }, {
-          root: true,
-        })
-          .catch(() => {
-            // Something wen wrong
-          })
-      }
-    },
-
-    destroyed() {
-      if (this.$parent.$options.name !== 'RoutinesDetail') {
-        this.$store.dispatch('entities/trigger/unlockForEditing', {
-          id: this.routine.id,
-        }, {
-          root: true,
-        })
-          .catch(() => {
-            // Something wen wrong
-          })
-      }
     },
 
     methods: {

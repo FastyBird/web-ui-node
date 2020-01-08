@@ -1,14 +1,11 @@
 <template>
-  <list-item
-    v-if="fetchingThings || fetchingThing || !thing"
-    class="fb-routines-action__container"
-  >
+  <list-item v-if="fetchingThings || fetchingThing || !thing">
     <template slot="icon">
       <fb-spinner size="sm" />
     </template>
 
     <template slot="heading">
-      {{ $t('routines.texts.loadingThing') }}
+      {{ $t('things.texts.loadingThing') }}
     </template>
 
     <template slot="detail">
@@ -18,7 +15,8 @@
 
   <list-item
     v-else-if="thing"
-    class="fb-routines-action__container"
+    :show-status="true"
+    :status="enabled"
   >
     <template slot="icon">
       <font-awesome-icon :icon="$thingIcon(thing)" />
@@ -32,16 +30,23 @@
       <span
         v-for="(row, index) in properties"
         :key="index"
-        class="fb-routines-action__action"
-      >{{ $t(`routines.actions.${row.operation}`, { property: $tChannelProperty(thing, row.property).toLowerCase() }) }}</span>
+        class="fb-things-trigger-action__action"
+      >{{ $t(`things.vendors.${hardware.manufacturer}.actions.${row.operation}`, { property: $tChannelProperty(thing, row.property).toLowerCase() }) }}</span>
     </template>
 
-    <template slot="detail">
-      <fb-switch-element
-        :status="enabled"
-        variant="primary"
-        @change="toggleThing"
+    <template slot="detail-large">
+      <fb-form-checkbox
+        v-model="enabled"
+        name="enabled"
       />
+
+      <fb-button
+        size="sm"
+        variant="link"
+        @click="remove"
+      >
+        {{ $t('application.buttons.remove.title') }}
+      </fb-button>
     </template>
   </list-item>
 </template>
@@ -92,6 +97,17 @@
       },
 
       /**
+       * Get thing hardware info
+       *
+       * @returns {Hardware}
+       */
+      hardware() {
+        return this.$store.getters['entities/hardware/query']()
+          .where('device_id', this.thing.device_id)
+          .first()
+      },
+
+      /**
        * Mapped properties with values
        *
        * @returns {Array}
@@ -132,8 +148,8 @@
 
     watch: {
 
-      action(val) {
-        this.enabled = val.enabled
+      enabled() {
+        this.$emit('toggle')
       },
 
     },
@@ -144,8 +160,8 @@
 
     methods: {
 
-      toggleThing() {
-        this.$emit('toggle')
+      remove() {
+        this.$emit('remove')
       },
 
     },

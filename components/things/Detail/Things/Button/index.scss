@@ -4,28 +4,19 @@
   &__container {
     padding: 5px 10px;
 
-    .fb-btn {
-      svg {
-        margin-right: 15px;
-        float: left;
-        font-size: 2em;
-      }
-
-      span {
-        float: left;
-        line-height: 2em;
-      }
-    }
-
     .fb-list-items-container__container {
       margin-left: -10px;
       margin-right: -10px;
     }
+
+    .fb-divider__container {
+      margin: 0;
+    }
   }
 
-  &__actions-container {
-    margin-left: 0;
-    margin-right: 0;
+  &__new-action {
+    text-align: center;
+    margin: 10px 0;
   }
 
   &__action-container {

@@ -36,11 +36,11 @@ export const MENU_ITEMS = [
     },
     items: [
       {
-        name: 'Home',
+        name: 'Dashboard',
         link: HOME_LINK,
         meta: {
-          icon: 'home',
-          label: 'application.menu.home',
+          icon: 'tachometer-alt',
+          label: 'application.menu.dashboard',
           type: 'home',
         },
       }, {
@@ -143,8 +143,8 @@ export const USER_MENU_ITEMS = [
 export const MOBILE_BOTTOM_TABS = [
   {
     link: HOME_LINK,
-    icon: 'home',
-    name: 'application.tabs.home.title',
+    icon: 'tachometer-alt',
+    name: 'application.tabs.dashboard.title',
   }, {
     link: THINGS_LIST_LINK,
     icon: 'plug',

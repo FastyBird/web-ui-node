@@ -18,7 +18,7 @@
     <list-item
       v-for="thing in things"
       :key="thing.id"
-      :data-state="isThingSelected(thing) ? 'on' : 'off'"
+      :data-state="isSelected(thing) ? 'on' : 'off'"
       @click="select(thing)"
     >
       <template slot="icon">
@@ -35,7 +35,7 @@
 
       <template slot="detail">
         <font-awesome-icon
-          v-if="isThingSelected(thing)"
+          v-if="isSelected(thing)"
           icon="check-circle"
         />
 
@@ -108,8 +108,8 @@
         return orderBy(
           things,
           [
-            v => v.label,
-            v => v.comment,
+            v => this.$tThing(v),
+            v => this.$tThingDevice(v),
           ],
           ['asc'],
         )
@@ -135,9 +135,8 @@
         this.$store.dispatch('entities/thing/fetch', {}, {
           root: true,
         })
-          .catch(e => {
-            // eslint-disable-next-line
-            console.log(e)
+          .catch(() => {
+            this.$nuxt.error({ statusCode: 503, message: 'Something went wrong' })
           })
       }
     },
@@ -217,7 +216,7 @@
        *
        * @param {Thing} thing
        */
-      isThingSelected(thing) {
+      isSelected(thing) {
         return typeof this.items.find(item => {
           return item.thing === thing.id
         }) !== 'undefined'

@@ -1,8 +1,5 @@
 <template>
-  <list-item
-    v-if="fetchingThings || fetchingThing || !thing"
-    class="fb-routines-action__container"
-  >
+  <list-item v-if="fetchingThings || fetchingThing || !thing">
     <template slot="icon">
       <fb-spinner size="sm" />
     </template>
@@ -18,7 +15,8 @@
 
   <list-item
     v-else-if="thing"
-    class="fb-routines-action__container"
+    :show-status="true"
+    :status="action.enabled"
   >
     <template slot="icon">
       <font-awesome-icon :icon="$thingIcon(thing)" />
@@ -36,12 +34,19 @@
       >{{ $t(`routines.actions.${row.operation}`, { property: $tChannelProperty(thing, row.property).toLowerCase() }) }}</span>
     </template>
 
-    <template slot="detail">
-      <fb-switch-element
-        :status="enabled"
-        variant="primary"
-        @change="toggleThing"
+    <template slot="detail-large">
+      <fb-form-checkbox
+        v-model="enabled"
+        name="enabled"
       />
+
+      <fb-button
+        size="sm"
+        variant="link"
+        @click="remove"
+      >
+        {{ $t('application.buttons.remove.title') }}
+      </fb-button>
     </template>
   </list-item>
 </template>
@@ -132,8 +137,8 @@
 
     watch: {
 
-      action(val) {
-        this.enabled = val.enabled
+      enabled() {
+        this.$emit('toggle')
       },
 
     },
@@ -144,8 +149,8 @@
 
     methods: {
 
-      toggleThing() {
-        this.$emit('toggle')
+      remove() {
+        this.$emit('remove')
       },
 
     },

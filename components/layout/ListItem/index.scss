@@ -20,6 +20,41 @@
     @media (min-width: $screen-sm-min) AND (max-width: $screen-sm-max) {
       padding-right: 10px;
     }
+
+    .fb-spinner__container {
+      position: unset;
+    }
+
+    .fb-checkbox__container {
+      padding: 0;
+      margin: 0;
+      display: inline-block;
+    }
+
+    &-with-status {
+      &[data-state="on"] {
+        > div {
+          border-left: 4px solid $brand-primary;
+        }
+      }
+
+      &[data-state="off"] {
+        > div {
+          border-left: 4px solid $gray-lighter;
+        }
+
+        .fb-list-item {
+          &__icon svg,
+          &__heading {
+            color: $gray-lighter;
+          }
+        }
+
+        .fb-icon-with-child__container-child {
+          background-color: $brand-danger;
+        }
+      }
+    }
   }
 
   &__box {
@@ -60,7 +95,7 @@
 
   &__heading {
     overflow: hidden;
-    padding-top: 15px;
+    padding-top: 18px;
 
     @include gridCel(0, 0);
 

@@ -238,7 +238,7 @@
           rows: this._.filter(this._.get(this.model, 'rows', []), 'selected')
             .map(row => {
               return {
-                property: row.property,
+                property_id: row.property_id,
                 operation: row.operation,
               }
             }),
@@ -274,24 +274,24 @@
             }
 
             if (this.action) {
-              const storedProperty = this.action.rows.find(row => row.property === property.id)
+              const storedProperty = this.action.rows.find(row => row.property_id === property.id)
 
               if (typeof storedProperty !== 'undefined') {
                 this.model.rows.push({
-                  property: property.id,
+                  property_id: property.id,
                   selected: true,
                   operation: storedProperty.operation,
                 })
               } else {
                 this.model.rows.push({
-                  property: property.id,
+                  property_id: property.id,
                   selected: false,
                   operation: defaultValue,
                 })
               }
             } else {
               this.model.rows.push({
-                property: property.id,
+                property_id: property.id,
                 selected: false,
                 operation: defaultValue,
               })
