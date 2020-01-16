@@ -11,39 +11,39 @@
 </template>
 
 <script>
-  const FbSignLayout = () => import('@/node_modules/@fastybird-com/theme/layouts/sign')
+import * as config from '@/configuration'
 
-  import * as config from '@/configuration'
+const FbSignLayout = () => import('@/node_modules/@fastybird-com/theme/layouts/sign')
 
-  export default {
+export default {
 
-    name: 'LayoutSign',
+  name: 'LayoutSign',
 
-    components: {
-      FbSignLayout,
-    },
+  components: {
+    FbSignLayout,
+  },
 
-    data() {
-      return {
-        loadingOverlay: false,
-        author: {
-          name: config.AUTHOR_NAME,
-          website: config.AUTHOR_WEBSITE,
-        },
-      }
-    },
+  data() {
+    return {
+      loadingOverlay: false,
+      author: {
+        name: config.AUTHOR_NAME,
+        website: config.AUTHOR_WEBSITE,
+      },
+    }
+  },
 
-    beforeMount() {
-      this.$bus.$on('wait-sign_in', (status) => {
-        this.loadingOverlay = status
-      })
+  beforeMount() {
+    this.$bus.$on('wait-sign_in', (status) => {
+      this.loadingOverlay = status
+    })
 
-      this.$bus.$emit('wait-page_reloading', false)
-    },
+    this.$bus.$emit('wait-page_reloading', false)
+  },
 
-    beforeDestroy() {
-      this.$bus.$off('wait-sign_in')
-    },
+  beforeDestroy() {
+    this.$bus.$off('wait-sign_in')
+  },
 
-  }
+}
 </script>

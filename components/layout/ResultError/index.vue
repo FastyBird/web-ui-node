@@ -27,12 +27,14 @@
   </svg>
 </template>
 
-<script>
-  export default {
+<script lang="ts">
+import { createComponent } from '@vue/composition-api'
 
-    name: 'ResultError',
+export default createComponent({
 
-  }
+  name: 'ResultError',
+
+})
 </script>
 
 <style rel="stylesheet/scss" lang="scss">

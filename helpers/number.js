@@ -13,7 +13,7 @@ export default {
     let s = ''
 
     const toFixedFix = (fN, fPrec) => {
-      const k = Math.pow(10, fPrec)
+      const k = 10 ** fPrec
 
       return `${Math.round(fN * k) / k}`
     }

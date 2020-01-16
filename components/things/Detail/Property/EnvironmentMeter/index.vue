@@ -29,105 +29,105 @@
 </template>
 
 <script>
-  import number from '@/helpers/number'
+import PropertyContainer from '../../PropertyContainer'
 
-  import PropertyContainer from '../../PropertyContainer'
+import number from '@/helpers/number'
 
-  export default {
+export default {
 
-    name: 'ThingsDetailPropertyEnergyMeter',
+  name: 'ThingsDetailPropertyEnergyMeter',
 
-    components: {
-      PropertyContainer,
+  components: {
+    PropertyContainer,
+  },
+
+  props: {
+
+    thing: {
+      type: Object,
+      required: true,
     },
 
-    props: {
-
-      thing: {
-        type: Object,
-        required: true,
-      },
-
-      property: {
-        type: Object,
-        required: true,
-      },
-
+    property: {
+      type: Object,
+      required: true,
     },
 
-    computed: {
+  },
 
-      /**
-       * Get thing hardware info
-       *
-       * @returns {Hardware}
-       */
-      hardware() {
-        return this.$store.getters['entities/hardware/query']()
-          .where('device_id', this.thing.device_id)
-          .first()
-      },
+  computed: {
 
-      /**
-       * Get property value
-       *
-       * @returns {(Number|String)}
-       */
-      propertyValue() {
-        const propertyValue = this.$store.getters['entities/channel_property_value/query']()
-          .where('channel_id', this.thing.channel_id)
-          .where('property_id', this.property.id)
-          .first()
-
-        return propertyValue !== null ? this._formatValue(propertyValue.value) : '-'
-      },
-
+    /**
+     * Get thing hardware info
+     *
+     * @returns {Hardware}
+     */
+    hardware() {
+      return this.$store.getters['entities/hardware/query']()
+        .where('device_id', this.thing.device_id)
+        .first()
     },
 
-    created() {
-      this.transparentModal = this.$parent.$options.name !== 'Layout'
+    /**
+     * Get property value
+     *
+     * @returns {(Number|String)}
+     */
+    propertyValue() {
+      const propertyValue = this.$store.getters['entities/channel_property_value/query']()
+        .where('channel_id', this.thing.channel_id)
+        .where('property_id', this.property.id)
+        .first()
+
+      return propertyValue !== null ? this._formatValue(propertyValue.value) : '-'
     },
 
-    methods: {
+  },
 
-      _formatValue(value) {
-        if (this._.get(this.hardware, 'isManufacturerItead')) {
-          switch (this.property.property) {
-            case 'air_quality':
-              if (value > 7) {
-                return this.$t(`things.vendors.${this.hardware.manufacturer}.properties.${this._.get(this.property, 'property', 'none')}.values.unhealthy`)
-              } else if (value > 4) {
-                return this.$t(`things.vendors.${this.hardware.manufacturer}.properties.${this._.get(this.property, 'property', 'none')}.values.moderate`)
-              }
+  created() {
+    this.transparentModal = this.$parent.$options.name !== 'Layout'
+  },
 
-              return this.$t(`things.vendors.${this.hardware.manufacturer}.properties.${this._.get(this.property, 'property', 'none')}.values.good`)
+  methods: {
 
-            case 'light_level':
-              if (value > 8) {
-                return this.$t(`things.vendors.${this.hardware.manufacturer}.properties.${this._.get(this.property, 'property', 'none')}.values.dusky`)
-              } else if (value > 4) {
-                return this.$t(`things.vendors.${this.hardware.manufacturer}.properties.${this._.get(this.property, 'property', 'none')}.values.normal`)
-              }
+    _formatValue(value) {
+      if (this._.get(this.hardware, 'isManufacturerItead')) {
+        switch (this.property.property) {
+          case 'air_quality':
+            if (value > 7) {
+              return this.$t(`things.vendors.${this.hardware.manufacturer}.properties.${this._.get(this.property, 'property', 'none')}.values.unhealthy`)
+            } else if (value > 4) {
+              return this.$t(`things.vendors.${this.hardware.manufacturer}.properties.${this._.get(this.property, 'property', 'none')}.values.moderate`)
+            }
 
-              return this.$t(`things.vendors.${this.hardware.manufacturer}.properties.${this._.get(this.property, 'property', 'none')}.values.bright`)
+            return this.$t(`things.vendors.${this.hardware.manufacturer}.properties.${this._.get(this.property, 'property', 'none')}.values.good`)
 
-            case 'noise_level':
-              if (value > 6) {
-                return this.$t(`things.vendors.${this.hardware.manufacturer}.properties.${this._.get(this.property, 'property', 'none')}.values.noisy`)
-              } else if (value > 3) {
-                return this.$t(`things.vendors.${this.hardware.manufacturer}.properties.${this._.get(this.property, 'property', 'none')}.values.normal`)
-              }
+          case 'light_level':
+            if (value > 8) {
+              return this.$t(`things.vendors.${this.hardware.manufacturer}.properties.${this._.get(this.property, 'property', 'none')}.values.dusky`)
+            } else if (value > 4) {
+              return this.$t(`things.vendors.${this.hardware.manufacturer}.properties.${this._.get(this.property, 'property', 'none')}.values.normal`)
+            }
 
-              return this.$t(`things.vendors.${this.hardware.manufacturer}.properties.${this._.get(this.property, 'property', 'none')}.values.quiet`)
-          }
+            return this.$t(`things.vendors.${this.hardware.manufacturer}.properties.${this._.get(this.property, 'property', 'none')}.values.bright`)
+
+          case 'noise_level':
+            if (value > 6) {
+              return this.$t(`things.vendors.${this.hardware.manufacturer}.properties.${this._.get(this.property, 'property', 'none')}.values.noisy`)
+            } else if (value > 3) {
+              return this.$t(`things.vendors.${this.hardware.manufacturer}.properties.${this._.get(this.property, 'property', 'none')}.values.normal`)
+            }
+
+            return this.$t(`things.vendors.${this.hardware.manufacturer}.properties.${this._.get(this.property, 'property', 'none')}.values.quiet`)
         }
+      }
 
-        return number.format(parseFloat(value), 2, ',', ' ')
-      },
-
+      return number.format(parseFloat(value), 2, ',', ' ')
     },
 
-  }
+  },
+
+}
 </script>
 
 <style rel="stylesheet/scss" lang="scss">

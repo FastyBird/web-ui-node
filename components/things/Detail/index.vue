@@ -10,48 +10,48 @@
 </template>
 
 <script>
-  import DefaultThing from './Things/Default'
-  import ButtonThing from './Things/Button'
+import DefaultThing from './Things/Default'
+import ButtonThing from './Things/Button'
 
-  export default {
+export default {
 
-    name: 'ThingsDetail',
+  name: 'ThingsDetail',
 
-    components: {
-      DefaultThing,
-      ButtonThing,
+  components: {
+    DefaultThing,
+    ButtonThing,
+  },
+
+  props: {
+
+    thing: {
+      type: Object,
+      required: true,
     },
 
-    props: {
+  },
 
-      thing: {
-        type: Object,
-        required: true,
-      },
+  computed: {
 
+    /**
+     * Get thing hardware info
+     *
+     * @returns {(Hardware|null)}
+     */
+    hardware() {
+      return this.$store.getters['entities/hardware/query']()
+        .where('device_id', this.thing.device_id)
+        .first()
     },
 
-    computed: {
-
-      /**
-       * Get thing hardware info
-       *
-       * @returns {(Hardware|null)}
-       */
-      hardware() {
-        return this.$store.getters['entities/hardware/query']()
-          .where('device_id', this.thing.device_id)
-          .first()
-      },
-
-      isButtonThing() {
-        return !!(this._.get(this.hardware, 'isManufacturerFastyBird', false) &&
-          (
-            this._.get(this.hardware, 'model') === '8ch_buttons' || this._.get(this.hardware, 'model') === '16ch_buttons'
-          ))
-      },
-
+    isButtonThing() {
+      return !!(this._.get(this.hardware, 'isManufacturerFastyBird', false) &&
+        (
+          this._.get(this.hardware, 'model') === '8ch_buttons' || this._.get(this.hardware, 'model') === '16ch_buttons'
+        ))
     },
 
-  }
+  },
+
+}
 </script>

@@ -51,79 +51,79 @@
 </template>
 
 <script>
-  const GroupRename = () => import('./Rename')
-  const GroupRemove = () => import('./Remove')
+const GroupRename = () => import('./Rename')
+const GroupRemove = () => import('./Remove')
 
-  export default {
+export default {
 
-    name: 'GroupsSettingsGroup',
+  name: 'GroupsSettingsGroup',
 
-    components: {
-      GroupRename,
-      GroupRemove,
+  components: {
+    GroupRename,
+    GroupRemove,
+  },
+
+  props: {
+
+    group: {
+      type: Object,
+      required: true,
     },
 
-    props: {
+  },
 
-      group: {
-        type: Object,
-        required: true,
+  data() {
+    return {
+      isCustom: false,
+      transparentModal: false,
+      loading: {
+        rename: false,
+        remove: false,
       },
+      rename: {
+        show: false,
+      },
+      remove: {
+        show: false,
+      },
+    }
+  },
 
-    },
+  created() {
+    this.transparentModal = this.$parent.$options.name !== 'Layout'
+  },
 
-    data() {
-      return {
-        isCustom: false,
-        transparentModal: false,
-        loading: {
-          rename: false,
-          remove: false,
-        },
-        rename: {
-          show: false,
-        },
-        remove: {
-          show: false,
-        },
+  methods: {
+
+    /**
+     * Open edit|info window
+     *
+     * @param {String} window
+     */
+    openWindow(window) {
+      if (Object.prototype.hasOwnProperty.call(this, window)) {
+        this[window].show = true
+
+        if (Object.prototype.hasOwnProperty.call(this.loading, window)) {
+          this.loading[window] = true
+        }
       }
     },
 
-    created() {
-      this.transparentModal = this.$parent.$options.name !== 'Layout'
+    /**
+     * Close opened window
+     *
+     * @param {String} window
+     */
+    closeWindow(window) {
+      if (Object.prototype.hasOwnProperty.call(this, window)) {
+        this[window].show = false
+      }
     },
 
-    methods: {
+  },
 
-      /**
-       * Open edit|info window
-       *
-       * @param {String} window
-       */
-      openWindow(window) {
-        if (this.hasOwnProperty(window)) {
-          this[window].show = true
-
-          if (this.loading.hasOwnProperty(window)) {
-            this.loading[window] = true
-          }
-        }
-      },
-
-      /**
-       * Close opened window
-       *
-       * @param {String} window
-       */
-      closeWindow(window) {
-        if (this.hasOwnProperty(window)) {
-          this[window].show = false
-        }
-      },
-
-    },
-
-  }
+}
 </script>
 
 <style rel="stylesheet/scss" lang="scss">

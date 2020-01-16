@@ -18,61 +18,61 @@
 </template>
 
 <script>
-  const FbErrorLayout = () => import('@/node_modules/@fastybird-com/theme/layouts/error')
+import * as config from '@/configuration'
 
-  import * as config from '@/configuration'
+const FbErrorLayout = () => import('@/node_modules/@fastybird-com/theme/layouts/error')
 
-  export default {
+export default {
 
-    name: 'LayoutError',
+  name: 'LayoutError',
 
-    components: {
-      FbErrorLayout,
+  components: {
+    FbErrorLayout,
+  },
+
+  props: {
+
+    error: {
+      type: Object,
+      default: null,
     },
 
-    props: {
+  },
 
-      error: {
-        type: Object,
-        default: null,
+  data() {
+    return {
+      author: {
+        name: config.AUTHOR_NAME,
+        website: config.AUTHOR_WEBSITE,
       },
+    }
+  },
 
+  layout: 'blank',
+
+  computed: {
+
+    statusCode() {
+      return (this.error && this.error.statusCode) || 500
     },
 
-    data() {
-      return {
-        author: {
-          name: config.AUTHOR_NAME,
-          website: config.AUTHOR_WEBSITE,
-        },
+    message() {
+      return this.error.message || '<%= messages.client_error %>'
+    },
+
+    description() {
+      switch (this.statusCode) {
+        case 404:
+          return 'We are sorry, the page you requested cannot be found.'
+
+        case 503:
+          return 'Please try reload page.'
       }
+
+      return this.error.message || '<%= messages.client_error %>'
     },
 
-    layout: 'blank',
+  },
 
-    computed: {
-
-      statusCode() {
-        return (this.error && this.error.statusCode) || 500
-      },
-
-      message() {
-        return this.error.message || '<%= messages.client_error %>'
-      },
-
-      description() {
-        switch (this.statusCode) {
-          case 404:
-            return 'We are sorry, the page you requested cannot be found.'
-
-          case 503:
-            return 'Please try reload page.'
-        }
-
-        return this.error.message || '<%= messages.client_error %>'
-      },
-
-    },
-
-  }
+}
 </script>

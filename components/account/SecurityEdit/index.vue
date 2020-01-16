@@ -104,247 +104,233 @@
 </template>
 
 <script>
-  export default {
+export default {
 
-    name: 'SecurityEdit',
+  name: 'SecurityEdit',
 
-    props: {
+  props: {
 
-      account: {
-        type: Object,
-        required: true,
+    account: {
+      type: Object,
+      required: true,
+    },
+
+  },
+
+  data() {
+    return {
+      form: {
+        scope: 'account_security_question',
+        model: {
+          question: '',
+          otherQuestion: null,
+          answer: null,
+          lockingNotice: false,
+          currentAnswer: null,
+        },
+        options: {
+          questions: [
+            {
+              value: '',
+              name: this.$t('field.securityQuestion.question.prompt'),
+            }, {
+              value: 'motherMaidenName',
+              name: this.$t('field.securityQuestion.question.values.motherMaidenName'),
+            }, {
+              value: 'firstPetName',
+              name: this.$t('field.securityQuestion.question.values.firstPetName'),
+            }, {
+              value: 'elementarySchoolName',
+              name: this.$t('field.securityQuestion.question.values.elementarySchoolName'),
+            }, {
+              value: 'elementarySchoolMascot',
+              name: this.$t('field.securityQuestion.question.values.elementarySchoolMascot'),
+            }, {
+              value: 'friedNickname',
+              name: this.$t('field.securityQuestion.question.values.friedNickname'),
+            }, {
+              value: 'favoriteSportsTeam',
+              name: this.$t('field.securityQuestion.question.values.favoriteSportsTeam'),
+            }, {
+              value: 'favoriteWriter',
+              name: this.$t('field.securityQuestion.question.values.favoriteWriter'),
+            }, {
+              value: 'favoriteActor',
+              name: this.$t('field.securityQuestion.question.values.favoriteActor'),
+            }, {
+              value: 'favoriteSinger',
+              name: this.$t('field.securityQuestion.question.values.favoriteSinger'),
+            }, {
+              value: 'favoriteSong',
+              name: this.$t('field.securityQuestion.question.values.favoriteSong'),
+            }, {
+              value: 'grewUpStreetName',
+              name: this.$t('field.securityQuestion.question.values.grewUpStreetName'),
+            }, {
+              value: 'makeOfFirstCar',
+              name: this.$t('field.securityQuestion.question.values.makeOfFirstCar'),
+            }, {
+              value: 'cityWhereYouMetSpouse',
+              name: this.$t('field.securityQuestion.question.values.cityWhereYouMetSpouse'),
+            }, {
+              value: 'custom',
+              name: this.$t('field.securityQuestion.question.values.other'),
+            },
+          ],
+        },
       },
+    }
+  },
 
-    },
+  created() {
+    this._initModel()
 
-    data() {
-      return {
-        form: {
-          scope: 'account_security_question',
-          model: {
-            question: '',
-            otherQuestion: null,
-            answer: null,
-            lockingNotice: false,
-            currentAnswer: null,
+    this.$validator.localize({
+      en: {
+        custom: {
+          current_answer: {
+            required: this.$t('field.securityQuestion.currentAnswer.validation.required'),
           },
-          options: {
-            questions: [
-              {
-                value: '',
-                name: this.$t('field.securityQuestion.question.prompt'),
-              }, {
-                value: 'motherMaidenName',
-                name: this.$t('field.securityQuestion.question.values.motherMaidenName'),
-              }, {
-                value: 'firstPetName',
-                name: this.$t('field.securityQuestion.question.values.firstPetName'),
-              }, {
-                value: 'elementarySchoolName',
-                name: this.$t('field.securityQuestion.question.values.elementarySchoolName'),
-              }, {
-                value: 'elementarySchoolMascot',
-                name: this.$t('field.securityQuestion.question.values.elementarySchoolMascot'),
-              }, {
-                value: 'friedNickname',
-                name: this.$t('field.securityQuestion.question.values.friedNickname'),
-              }, {
-                value: 'favoriteSportsTeam',
-                name: this.$t('field.securityQuestion.question.values.favoriteSportsTeam'),
-              }, {
-                value: 'favoriteWriter',
-                name: this.$t('field.securityQuestion.question.values.favoriteWriter'),
-              }, {
-                value: 'favoriteActor',
-                name: this.$t('field.securityQuestion.question.values.favoriteActor'),
-              }, {
-                value: 'favoriteSinger',
-                name: this.$t('field.securityQuestion.question.values.favoriteSinger'),
-              }, {
-                value: 'favoriteSong',
-                name: this.$t('field.securityQuestion.question.values.favoriteSong'),
-              }, {
-                value: 'grewUpStreetName',
-                name: this.$t('field.securityQuestion.question.values.grewUpStreetName'),
-              }, {
-                value: 'makeOfFirstCar',
-                name: this.$t('field.securityQuestion.question.values.makeOfFirstCar'),
-              }, {
-                value: 'cityWhereYouMetSpouse',
-                name: this.$t('field.securityQuestion.question.values.cityWhereYouMetSpouse'),
-              }, {
-                value: 'custom',
-                name: this.$t('field.securityQuestion.question.values.other'),
-              },
-            ],
+          question: {
+            required: this.$t('field.securityQuestion.question.validation.required'),
+          },
+          otherQuestion: {
+            required: this.$t('field.securityQuestion.customQuestion.validation.required'),
+          },
+          answer: {
+            required: this.$t('field.securityQuestion.answer.validation.required'),
+          },
+          locking_notice: {
+            required: this.$t('field.securityQuestion.lockingNotice.validation.required'),
           },
         },
-      }
-    },
+      },
+    })
 
-    created() {
-      this._initModel()
+    this.$validator.extend('checkCurrentAnswer', {
+      validate: this.checkCurrentAnswer,
+      getMessage: (field, params, data) => {
+        return data.message
+      },
+    })
+  },
 
-      this.$validator.localize({
-        en: {
-          custom: {
-            current_answer: {
-              required: this.$t('field.securityQuestion.currentAnswer.validation.required'),
-            },
-            question: {
-              required: this.$t('field.securityQuestion.question.validation.required'),
-            },
-            otherQuestion: {
-              required: this.$t('field.securityQuestion.customQuestion.validation.required'),
-            },
-            answer: {
-              required: this.$t('field.securityQuestion.answer.validation.required'),
-            },
-            locking_notice: {
-              required: this.$t('field.securityQuestion.lockingNotice.validation.required'),
-            },
-          },
-        },
+  methods: {
+
+    /**
+     * Check if provided current answer is correct
+     *
+     * @param {String} value
+     *
+     * @returns {Object}
+     */
+    checkCurrentAnswer(value) {
+      return this.$store.dispatch('entities/security_question/validate', {
+        answer: value,
+      }, {
+        root: true,
       })
-
-      this.$validator.extend('checkCurrentAnswer', {
-        validate: this.checkCurrentAnswer,
-        getMessage: (field, params, data) => {
-          return data.message
-        },
-      })
-    },
-
-    methods: {
-
-      /**
-       * Check if provided current answer is correct
-       *
-       * @param {String} value
-       *
-       * @returns {Object}
-       */
-      checkCurrentAnswer(value) {
-        return this.$store.dispatch('entities/security_question/validate', {
-          answer: value,
-        }, {
-          root: true,
+        .then(() => {
+          return {
+            valid: true,
+          }
         })
-          .then(() => {
-            return {
-              valid: true,
-            }
-          })
-          .catch(e => {
-            if (this._.get(e, 'response', null) !== null && this._.get(e, 'response.data.errors', null) !== null) {
-              this._.get(e, 'response.data.errors', [])
-                .forEach(error => {
-                  if (parseInt(this._.get(error, 'code', 0), 10) === 422) {
-                    return {
-                      valid: false,
-                      data: {
-                        message: this._.get(error, 'detail'),
+        .catch((e) => {
+          if (this._.get(e, 'response', null) !== null && this._.get(e, 'response.data.errors', null) !== null) {
+            this._.get(e, 'response.data.errors', [])
+              .forEach((error) => {
+                if (parseInt(this._.get(error, 'code', 0), 10) === 422) {
+                  return {
+                    valid: false,
+                    data: {
+                      message: this._.get(error, 'detail'),
+                    },
+                  }
+                }
+              })
+          }
+
+          return {
+            valid: false,
+            data: {
+              message: this.$t('application.messages.valueIsNotValid'),
+            },
+          }
+        })
+    },
+
+    /**
+     * Submit form values
+     *
+     * @param {Object} event
+     */
+    submit(event) {
+      event && event.preventDefault()
+
+      this.$validator.validateAll(this.form.scope)
+        .then((result) => {
+          if (result) {
+            const errorMessage = this.$t('messages.profileNotEdited')
+
+            if (this.account.security_question !== null) {
+              this.$store.dispatch('entities/security_question/edit', {
+                id: this.account.security_question.id,
+                current_answer: this.form.model.currentAnswer,
+                question: this.form.model.question === 'custom' ? this.form.model.otherQuestion : this.form.model.question,
+                is_custom: this.form.model.question === 'custom',
+                answer: this.form.model.answer,
+                locking_notice: this.form.model.lockingNotice,
+              }, {
+                root: true,
+              })
+                .catch((e) => {
+                  if (this._.get(e, 'exception', null) !== null) {
+                    this.handleFormError(e.exception, errorMessage)
+                  } else {
+                    this.$toasted.error(errorMessage, {
+                      action: {
+                        text: this.$t('application.buttons.close.title'),
+                        onClick: (evnt, toastObject) => {
+                          toastObject.goAway(0)
+                        },
                       },
-                    }
+                    })
                   }
                 })
-            }
 
-            return {
-              valid: false,
-              data: {
-                message: this.$t('application.messages.valueIsNotValid'),
-              },
-            }
-          })
-      },
-
-      /**
-       * Submit form values
-       *
-       * @param {Object} event
-       */
-      submit(event) {
-        event && event.preventDefault()
-
-        this.$validator.validateAll(this.form.scope)
-          .then(result => {
-            if (result) {
-              const errorMessage = this.$t('messages.profileNotEdited')
-
-              if (this.account.security_question !== null) {
-                this.$store.dispatch('entities/security_question/edit', {
-                  id: this.account.security_question.id,
-                  current_answer: this.form.model.currentAnswer,
-                  question: this.form.model.question === 'custom' ? this.form.model.otherQuestion : this.form.model.question,
-                  is_custom: this.form.model.question === 'custom',
-                  answer: this.form.model.answer,
-                  locking_notice: this.form.model.lockingNotice,
-                }, {
-                  root: true,
-                })
-                  .catch(e => {
-                    if (this._.get(e, 'exception', null) !== null) {
-                      this.handleFormError(e.exception, errorMessage)
-                    } else {
-                      this.$toasted.error(errorMessage, {
-                        action: {
-                          text: this.$t('application.buttons.close.title'),
-                          onClick: (evnt, toastObject) => {
-                            toastObject.goAway(0)
-                          },
-                        },
-                      })
-                    }
-                  })
-
-                this.$toasted.success(this.$t('messages.questionChanged'), {
-                  action: {
-                    text: this.$t('application.buttons.close.title'),
-                    onClick: (evnt, toastObject) => {
-                      toastObject.goAway(0)
-                    },
+              this.$toasted.success(this.$t('messages.questionChanged'), {
+                action: {
+                  text: this.$t('application.buttons.close.title'),
+                  onClick: (evnt, toastObject) => {
+                    toastObject.goAway(0)
                   },
-                })
-              } else {
-                this.$store.dispatch('entities/security_question/add', {
-                  question: this.form.model.question === 'custom' ? this.form.model.otherQuestion : this.form.model.question,
-                  is_custom: this.form.model.question === 'custom',
-                  answer: this.form.model.answer,
-                  locking_notice: this.form.model.lockingNotice,
-                }, {
-                  root: true,
-                })
-                  .catch(e => {
-                    if (this._.get(e, 'exception', null) !== null) {
-                      this.handleFormError(e.exception, errorMessage)
-                    } else {
-                      this.$toasted.error(errorMessage, {
-                        action: {
-                          text: this.$t('application.buttons.close.title'),
-                          onClick: (evnt, toastObject) => {
-                            toastObject.goAway(0)
-                          },
-                        },
-                      })
-                    }
-                  })
-
-                this.$toasted.success(this.$t('messages.questionCreated'), {
-                  action: {
-                    text: this.$t('application.buttons.close.title'),
-                    onClick: (evnt, toastObject) => {
-                      toastObject.goAway(0)
-                    },
-                  },
-                })
-              }
-
-              this._initModel()
-
-              this.$emit('close', false)
+                },
+              })
             } else {
-              this.$toasted.info(this.$t('application.messages.fixAllFormErrors'), {
+              this.$store.dispatch('entities/security_question/add', {
+                question: this.form.model.question === 'custom' ? this.form.model.otherQuestion : this.form.model.question,
+                is_custom: this.form.model.question === 'custom',
+                answer: this.form.model.answer,
+                locking_notice: this.form.model.lockingNotice,
+              }, {
+                root: true,
+              })
+                .catch((e) => {
+                  if (this._.get(e, 'exception', null) !== null) {
+                    this.handleFormError(e.exception, errorMessage)
+                  } else {
+                    this.$toasted.error(errorMessage, {
+                      action: {
+                        text: this.$t('application.buttons.close.title'),
+                        onClick: (evnt, toastObject) => {
+                          toastObject.goAway(0)
+                        },
+                      },
+                    })
+                  }
+                })
+
+              this.$toasted.success(this.$t('messages.questionCreated'), {
                 action: {
                   text: this.$t('application.buttons.close.title'),
                   onClick: (evnt, toastObject) => {
@@ -353,8 +339,11 @@
                 },
               })
             }
-          })
-          .catch(() => {
+
+            this._initModel()
+
+            this.$emit('close', false)
+          } else {
             this.$toasted.info(this.$t('application.messages.fixAllFormErrors'), {
               action: {
                 text: this.$t('application.buttons.close.title'),
@@ -363,42 +352,53 @@
                 },
               },
             })
+          }
+        })
+        .catch(() => {
+          this.$toasted.info(this.$t('application.messages.fixAllFormErrors'), {
+            action: {
+              text: this.$t('application.buttons.close.title'),
+              onClick: (evnt, toastObject) => {
+                toastObject.goAway(0)
+              },
+            },
           })
-      },
-
-      /**
-       * Close account edit window
-       *
-       * @param {Object} event
-       */
-      close(event) {
-        event && event.preventDefault()
-
-        this._initModel()
-
-        this.$emit('close', false)
-      },
-
-      /**
-       * Initialize form model object
-       *
-       * @private
-       */
-      _initModel() {
-        this.form.model = {
-          question: '',
-          otherQuestion: '',
-          answer: '',
-          lockingNotice: false,
-          currentAnswer: '',
-        }
-
-        this.errors.clear(this.form.scope)
-      },
-
+        })
     },
 
-  }
+    /**
+     * Close account edit window
+     *
+     * @param {Object} event
+     */
+    close(event) {
+      event && event.preventDefault()
+
+      this._initModel()
+
+      this.$emit('close', false)
+    },
+
+    /**
+     * Initialize form model object
+     *
+     * @private
+     */
+    _initModel() {
+      this.form.model = {
+        question: '',
+        otherQuestion: '',
+        answer: '',
+        lockingNotice: false,
+        currentAnswer: '',
+      }
+
+      this.errors.clear(this.form.scope)
+    },
+
+  },
+
+}
 </script>
 
 <i18n src="./locales.json" />

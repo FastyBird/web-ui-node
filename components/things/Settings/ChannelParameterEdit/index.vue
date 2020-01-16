@@ -94,238 +94,238 @@
 </template>
 
 <script>
-  export default {
+export default {
 
-    name: 'ThingsSettingsChannelParameterEdit',
+  name: 'ThingsSettingsChannelParameterEdit',
 
-    props: {
+  props: {
 
-      thing: {
-        type: Object,
-        required: true,
-      },
-
-      parameter: {
-        type: Object,
-        required: true,
-      },
-
-      transparentBg: {
-        type: Boolean,
-        default: false,
-      },
-
+    thing: {
+      type: Object,
+      required: true,
     },
 
-    data() {
-      return {
-        form: {
-          scope: 'io_server_channel_edit_property',
-          model: null,
-          result: null,
-        },
+    parameter: {
+      type: Object,
+      required: true,
+    },
+
+    transparentBg: {
+      type: Boolean,
+      default: false,
+    },
+
+  },
+
+  data() {
+    return {
+      form: {
+        scope: 'io_server_channel_edit_property',
+        model: null,
+        result: null,
+      },
+    }
+  },
+
+  computed: {
+
+    value() {
+      const stored = this.$store.getters['entities/channel_configuration_value/query']()
+        .where('channel_id', this.thing.channel_id)
+        .where('configuration_id', this.parameter.id)
+        .first()
+
+      return stored ? stored.value : null
+    },
+
+    /**
+     * Get device hardware info
+     *
+     * @returns {(Hardware|null)}
+     */
+    hardware() {
+      return this.$store.getters['entities/hardware/query']()
+        .where('device_id', this.thing.device_id)
+        .first()
+    },
+
+    /**
+     * Translate parameter heading
+     *
+     * @returns {String}
+     */
+    translatedHeading() {
+      if (this._.get(this.hardware, 'isCustom', true)) {
+        if (this.parameter.title !== null) {
+          return this.parameter.title
+        }
+
+        return this.parameter.name
       }
+
+      if (!this.$t(`things.vendors.${this.hardware.manufacturer}.${this.parameter.name}.heading`).includes('things.vendors.')) {
+        return this.$t(`things.vendors.${this.hardware.manufacturer}.${this.parameter.name}.heading`)
+      }
+
+      return this.parameter.name
     },
 
-    computed: {
-
-      value() {
-        const stored = this.$store.getters['entities/channel_configuration_value/query']()
-          .where('channel_id', this.thing.channel_id)
-          .where('configuration_id', this.parameter.id)
-          .first()
-
-        return stored ? stored.value : null
-      },
-
-      /**
-       * Get device hardware info
-       *
-       * @returns {(Hardware|null)}
-       */
-      hardware() {
-        return this.$store.getters['entities/hardware/query']()
-          .where('device_id', this.thing.device_id)
-          .first()
-      },
-
-      /**
-       * Translate parameter heading
-       *
-       * @returns {String}
-       */
-      translatedHeading() {
-        if (this._.get(this.hardware, 'isCustom', true)) {
-          if (this.parameter.title !== null) {
-            return this.parameter.title
-          }
-
-          return this.parameter.name
-        }
-
-        if (this.$t(`things.vendors.${this.hardware.manufacturer}.${this.parameter.name}.heading`).indexOf('things.vendors.') === -1) {
-          return this.$t(`things.vendors.${this.hardware.manufacturer}.${this.parameter.name}.heading`)
+    /**
+     * Translate parameter form label
+     *
+     * @returns {String}
+     */
+    translatedLabel() {
+      if (this._.get(this.hardware, 'isCustom', true)) {
+        if (this.parameter.title !== null) {
+          return this.parameter.title
         }
 
         return this.parameter.name
-      },
+      }
 
-      /**
-       * Translate parameter form label
-       *
-       * @returns {String}
-       */
-      translatedLabel() {
-        if (this._.get(this.hardware, 'isCustom', true)) {
-          if (this.parameter.title !== null) {
-            return this.parameter.title
-          }
+      if (!this.$t(`things.vendors.${this.hardware.manufacturer}.${this.parameter.name}.button`).includes('things.vendors.')) {
+        return this.$t(`things.vendors.${this.hardware.manufacturer}.${this.parameter.name}.button`)
+      }
 
-          return this.parameter.name
-        }
+      return this.parameter.name
+    },
 
-        if (this.$t(`things.vendors.${this.hardware.manufacturer}.${this.parameter.name}.button`).indexOf('things.vendors.') === -1) {
-          return this.$t(`things.vendors.${this.hardware.manufacturer}.${this.parameter.name}.button`)
-        }
-
-        return this.parameter.name
-      },
-
-      /**
-       * Translate parameter field description
-       *
-       * @returns {(String|null)}
-       */
-      translatedDescription() {
-        if (this._.get(this.hardware, 'isCustom', true)) {
-          if (this.parameter.description !== null) {
-            return this.parameter.description
-          }
-
-          return null
-        }
-
-        if (this.$t(`things.vendors.${this.hardware.manufacturer}.${this.parameter.name}.description`).indexOf('things.vendors.') === -1) {
-          return this.$t(`things.vendors.${this.hardware.manufacturer}.${this.parameter.name}.description`)
+    /**
+     * Translate parameter field description
+     *
+     * @returns {(String|null)}
+     */
+    translatedDescription() {
+      if (this._.get(this.hardware, 'isCustom', true)) {
+        if (this.parameter.description !== null) {
+          return this.parameter.description
         }
 
         return null
-      },
+      }
 
-      /**
-       * Parse parameter items for select box
-       *
-       * @returns {Array}
-       */
-      parameterItems() {
-        const items = []
+      if (!this.$t(`things.vendors.${this.hardware.manufacturer}.${this.parameter.name}.description`).includes('things.vendors.')) {
+        return this.$t(`things.vendors.${this.hardware.manufacturer}.${this.parameter.name}.description`)
+      }
 
-        if (this.parameter.isSelect) {
-          for (const key in this.parameter.values) {
-            if (this.parameter.values.hasOwnProperty(key)) {
-              items.push({
-                'value': this.parameter.values[key].value,
-                'name': this.$t(`things.vendors.${this.hardware.manufacturer}.${this.parameter.name}.values.${this.parameter.values[key].name}`),
-              })
-            }
+      return null
+    },
+
+    /**
+     * Parse parameter items for select box
+     *
+     * @returns {Array}
+     */
+    parameterItems() {
+      const items = []
+
+      if (this.parameter.isSelect) {
+        for (const key in this.parameter.values) {
+          if (Object.prototype.hasOwnProperty.call(this.parameter.values, key)) {
+            items.push({
+              value: this.parameter.values[key].value,
+              name: this.$t(`things.vendors.${this.hardware.manufacturer}.${this.parameter.name}.values.${this.parameter.values[key].name}`),
+            })
           }
         }
+      }
 
-        return items
-      },
-
+      return items
     },
 
-    watch: {
+  },
 
-      'thing.state'(val) {
-        if (val) {
-          this._initModel()
-        }
-      },
+  watch: {
 
+    'thing.state'(val) {
+      if (val) {
+        this._initModel()
+      }
     },
 
-    created() {
-      this._initModel()
-    },
+  },
 
-    mounted() {
-      this.$emit('loaded')
-    },
+  created() {
+    this._initModel()
+  },
 
-    methods: {
+  mounted() {
+    this.$emit('loaded')
+  },
 
-      /**
-       * Submit thing parameter edit form
-       *
-       * @param {Object} event
-       */
-      submit(event) {
-        event && event.preventDefault()
+  methods: {
 
-        // Check if thing is connected to cloud
-        if (!this.thing.state) {
-          this.$flashMessage(this.$t('things.messages.notOnline', {
-            thing: this.$tThing(this.thing),
-          }), 'error')
+    /**
+     * Submit thing parameter edit form
+     *
+     * @param {Object} event
+     */
+    submit(event) {
+      event && event.preventDefault()
 
-          return
-        }
+      // Check if thing is connected to cloud
+      if (!this.thing.state) {
+        this.$flashMessage(this.$t('things.messages.notOnline', {
+          thing: this.$tThing(this.thing),
+        }), 'error')
 
-        this.$validator.validateAll(this.form.scope)
-          .then(result => {
-            if (result) {
-              this.$store.dispatch('entities/channel_configuration_value/edit', {
-                device_id: this.thing.device_id,
-                channel_id: this.thing.channel_id,
-                parameter_id: this.parameter.id,
-                data: this.form.model,
-              }, {
-                root: true,
-              })
+        return
+      }
 
-              this.form.result = true
+      this.$validator.validateAll(this.form.scope)
+        .then((result) => {
+          if (result) {
+            this.$store.dispatch('entities/channel_configuration_value/edit', {
+              device_id: this.thing.device_id,
+              channel_id: this.thing.channel_id,
+              parameter_id: this.parameter.id,
+              data: this.form.model,
+            }, {
+              root: true,
+            })
 
-              this.$timer.start('close')
-            } else {
-              this.$flashMessage(this.$t('application.messages.fixAllFormErrors'), 'info')
-            }
-          })
-          .catch(() => {
+            this.form.result = true
+
+            this.$timer.start('close')
+          } else {
             this.$flashMessage(this.$t('application.messages.fixAllFormErrors'), 'info')
-          })
-      },
-
-      /**
-       * Close thing parameter edit window
-       *
-       * @param {Object} event
-       */
-      close(event) {
-        event && event.preventDefault()
-
-        this.$emit('close')
-      },
-
-      /**
-       * Initialize form model data
-       *
-       * @private
-       */
-      _initModel() {
-        this.form.model = this.value === null ? this.parameter.default : this.value
-
-        this.errors.clear(this.form.scope)
-      },
-
+          }
+        })
+        .catch(() => {
+          this.$flashMessage(this.$t('application.messages.fixAllFormErrors'), 'info')
+        })
     },
 
-    timers: {
-      close: {
-        time: 2000,
-      },
+    /**
+     * Close thing parameter edit window
+     *
+     * @param {Object} event
+     */
+    close(event) {
+      event && event.preventDefault()
+
+      this.$emit('close')
     },
 
-  }
+    /**
+     * Initialize form model data
+     *
+     * @private
+     */
+    _initModel() {
+      this.form.model = this.value === null ? this.parameter.default : this.value
+
+      this.errors.clear(this.form.scope)
+    },
+
+  },
+
+  timers: {
+    close: {
+      time: 2000,
+    },
+  },
+
+}
 </script>

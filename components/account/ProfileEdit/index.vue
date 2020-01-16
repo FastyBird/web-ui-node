@@ -89,231 +89,220 @@
 </template>
 
 <script>
-  export default {
+export default {
 
-    name: 'ProfileEdit',
+  name: 'ProfileEdit',
 
-    props: {
+  props: {
 
-      account: {
-        type: Object,
-        required: true,
-      },
-
-      profile: {
-        type: Object,
-        required: true,
-      },
-
+    account: {
+      type: Object,
+      required: true,
     },
 
-    data() {
-      return {
-        form: {
-          scope: 'account_profile_edit',
-          model: {
-            emailAddress: '',
-            firstName: '',
-            lastName: '',
-            middleName: '',
+    profile: {
+      type: Object,
+      required: true,
+    },
+
+  },
+
+  data() {
+    return {
+      form: {
+        scope: 'account_profile_edit',
+        model: {
+          emailAddress: '',
+          firstName: '',
+          lastName: '',
+          middleName: '',
+        },
+      },
+    }
+  },
+
+  created() {
+    this._initModel()
+
+    this.$validator.localize({
+      en: {
+        custom: {
+          email_address: {
+            required: this.$t('field.emailAddress.validation.required'),
+          },
+          first_name: {
+            required: this.$t('field.firstName.validation.required'),
+          },
+          last_name: {
+            required: this.$t('field.lastName.validation.required'),
           },
         },
-      }
-    },
+      },
+    })
 
-    created() {
-      this._initModel()
+    this.$validator.extend('checkEmail', {
+      validate: this.checkEmail,
+      getMessage: (field, params, data) => {
+        return data.message
+      },
+    })
+  },
 
-      this.$validator.localize({
-        en: {
-          custom: {
-            email_address: {
-              required: this.$t('field.emailAddress.validation.required'),
-            },
-            first_name: {
-              required: this.$t('field.firstName.validation.required'),
-            },
-            last_name: {
-              required: this.$t('field.lastName.validation.required'),
-            },
-          },
-        },
-      })
+  methods: {
 
-      this.$validator.extend('checkEmail', {
-        validate: this.checkEmail,
-        getMessage: (field, params, data) => {
-          return data.message
-        },
-      })
-    },
+    /**
+     * Check if provided email address is not used
+     *
+     * @param {String} value
+     *
+     * @returns {Object}
+     */
+    checkEmail(value) {
+      const emails = this.account.emails
 
-    methods: {
-
-      /**
-       * Check if provided email address is not used
-       *
-       * @param {String} value
-       *
-       * @returns {Object}
-       */
-      checkEmail(value) {
-        const emails = this.account.emails
-
-        for (const email of emails) {
-          if (email.address === value) {
-            return {
-              valid: true,
-            }
+      for (const email of emails) {
+        if (email.address === value) {
+          return {
+            valid: true,
           }
         }
+      }
 
-        return this.$store.dispatch('entities/email/validate', {
-          address: value,
-        }, {
-          root: true,
+      return this.$store.dispatch('entities/email/validate', {
+        address: value,
+      }, {
+        root: true,
+      })
+        .then(() => {
+          return {
+            valid: true,
+          }
         })
-          .then(() => {
-            return {
-              valid: true,
-            }
-          })
-          .catch(e => {
-            if (this._.get(e, 'response', null) !== null && this._.get(e, 'response.data.errors', null) !== null) {
-              this._.get(e, 'response.data.errors', [])
-                .forEach(error => {
-                  if (parseInt(this._.get(error, 'code', 0), 10) === 422) {
-                    return {
-                      valid: false,
-                      data: {
-                        message: this._.get(error, 'detail'),
-                      },
-                    }
+        .catch((e) => {
+          if (this._.get(e, 'response', null) !== null && this._.get(e, 'response.data.errors', null) !== null) {
+            this._.get(e, 'response.data.errors', [])
+              .forEach((error) => {
+                if (parseInt(this._.get(error, 'code', 0), 10) === 422) {
+                  return {
+                    valid: false,
+                    data: {
+                      message: this._.get(error, 'detail'),
+                    },
                   }
-                })
-            }
-
-            return {
-              valid: false,
-              data: {
-                message: this.$t('application.messages.valueIsNotValid'),
-              },
-            }
-          })
-      },
-
-      /**
-       * Submit form values
-       *
-       * @param {Object} event
-       */
-      submit(event) {
-        event && event.preventDefault()
-
-        this.$validator.validateAll(this.form.scope)
-          .then(result => {
-            if (result) {
-              const errorMessage = this.$t('messages.profileNotEdited')
-
-              this.$store.dispatch('entities/profile/edit', {
-                first_name: this.form.model.firstName,
-                last_name: this.form.model.lastName,
-                middle_name: this.form.model.middleName,
-              }, {
-                root: true,
-              })
-                .catch(e => {
-                  if (this._.get(e, 'exception', null) !== null) {
-                    this.handleFormError(e.exception, errorMessage)
-                  } else {
-                    this.$toasted.error(errorMessage, {
-                      action: {
-                        text: this.$t('application.buttons.close.title'),
-                        onClick: (evnt, toastObject) => {
-                          toastObject.goAway(0)
-                        },
-                      },
-                    })
-                  }
-                })
-
-              // Email has been changed
-              if (this.form.model.emailAddress !== this._.get(this.account, 'primaryEmail.address')) {
-                const storedEmail = this.$store.getters['entities/email/query']()
-                  .where('address', this.form.model.emailAddress)
-                  .first()
-
-                const emailErrorMessage = this.$t('messages.emailNotEdited')
-
-                if (storedEmail !== null) {
-                  this.$store.dispatch('entities/email/edit', {
-                    id: storedEmail.id,
-                    is_default: true,
-                  }, {
-                    root: true,
-                  })
-                    .catch(e => {
-                      if (this._.get(e, 'exception', null) !== null) {
-                        this.handleFormError(e.exception, emailErrorMessage)
-                      } else {
-                        this.$toasted.error(emailErrorMessage, {
-                          action: {
-                            text: this.$t('application.buttons.close.title'),
-                            onClick: (evnt, toastObject) => {
-                              toastObject.goAway(0)
-                            },
-                          },
-                        })
-                      }
-                    })
-                } else {
-                  this.$store.dispatch('entities/email/add', {
-                    address: this.form.model.emailAddress,
-                    is_default: true,
-                  }, {
-                    root: true,
-                  })
-                    .catch(e => {
-                      if (this._.get(e, 'exception', null) !== null) {
-                        this.handleFormError(e.exception, emailErrorMessage)
-                      } else {
-                        this.$toasted.error(emailErrorMessage, {
-                          action: {
-                            text: this.$t('application.buttons.close.title'),
-                            onClick: (evnt, toastObject) => {
-                              toastObject.goAway(0)
-                            },
-                          },
-                        })
-                      }
-                    })
                 }
+              })
+          }
+
+          return {
+            valid: false,
+            data: {
+              message: this.$t('application.messages.valueIsNotValid'),
+            },
+          }
+        })
+    },
+
+    /**
+     * Submit form values
+     *
+     * @param {Object} event
+     */
+    submit(event) {
+      event && event.preventDefault()
+
+      this.$validator.validateAll(this.form.scope)
+        .then((result) => {
+          if (result) {
+            const errorMessage = this.$t('messages.profileNotEdited')
+
+            this.$store.dispatch('entities/profile/edit', {
+              first_name: this.form.model.firstName,
+              last_name: this.form.model.lastName,
+              middle_name: this.form.model.middleName,
+            }, {
+              root: true,
+            })
+              .catch((e) => {
+                if (this._.get(e, 'exception', null) !== null) {
+                  this.handleFormError(e.exception, errorMessage)
+                } else {
+                  this.$toasted.error(errorMessage, {
+                    action: {
+                      text: this.$t('application.buttons.close.title'),
+                      onClick: (evnt, toastObject) => {
+                        toastObject.goAway(0)
+                      },
+                    },
+                  })
+                }
+              })
+
+            // Email has been changed
+            if (this.form.model.emailAddress !== this._.get(this.account, 'primaryEmail.address')) {
+              const storedEmail = this.$store.getters['entities/email/query']()
+                .where('address', this.form.model.emailAddress)
+                .first()
+
+              const emailErrorMessage = this.$t('messages.emailNotEdited')
+
+              if (storedEmail !== null) {
+                this.$store.dispatch('entities/email/edit', {
+                  id: storedEmail.id,
+                  is_default: true,
+                }, {
+                  root: true,
+                })
+                  .catch((e) => {
+                    if (this._.get(e, 'exception', null) !== null) {
+                      this.handleFormError(e.exception, emailErrorMessage)
+                    } else {
+                      this.$toasted.error(emailErrorMessage, {
+                        action: {
+                          text: this.$t('application.buttons.close.title'),
+                          onClick: (evnt, toastObject) => {
+                            toastObject.goAway(0)
+                          },
+                        },
+                      })
+                    }
+                  })
+              } else {
+                this.$store.dispatch('entities/email/add', {
+                  address: this.form.model.emailAddress,
+                  is_default: true,
+                }, {
+                  root: true,
+                })
+                  .catch((e) => {
+                    if (this._.get(e, 'exception', null) !== null) {
+                      this.handleFormError(e.exception, emailErrorMessage)
+                    } else {
+                      this.$toasted.error(emailErrorMessage, {
+                        action: {
+                          text: this.$t('application.buttons.close.title'),
+                          onClick: (evnt, toastObject) => {
+                            toastObject.goAway(0)
+                          },
+                        },
+                      })
+                    }
+                  })
               }
-
-              this.$toasted.success(this.$t('messages.profileEdited'), {
-                action: {
-                  text: this.$t('application.buttons.close.title'),
-                  onClick: (evnt, toastObject) => {
-                    toastObject.goAway(0)
-                  },
-                },
-              })
-
-              this._initModel()
-
-              this.$emit('close', false)
-            } else {
-              this.$toasted.info(this.$t('application.messages.fixAllFormErrors'), {
-                action: {
-                  text: this.$t('application.buttons.close.title'),
-                  onClick: (evnt, toastObject) => {
-                    toastObject.goAway(0)
-                  },
-                },
-              })
             }
-          })
-          .catch(() => {
+
+            this.$toasted.success(this.$t('messages.profileEdited'), {
+              action: {
+                text: this.$t('application.buttons.close.title'),
+                onClick: (evnt, toastObject) => {
+                  toastObject.goAway(0)
+                },
+              },
+            })
+
+            this._initModel()
+
+            this.$emit('close', false)
+          } else {
             this.$toasted.info(this.$t('application.messages.fixAllFormErrors'), {
               action: {
                 text: this.$t('application.buttons.close.title'),
@@ -322,41 +311,52 @@
                 },
               },
             })
+          }
+        })
+        .catch(() => {
+          this.$toasted.info(this.$t('application.messages.fixAllFormErrors'), {
+            action: {
+              text: this.$t('application.buttons.close.title'),
+              onClick: (evnt, toastObject) => {
+                toastObject.goAway(0)
+              },
+            },
           })
-      },
-
-      /**
-       * Close account edit window
-       *
-       * @param {Object} event
-       */
-      close(event) {
-        event && event.preventDefault()
-
-        this._initModel()
-
-        this.$emit('close', false)
-      },
-
-      /**
-       * Initialize form model object
-       *
-       * @private
-       */
-      _initModel() {
-        this.form.model = {
-          emailAddress: this._.get(this.account, 'primaryEmail.address'),
-          firstName: this.profile.firstName,
-          lastName: this.profile.lastName,
-          middleName: this.profile.middleName,
-        }
-
-        this.errors.clear(this.form.scope)
-      },
-
+        })
     },
 
-  }
+    /**
+     * Close account edit window
+     *
+     * @param {Object} event
+     */
+    close(event) {
+      event && event.preventDefault()
+
+      this._initModel()
+
+      this.$emit('close', false)
+    },
+
+    /**
+     * Initialize form model object
+     *
+     * @private
+     */
+    _initModel() {
+      this.form.model = {
+        emailAddress: this._.get(this.account, 'primaryEmail.address'),
+        firstName: this.profile.firstName,
+        lastName: this.profile.lastName,
+        middleName: this.profile.middleName,
+      }
+
+      this.errors.clear(this.form.scope)
+    },
+
+  },
+
+}
 </script>
 
 <i18n src="./locales.json" />

@@ -8,46 +8,46 @@
 </template>
 
 <script>
-  export default {
+export default {
 
-    name: 'GroupsDetail',
+  name: 'GroupsDetail',
 
-    props: {
+  props: {
 
-      group: {
-        type: Object,
-        required: true,
-      },
-
-      things: {
-        type: Array,
-        required: true,
-      },
-
+    group: {
+      type: Object,
+      required: true,
     },
 
-    computed: {
+    things: {
+      type: Array,
+      required: true,
+    },
 
-      /**
-       * Flag signalizing that group channels are loading from server
-       *
-       * @returns {Boolean}
-       */
-      fetchingThings() {
-        if (this.$store.getters['entities/thing/fetching']()) {
+  },
+
+  computed: {
+
+    /**
+     * Flag signalizing that group channels are loading from server
+     *
+     * @returns {Boolean}
+     */
+    fetchingThings() {
+      if (this.$store.getters['entities/thing/fetching']()) {
+        return true
+      }
+
+      this.group.channels_ids.forEach((item) => {
+        if (this.$store.getters['entities/thing/getting'](item.id)) {
           return true
         }
+      })
 
-        this.group.channels_ids.forEach(item => {
-          if (this.$store.getters['entities/thing/getting'](item.id)) {
-            return true
-          }
-        })
-
-        return false
-      },
-
+      return false
     },
 
-  }
+  },
+
+}
 </script>

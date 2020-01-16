@@ -1,4 +1,5 @@
 import get from 'lodash/get'
+import capitalize from 'lodash/capitalize'
 
 export default ({ app, store }, inject) => {
   inject('tThing', (thing) => {
@@ -7,26 +8,26 @@ export default ({ app, store }, inject) => {
       .first()
 
     if (!hardware || hardware.isCustom) {
-      return get(thing, 'channel.label', '').capitalize()
+      return capitalize(get(thing, 'channel.label', ''))
     }
 
     let channel = get(thing, 'channel.label', '')
     let channelNum = 0
 
-    if (get(thing, 'channel.label', '').indexOf('_') !== -1) {
+    if (get(thing, 'channel.label', '').includes('_')) {
       channel = get(thing, 'channel.label', '').substring(0, (get(thing, 'channel.label', '').indexOf('_')))
       channelNum = parseInt(get(thing, 'channel.label', '').substring(get(thing, 'channel.label', '').indexOf('_') + 1), 10)
 
-      if (app.i18n.t(`things.vendors.${hardware.manufacturer}.things.${hardware.model}.channels.${channel}`).indexOf('things.vendors.') === -1) {
+      if (!app.i18n.t(`things.vendors.${hardware.manufacturer}.things.${hardware.model}.channels.${channel}`).includes('things.vendors.')) {
         return app.i18n.t(`things.vendors.${hardware.manufacturer}.things.${hardware.model}.channels.${channel}`, { number: (channelNum + 1) })
       }
     }
 
-    if (app.i18n.t(`things.vendors.${hardware.manufacturer}.things.${hardware.model}.channels.${channel}`).indexOf('things.vendors.') === -1) {
+    if (!app.i18n.t(`things.vendors.${hardware.manufacturer}.things.${hardware.model}.channels.${channel}`).includes('things.vendors.')) {
       return app.i18n.t(`things.vendors.${hardware.manufacturer}.things.${hardware.model}.channels.${channel}`)
     }
 
-    return get(thing, 'channel.label', '').capitalize()
+    return capitalize(get(thing, 'channel.label', ''))
   })
 
   inject('tThingDevice', (thing) => {
@@ -35,14 +36,14 @@ export default ({ app, store }, inject) => {
       .first()
 
     if (!hardware || hardware.isCustom) {
-      return get(thing, 'device.name', '').capitalize()
+      return capitalize(get(thing, 'device.name', ''))
     }
 
-    if (app.i18n.t(`things.vendors.${hardware.manufacturer}.things.${hardware.model}.title`).indexOf('things.vendors.') === -1) {
+    if (!app.i18n.t(`things.vendors.${hardware.manufacturer}.things.${hardware.model}.title`).includes('things.vendors.')) {
       return app.i18n.t(`things.vendors.${hardware.manufacturer}.things.${hardware.model}.title`)
     }
 
-    return get(thing, 'device.name', '').capitalize()
+    return capitalize(get(thing, 'device.name', ''))
   })
 
   inject('tThingProperty', (thing, property) => {
@@ -51,14 +52,14 @@ export default ({ app, store }, inject) => {
       .first()
 
     if (!hardware || hardware.isCustom) {
-      return property.property.capitalize()
+      return capitalize(property.property)
     }
 
-    if (app.i18n.t(`things.vendors.${hardware.manufacturer}.properties.${property.property}.title`).indexOf('things.vendors.') === -1) {
+    if (!app.i18n.t(`things.vendors.${hardware.manufacturer}.properties.${property.property}.title`).includes('things.vendors.')) {
       return app.i18n.t(`things.vendors.${hardware.manufacturer}.properties.${property.property}.title`)
     }
 
-    return property.property.capitalize()
+    return capitalize(property.property)
   })
 
   inject('tChannelProperty', (thing, property) => {
@@ -67,13 +68,13 @@ export default ({ app, store }, inject) => {
       .first()
 
     if (!hardware || hardware.isCustom) {
-      return property.property.capitalize()
+      return capitalize(property.property)
     }
 
-    if (app.i18n.t(`things.vendors.${hardware.manufacturer}.properties.${property.property}.title`).indexOf('things.vendors.') === -1) {
+    if (!app.i18n.t(`things.vendors.${hardware.manufacturer}.properties.${property.property}.title`).includes('things.vendors.')) {
       return app.i18n.t(`things.vendors.${hardware.manufacturer}.properties.${property.property}.title`)
     }
 
-    return property.property.capitalize()
+    return capitalize(property.property)
   })
 }

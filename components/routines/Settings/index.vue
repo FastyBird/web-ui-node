@@ -67,137 +67,137 @@
 </template>
 
 <script>
-  const RoutineRename = () => import('./Rename')
-  const RoutineRemove = () => import('./Remove')
+const RoutineRename = () => import('./Rename')
+const RoutineRemove = () => import('./Remove')
 
-  export default {
+export default {
 
-    name: 'RoutinesSettingsRoutine',
+  name: 'RoutinesSettingsRoutine',
 
-    components: {
-      RoutineRename,
-      RoutineRemove,
+  components: {
+    RoutineRename,
+    RoutineRemove,
+  },
+
+  props: {
+
+    routine: {
+      type: Object,
+      required: true,
     },
 
-    props: {
+  },
 
-      routine: {
-        type: Object,
-        required: true,
+  data() {
+    return {
+      transparentModal: false,
+      loading: {
+        rename: false,
+        remove: false,
       },
+      rename: {
+        show: false,
+      },
+      remove: {
+        show: false,
+      },
+      form: {
+        scope: 'routines_settings',
+        model: {
+          enabled: true,
+        },
+      },
+    }
+  },
 
-    },
+  created() {
+    this.transparentModal = this.$parent.$options.name !== 'Layout'
 
-    data() {
-      return {
-        transparentModal: false,
-        loading: {
-          rename: false,
-          remove: false,
-        },
-        rename: {
-          show: false,
-        },
-        remove: {
-          show: false,
-        },
-        form: {
-          scope: 'routines_settings',
-          model: {
-            enabled: true,
-          },
-        },
+    this.form.model.enabled = this.routine.enabled
+  },
+
+  methods: {
+
+    /**
+     * Open edit|info window
+     *
+     * @param {String} window
+     */
+    openWindow(window) {
+      if (Object.prototype.hasOwnProperty.call(this, window)) {
+        this[window].show = true
+
+        if (Object.prototype.hasOwnProperty.call(this.loading, window)) {
+          this.loading[window] = true
+        }
       }
     },
 
-    created() {
-      this.transparentModal = this.$parent.$options.name !== 'Layout'
-
-      this.form.model.enabled = this.routine.enabled
+    /**
+     * Close opened window
+     *
+     * @param {String} window
+     */
+    closeWindow(window) {
+      if (Object.prototype.hasOwnProperty.call(this, window)) {
+        this[window].show = false
+      }
     },
 
-    methods: {
+    /**
+     * Disable routine
+     */
+    toggleRoutineState() {
+      this.form.model.enabled = !this.form.model.enabled
 
-      /**
-       * Open edit|info window
-       *
-       * @param {String} window
-       */
-      openWindow(window) {
-        if (this.hasOwnProperty(window)) {
-          this[window].show = true
+      this.submit()
+    },
 
-          if (this.loading.hasOwnProperty(window)) {
-            this.loading[window] = true
-          }
-        }
-      },
+    /**
+     * Update routine details
+     */
+    submit() {
+      this.$validator.validateAll(this.form.scope)
+        .then((result) => {
+          if (result) {
+            const errorMessage = this.$t('routines.messages.notEdited', {
+              routine: this.form.model.name,
+            })
 
-      /**
-       * Close opened window
-       *
-       * @param {String} window
-       */
-      closeWindow(window) {
-        if (this.hasOwnProperty(window)) {
-          this[window].show = false
-        }
-      },
-
-      /**
-       * Disable routine
-       */
-      toggleRoutineState() {
-        this.form.model.enabled = !this.form.model.enabled
-
-        this.submit()
-      },
-
-      /**
-       * Update routine details
-       */
-      submit() {
-        this.$validator.validateAll(this.form.scope)
-          .then(result => {
-            if (result) {
-              const errorMessage = this.$t('routines.messages.notEdited', {
-                routine: this.form.model.name,
+            this.$store.dispatch('entities/trigger/edit', {
+              id: this.routine.id,
+              data: this.form.model,
+            }, {
+              root: true,
+            })
+              .catch((e) => {
+                if (Object.prototype.hasOwnProperty.call(e, 'exception')) {
+                  this.handleFormError(e.exception, errorMessage)
+                } else {
+                  this.$flashMessage(errorMessage, 'error')
+                }
               })
-
-              this.$store.dispatch('entities/trigger/edit', {
-                id: this.routine.id,
-                data: this.form.model,
-              }, {
-                root: true,
-              })
-                .catch(e => {
-                  if (e.hasOwnProperty('exception')) {
-                    this.handleFormError(e.exception, errorMessage)
-                  } else {
-                    this.$flashMessage(errorMessage, 'error')
-                  }
-                })
-            } else {
-              this.$flashMessage(this.$t('application.messages.fixAllFormErrors'), 'info')
-            }
-          })
-          .catch(() => {
+          } else {
             this.$flashMessage(this.$t('application.messages.fixAllFormErrors'), 'info')
-          })
-      },
-
-      /**
-       * Fired when opened item is removed
-       */
-      routineRemoved() {
-        this.closeWindow('remove')
-
-        this.$emit('removed')
-      },
-
+          }
+        })
+        .catch(() => {
+          this.$flashMessage(this.$t('application.messages.fixAllFormErrors'), 'info')
+        })
     },
 
-  }
+    /**
+     * Fired when opened item is removed
+     */
+    routineRemoved() {
+      this.closeWindow('remove')
+
+      this.$emit('removed')
+    },
+
+  },
+
+}
 </script>
 
 <style rel="stylesheet/scss" lang="scss">

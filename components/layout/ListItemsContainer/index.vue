@@ -13,21 +13,23 @@
   </div>
 </template>
 
-<script>
-  export default {
+<script lang="ts">
+import { createComponent } from '@vue/composition-api'
 
-    name: 'ListItemsContainer',
+export default createComponent({
 
-    props: {
+  name: 'ListItemsContainer',
 
-      heading: {
-        type: String,
-        default: null,
-      },
+  props: {
 
+    heading: {
+      type: String,
+      default: null,
     },
 
-  }
+  },
+
+})
 </script>
 
 <style rel="stylesheet/scss" lang="scss">

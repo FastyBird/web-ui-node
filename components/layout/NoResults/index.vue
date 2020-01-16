@@ -15,31 +15,33 @@
   </div>
 </template>
 
-<script>
-  export default {
+<script lang="ts">
+import { createComponent } from '@vue/composition-api'
 
-    name: 'NoResults',
+export default createComponent({
 
-    props: {
+  name: 'NoResults',
 
-      icon: {
-        type: String,
-        required: true,
-      },
+  props: {
 
-      secondIcon: {
-        type: String,
-        default: 'plus',
-      },
-
-      message: {
-        type: String,
-        required: true,
-      },
-
+    icon: {
+      type: String,
+      required: true,
     },
 
-  }
+    secondIcon: {
+      type: String,
+      default: 'plus',
+    },
+
+    message: {
+      type: String,
+      required: true,
+    },
+
+  },
+
+})
 </script>
 
 <style rel="stylesheet/scss" lang="scss">

@@ -63,228 +63,228 @@
 </template>
 
 <script>
-  const ListAction = () => import('./ListAction')
-  const ListCondition = () => import('./ListCondition')
+import triggersMixin from '@/mixins/triggers'
 
-  import triggersMixin from '@/mixins/triggers'
+const ListAction = () => import('./ListAction')
+const ListCondition = () => import('./ListCondition')
 
-  export default {
+export default {
 
-    name: 'RoutinesDetail',
+  name: 'RoutinesDetail',
 
-    components: {
-      ListAction,
-      ListCondition,
+  components: {
+    ListAction,
+    ListCondition,
+  },
+
+  mixins: [triggersMixin],
+
+  props: {
+
+    routine: {
+      type: Object,
+      required: true,
     },
 
-    mixins: [triggersMixin],
+  },
 
-    props: {
-
-      routine: {
-        type: Object,
-        required: true,
+  data() {
+    return {
+      transparentModal: false,
+      remove: {
+        show: false,
+        type: null,
+        index: null,
+        thing: null,
       },
+    }
+  },
 
+  computed: {
+
+    /**
+     * Remap trigger conditions to routine conditions
+     *
+     * @returns {Array}
+     */
+    conditions() {
+      return this.mapConditions(this.routine)
     },
 
-    data() {
-      return {
-        transparentModal: false,
-        remove: {
-          show: false,
-          type: null,
-          index: null,
-          thing: null,
-        },
-      }
+    /**
+     * Remap trigger actions to routine actions
+     *
+     * @returns {Array}
+     */
+    actions() {
+      return this.mapActions(this.routine)
     },
 
-    computed: {
-
-      /**
-       * Remap trigger conditions to routine conditions
-       *
-       * @returns {Array}
-       */
-      conditions() {
-        return this.mapConditions(this.routine)
-      },
-
-      /**
-       * Remap trigger actions to routine actions
-       *
-       * @returns {Array}
-       */
-      actions() {
-        return this.mapActions(this.routine)
-      },
-
-      /**
-       * Remap trigger notifications to routine notifications
-       *
-       * @returns {Array}
-       */
-      notifications() {
-        return []
-      },
-
-      /**
-       * Flag signalizing that action or notification could be removed
-       *
-       * @returns {Boolean}
-       */
-      enabledRemovingActionNotification() {
-        return this.actions.length > 1 || this.notifications.length > 1
-      },
-
+    /**
+     * Remap trigger notifications to routine notifications
+     *
+     * @returns {Array}
+     */
+    notifications() {
+      return []
     },
 
-    created() {
-      this.transparentModal = this.$parent.$options.name !== 'Layout'
+    /**
+     * Flag signalizing that action or notification could be removed
+     *
+     * @returns {Boolean}
+     */
+    enabledRemovingActionNotification() {
+      return this.actions.length > 1 || this.notifications.length > 1
     },
 
-    beforeMount() {
-      if (!this.$store.getters['entities/thing/firstLoadFinished']()) {
-        this.$store.dispatch('entities/thing/fetch', null, {
-          root: true,
+  },
+
+  created() {
+    this.transparentModal = this.$parent.$options.name !== 'Layout'
+  },
+
+  beforeMount() {
+    if (!this.$store.getters['entities/thing/firstLoadFinished']()) {
+      this.$store.dispatch('entities/thing/fetch', null, {
+        root: true,
+      })
+        .catch(() => {
+          this.$nuxt.error({ statusCode: 503, message: 'Something went wrong' })
         })
-          .catch(() => {
-            this.$nuxt.error({ statusCode: 503, message: 'Something went wrong' })
-          })
+    }
+  },
+
+  methods: {
+
+    /**
+     * Change condition state
+     *
+     * @param {Number} index
+     */
+    toggleConditionState(index) {
+      if (Object.prototype.hasOwnProperty.call(this.conditions, index)) {
+        this.changeConditionState(this.conditions[index], !this.conditions[index].enabled)
       }
     },
 
-    methods: {
+    /**
+     * Change action state
+     *
+     * @param {Number} index
+     */
+    toggleActionState(index) {
+      if (Object.prototype.hasOwnProperty.call(this.actions, index)) {
+        this.changeActionState(this.actions[index], !this.actions[index].enabled)
+      }
+    },
 
-      /**
-       * Change condition state
-       *
-       * @param {Number} index
-       */
-      toggleConditionState(index) {
-        if (this.conditions.hasOwnProperty(index)) {
-          this.changeConditionState(this.conditions[index], !this.conditions[index].enabled)
+    /**
+     * Show remove confirmation window for condition
+     *
+     * @param {Number} index
+     */
+    confirmRemoveCondition(index) {
+      this.remove.show = true
+      this.remove.type = 'condition'
+      this.remove.index = index
+      this.remove.thing = this._findThing(this.conditions[index].thing)
+    },
+
+    /**
+     * Show remove confirmation window for action
+     *
+     * @param {Number} index
+     */
+    confirmRemoveAction(index) {
+      this.remove.show = true
+      this.remove.type = 'action'
+      this.remove.index = index
+      this.remove.thing = this._findThing(this.actions[index].thing)
+    },
+
+    /**
+     * Close remove confirmation window
+     */
+    resetRemoveConfirmation() {
+      this.remove.show = false
+      this.remove.type = null
+      this.remove.index = null
+      this.remove.thing = null
+    },
+
+    /**
+     * Remove was confirmed
+     */
+    removeItem() {
+      if (this.remove.type === 'condition') {
+        if (this.routine.conditions.length <= 1) {
+          this.$flashMessage(this.$t('routines.messages.minimumConditions'), 'error')
+
+          return
         }
-      },
 
-      /**
-       * Change action state
-       *
-       * @param {Number} index
-       */
-      toggleActionState(index) {
-        if (this.actions.hasOwnProperty(index)) {
-          this.changeActionState(this.actions[index], !this.actions[index].enabled)
-        }
-      },
-
-      /**
-       * Show remove confirmation window for condition
-       *
-       * @param {Number} index
-       */
-      confirmRemoveCondition(index) {
-        this.remove.show = true
-        this.remove.type = 'condition'
-        this.remove.index = index
-        this.remove.thing = this._findThing(this.conditions[index].thing)
-      },
-
-      /**
-       * Show remove confirmation window for action
-       *
-       * @param {Number} index
-       */
-      confirmRemoveAction(index) {
-        this.remove.show = true
-        this.remove.type = 'action'
-        this.remove.index = index
-        this.remove.thing = this._findThing(this.actions[index].thing)
-      },
-
-      /**
-       * Close remove confirmation window
-       */
-      resetRemoveConfirmation() {
-        this.remove.show = false
-        this.remove.type = null
-        this.remove.index = null
-        this.remove.thing = null
-      },
-
-      /**
-       * Remove was confirmed
-       */
-      removeItem() {
-        if (this.remove.type === 'condition') {
-          if (this.routine.conditions.length <= 1) {
-            this.$flashMessage(this.$t('routines.messages.minimumConditions'), 'error')
-
-            return
-          }
-
-          if (this.conditions.hasOwnProperty(this.remove.index)) {
-            this.removeCondition(this.conditions[this.remove.index])
-
-            this.resetRemoveConfirmation()
-          }
-        } else if (this.remove.type === 'action') {
-          if (!this.enabledRemovingActionNotification) {
-            this.$flashMessage(this.$t('routines.messages.minimumActionsNotification'), 'error')
-
-            return
-          }
-
-          if (this.actions.hasOwnProperty(this.remove.index)) {
-            this.removeAction(this.actions[this.remove.index])
-
-            this.resetRemoveConfirmation()
-          }
-        } else if (this.remove.type === 'notification') {
-          this.removeNotification(this.remove.index)
+        if (Object.prototype.hasOwnProperty.call(this.conditions, this.remove.index)) {
+          this.removeCondition(this.conditions[this.remove.index])
 
           this.resetRemoveConfirmation()
-        } else {
-          this.resetRemoveConfirmation()
         }
-      },
-
-      /**
-       * Remove notification from routine
-       *
-       * @param {Number} index
-       */
-      removeNotification(index) {
-        this.resetRemoveConfirmation()
-
+      } else if (this.remove.type === 'action') {
         if (!this.enabledRemovingActionNotification) {
           this.$flashMessage(this.$t('routines.messages.minimumActionsNotification'), 'error')
 
           return
         }
 
-        if (this.notifications.hasOwnProperty(index)) {
-          const errorMessage = this.$t('routines.messages.notificationNotRemoved')
+        if (Object.prototype.hasOwnProperty.call(this.actions, this.remove.index)) {
+          this.removeAction(this.actions[this.remove.index])
 
-          this.$store.dispatch('entities/notification/remove', {
-            id: this.notifications[index].id,
-          }, {
-            root: true,
-          })
-            .catch(e => {
-              if (e.hasOwnProperty('exception')) {
-                this.handleFormError(e.exception, errorMessage)
-              } else {
-                this.$flashMessage(errorMessage, 'error')
-              }
-            })
+          this.resetRemoveConfirmation()
         }
-      },
+      } else if (this.remove.type === 'notification') {
+        this.removeNotification(this.remove.index)
 
+        this.resetRemoveConfirmation()
+      } else {
+        this.resetRemoveConfirmation()
+      }
     },
 
-  }
+    /**
+     * Remove notification from routine
+     *
+     * @param {Number} index
+     */
+    removeNotification(index) {
+      this.resetRemoveConfirmation()
+
+      if (!this.enabledRemovingActionNotification) {
+        this.$flashMessage(this.$t('routines.messages.minimumActionsNotification'), 'error')
+
+        return
+      }
+
+      if (Object.prototype.hasOwnProperty.call(this.notifications, index)) {
+        const errorMessage = this.$t('routines.messages.notificationNotRemoved')
+
+        this.$store.dispatch('entities/notification/remove', {
+          id: this.notifications[index].id,
+        }, {
+          root: true,
+        })
+          .catch((e) => {
+            if (Object.prototype.hasOwnProperty.call(e, 'exception')) {
+              this.handleFormError(e.exception, errorMessage)
+            } else {
+              this.$flashMessage(errorMessage, 'error')
+            }
+          })
+      }
+    },
+
+  },
+
+}
 </script>
 
 <style rel="stylesheet/scss" lang="scss">

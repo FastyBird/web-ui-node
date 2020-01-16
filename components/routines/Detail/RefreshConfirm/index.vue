@@ -23,62 +23,62 @@
 </template>
 
 <script>
-  export default {
+export default {
 
-    name: 'RoutinesDetailRefreshConfirm',
+  name: 'RoutinesDetailRefreshConfirm',
 
-    props: {
+  props: {
 
-      routine: {
-        type: Object,
-        required: true,
-      },
-
+    routine: {
+      type: Object,
+      required: true,
     },
 
-    methods: {
+  },
 
-      /**
-       * Update selected routine
-       *
-       * @param {Object} event
-       */
-      update(event) {
-        event && event.preventDefault()
+  methods: {
 
-        const errorMessage = this.$t('routines.messages.notRefreshed', {
-          routine: this.routine.name,
+    /**
+     * Update selected routine
+     *
+     * @param {Object} event
+     */
+    update(event) {
+      event && event.preventDefault()
+
+      const errorMessage = this.$t('routines.messages.notRefreshed', {
+        routine: this.routine.name,
+      })
+
+      this.$store.dispatch('entities/trigger/refreshFromQueue', {
+        id: this.routine.id,
+        queue: 'update',
+      }, {
+        root: true,
+      })
+        .catch((e) => {
+          if (Object.prototype.hasOwnProperty.call(e, 'exception')) {
+            this.handleFormError(e.exception, errorMessage)
+          } else {
+            this.$flashMessage(errorMessage, 'error')
+          }
         })
 
-        this.$store.dispatch('entities/trigger/refreshFromQueue', {
-          id: this.routine.id,
-          queue: 'update',
-        }, {
-          root: true,
-        })
-          .catch(e => {
-            if (e.hasOwnProperty('exception')) {
-              this.handleFormError(e.exception, errorMessage)
-            } else {
-              this.$flashMessage(errorMessage, 'error')
-            }
-          })
-
-        this.$emit('refreshed')
-      },
-
-      /**
-       * Close routine update confirmation window
-       *
-       * @param {Object} event
-       */
-      close(event) {
-        event && event.preventDefault()
-
-        this.$emit('close')
-      },
-
+      this.$emit('refreshed')
     },
 
-  }
+    /**
+     * Close routine update confirmation window
+     *
+     * @param {Object} event
+     */
+    close(event) {
+      event && event.preventDefault()
+
+      this.$emit('close')
+    },
+
+  },
+
+}
 </script>

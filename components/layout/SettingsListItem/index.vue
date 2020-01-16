@@ -16,27 +16,29 @@
   </button>
 </template>
 
-<script>
-  export default {
+<script lang="ts">
+import { createComponent } from '@vue/composition-api'
 
-    name: 'SettingsListItem',
+export default createComponent({
 
-    props: {
+  name: 'SettingsListItem',
 
-      type: {
-        type: String,
-        default: 'div',
-        validator: (value) => {
-          // The value must match one of these strings
-          return [
-            'div', 'button',
-          ].indexOf(value) !== -1
-        },
+  props: {
+
+    type: {
+      type: String,
+      default: 'div',
+      validator: (value) => {
+        // The value must match one of these strings
+        return [
+          'div', 'button',
+        ].includes(value)
       },
-
     },
 
-  }
+  },
+
+})
 </script>
 
 <style rel="stylesheet/scss" lang="scss">

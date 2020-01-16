@@ -94,145 +94,133 @@
 </template>
 
 <script>
-  const SignHeader = () => import('../SignHeader')
+const SignHeader = () => import('../SignHeader')
 
-  export default {
+export default {
 
-    name: 'SignUp',
+  name: 'SignUp',
 
-    components: {
-      SignHeader,
-    },
+  components: {
+    SignHeader,
+  },
 
-    data() {
-      return {
-        form: {
-          scope: 'account_sign_up',
-          model: {
-            email_address: '',
-            credentials: {
-              password: '',
-            },
-            profile: {
-              details: {
-                first_name: '',
-                last_name: '',
-              },
+  data() {
+    return {
+      form: {
+        scope: 'account_sign_up',
+        model: {
+          email_address: '',
+          credentials: {
+            password: '',
+          },
+          profile: {
+            details: {
+              first_name: '',
+              last_name: '',
             },
           },
         },
-      }
-    },
-
-    created() {
-      this.$bus.$emit('wait-sign_up', false)
-
-      this.errors.clear(this.form.scope)
-
-      this.$validator.localize({
-        en: {
-          custom: {
-            email_address: {
-              required: this.$t('field.emailAddress.validation.required'),
-            },
-            first_name: {
-              required: this.$t('field.firstName.validation.required'),
-            },
-            last_name: {
-              required: this.$t('field.lastName.validation.required'),
-            },
-          },
-        },
-      })
-
-      this.$validator.extend('checkEmail', {
-        validate: this.checkEmail,
-        getMessage: (field, params, data) => {
-          return data.message
-        },
-      })
-    },
-
-    methods: {
-
-      /**
-       * Check if provided email address is not used
-       *
-       * @param {String} value
-       *
-       * @returns {Object}
-       */
-      checkEmail(value) {
-        return this.$store.dispatch('entities/email/validate', {
-          address: value,
-        }, {
-          root: true,
-        })
-          .then(() => {
-            return {
-              valid: true,
-            }
-          })
-          .catch(e => {
-            if (this._.get(e, 'response', null) !== null && this._.get(e, 'response.data.errors', null) !== null) {
-              this._.get(e, 'response.data.errors', [])
-                .forEach(error => {
-                  if (parseInt(this._.get(error, 'code', 0), 10) === 422) {
-                    return {
-                      valid: false,
-                      data: {
-                        message: this._.get(error, 'detail'),
-                      },
-                    }
-                  }
-                })
-            }
-
-            return {
-              valid: false,
-              data: {
-                message: this.$t('application.messages.valueIsNotValid'),
-              },
-            }
-          })
       },
+    }
+  },
 
-      /**
-       * Submit form values
-       */
-      submit() {
-        this.$validator.validateAll(this.form.scope)
-          .then(result => {
-            if (result) {
-              const errorMessage = this.$t('account.messages.signUpFail')
+  created() {
+    this.$bus.$emit('wait-sign_up', false)
 
-              this.$bus.$emit('wait-sign_up', true)
+    this.errors.clear(this.form.scope)
 
-              // TODO: implement sign up...
+    this.$validator.localize({
+      en: {
+        custom: {
+          email_address: {
+            required: this.$t('field.emailAddress.validation.required'),
+          },
+          first_name: {
+            required: this.$t('field.firstName.validation.required'),
+          },
+          last_name: {
+            required: this.$t('field.lastName.validation.required'),
+          },
+        },
+      },
+    })
 
-              this.$bus.$emit('wait-sign_up', false)
+    this.$validator.extend('checkEmail', {
+      validate: this.checkEmail,
+      getMessage: (field, params, data) => {
+        return data.message
+      },
+    })
+  },
 
-              this.$toasted.error(errorMessage, {
-                action: {
-                  text: this.$t('application.buttons.close.title'),
-                  onClick: (evnt, toastObject) => {
-                    toastObject.goAway(0)
-                  },
-                },
+  methods: {
+
+    /**
+     * Check if provided email address is not used
+     *
+     * @param {String} value
+     *
+     * @returns {Object}
+     */
+    checkEmail(value) {
+      return this.$store.dispatch('entities/email/validate', {
+        address: value,
+      }, {
+        root: true,
+      })
+        .then(() => {
+          return {
+            valid: true,
+          }
+        })
+        .catch((e) => {
+          if (this._.get(e, 'response', null) !== null && this._.get(e, 'response.data.errors', null) !== null) {
+            this._.get(e, 'response.data.errors', [])
+              .forEach((error) => {
+                if (parseInt(this._.get(error, 'code', 0), 10) === 422) {
+                  return {
+                    valid: false,
+                    data: {
+                      message: this._.get(error, 'detail'),
+                    },
+                  }
+                }
               })
+          }
 
-            } else {
-              this.$toasted.info(this.$t('application.messages.fixAllFormErrors'), {
-                action: {
-                  text: this.$t('application.buttons.close.title'),
-                  onClick: (evnt, toastObject) => {
-                    toastObject.goAway(0)
-                  },
+          return {
+            valid: false,
+            data: {
+              message: this.$t('application.messages.valueIsNotValid'),
+            },
+          }
+        })
+    },
+
+    /**
+     * Submit form values
+     */
+    submit() {
+      this.$validator.validateAll(this.form.scope)
+        .then((result) => {
+          if (result) {
+            const errorMessage = this.$t('account.messages.signUpFail')
+
+            this.$bus.$emit('wait-sign_up', true)
+
+            // TODO: implement sign up...
+
+            this.$bus.$emit('wait-sign_up', false)
+
+            this.$toasted.error(errorMessage, {
+              action: {
+                text: this.$t('application.buttons.close.title'),
+                onClick: (evnt, toastObject) => {
+                  toastObject.goAway(0)
                 },
-              })
-            }
-          })
-          .catch(() => {
+              },
+            })
+          } else {
             this.$toasted.info(this.$t('application.messages.fixAllFormErrors'), {
               action: {
                 text: this.$t('application.buttons.close.title'),
@@ -241,12 +229,23 @@
                 },
               },
             })
+          }
+        })
+        .catch(() => {
+          this.$toasted.info(this.$t('application.messages.fixAllFormErrors'), {
+            action: {
+              text: this.$t('application.buttons.close.title'),
+              onClick: (evnt, toastObject) => {
+                toastObject.goAway(0)
+              },
+            },
           })
-      },
-
+        })
     },
 
-  }
+  },
+
+}
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>

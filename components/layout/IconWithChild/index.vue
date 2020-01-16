@@ -10,26 +10,28 @@
   </span>
 </template>
 
-<script>
-  export default {
+<script lang="ts">
+import { createComponent } from '@vue/composition-api'
 
-    name: 'IconWithChild',
+export default createComponent({
 
-    props: {
+  name: 'IconWithChild',
 
-      primaryIcon: {
-        type: String,
-        required: true,
-      },
+  props: {
 
-      childIcon: {
-        type: String,
-        default: null,
-      },
-
+    primaryIcon: {
+      type: String,
+      required: true,
     },
 
-  }
+    childIcon: {
+      type: String,
+      default: null,
+    },
+
+  },
+
+})
 </script>
 
 <style rel="stylesheet/scss" lang="scss">

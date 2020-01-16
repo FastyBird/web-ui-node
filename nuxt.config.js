@@ -46,20 +46,26 @@ module.exports = {
     '@/plugins/app',
     '@/plugins/app.client',
     '@/plugins/template',
+    '@/plugins/routes',
+    '@/plugins/flash-messages',
     '@/plugins/lodash',
     '@/plugins/event.bus',
     '@/plugins/io-server',
     '@/plugins/translate',
-    '@/plugins/icons',
+    '@/plugins/icons.channel',
+    '@/plugins/icons.group',
+    '@/plugins/icons.routine',
+    '@/plugins/icons.thing',
     '@/plugins/wamp.client',
+    '@/plugins/composition-api',
   ],
 
   buildModules: [
-    '@nuxtjs/eslint-module',
+    '@nuxt/typescript-build',
   ],
 
   modules: [
-    //'@nuxtjs/onesignal',
+    // '@nuxtjs/onesignal',
     '@nuxtjs/pwa',
     '@nuxtjs/svg',
     '@nuxtjs/toast',
@@ -193,7 +199,7 @@ module.exports = {
     },
   },
 
-  //oneSignal: {
+  // oneSignal: {
   //  init: {
   //    appId: process.env.NUXT_ENV_ONE_SIGNAL,
   //    allowLocalhostAsSecureOrigin: true,
@@ -201,13 +207,19 @@ module.exports = {
   //      disable: true,
   //    },
   //  },
-  //},
+  // },
 
   sentry: {
     dsn: process.env.NUXT_ENV_SENTRY_DNS,
     disabled: process.env.NODE_ENV === 'development',
     config: {
       environment: process.env.NUXT_ENV_SENTRY_ENV,
+    },
+  },
+
+  typescript: {
+    typeCheck: {
+      eslint: true,
     },
   },
 

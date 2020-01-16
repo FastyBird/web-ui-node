@@ -21,72 +21,72 @@
 </template>
 
 <script>
-  export default {
+export default {
 
-    name: 'GroupsSettingsGroupRemove',
+  name: 'GroupsSettingsGroupRemove',
 
-    props: {
+  props: {
 
-      group: {
-        type: Object,
-        required: true,
-      },
-
-      transparentBg: {
-        type: Boolean,
-        default: false,
-      },
-
+    group: {
+      type: Object,
+      required: true,
     },
 
-    mounted() {
-      this.$emit('loaded')
+    transparentBg: {
+      type: Boolean,
+      default: false,
     },
 
-    methods: {
+  },
 
-      /**
-       * Remove selected group
-       *
-       * @param {Object} event
-       */
-      remove(event) {
-        event && event.preventDefault()
+  mounted() {
+    this.$emit('loaded')
+  },
 
-        const errorMessage = this.$t('groups.messages.notRemoved', {
-          group: this.group.label,
+  methods: {
+
+    /**
+     * Remove selected group
+     *
+     * @param {Object} event
+     */
+    remove(event) {
+      event && event.preventDefault()
+
+      const errorMessage = this.$t('groups.messages.notRemoved', {
+        group: this.group.label,
+      })
+
+      this.$store.dispatch('entities/group/remove', {
+        id: this.group.id,
+      }, {
+        root: true,
+      })
+        .catch((e) => {
+          if (this._.get(e, 'exception', null) !== null) {
+            this.handleFormError(e.exception, errorMessage)
+          } else {
+            this.$flashMessage(errorMessage, 'error')
+          }
         })
 
-        this.$store.dispatch('entities/group/remove', {
-          id: this.group.id,
-        }, {
-          root: true,
-        })
-          .catch(e => {
-            if (this._.get(e, 'exception', null) !== null) {
-              this.handleFormError(e.exception, errorMessage)
-            } else {
-              this.$flashMessage(errorMessage, 'error')
-            }
-          })
+      this.$emit('close')
 
-        this.$emit('close')
-
-        this.$router.push(this.localePath(this.$routes.groups.list))
-      },
-
-      /**
-       * Close group remove confirmation window
-       *
-       * @param {Object} event
-       */
-      close(event) {
-        event && event.preventDefault()
-
-        this.$emit('close')
-      },
-
+      this.$router.push(this.localePath(this.$routes.groups.list))
     },
 
-  }
+    /**
+     * Close group remove confirmation window
+     *
+     * @param {Object} event
+     */
+    close(event) {
+      event && event.preventDefault()
+
+      this.$emit('close')
+    },
+
+  },
+
+}
 </script>

@@ -1,5 +1,6 @@
 import Vue from 'vue'
 
+// eslint-disable-next-line
 export default ({ }, inject) => {
   const v = new Vue({})
   const bus = {}

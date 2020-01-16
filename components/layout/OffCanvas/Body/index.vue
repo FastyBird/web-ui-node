@@ -17,58 +17,61 @@
   </div>
 </template>
 
-<script>
-  import OffCanvasHeading from './../Heading'
+<script lang="ts">
+import { createComponent, ref, watch } from '@vue/composition-api'
 
-  export default {
+import OffCanvasHeading from './../Heading/index.vue'
 
-    name: 'OffCanvasBody',
+export default createComponent({
 
-    components: {
-      OffCanvasHeading,
+  name: 'OffCanvasBody',
+
+  components: {
+    OffCanvasHeading,
+  },
+
+  props: {
+
+    show: {
+      type: Boolean,
+      default: false,
     },
 
-    props: {
-
-      show: {
-        type: Boolean,
-        default: false,
-      },
-
-      heading: {
-        type: String,
-        required: true,
-      },
-
-      subHeading: {
-        type: String,
-        required: false,
-        default: null,
-      },
-
+    heading: {
+      type: String,
+      required: true,
     },
 
-    watch: {
-
-      show(val) {
-        if (val) {
-          this.$el.tabIndex = 1
-
-          this.$nextTick(function() {
-            this.$el.focus()
-          })
-        }
-      },
-
+    subHeading: {
+      type: String,
+      required: false,
+      default: null,
     },
 
-    methods: {
+  },
 
-      close() {
-        this.$emit('close')
+  setup(props, context) {
+    const root = ref(null);
+
+    watch(() => props.show, (val: Boolean) => {
+      if (val && root.value) {
+        // @ts-ignore: Object is possibly 'null'.
+        root.value.tabIndex = 1;
+
+        context.root.$nextTick(() => {
+          // @ts-ignore: Object is possibly 'null'.
+          root.value.focus();
+        })
+      }
+    });
+
+    return {
+      root,
+      close: () => {
+        context.emit('close')
       },
+    }
+  },
 
-    },
-
-  }
+})
 </script>

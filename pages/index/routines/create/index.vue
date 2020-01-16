@@ -137,628 +137,629 @@
 </template>
 
 <script>
-  import { mapState } from 'vuex'
+import { mapState } from 'vuex'
 
-  import {
-    ROUTINES_HASH_CREATE,
-  } from '@/configuration/routes'
+import {
+  ROUTINES_HASH_CREATE,
+} from '@/configuration/routes'
 
-  const SelectThing = () => import('@/components/routines/Edit/SelectThing')
+const SelectThing = () => import('@/components/routines/Edit/SelectThing')
 
-  const ListCondition = () => import('@/components/routines/Edit/ListCondition')
-  const EditCondition = () => import('@/components/routines/Edit/EditCondition')
-  const ListAction = () => import('@/components/routines/Edit/ListAction')
-  const EditAction = () => import('@/components/routines/Edit/EditAction')
+const ListCondition = () => import('@/components/routines/Edit/ListCondition')
+const EditCondition = () => import('@/components/routines/Edit/EditCondition')
+const ListAction = () => import('@/components/routines/Edit/ListAction')
+const EditAction = () => import('@/components/routines/Edit/EditAction')
 
-  export default {
+export default {
 
-    name: 'RoutineCreatePage',
+  name: 'RoutineCreatePage',
 
-    components: {
-      SelectThing,
+  components: {
+    SelectThing,
 
-      ListCondition,
-      EditCondition,
-      ListAction,
-      EditAction,
+    ListCondition,
+    EditCondition,
+    ListAction,
+    EditAction,
+  },
+
+  transition: 'fade',
+
+  data() {
+    return {
+      form: {
+        scope: 'routines_create',
+        model: {
+          name: '',
+          comment: '',
+          conditions: [],
+          actions: [],
+          notifications: [],
+        },
+      },
+      view: {
+        opened: null,
+        items: {
+          condition: {
+            name: 'condition',
+            items: [],
+          },
+          conditionThing: {
+            name: 'conditionThing',
+            thing: null,
+          },
+          conditionThingEdit: {
+            name: 'conditionThingEdit',
+            thing: null,
+            item: null,
+          },
+          action: {
+            name: 'action',
+            items: [],
+          },
+          actionThing: {
+            name: 'actionThing',
+            thing: null,
+          },
+          actionThingEdit: {
+            name: 'actionThingEdit',
+            thing: null,
+            item: null,
+          },
+          notification: {
+            name: 'notification',
+          },
+        },
+      },
+    }
+  },
+
+  computed: {
+
+    ...mapState('theme', {
+      windowSize: state => state.windowSize,
+    }),
+
+    /**
+     * Get all assigned conditions
+     *
+     * @returns {Array}
+     */
+    conditions() {
+      return this._sortItemsThings(this._.get(this.form.model, 'conditions', []))
     },
 
-    transition: 'fade',
+    /**
+     * Get all assigned actions
+     *
+     * @returns {Array}
+     */
+    actions() {
+      return this._sortItemsThings(this._.get(this.form.model, 'actions', []))
+    },
 
-    data() {
-      return {
-        form: {
-          scope: 'routines_create',
-          model: {
-            name: '',
-            comment: '',
-            conditions: [],
-            actions: [],
-            notifications: [],
+  },
+
+  watch: {
+
+    windowSize() {
+      this._configureNavigation()
+    },
+
+  },
+
+  fetch({ app, store }) {
+    store.dispatch('header/resetStore', null, {
+      root: true,
+    })
+
+    store.dispatch('header/setLeftButton', {
+      name: app.i18n.t('application.buttons.back.title'),
+      link: app.localePath(app.$routes.routines.list),
+      icon: 'arrow-left',
+    }, {
+      root: true,
+    })
+
+    store.dispatch('header/hideRightButton', null, {
+      root: true,
+    })
+
+    store.dispatch('header/setFullRowHeading', null, {
+      root: true,
+    })
+
+    store.dispatch('header/setHeading', {
+      heading: app.i18n.t('application.headings.routines.add'),
+    }, {
+      root: true,
+    })
+
+    store.dispatch('header/setHeadingIcon', {
+      icon: 'project-diagram',
+    }, {
+      root: true,
+    })
+
+    store.dispatch('bottomNavigation/resetStore', null, {
+      root: true,
+    })
+
+    store.dispatch('bottomNavigation/hideNavigation', null, {
+      root: true,
+    })
+  },
+
+  beforeMount() {
+    if (this.windowSize !== null && this.windowSize !== 'xs') {
+      this.$router.push(this.localePath({
+        name: this.$routes.routines.list,
+        hash: `${ROUTINES_HASH_CREATE}`,
+      }))
+
+      return
+    }
+
+    this._configureNavigation()
+
+    this.$validator.localize({
+      en: {
+        custom: {
+          name: {
+            required: this.$t('routines.fields.name.validation.required'),
           },
         },
-        view: {
-          opened: null,
-          items: {
-            condition: {
-              name: 'condition',
-              items: [],
-            },
-            conditionThing: {
-              name: 'conditionThing',
-              thing: null,
-            },
-            conditionThingEdit: {
-              name: 'conditionThingEdit',
-              thing: null,
-              item: null,
-            },
-            action: {
-              name: 'action',
-              items: [],
-            },
-            actionThing: {
-              name: 'actionThing',
-              thing: null,
-            },
-            actionThingEdit: {
-              name: 'actionThingEdit',
-              thing: null,
-              item: null,
-            },
-            notification: {
-              name: 'notification',
-            },
-          },
-        },
+      },
+    })
+  },
+
+  methods: {
+
+    /**
+     * Condition or action thing is selected, opening properties select
+     *
+     * @param {Thing} thing
+     */
+    thingSelected(thing) {
+      if (this.view.opened === this.view.items.action.name) {
+        this.view.items.actionThing.thing = thing
+
+        this.openView(this.view.items.actionThing.name)
+      } else if (this.view.opened === this.view.items.condition.name) {
+        this.view.items.conditionThing.thing = thing
+
+        this.openView(this.view.items.conditionThing.name)
       }
     },
 
-    computed: {
+    /**
+     * CONDITIONS
+     */
 
-      ...mapState('theme', {
-        windowSize: state => state.windowSize,
-      }),
+    /**
+     * Add condition settings to collection
+     *
+     * @param {Object} data
+     */
+    addCondition(data) {
+      this.closeView(this.view.items.conditionThing.name)
 
-      /**
-       * Get all assigned conditions
-       *
-       * @returns {Array}
-       */
-      conditions() {
-        return this._sortItemsThings(this._.get(this.form.model, 'conditions', []))
-      },
+      for (const index in this.form.model.conditions) {
+        if (Object.prototype.hasOwnProperty.call(this.form.model.conditions, index)) {
+          if (JSON.stringify(this.form.model.conditions[index]) === JSON.stringify(data)) {
+            // Same condition added, nothing to do
+            return
+          } else if (this.form.model.conditions[index].thing === data.thing) {
+            // Conditions thing is updated
+            this.form.model.conditions[index] = data
 
-      /**
-       * Get all assigned actions
-       *
-       * @returns {Array}
-       */
-      actions() {
-        return this._sortItemsThings(this._.get(this.form.model, 'actions', []))
-      },
+            return
+          }
+        }
+      }
 
+      this.form.model.conditions.push(data)
     },
 
-    watch: {
+    /**
+     * Open edit routine action window
+     *
+     * @param {Number} index
+     */
+    editCondition(index) {
+      if (Object.prototype.hasOwnProperty.call(this.form.model.conditions, index)) {
+        this.view.items.conditionThingEdit.thing = this.$store.getters['entities/thing/query']()
+          .with('device')
+          .with('channel')
+          .with('channel.properties')
+          .where('id', this.form.model.conditions[index].thing)
+          .first()
 
-      windowSize() {
-        this._configureNavigation()
-      },
+        if (Object.prototype.hasOwnProperty.call(this.form.model.conditions, index)) {
+          this.view.items.conditionThingEdit.item = this.form.model.conditions[index]
+        }
 
+        this.openView(this.view.items.conditionThingEdit.name)
+      }
     },
 
-    fetch({ app, store }) {
-      store.dispatch('header/resetStore', null, {
+    /**
+     * Change action state
+     *
+     * @param {Number} index
+     */
+    toggleConditionState(index) {
+      if (Object.prototype.hasOwnProperty.call(this.form.model.conditions, index)) {
+        this.form.model.conditions[index].enabled = !this.form.model.conditions[index].enabled
+      }
+    },
+
+    /**
+     * Remove action settings from collection
+     *
+     * @param {Thing} thing
+     */
+    removeCondition(thing) {
+      for (const index in this.form.model.conditions) {
+        if (
+          Object.prototype.hasOwnProperty.call(this.form.model.conditions, index) &&
+          this.form.model.conditions[index].thing === thing.id
+        ) {
+          this.form.model.conditions.splice(index, 1)
+        }
+      }
+
+      if (this.view.opened === this.view.items.conditionThingEdit.name) {
+        this.closeView(this.view.items.conditionThingEdit.name)
+      } else {
+        this.openView(this.view.items.condition.name)
+      }
+    },
+
+    /**
+     * ACTIONS
+     */
+
+    /**
+     * Add action settings to collection
+     *
+     * @param {Object} data
+     */
+    addAction(data) {
+      this.closeView(this.view.items.actionThing.name)
+
+      for (const index in this.form.model.actions) {
+        if (Object.prototype.hasOwnProperty.call(this.form.model.actions, index)) {
+          if (JSON.stringify(this.form.model.actions[index]) === JSON.stringify(data)) {
+            // Same action added, nothing to do
+            return
+          } else if (this.form.model.actions[index].thing === data.thing) {
+            // Action thing is updated
+            this.form.model.actions[index] = data
+
+            return
+          }
+        }
+      }
+
+      this.form.model.actions.push(data)
+    },
+
+    /**
+     * Open edit routine action window
+     *
+     * @param {Number} index
+     */
+    editAction(index) {
+      if (Object.prototype.hasOwnProperty.call(this.form.model.actions, index)) {
+        this.view.items.actionThingEdit.thing = this.$store.getters['entities/thing/query']()
+          .with('device')
+          .with('channel')
+          .with('channel.properties')
+          .where('id', this.form.model.actions[index].thing)
+          .first()
+
+        if (Object.prototype.hasOwnProperty.call(this.form.model.actions, index)) {
+          this.view.items.actionThingEdit.item = this.form.model.actions[index]
+        }
+
+        this.openView(this.view.items.actionThingEdit.name)
+      }
+    },
+
+    /**
+     * Change action state
+     *
+     * @param {Number} index
+     */
+    toggleActionState(index) {
+      if (Object.prototype.hasOwnProperty.call(this.form.model.actions, index)) {
+        this.form.model.actions[index].enabled = !this.form.model.actions[index].enabled
+      }
+    },
+
+    /**
+     * Remove action settings from collection
+     *
+     * @param {Thing} thing
+     */
+    removeAction(thing) {
+      for (const index in this.form.model.actions) {
+        if (
+          Object.prototype.hasOwnProperty.call(this.form.model.actions, index) &&
+          this.form.model.actions[index].thing === thing.id
+        ) {
+          this.form.model.actions.splice(index, 1)
+        }
+      }
+
+      if (this.view.opened === this.view.items.actionThingEdit.name) {
+        this.closeView(this.view.items.actionThingEdit.name)
+      } else {
+        this.openView(this.view.items.action.name)
+      }
+    },
+
+    /**
+     * NOTIFICATIONS
+     */
+
+    /**
+     * Add notification settings to collection
+     *
+     * @param {Object} data
+     */
+    addNotification(data) {
+      for (const notification of this.form.model.notifications) {
+        if (JSON.stringify(notification) === JSON.stringify(data)) {
+          this.$flashMessage(this.$t('routines.messages.sameNotificationAdded'), 'error')
+
+          return
+        }
+      }
+
+      this.form.model.notifications.push(data)
+
+      this.closeView('notification')
+    },
+
+    /**
+     * Change notification state
+     *
+     * @param {Number} index
+     */
+    toggleNotificationState(index) {
+      if (Object.prototype.hasOwnProperty.call(this.form.model.notifications, index)) {
+        this.form.model.notifications[index].enabled = !this.form.model.notifications[index].enabled
+      }
+    },
+
+    /**
+     * Remove notification settings from collection
+     *
+     * @param {Number} index
+     */
+    removeNotification(index) {
+      if (
+        Object.prototype.hasOwnProperty.call(this.form.model.notifications, index)
+      ) {
+        this.form.model.notifications.splice(index, 1)
+      }
+    },
+
+    /**
+     * ROUTINE GLOBAL
+     */
+
+    submit() {
+      this.$validator.validateAll(this.form.scope)
+        .then((result) => {
+          if (result) {
+            if (this.form.model.conditions.length <= 0) {
+              this.$flashMessage(this.$t('routines.messages.missingCondition'), 'error')
+
+              return
+            }
+
+            if (this.form.model.actions.length <= 0 && this.form.model.notifications.length <= 0) {
+              this.$flashMessage(this.$t('routines.messages.missingActionOrNotification'), 'error')
+
+              return
+            }
+
+            this.$bus.$emit('wait-page_reloading', true)
+
+            const errorMessage = this.$t('routines.messages.notCreated', {
+              routine: this.form.model.name,
+            })
+
+            const mappedConditions = []
+
+            this.form.model.conditions.forEach((condition) => {
+              condition.rows.forEach((row) => {
+                mappedConditions.push({
+                  type: 'channel_property',
+                  enabled: condition.enabled,
+                  channel: condition.thing,
+                  property: row.property_id,
+                  operator: row.operator,
+                  operand: row.operand,
+                })
+              })
+            })
+
+            const mappedActions = []
+
+            this.form.model.actions.forEach((action) => {
+              action.rows.forEach((row) => {
+                mappedActions.push({
+                  type: 'channel_property',
+                  enabled: action.enabled,
+                  channel: action.thing,
+                  property: row.property_id,
+                  value: row.operation,
+                })
+              })
+            })
+
+            this.$store.dispatch('entities/trigger/add', {
+              automatic: true,
+              data: {
+                name: this.form.model.name,
+                comment: this.form.model.comment,
+                enabled: true,
+                conditions: mappedConditions,
+                actions: mappedActions,
+                notifications: [],
+              },
+            }, {
+              root: true,
+            })
+              .then((routine) => {
+                this.$bus.$emit('wait-page_reloading', false)
+
+                this.$router.push(this.localePath({
+                  name: this.$routes.routines.detail,
+                  params: {
+                    id: routine.id,
+                  },
+                }))
+              })
+              .catch((e) => {
+                this.$bus.$emit('wait-page_reloading', false)
+
+                if (Object.prototype.hasOwnProperty.call(e, 'exception')) {
+                  this.handleFormError(e.exception, errorMessage)
+                } else {
+                  this.$flashMessage(errorMessage, 'error')
+                }
+              })
+          }
+        })
+        .catch(() => {
+          // Nothing to do here
+        })
+    },
+
+    /**
+     * Close create action and navigate to list
+     */
+    closeCreate() {
+      this.$router.push(this.localePath(this.$routes.routines.list))
+    },
+
+    /**
+     * Open routines view
+     *
+     * @param {String} view
+     * @param {Object} [item]
+     */
+    openView(view, item) {
+      if (Object.prototype.hasOwnProperty.call(this.view.items, view)) {
+        this.view.opened = view
+
+        if (Object.prototype.hasOwnProperty.call(this.view.items[view], 'item') && typeof item !== 'undefined') {
+          this.view.items[view].item = item
+        }
+
+        if (view === this.view.items.action.name) {
+          this.view.items[view].items = this.actions
+        } else if (view === this.view.items.condition.name) {
+          this.view.items[view].items = this.conditions
+        }
+      }
+    },
+
+    /**
+     * Close routines view window
+     *
+     * @param {String} view
+     */
+    closeView(view) {
+      if (Object.prototype.hasOwnProperty.call(this.view.items, view)) {
+        this.view.opened = null
+
+        if (Object.prototype.hasOwnProperty.call(this.view.items[view], 'item')) {
+          this.view.items[view].item = null
+        }
+      }
+
+      this.errors.clear(this.form.scope)
+
+      this._configureNavigation()
+    },
+
+    _sortItemsThings(items) {
+      return items.sort((a, b) => {
+        const aThing = this.$store.getters['entities/thing/find'](a.thing)
+        const bThing = this.$store.getters['entities/thing/find'](b.thing)
+
+        if (aThing.label > bThing.label) {
+          return -1
+        } else if (bThing.label > aThing.label) {
+          return 1
+        }
+
+        return 0
+      })
+    },
+
+    /**
+     * Configure page header for small devices
+     *
+     * @private
+     */
+    _configureNavigation() {
+      this.$store.dispatch('header/resetStore', null, {
         root: true,
       })
 
-      store.dispatch('header/setLeftButton', {
-        name: app.i18n.t('application.buttons.back.title'),
-        link: app.localePath(app.$routes.routines.list),
+      this.$store.dispatch('header/setLeftButton', {
+        name: this.$t('application.buttons.back.title'),
+        link: this.localePath(this.$routes.routines.list),
         icon: 'arrow-left',
       }, {
         root: true,
       })
 
-      store.dispatch('header/hideRightButton', null, {
+      this.$store.dispatch('header/hideRightButton', null, {
         root: true,
       })
 
-      store.dispatch('header/setFullRowHeading', null, {
+      this.$store.dispatch('header/setFullRowHeading', null, {
         root: true,
       })
 
-      store.dispatch('header/setHeading', {
-        heading: app.i18n.t('application.headings.routines.add'),
+      this.$store.dispatch('header/setHeading', {
+        heading: this.$t('application.headings.routines.add'),
       }, {
         root: true,
       })
 
-      store.dispatch('header/setHeadingIcon', {
+      this.$store.dispatch('header/setHeadingIcon', {
         icon: 'project-diagram',
       }, {
         root: true,
       })
 
-      store.dispatch('bottomNavigation/resetStore', null, {
+      this.$store.dispatch('bottomNavigation/resetStore', null, {
         root: true,
       })
 
-      store.dispatch('bottomNavigation/hideNavigation', null, {
+      this.$store.dispatch('bottomNavigation/hideNavigation', null, {
         root: true,
       })
     },
 
-    beforeMount() {
-      if (this.windowSize !== null && this.windowSize !== 'xs') {
-        this.$router.push(this.localePath({
-          name: this.$routes.routines.list,
-          hash: `${ROUTINES_HASH_CREATE}`,
-        }))
-
-        return
-      }
-
-      this._configureNavigation()
-
-      this.$validator.localize({
-        en: {
-          custom: {
-            name: {
-              required: this.$t('routines.fields.name.validation.required'),
-            },
-          },
-        },
-      })
-    },
-
-    methods: {
-
-      /**
-       * Condition or action thing is selected, opening properties select
-       *
-       * @param {Thing} thing
-       */
-      thingSelected(thing) {
-        if (this.view.opened === this.view.items.action.name) {
-          this.view.items.actionThing.thing = thing
-
-          this.openView(this.view.items.actionThing.name)
-        } else if (this.view.opened === this.view.items.condition.name) {
-          this.view.items.conditionThing.thing = thing
-
-          this.openView(this.view.items.conditionThing.name)
-        }
-      },
-
-      /**
-       * CONDITIONS
-       */
-
-      /**
-       * Add condition settings to collection
-       *
-       * @param {Object} data
-       */
-      addCondition(data) {
-        this.closeView(this.view.items.conditionThing.name)
-
-        for (const index in this.form.model.conditions) {
-          if (this.form.model.conditions.hasOwnProperty(index)) {
-            if (JSON.stringify(this.form.model.conditions[index]) === JSON.stringify(data)) {
-              // Same condition added, nothing to do
-              return
-            } else if (this.form.model.conditions[index].thing === data.thing) {
-              // Conditions thing is updated
-              this.form.model.conditions[index] = data
-
-              return
-            }
-          }
-        }
-
-        this.form.model.conditions.push(data)
-      },
-
-      /**
-       * Open edit routine action window
-       *
-       * @param {Number} index
-       */
-      editCondition(index) {
-        if (this.form.model.conditions.hasOwnProperty(index)) {
-          this.view.items.conditionThingEdit.thing = this.$store.getters['entities/thing/query']()
-            .with('device')
-            .with('channel')
-            .with('channel.properties')
-            .where('id', this.form.model.conditions[index].thing)
-            .first()
-
-          if (this.form.model.conditions.hasOwnProperty(index)) {
-            this.view.items.conditionThingEdit.item = this.form.model.conditions[index]
-          }
-
-          this.openView(this.view.items.conditionThingEdit.name)
-        }
-      },
-
-      /**
-       * Change action state
-       *
-       * @param {Number} index
-       */
-      toggleConditionState(index) {
-        if (this.form.model.conditions.hasOwnProperty(index)) {
-          this.form.model.conditions[index].enabled = !this.form.model.conditions[index].enabled
-        }
-      },
-
-      /**
-       * Remove action settings from collection
-       *
-       * @param {Thing} thing
-       */
-      removeCondition(thing) {
-        for (const index in this.form.model.conditions) {
-          if (
-            this.form.model.conditions.hasOwnProperty(index) &&
-            this.form.model.conditions[index].thing === thing.id
-          ) {
-            this.form.model.conditions.splice(index, 1)
-          }
-        }
-
-        if (this.view.opened === this.view.items.conditionThingEdit.name) {
-          this.closeView(this.view.items.conditionThingEdit.name)
-        } else {
-          this.openView(this.view.items.condition.name)
-        }
-      },
-
-      /**
-       * ACTIONS
-       */
-
-      /**
-       * Add action settings to collection
-       *
-       * @param {Object} data
-       */
-      addAction(data) {
-        this.closeView(this.view.items.actionThing.name)
-
-        for (const index in this.form.model.actions) {
-          if (this.form.model.actions.hasOwnProperty(index)) {
-            if (JSON.stringify(this.form.model.actions[index]) === JSON.stringify(data)) {
-              // Same action added, nothing to do
-              return
-            } else if (this.form.model.actions[index].thing === data.thing) {
-              // Action thing is updated
-              this.form.model.actions[index] = data
-
-              return
-            }
-          }
-        }
-
-        this.form.model.actions.push(data)
-      },
-
-      /**
-       * Open edit routine action window
-       *
-       * @param {Number} index
-       */
-      editAction(index) {
-        if (this.form.model.actions.hasOwnProperty(index)) {
-          this.view.items.actionThingEdit.thing = this.$store.getters['entities/thing/query']()
-            .with('device')
-            .with('channel')
-            .with('channel.properties')
-            .where('id', this.form.model.actions[index].thing)
-            .first()
-
-          if (this.form.model.actions.hasOwnProperty(index)) {
-            this.view.items.actionThingEdit.item = this.form.model.actions[index]
-          }
-
-          this.openView(this.view.items.actionThingEdit.name)
-        }
-      },
-
-      /**
-       * Change action state
-       *
-       * @param {Number} index
-       */
-      toggleActionState(index) {
-        if (this.form.model.actions.hasOwnProperty(index)) {
-          this.form.model.actions[index].enabled = !this.form.model.actions[index].enabled
-        }
-      },
-
-      /**
-       * Remove action settings from collection
-       *
-       * @param {Thing} thing
-       */
-      removeAction(thing) {
-        for (const index in this.form.model.actions) {
-          if (
-            this.form.model.actions.hasOwnProperty(index) &&
-            this.form.model.actions[index].thing === thing.id
-          ) {
-            this.form.model.actions.splice(index, 1)
-          }
-        }
-
-        if (this.view.opened === this.view.items.actionThingEdit.name) {
-          this.closeView(this.view.items.actionThingEdit.name)
-        } else {
-          this.openView(this.view.items.action.name)
-        }
-      },
-
-      /**
-       * NOTIFICATIONS
-       */
-
-      /**
-       * Add notification settings to collection
-       *
-       * @param {Object} data
-       */
-      addNotification(data) {
-        for (const notification of this.form.model.notifications) {
-          if (JSON.stringify(notification) === JSON.stringify(data)) {
-            this.$flashMessage(this.$t('routines.messages.sameNotificationAdded'), 'error')
-
-            return
-          }
-        }
-
-        this.form.model.notifications.push(data)
-
-        this.closeView('notification')
-      },
-
-      /**
-       * Change notification state
-       *
-       * @param {Number} index
-       */
-      toggleNotificationState(index) {
-        if (this.form.model.notifications.hasOwnProperty(index)) {
-          this.form.model.notifications[index].enabled = !this.form.model.notifications[index].enabled
-        }
-      },
-
-      /**
-       * Remove notification settings from collection
-       *
-       * @param {Number} index
-       */
-      removeNotification(index) {
-        if (
-          this.form.model.notifications.hasOwnProperty(index)
-        ) {
-          this.form.model.notifications.splice(index, 1)
-        }
-      },
-
-      /**
-       * ROUTINE GLOBAL
-       */
-
-      submit() {
-        this.$validator.validateAll(this.form.scope)
-          .then(result => {
-            if (result) {
-              if (this.form.model.conditions.length <= 0) {
-                this.$flashMessage(this.$t('routines.messages.missingCondition'), 'error')
-
-                return
-              }
-
-              if (this.form.model.actions.length <= 0 && this.form.model.notifications.length <= 0) {
-                this.$flashMessage(this.$t('routines.messages.missingActionOrNotification'), 'error')
-
-                return
-              }
-
-              this.$bus.$emit('wait-page_reloading', true)
-
-              const errorMessage = this.$t('routines.messages.notCreated', {
-                routine: this.form.model.name,
-              })
-
-              const mappedConditions = []
-
-              this.form.model.conditions.forEach(condition => {
-                condition.rows.forEach(row => {
-                  mappedConditions.push({
-                    type: 'channel_property',
-                    enabled: condition.enabled,
-                    channel: condition.thing,
-                    property: row.property_id,
-                    operator: row.operator,
-                    operands: [row.operand],
-                  })
-                })
-              })
-
-              const mappedActions = []
-
-              this.form.model.actions.forEach(action => {
-                action.rows.forEach(row => {
-                  mappedActions.push({
-                    type: 'channel_property',
-                    enabled: action.enabled,
-                    channel: action.thing,
-                    property: row.property_id,
-                    value: row.operation,
-                  })
-                })
-              })
-
-              this.$store.dispatch('entities/trigger/add', {
-                automatic: true,
-                data: {
-                  name: this.form.model.name,
-                  comment: this.form.model.comment,
-                  conditions: mappedConditions,
-                  actions: mappedActions,
-                  notifications: [],
-                },
-              }, {
-                root: true,
-              })
-                .then(routine => {
-                  this.$bus.$emit('wait-page_reloading', false)
-
-                  this.$router.push(this.localePath({
-                    name: this.$routes.routines.detail,
-                    params: {
-                      id: routine.id,
-                    },
-                  }))
-                })
-                .catch(e => {
-                  this.$bus.$emit('wait-page_reloading', false)
-
-                  if (e.hasOwnProperty('exception')) {
-                    this.handleFormError(e.exception, errorMessage)
-                  } else {
-                    this.$flashMessage(errorMessage, 'error')
-                  }
-                })
-            }
-          })
-          .catch(() => {
-            // Nothing to do here
-          })
-      },
-
-      /**
-       * Close create action and navigate to list
-       */
-      closeCreate() {
-        this.$router.push(this.localePath(this.$routes.routines.list))
-      },
-
-      /**
-       * Open routines view
-       *
-       * @param {String} view
-       * @param {Object} [item]
-       */
-      openView(view, item) {
-        if (this.view.items.hasOwnProperty(view)) {
-          this.view.opened = view
-
-          if (this.view.items[view].hasOwnProperty('item') && typeof item !== 'undefined') {
-            this.view.items[view].item = item
-          }
-
-          if (view === this.view.items.action.name) {
-            this.view.items[view].items = this.actions
-          } else if (view === this.view.items.condition.name) {
-            this.view.items[view].items = this.conditions
-          }
-        }
-      },
-
-      /**
-       * Close routines view window
-       *
-       * @param {String} view
-       */
-      closeView(view) {
-        if (this.view.items.hasOwnProperty(view)) {
-          this.view.opened = null
-
-          if (this.view.items[view].hasOwnProperty('item')) {
-            this.view.items[view].item = null
-          }
-        }
-
-        this.errors.clear(this.form.scope)
-
-        this._configureNavigation()
-      },
-
-      _sortItemsThings(items) {
-        return items.sort((a, b) => {
-          const aThing = this.$store.getters['entities/thing/find'](a.thing)
-          const bThing = this.$store.getters['entities/thing/find'](b.thing)
-
-          if (aThing.label > bThing.label) {
-            return -1
-          } else if (bThing.label > aThing.label) {
-            return 1
-          }
-
-          return 0
-        })
-      },
-
-      /**
-       * Configure page header for small devices
-       *
-       * @private
-       */
-      _configureNavigation() {
-        this.$store.dispatch('header/resetStore', null, {
-          root: true,
-        })
-
-        this.$store.dispatch('header/setLeftButton', {
-          name: this.$t('application.buttons.back.title'),
-          link: this.localePath(this.$routes.routines.list),
-          icon: 'arrow-left',
-        }, {
-          root: true,
-        })
-
-        this.$store.dispatch('header/hideRightButton', null, {
-          root: true,
-        })
-
-        this.$store.dispatch('header/setFullRowHeading', null, {
-          root: true,
-        })
-
-        this.$store.dispatch('header/setHeading', {
-          heading: this.$t('application.headings.routines.add'),
-        }, {
-          root: true,
-        })
-
-        this.$store.dispatch('header/setHeadingIcon', {
-          icon: 'project-diagram',
-        }, {
-          root: true,
-        })
-
-        this.$store.dispatch('bottomNavigation/resetStore', null, {
-          root: true,
-        })
-
-        this.$store.dispatch('bottomNavigation/hideNavigation', null, {
-          root: true,
-        })
-      },
-
-    },
-
-    head() {
-      return {
-        title: this.$t('meta.routines.create.title'),
-      }
-    },
-
-  }
+  },
+
+  head() {
+    return {
+      title: this.$t('meta.routines.create.title'),
+    }
+  },
+
+}
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>

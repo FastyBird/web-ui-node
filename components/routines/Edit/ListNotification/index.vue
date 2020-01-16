@@ -56,59 +56,59 @@
 </template>
 
 <script>
-  export default {
+export default {
 
-    name: 'RoutinesEditListNotification',
+  name: 'RoutinesEditListNotification',
 
-    props: {
+  props: {
 
-      notification: {
-        type: Object,
-        required: true,
-        validator: (value) => {
-          return !(
-            !value.hasOwnProperty('type') ||
-            !value.hasOwnProperty('value') ||
-            !value.hasOwnProperty('enabled')
-          )
-        },
+    notification: {
+      type: Object,
+      required: true,
+      validator: (value) => {
+        return !(
+          !Object.prototype.hasOwnProperty.call(value, 'type') ||
+          !Object.prototype.hasOwnProperty.call(value, 'value') ||
+          !Object.prototype.hasOwnProperty.call(value, 'enabled')
+        )
       },
-
     },
 
-    data() {
-      return {
-        enabled: true,
+  },
+
+  data() {
+    return {
+      enabled: true,
+    }
+  },
+
+  computed: {
+
+    email() {
+      if (this.notification.type === 'email') {
+        const email = this.$store.getters['entities/email/find'](this.notification.value)
+
+        return email !== null ? email.address : this.notification.value
       }
+
+      return null
     },
 
-    computed: {
+  },
 
-      email() {
-        if (this.notification.type === 'email') {
-          const email = this.$store.getters['entities/email/find'](this.notification.value)
+  methods: {
 
-          return email !== null ? email.address : this.notification.value
-        }
-
-        return null
-      },
-
+    toggleNotification() {
+      this.$emit('toggle')
     },
 
-    methods: {
-
-      toggleNotification() {
-        this.$emit('toggle')
-      },
-
-      removeNotification() {
-        this.$emit('remove')
-      },
-
+    removeNotification() {
+      this.$emit('remove')
     },
 
-  }
+  },
+
+}
 </script>
 
 <style rel="stylesheet/scss" lang="scss">

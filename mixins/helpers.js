@@ -14,9 +14,9 @@ export default {
     handleFormError(exception, errorMessage) {
       let errorShown = false
 
-      if (exception.response && exception.response.hasOwnProperty('data') && exception.response.data.hasOwnProperty('errors')) {
+      if (exception.response && Object.prototype.hasOwnProperty.call(exception.response, 'data') && Object.prototype.hasOwnProperty.call(exception.response.data, 'errors')) {
         for (const key in exception.response.data.errors) {
-          if (exception.response.data.errors.hasOwnProperty(key) && parseInt(exception.response.data.errors[key].code, 10) === 422) {
+          if (Object.prototype.hasOwnProperty.call(exception.response.data.errors, key) && parseInt(exception.response.data.errors[key].code, 10) === 422) {
             this.$toasted.error(exception.response.data.errors[key].detail)
 
             errorShown = true
@@ -32,9 +32,9 @@ export default {
     handleRequestError(response, errorMessage) {
       let errorShown = false
 
-      if (response && response.hasOwnProperty('data') && response.data.hasOwnProperty('errors')) {
+      if (response && Object.prototype.hasOwnProperty.call(response, 'data') && Object.prototype.hasOwnProperty.call(response.data, 'errors')) {
         for (const key in response.data.errors) {
-          if (response.data.errors.hasOwnProperty(key) && parseInt(response.data.errors[key].code, 10) === 422) {
+          if (Object.prototype.hasOwnProperty.call(response.data.errors, key) && parseInt(response.data.errors[key].code, 10) === 422) {
             this.$toasted.error(response.data.errors[key].detail)
 
             errorShown = true

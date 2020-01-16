@@ -35,162 +35,162 @@
 </template>
 
 <script>
-  import {
-    DEVICE_FASTYBIRD_BUTTON_PRESS,
-    DEVICE_FASTYBIRD_BUTTON_CLICK,
-    DEVICE_FASTYBIRD_BUTTON_DBL_CLICK,
-  } from '@/configuration/devices'
+import {
+  DEVICE_FASTYBIRD_BUTTON_PRESS,
+  DEVICE_FASTYBIRD_BUTTON_CLICK,
+  DEVICE_FASTYBIRD_BUTTON_DBL_CLICK,
+} from '@/configuration/devices'
 
-  const TriggerAction = () => import('./../Action')
+import triggersMixin from '@/mixins/triggers'
 
-  import triggersMixin from '@/mixins/triggers'
+const TriggerAction = () => import('./../Action')
 
-  export default {
+export default {
 
-    name: 'ThingsDetailButtonTrigger',
+  name: 'ThingsDetailButtonTrigger',
 
-    components: {
-      TriggerAction,
+  components: {
+    TriggerAction,
+  },
+
+  mixins: [triggersMixin],
+
+  props: {
+
+    thing: {
+      type: Object,
+      required: true,
     },
 
-    mixins: [triggersMixin],
+    trigger: {
+      type: Object,
+      required: true,
+    },
 
-    props: {
+  },
 
-      thing: {
-        type: Object,
-        required: true,
+  data() {
+    return {
+      heading: null,
+      transparentModal: false,
+      remove: {
+        show: false,
+        index: null,
+        thing: null,
       },
+    }
+  },
 
-      trigger: {
-        type: Object,
-        required: true,
-      },
+  computed: {
 
+    /**
+     * Remap trigger actions for displaying
+     *
+     * @returns {Array}
+     */
+    actions() {
+      return this.mapActions(this.trigger)
     },
 
-    data() {
-      return {
-        heading: null,
-        transparentModal: false,
-        remove: {
-          show: false,
-          index: null,
-          thing: null,
-        },
-      }
+    /**
+     * Get thing hardware info
+     *
+     * @returns {Hardware}
+     */
+    hardware() {
+      return this.$store.getters['entities/hardware/query']()
+        .where('device_id', this.thing.device_id)
+        .first()
     },
 
-    computed: {
+  },
 
-      /**
-       * Remap trigger actions for displaying
-       *
-       * @returns {Array}
-       */
-      actions() {
-        return this.mapActions(this.trigger)
-      },
+  created() {
+    this.transparentModal = this.$parent.$options.name !== 'Layout'
 
-      /**
-       * Get thing hardware info
-       *
-       * @returns {Hardware}
-       */
-      hardware() {
-        return this.$store.getters['entities/hardware/query']()
-          .where('device_id', this.thing.device_id)
-          .first()
-      },
+    switch (this.trigger.operand) {
+      case DEVICE_FASTYBIRD_BUTTON_PRESS:
+        this.heading = this.$t('things.headings.buttonActionPressed')
+        break
 
-    },
+      case DEVICE_FASTYBIRD_BUTTON_CLICK:
+        this.heading = this.$t('things.headings.buttonActionClicked')
+        break
 
-    created() {
-      this.transparentModal = this.$parent.$options.name !== 'Layout'
+      case DEVICE_FASTYBIRD_BUTTON_DBL_CLICK:
+        this.heading = this.$t('things.headings.buttonActionDblClicked')
+        break
+    }
+  },
 
-      switch (this.trigger.operand) {
-        case DEVICE_FASTYBIRD_BUTTON_PRESS:
-          this.heading = this.$t('things.headings.buttonActionPressed')
-          break
+  methods: {
 
-        case DEVICE_FASTYBIRD_BUTTON_CLICK:
-          this.heading = this.$t('things.headings.buttonActionClicked')
-          break
-
-        case DEVICE_FASTYBIRD_BUTTON_DBL_CLICK:
-          this.heading = this.$t('things.headings.buttonActionDblClicked')
-          break
-      }
-    },
-
-    methods: {
-
-      /**
-       * Change action state
-       *
-       * @param {Number} index
-       */
-      toggleActionState(index) {
-        if (this.actions.hasOwnProperty(index)) {
-          if (this.actions.hasOwnProperty(index)) {
-            this.changeActionState(this.actions[index], !this.actions[index].enabled)
-          }
+    /**
+     * Change action state
+     *
+     * @param {Number} index
+     */
+    toggleActionState(index) {
+      if (Object.prototype.hasOwnProperty.call(this.actions, index)) {
+        if (Object.prototype.hasOwnProperty.call(this.actions, index)) {
+          this.changeActionState(this.actions[index], !this.actions[index].enabled)
         }
-      },
+      }
+    },
 
-      /**
-       * Show remove confirmation window for action
-       *
-       * @param {Number} index
-       */
-      confirmRemoveAction(index) {
-        this.remove.show = true
-        this.remove.index = index
-        this.remove.thing = this._findThing(this.actions[index].thing)
-      },
+    /**
+     * Show remove confirmation window for action
+     *
+     * @param {Number} index
+     */
+    confirmRemoveAction(index) {
+      this.remove.show = true
+      this.remove.index = index
+      this.remove.thing = this._findThing(this.actions[index].thing)
+    },
 
-      /**
-       * Close remove confirmation window
-       */
-      resetRemoveConfirmation() {
-        this.remove.show = false
-        this.remove.index = null
-        this.remove.thing = null
-      },
+    /**
+     * Close remove confirmation window
+     */
+    resetRemoveConfirmation() {
+      this.remove.show = false
+      this.remove.index = null
+      this.remove.thing = null
+    },
 
-      /**
-       * Remove action from routine
-       */
-      removeTriggerAction() {
-        const index = this.remove.index
+    /**
+     * Remove action from routine
+     */
+    removeTriggerAction() {
+      const index = this.remove.index
 
-        this.resetRemoveConfirmation()
+      this.resetRemoveConfirmation()
 
-        if (this.actions.hasOwnProperty(index)) {
-          if (this.actions.length > 1) {
-            this.removeAction(this.actions[index])
-          } else {
-            this.$store.dispatch('entities/trigger/remove', {
-              id: this.trigger.id,
-            }, {
-              root: true,
+      if (Object.prototype.hasOwnProperty.call(this.actions, index)) {
+        if (this.actions.length > 1) {
+          this.removeAction(this.actions[index])
+        } else {
+          this.$store.dispatch('entities/trigger/remove', {
+            id: this.trigger.id,
+          }, {
+            root: true,
+          })
+            .catch((e) => {
+              const errorMessage = this.$t('things.messages.actionNotRemoved')
+
+              if (Object.prototype.hasOwnProperty.call(e, 'exception')) {
+                this.handleFormError(e.exception, errorMessage)
+              } else {
+                this.$flashMessage(errorMessage, 'error')
+              }
             })
-              .catch(e => {
-                const errorMessage = this.$t('things.messages.actionNotRemoved')
-
-                if (e.hasOwnProperty('exception')) {
-                  this.handleFormError(e.exception, errorMessage)
-                } else {
-                  this.$flashMessage(errorMessage, 'error')
-                }
-              })
-          }
         }
-      },
-
+      }
     },
 
-  }
+  },
+
+}
 </script>
 
 <style rel="stylesheet/scss" lang="scss">

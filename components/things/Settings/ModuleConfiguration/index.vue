@@ -104,230 +104,230 @@
 </template>
 
 <script>
-  export default {
+export default {
 
-    name: 'ThingsSettingsThingModuleConfiguration',
+  name: 'ThingsSettingsThingModuleConfiguration',
 
-    props: {
+  props: {
 
-      thing: {
-        type: Object,
-        required: true,
-      },
-
-      title: {
-        type: String,
-        required: true,
-      },
-
-      keyPrefix: {
-        type: String,
-        required: true,
-      },
-
-      transparentBg: {
-        type: Boolean,
-        default: false,
-      },
-
+    thing: {
+      type: Object,
+      required: true,
     },
 
-    data() {
-      return {
-        form: {
-          scope: 'io_server_thing_edit_module_configuration',
-          model: [],
-          result: null,
-        },
+    title: {
+      type: String,
+      required: true,
+    },
+
+    keyPrefix: {
+      type: String,
+      required: true,
+    },
+
+    transparentBg: {
+      type: Boolean,
+      default: false,
+    },
+
+  },
+
+  data() {
+    return {
+      form: {
+        scope: 'io_server_thing_edit_module_configuration',
+        model: [],
+        result: null,
+      },
+    }
+  },
+
+  computed: {
+
+    /**
+     * Get thing hardware info
+     *
+     * @returns {Hardware}
+     */
+    hardware() {
+      return this.$store.getters['entities/hardware/query']()
+        .where('device_id', this.thing.device_id)
+        .first()
+    },
+
+    /**
+     * Get all thing configuration parameters
+     *
+     * @returns {Array}
+     */
+    parameters() {
+      return this.$store.getters['entities/device_configuration/query']()
+        .where('device_id', this.thing.device_id)
+        .where((item) => {
+          return this._.get(item, 'name').indexOf(this.keyPrefix) === 0 &&
+            this._.get(item, 'name').indexOf('sensor_expected_') !== 0
+        })
+        .orderBy('name')
+        .all()
+    },
+  },
+
+  watch: {
+
+    'thing.state'(val) {
+      if (val) {
+        this._initModel()
       }
     },
 
-    computed: {
-
-      /**
-       * Get thing hardware info
-       *
-       * @returns {Hardware}
-       */
-      hardware() {
-        return this.$store.getters['entities/hardware/query']()
-          .where('device_id', this.thing.device_id)
-          .first()
-      },
-
-      /**
-       * Get all thing configuration parameters
-       *
-       * @returns {Array}
-       */
-      parameters() {
-        return this.$store.getters['entities/device_configuration/query']()
-          .where('device_id', this.thing.device_id)
-          .where(item => {
-            return this._.get(item, 'name').indexOf(this.keyPrefix) === 0 &&
-              this._.get(item, 'name').indexOf('sensor_expected_') !== 0
-          })
-          .orderBy('name')
-          .all()
-      },
-    },
-
-    watch: {
-
-      'thing.state'(val) {
-        if (val) {
-          this._initModel()
-        }
-      },
-
-      parameters() {
-        this._initModel()
-      },
-
-    },
-
-    created() {
+    parameters() {
       this._initModel()
     },
 
-    mounted() {
-      this.$emit('loaded')
-    },
+  },
 
-    methods: {
+  created() {
+    this._initModel()
+  },
 
-      /**
-       * Translate parameter form label
-       *
-       * @returns {String}
-       */
-      translateLabel(parameter) {
-        if (this._.get(this.hardware, 'isCustom', true)) {
-          if (parameter.title !== null) {
-            return parameter.title
-          }
+  mounted() {
+    this.$emit('loaded')
+  },
 
-          return parameter.name
-        }
+  methods: {
 
-        if (this.$t(`things.vendors.${this.hardware.manufacturer}.${parameter.name}.button`).indexOf('things.vendors.') === -1) {
-          return this.$t(`things.vendors.${this.hardware.manufacturer}.${parameter.name}.button`)
+    /**
+     * Translate parameter form label
+     *
+     * @returns {String}
+     */
+    translateLabel(parameter) {
+      if (this._.get(this.hardware, 'isCustom', true)) {
+        if (parameter.title !== null) {
+          return parameter.title
         }
 
         return parameter.name
-      },
+      }
 
-      /**
-       * Translate parameter field description
-       *
-       * @returns {(String|null)}
-       */
-      translateDescription(parameter) {
-        if (this._.get(this.hardware, 'isCustom', true)) {
-          if (parameter.description !== null) {
-            return parameter.description
-          }
+      if (!this.$t(`things.vendors.${this.hardware.manufacturer}.${parameter.name}.button`).includes('things.vendors.')) {
+        return this.$t(`things.vendors.${this.hardware.manufacturer}.${parameter.name}.button`)
+      }
 
-          return null
-        }
+      return parameter.name
+    },
 
-        if (this.$t(`things.vendors.${this.hardware.manufacturer}.${parameter.name}.description`).indexOf('things.vendors.') === -1) {
-          return this.$t(`things.vendors.${this.hardware.manufacturer}.${parameter.name}.description`)
+    /**
+     * Translate parameter field description
+     *
+     * @returns {(String|null)}
+     */
+    translateDescription(parameter) {
+      if (this._.get(this.hardware, 'isCustom', true)) {
+        if (parameter.description !== null) {
+          return parameter.description
         }
 
         return null
-      },
+      }
 
-      /**
-       * Parse parameter items for select box
-       *
-       * @returns {Array}
-       */
-      getParameterItems(parameter) {
-        const items = []
+      if (!this.$t(`things.vendors.${this.hardware.manufacturer}.${parameter.name}.description`).includes('things.vendors.')) {
+        return this.$t(`things.vendors.${this.hardware.manufacturer}.${parameter.name}.description`)
+      }
 
-        for (const key in parameter.values) {
-          if (parameter.values.hasOwnProperty(key)) {
-            items.push({
-              'value': parameter.values[key].value,
-              'name': this.$t(`things.vendors.${this.hardware.manufacturer}.${parameter.name}.values.${parameter.values[key].name}`),
-            })
-          }
+      return null
+    },
+
+    /**
+     * Parse parameter items for select box
+     *
+     * @returns {Array}
+     */
+    getParameterItems(parameter) {
+      const items = []
+
+      for (const key in parameter.values) {
+        if (Object.prototype.hasOwnProperty.call(parameter.values, key)) {
+          items.push({
+            value: parameter.values[key].value,
+            name: this.$t(`things.vendors.${this.hardware.manufacturer}.${parameter.name}.values.${parameter.values[key].name}`),
+          })
         }
+      }
 
-        return items
-      },
+      return items
+    },
 
-      /**
-       * Submit thing form
-       *
-       * @param {Object} event
-       */
-      submit(event) {
-        event && event.preventDefault()
+    /**
+     * Submit thing form
+     *
+     * @param {Object} event
+     */
+    submit(event) {
+      event && event.preventDefault()
 
-        this.$validator.validateAll(this.form.scope)
-          .then(result => {
-            if (result) {
-              this.parameters
-                .forEach(parameter => {
-                  if (this.form.model.hasOwnProperty(parameter.name)) {
-                    this.$store.dispatch('entities/device_configuration/edit', {
-                      device_id: this.thing.device_id,
-                      parameter_id: parameter.id,
-                      data: this._.get(this.form.model, parameter.name),
-                    }, {
-                      root: true,
-                    })
-                  }
-                })
+      this.$validator.validateAll(this.form.scope)
+        .then((result) => {
+          if (result) {
+            this.parameters
+              .forEach((parameter) => {
+                if (Object.prototype.hasOwnProperty.call(this.form.model, parameter.name)) {
+                  this.$store.dispatch('entities/device_configuration/edit', {
+                    device_id: this.thing.device_id,
+                    parameter_id: parameter.id,
+                    data: this._.get(this.form.model, parameter.name),
+                  }, {
+                    root: true,
+                  })
+                }
+              })
 
-              this.form.result = true
+            this.form.result = true
 
-              this.$timer.start('close')
-            } else {
-              this.$flashMessage(this.$t('application.messages.fixAllFormErrors'), 'info')
-            }
-          })
-          .catch(() => {
+            this.$timer.start('close')
+          } else {
             this.$flashMessage(this.$t('application.messages.fixAllFormErrors'), 'info')
-          })
-      },
-
-      /**
-       * Close thing credentials window
-       *
-       * @param {Object} event
-       */
-      close(event) {
-        event && event.preventDefault()
-
-        this._initModel()
-
-        this.$emit('close')
-      },
-
-      /**
-       * Initialize form model object
-       *
-       * @private
-       */
-      _initModel() {
-        this.parameters
-          .forEach(item => {
-            this.form.model[item.name] = item.value === null ? item.default : item.value
-          })
-
-        this.errors.clear(this.form.scope)
-      },
-
+          }
+        })
+        .catch(() => {
+          this.$flashMessage(this.$t('application.messages.fixAllFormErrors'), 'info')
+        })
     },
 
-    timers: {
-      close: {
-        time: 2000,
-      },
+    /**
+     * Close thing credentials window
+     *
+     * @param {Object} event
+     */
+    close(event) {
+      event && event.preventDefault()
+
+      this._initModel()
+
+      this.$emit('close')
     },
 
-  }
+    /**
+     * Initialize form model object
+     *
+     * @private
+     */
+    _initModel() {
+      this.parameters
+        .forEach((item) => {
+          this.form.model[item.name] = item.value === null ? item.default : item.value
+        })
+
+      this.errors.clear(this.form.scope)
+    },
+
+  },
+
+  timers: {
+    close: {
+      time: 2000,
+    },
+  },
+
+}
 </script>

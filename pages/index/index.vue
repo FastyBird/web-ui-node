@@ -23,37 +23,37 @@
 </template>
 
 <script>
-  import Gravatar from 'vue-gravatar'
+import Gravatar from 'vue-gravatar'
 
-  export default {
+export default {
 
-    name: 'IndexPage',
+  name: 'IndexPage',
 
-    components: {
-      Gravatar,
+  components: {
+    Gravatar,
+  },
+
+  middleware: 'authenticated',
+
+  transition: 'fade',
+
+  computed: {
+
+    profile() {
+      return this.$store.getters['entities/profile/query']().first()
     },
 
-    middleware: 'authenticated',
+  },
 
-    transition: 'fade',
+  created() {
+    this.$store.dispatch('header/resetStore', null, {
+      root: true,
+    })
 
-    computed: {
+    this.$store.dispatch('bottomNavigation/resetStore', null, {
+      root: true,
+    })
+  },
 
-      profile() {
-        return this.$store.getters['entities/profile/query']().first()
-      },
-
-    },
-
-    created() {
-      this.$store.dispatch('header/resetStore', null, {
-        root: true,
-      })
-
-      this.$store.dispatch('bottomNavigation/resetStore', null, {
-        root: true,
-      })
-    },
-
-  }
+}
 </script>

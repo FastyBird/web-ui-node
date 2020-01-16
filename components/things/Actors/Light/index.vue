@@ -189,307 +189,307 @@
 </template>
 
 <script>
-  import tinyColor from 'tinycolor2'
+import tinyColor from 'tinycolor2'
 
-  import VueSlider from 'vue-slider-component'
+import VueSlider from 'vue-slider-component'
 
-  export default {
+export default {
 
-    name: 'ThingsActorsLight',
+  name: 'ThingsActorsLight',
 
-    components: {
-      VueSlider,
+  components: {
+    VueSlider,
+  },
+
+  props: {
+
+    thing: {
+      type: Object,
+      required: true,
     },
 
-    props: {
-
-      thing: {
-        type: Object,
-        required: true,
-      },
-
-      channel: {
-        type: Object,
-        required: true,
-      },
-
+    channel: {
+      type: Object,
+      required: true,
     },
 
-    data() {
-      return {
-        activeTab: 'white',
-        slider: {
-          style: {
-            hue: {
-              background: '-webkit-gradient(linear, left top, right top, from(#f00), color-stop(17%, #ff0), color-stop(33%, #0f0), color-stop(50%, #0ff), color-stop(67%, #00f), color-stop(83%, #f0f), to(#f00))',
-              border: '1px solid #dcdcdc',
-            },
-            saturation: {
-              background: 'linear-gradient(to right, #232526, #f00)',
-              border: '1px solid #dcdcdc',
-            },
-            temperature: {
-              background: 'linear-gradient(to right, rgb(255, 168, 90), #fff)',
-              border: '1px solid #dcdcdc',
-            },
-            brightness: {
-              background: 'linear-gradient(to right, #232526, #fff)',
-              border: '1px solid #dcdcdc',
-            },
+  },
+
+  data() {
+    return {
+      activeTab: 'white',
+      slider: {
+        style: {
+          hue: {
+            background: '-webkit-gradient(linear, left top, right top, from(#f00), color-stop(17%, #ff0), color-stop(33%, #0f0), color-stop(50%, #0ff), color-stop(67%, #00f), color-stop(83%, #f0f), to(#f00))',
+            border: '1px solid #dcdcdc',
           },
-          model: {
-            brightness: 0,
-            color: {
-              h: 0,
-              s: 1,
-              l: 0.5,
-            },
-            white: 5500,
+          saturation: {
+            background: 'linear-gradient(to right, #232526, #f00)',
+            border: '1px solid #dcdcdc',
+          },
+          temperature: {
+            background: 'linear-gradient(to right, rgb(255, 168, 90), #fff)',
+            border: '1px solid #dcdcdc',
+          },
+          brightness: {
+            background: 'linear-gradient(to right, #232526, #fff)',
+            border: '1px solid #dcdcdc',
           },
         },
-        previewStyle: {
-          white: {
-            background: 'rgb(255, 221, 153)',
-          },
+        model: {
+          brightness: 0,
           color: {
-            background: 'hsl(0, 100%, 50%)',
+            h: 0,
+            s: 1,
+            l: 0.5,
           },
+          white: 5500,
         },
-        color: null,
-        disableUpdate: false,
+      },
+      previewStyle: {
+        white: {
+          background: 'rgb(255, 221, 153)',
+        },
+        color: {
+          background: 'hsl(0, 100%, 50%)',
+        },
+      },
+      color: null,
+      disableUpdate: false,
+    }
+  },
+
+  computed: {
+
+    /**
+     * Light channel switch state
+     *
+     * @returns {Boolean}
+     */
+    switchState() {
+      if (this.channel.stateProperty !== undefined) {
+        const propertyValue = this.$store.getters['entities/channel_property_value/query']()
+          .where('channel_id', this.channel.id)
+          .where('property_id', this.channel.stateProperty.id)
+          .first()
+
+        return propertyValue !== null ? !!propertyValue.value : false
+      }
+
+      return false
+    },
+
+    /**
+     * Thing light channel object
+     *
+     * @returns {Object}
+     */
+    channelData() {
+      return this.channel !== null ? this._getChannelValue() : null
+    },
+
+  },
+
+  created() {
+    if (this.channel.params.settings.rgb) {
+      this._setColorSelect()
+
+      this._colorizeSaturation()
+    }
+
+    if (this.channel.params.settings.white) {
+      this._setWhiteSelect()
+    } else {
+      this.activeTab = 'color'
+    }
+  },
+
+  methods: {
+
+    /**
+     * Close light update window
+     */
+    close() {
+      this.$emit('close')
+    },
+
+    /**
+     * Switch light settings tab
+     */
+    showTab(type) {
+      const that = this
+
+      switch (type) {
+        case 'white':
+          this.activeTab = type
+
+          this._setWhiteSelect()
+
+          setTimeout(() => {
+            that.$refs.whiteTemperature.refresh()
+          }, 50)
+          break
+
+        case 'color':
+          this.activeTab = type
+
+          this._setColorSelect()
+
+          setTimeout(() => {
+            that.$refs.colorHue.refresh()
+            that.$refs.colorSaturation.refresh()
+          }, 50)
+          break
       }
     },
 
-    computed: {
-
-      /**
-       * Light channel switch state
-       *
-       * @returns {Boolean}
-       */
-      switchState() {
-        if (this.channel.stateProperty !== undefined) {
-          const propertyValue = this.$store.getters['entities/channel_property_value/query']()
-            .where('channel_id', this.channel.id)
-            .where('property_id', this.channel.stateProperty.id)
-            .first()
-
-          return propertyValue !== null ? !!propertyValue.value : false
-        }
-
-        return false
-      },
-
-      /**
-       * Thing light channel object
-       *
-       * @returns {Object}
-       */
-      channelData() {
-        return this.channel !== null ? this._getChannelValue() : null
-      },
-
+    /**
+     * Update all values when one of color sliders is changed
+     */
+    colorChanged() {
+      this._colorizeSaturation()
     },
 
-    created() {
-      if (this.channel.params.settings.rgb) {
-        this._setColorSelect()
+    /**
+     * Send values to thing
+     */
+    sendColor() {
+      this.disableUpdate = true
 
-        this._colorizeSaturation()
-      }
+      let setColor = tinyColor(this.slider.model.color)
 
-      if (this.channel.params.settings.white) {
-        this._setWhiteSelect()
-      } else {
-        this.activeTab = 'color'
-      }
-    },
+      // Remap color brightness
+      setColor.r = this._map(setColor.r, 0, 255, 0, this.slider.model.brightness)
+      setColor.g = this._map(setColor.g, 0, 255, 0, this.slider.model.brightness)
+      setColor.b = this._map(setColor.b, 0, 255, 0, this.slider.model.brightness)
 
-    methods: {
+      setColor = tinyColor(setColor)
 
-      /**
-       * Close light update window
-       */
-      close() {
-        this.$emit('close')
-      },
+      const payload = Object.assign({}, this.channelData)
+      payload.rgb = setColor.toRgb()
 
-      /**
-       * Switch light settings tab
-       */
-      showTab(type) {
-        const that = this
-
-        switch (type) {
-          case 'white':
-            this.activeTab = type
-
-            this._setWhiteSelect()
-
-            setTimeout(() => {
-              that.$refs['whiteTemperature'].refresh()
-            }, 50)
-            break
-
-          case 'color':
-            this.activeTab = type
-
-            this._setColorSelect()
-
-            setTimeout(() => {
-              that.$refs['colorHue'].refresh()
-              that.$refs['colorSaturation'].refresh()
-            }, 50)
-            break
-        }
-      },
-
-      /**
-       * Update all values when one of color sliders is changed
-       */
-      colorChanged() {
-        this._colorizeSaturation()
-      },
-
-      /**
-       * Send values to thing
-       */
-      sendColor() {
-        this.disableUpdate = true
-
-        let setColor = tinyColor(this.slider.model.color)
-
-        // Remap color brightness
-        setColor.r = this._map(setColor.r, 0, 255, 0, this.slider.model.brightness)
-        setColor.g = this._map(setColor.g, 0, 255, 0, this.slider.model.brightness)
-        setColor.b = this._map(setColor.b, 0, 255, 0, this.slider.model.brightness)
-
-        setColor = tinyColor(setColor)
-
-        const payload = Object.assign({}, this.channelData)
-        payload.rgb = setColor.toRgb()
-
-        this.$store.dispatch('entities/channel_property_value/setPayload', {
-          value: payload,
-          device_id: this.thing.device_id,
-          channel_id: this.thing.channel_id,
-          property_id: this.clearTotal.property.id,
-        }, {
-          root: true,
+      this.$store.dispatch('entities/channel_property_value/setPayload', {
+        value: payload,
+        device_id: this.thing.device_id,
+        channel_id: this.thing.channel_id,
+        property_id: this.clearTotal.property.id,
+      }, {
+        root: true,
+      })
+        .then(() => {
+          this.disableUpdate = false
         })
-          .then(() => {
-            this.disableUpdate = false
-          })
-          .catch(() => {
-            this.disableUpdate = false
+        .catch(() => {
+          this.disableUpdate = false
 
-            this.$flashMessage(this.$t('things.messages.commandNotAccepted', {
-              thing: this.$tThing(this.thing),
-            }), 'error')
-          })
-      },
+          this.$flashMessage(this.$t('things.messages.commandNotAccepted', {
+            thing: this.$tThing(this.thing),
+          }), 'error')
+        })
+    },
 
-      /**
-       * Get channel socket value
-       *
-       * @param {(String|null)} [parameter]
-       *
-       * @returns {(String|Object|null)}
-       *
-       * @private
-       */
-      _getChannelValue(parameter) {
-        const channel = this.findSocketChannelById(this.channel.id)
+    /**
+     * Get channel socket value
+     *
+     * @param {(String|null)} [parameter]
+     *
+     * @returns {(String|Object|null)}
+     *
+     * @private
+     */
+    _getChannelValue(parameter) {
+      const channel = this.findSocketChannelById(this.channel.id)
 
-        if (channel !== null) {
-          if (typeof parameter === 'undefined') {
-            return channel.value.actual
-          }
+      if (channel !== null) {
+        if (typeof parameter === 'undefined') {
+          return channel.value.actual
+        }
 
-          let value = channel.value.actual[parameter]
+        let value = channel.value.actual[parameter]
 
-          if (parameter === 'state') {
-            if (typeof value !== 'boolean') {
-              switch (value) {
-                case '1':
-                case 'on':
-                case 1:
-                  value = true
-                  break
+        if (parameter === 'state') {
+          if (typeof value !== 'boolean') {
+            switch (value) {
+              case '1':
+              case 'on':
+              case 1:
+                value = true
+                break
 
-                case '0':
-                case 'off':
-                case 0:
-                  value = false
-                  break
-              }
+              case '0':
+              case 'off':
+              case 0:
+                value = false
+                break
             }
           }
-
-          return value
         }
 
-        return null
-      },
+        return value
+      }
 
-      /**
-       * Update color saturation preview
-       *
-       * @private
-       */
-      _colorizeSaturation() {
-        const saturationColor = tinyColor({
-          h: this.slider.model.color.h,
-          s: 1,
-          l: 0.5,
-          a: 1,
-        })
-
-        this.slider.style.saturation.background = `linear-gradient(to right, #232526, ${saturationColor.toHexString()})`
-      },
-
-      /**
-       * Update color sliders model for sliders
-       *
-       * @private
-       */
-      _setColorSelect() {
-        const setColor = tinyColor(this._getChannelValue('rgb'))
-
-        this.slider.model.color.h = setColor.toHsl().h
-        this.slider.model.color.s = setColor.toHsl().s
-        this.slider.model.color.l = setColor.toHsl().l
-      },
-
-      /**
-       * Update white sliders model for sliders
-       *
-       * @private
-       */
-      _setWhiteSelect() {
-        this.slider.model.white = this._getChannelValue('white')
-      },
-
-      /**
-       * Remap color value with brightness
-       *
-       * @param {Number} x
-       * @param {Number} inMin
-       * @param {Number} inMax
-       * @param {Number} outMin
-       * @param {Number} outMax
-       *
-       * @returns {Number}
-       *
-       * @private
-       */
-      _map(x, inMin, inMax, outMin, outMax) {
-        return (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin
-      },
-
+      return null
     },
 
-  }
+    /**
+     * Update color saturation preview
+     *
+     * @private
+     */
+    _colorizeSaturation() {
+      const saturationColor = tinyColor({
+        h: this.slider.model.color.h,
+        s: 1,
+        l: 0.5,
+        a: 1,
+      })
+
+      this.slider.style.saturation.background = `linear-gradient(to right, #232526, ${saturationColor.toHexString()})`
+    },
+
+    /**
+     * Update color sliders model for sliders
+     *
+     * @private
+     */
+    _setColorSelect() {
+      const setColor = tinyColor(this._getChannelValue('rgb'))
+
+      this.slider.model.color.h = setColor.toHsl().h
+      this.slider.model.color.s = setColor.toHsl().s
+      this.slider.model.color.l = setColor.toHsl().l
+    },
+
+    /**
+     * Update white sliders model for sliders
+     *
+     * @private
+     */
+    _setWhiteSelect() {
+      this.slider.model.white = this._getChannelValue('white')
+    },
+
+    /**
+     * Remap color value with brightness
+     *
+     * @param {Number} x
+     * @param {Number} inMin
+     * @param {Number} inMax
+     * @param {Number} outMin
+     * @param {Number} outMax
+     *
+     * @returns {Number}
+     *
+     * @private
+     */
+    _map(x, inMin, inMax, outMin, outMax) {
+      return (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin
+    },
+
+  },
+
+}
 </script>
 
 <style>

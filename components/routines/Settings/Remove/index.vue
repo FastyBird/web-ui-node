@@ -21,70 +21,70 @@
 </template>
 
 <script>
-  export default {
+export default {
 
-    name: 'RoutinesRemove',
+  name: 'RoutinesRemove',
 
-    props: {
+  props: {
 
-      routine: {
-        type: Object,
-        required: true,
-      },
-
-      transparentBg: {
-        type: Boolean,
-        default: false,
-      },
-
+    routine: {
+      type: Object,
+      required: true,
     },
 
-    mounted() {
-      this.$emit('loaded')
+    transparentBg: {
+      type: Boolean,
+      default: false,
     },
 
-    methods: {
+  },
 
-      /**
-       * Remove selected routine
-       *
-       * @param {Object} event
-       */
-      remove(event) {
-        event && event.preventDefault()
+  mounted() {
+    this.$emit('loaded')
+  },
 
-        const errorMessage = this.$t('routines.messages.notRemoved', {
-          routine: this.routine.name,
+  methods: {
+
+    /**
+     * Remove selected routine
+     *
+     * @param {Object} event
+     */
+    remove(event) {
+      event && event.preventDefault()
+
+      const errorMessage = this.$t('routines.messages.notRemoved', {
+        routine: this.routine.name,
+      })
+
+      this.$store.dispatch('entities/trigger/remove', {
+        id: this.routine.id,
+      }, {
+        root: true,
+      })
+        .catch((e) => {
+          if (Object.prototype.hasOwnProperty.call(e, 'exception')) {
+            this.handleFormError(e.exception, errorMessage)
+          } else {
+            this.$flashMessage(errorMessage, 'error')
+          }
         })
 
-        this.$store.dispatch('entities/trigger/remove', {
-          id: this.routine.id,
-        }, {
-          root: true,
-        })
-          .catch(e => {
-            if (e.hasOwnProperty('exception')) {
-              this.handleFormError(e.exception, errorMessage)
-            } else {
-              this.$flashMessage(errorMessage, 'error')
-            }
-          })
-
-        this.$emit('removed')
-      },
-
-      /**
-       * Close routine remove confirmation window
-       *
-       * @param {Object} event
-       */
-      close(event) {
-        event && event.preventDefault()
-
-        this.$emit('close')
-      },
-
+      this.$emit('removed')
     },
 
-  }
+    /**
+     * Close routine remove confirmation window
+     *
+     * @param {Object} event
+     */
+    close(event) {
+      event && event.preventDefault()
+
+      this.$emit('close')
+    },
+
+  },
+
+}
 </script>

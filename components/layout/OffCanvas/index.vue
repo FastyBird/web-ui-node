@@ -1,5 +1,6 @@
 <template>
   <div
+    ref="root"
     :class="['fb-off-canvas__container', {'show': show}]"
     @keyup.esc="close"
   >
@@ -14,43 +15,46 @@
   </div>
 </template>
 
-<script>
-  export default {
+<script lang="ts">
+import { createComponent, ref, watch } from '@vue/composition-api'
 
-    name: 'OffCanvas',
+export default createComponent({
 
-    props: {
+  name: 'OffCanvas',
 
-      show: {
-        type: Boolean,
-        default: false,
-      },
+  props: {
 
+    show: {
+      type: Boolean,
+      default: false,
     },
 
-    watch: {
+  },
 
-      show(val) {
-        if (val) {
-          this.$el.tabIndex = 1
+  setup(props, context) {
+    const root = ref(null);
 
-          this.$nextTick(function() {
-            this.$el.focus()
-          })
-        }
+    watch(() => props.show, (val: Boolean) => {
+      if (val && root.value) {
+        // @ts-ignore: Object is possibly 'null'.
+        root.value.tabIndex = 1;
+
+        context.root.$nextTick(() => {
+          // @ts-ignore: Object is possibly 'null'.
+          root.value.focus();
+        })
+      }
+    });
+
+    return {
+      root,
+      close: () => {
+        context.emit('close')
       },
+    }
+  },
 
-    },
-
-    methods: {
-
-      close() {
-        this.$emit('close')
-      },
-
-    },
-
-  }
+})
 </script>
 
 <style rel="stylesheet/scss" lang="scss">

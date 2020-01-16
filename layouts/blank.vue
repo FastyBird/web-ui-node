@@ -3,17 +3,17 @@
 </template>
 
 <script>
-  export default {
+export default {
 
-    name: 'LayoutBlank',
+  name: 'LayoutBlank',
 
-    head() {
-      return {
-        htmlAttrs: {
-          'data-layout': 'layout_blank',
-        },
-      }
-    },
+  head() {
+    return {
+      htmlAttrs: {
+        'data-layout': 'layout_blank',
+      },
+    }
+  },
 
-  }
+}
 </script>

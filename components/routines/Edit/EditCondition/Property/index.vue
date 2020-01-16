@@ -36,7 +36,7 @@
 
       <div
         v-else
-        class="fb-routines-edit-condition-thing__channel-property-combined-operands"
+        class="fb-routines-edit-condition-thing__channel-property-combined-operand"
       >
         <fb-form-select
           v-model="operatorModel"
@@ -56,191 +56,191 @@
 </template>
 
 <script>
-  export default {
+export default {
 
-    name: 'RoutinesEditEditConditionChannelsProperty',
+  name: 'RoutinesEditEditConditionChannelsProperty',
 
-    props: {
+  props: {
 
-      value: {
-        type: Object,
-        required: true,
-      },
-
-      thing: {
-        type: Object,
-        required: true,
-      },
-
-      property: {
-        type: Object,
-        required: true,
-      },
-
+    value: {
+      type: Object,
+      required: true,
     },
 
-    computed: {
-
-      operator() {
-        return [
-          {
-            value: 'below',
-            name: '<',
-          }, {
-            value: 'eq',
-            name: '=',
-          }, {
-            value: 'above',
-            name: '>',
-          },
-        ]
-      },
-
-      stateModel: {
-        get() {
-          const row = this._.get(this.value, 'rows', []).find(({ property_id }) => property_id === this.property.id)
-
-          if (typeof row !== 'undefined') {
-            return !!row.selected
-          }
-
-          return false
-        },
-        set(val) {
-          const parent = this.$parent || this.$root
-
-          if (parent) {
-            for (const j in this.value.rows) {
-              if (
-                this.value.rows.hasOwnProperty(j) &&
-                this.value.rows[j].property_id === this.property.id
-              ) {
-                this.value.rows[j].selected = val
-              }
-            }
-
-            parent.$emit.apply(parent, ['input'].concat([this.value]))
-          }
-        },
-      },
-
-      operandModel: {
-        get() {
-          const row = this._.get(this.value, 'rows', []).find(({ property_id }) => property_id === this.property.id)
-
-          if (typeof row !== 'undefined') {
-            return row.operand
-          }
-
-          return null
-        },
-        set(val) {
-          const parent = this.$parent || this.$root
-
-          if (parent) {
-            for (const j in this.value.rows) {
-              if (
-                this.value.rows.hasOwnProperty(j) &&
-                this.value.rows[j].property_id === this.property.id
-              ) {
-                this.value.rows[j].operand = val
-              }
-            }
-
-            parent.$emit.apply(parent, ['input'].concat([this.value]))
-          }
-        },
-      },
-
-      operatorModel: {
-        get() {
-          const row = this._.get(this.value, 'rows', []).find(({ property_id }) => property_id === this.property.id)
-
-          if (typeof row !== 'undefined') {
-            return row.operator
-          }
-
-          return null
-        },
-        set(val) {
-          const parent = this.$parent || this.$root
-
-          if (parent) {
-            for (const j in this.value.rows) {
-              if (
-                this.value.rows.hasOwnProperty(j) &&
-                this.value.rows[j].property_id === this.property.id
-              ) {
-                this.value.rows[j].operator = val
-              }
-            }
-
-            parent.$emit.apply(parent, ['input'].concat([this.value]))
-          }
-        },
-      },
-
-      actions() {
-        const options = []
-
-        if (this.property !== null) {
-          if (this.property.isNumber) {
-
-          } else if (this.property.isBoolean) {
-
-          } else if (this.property.isString) {
-
-          } else if (this.property.isEnum) {
-            const values = this.property.format.split(',')
-
-            for (const value of values) {
-              options.push({
-                value: value.trim(),
-                name: this.$te(`variations.${value.trim()}`) ? this.$t(`routines.variations.${value.trim()}`) : value.trim(),
-              })
-            }
-          }
-        }
-
-        return options
-      },
-
+    thing: {
+      type: Object,
+      required: true,
     },
 
-    watch: {
-
-      operandModel() {
-        if (this.stateModel === false) {
-          this.stateModel = !this.stateModel
-        }
-      },
-
+    property: {
+      type: Object,
+      required: true,
     },
 
-    methods: {
+  },
 
-      propertyChanged() {
-        this.operationModel = !this.operationModel
-      },
+  computed: {
 
-      toggleState(event) {
-        const path = this.getEventElementsPath(event)
+    operator() {
+      return [
+        {
+          value: 'below',
+          name: '<',
+        }, {
+          value: 'eq',
+          name: '=',
+        }, {
+          value: 'above',
+          name: '>',
+        },
+      ]
+    },
 
-        for (const pathItem of path) {
-          if (
-            typeof pathItem.getAttribute === 'function' &&
-            (
-              pathItem.tagName.toLowerCase() === 'input' || pathItem.tagName.toLowerCase() === 'select' || pathItem.tagName.toLowerCase() === 'label'
-            )
-          ) {
-            return
-          }
+    stateModel: {
+      get() {
+        const row = this._.get(this.value, 'rows', []).find(({ property_id }) => property_id === this.property.id)
+
+        if (typeof row !== 'undefined') {
+          return !!row.selected
         }
 
+        return false
+      },
+      set(val) {
+        const parent = this.$parent || this.$root
+
+        if (parent) {
+          for (const j in this.value.rows) {
+            if (
+              Object.prototype.hasOwnProperty.call(this.value.rows, j) &&
+              this.value.rows[j].property_id === this.property.id
+            ) {
+              this.value.rows[j].selected = val
+            }
+          }
+
+          parent.$emit.apply(parent, ['input'].concat([this.value]))
+        }
+      },
+    },
+
+    operandModel: {
+      get() {
+        const row = this._.get(this.value, 'rows', []).find(({ property_id }) => property_id === this.property.id)
+
+        if (typeof row !== 'undefined') {
+          return row.operand
+        }
+
+        return null
+      },
+      set(val) {
+        const parent = this.$parent || this.$root
+
+        if (parent) {
+          for (const j in this.value.rows) {
+            if (
+              Object.prototype.hasOwnProperty.call(this.value.rows, j) &&
+              this.value.rows[j].property_id === this.property.id
+            ) {
+              this.value.rows[j].operand = val
+            }
+          }
+
+          parent.$emit.apply(parent, ['input'].concat([this.value]))
+        }
+      },
+    },
+
+    operatorModel: {
+      get() {
+        const row = this._.get(this.value, 'rows', []).find(({ property_id }) => property_id === this.property.id)
+
+        if (typeof row !== 'undefined') {
+          return row.operator
+        }
+
+        return null
+      },
+      set(val) {
+        const parent = this.$parent || this.$root
+
+        if (parent) {
+          for (const j in this.value.rows) {
+            if (
+              Object.prototype.hasOwnProperty.call(this.value.rows, j) &&
+              this.value.rows[j].property_id === this.property.id
+            ) {
+              this.value.rows[j].operator = val
+            }
+          }
+
+          parent.$emit.apply(parent, ['input'].concat([this.value]))
+        }
+      },
+    },
+
+    actions() {
+      const options = []
+
+      if (this.property !== null) {
+        if (this.property.isNumber) {
+
+        } else if (this.property.isBoolean) {
+
+        } else if (this.property.isString) {
+
+        } else if (this.property.isEnum) {
+          const values = this.property.format.split(',')
+
+          for (const value of values) {
+            options.push({
+              value: value.trim(),
+              name: this.$te(`variations.${value.trim()}`) ? this.$t(`routines.variations.${value.trim()}`) : value.trim(),
+            })
+          }
+        }
+      }
+
+      return options
+    },
+
+  },
+
+  watch: {
+
+    operandModel() {
+      if (this.stateModel === false) {
         this.stateModel = !this.stateModel
-      },
-
+      }
     },
 
-  }
+  },
+
+  methods: {
+
+    propertyChanged() {
+      this.operationModel = !this.operationModel
+    },
+
+    toggleState(event) {
+      const path = this.getEventElementsPath(event)
+
+      for (const pathItem of path) {
+        if (
+          typeof pathItem.getAttribute === 'function' &&
+          (
+            pathItem.tagName.toLowerCase() === 'input' || pathItem.tagName.toLowerCase() === 'select' || pathItem.tagName.toLowerCase() === 'label'
+          )
+        ) {
+          return
+        }
+      }
+
+      this.stateModel = !this.stateModel
+    },
+
+  },
+
+}
 </script>

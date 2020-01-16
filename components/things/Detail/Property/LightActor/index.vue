@@ -88,76 +88,76 @@
     />
   </div>
 </template>
-..
+
 <script>
-  import VueSlider from 'vue-slider-component'
+import VueSlider from 'vue-slider-component'
 
-  import PropertyContainer from '../../PropertyContainer'
+import PropertyContainer from '../../PropertyContainer'
 
-  import SwitchActor from '@/components/things/Actors/Switch'
-  import LightActor from '@/components/things/Actors/Light'
+import SwitchActor from '@/components/things/Actors/Switch'
+import LightActor from '@/components/things/Actors/Light'
 
-  export default {
+export default {
 
-    name: 'ThingsDetailChannelLightActor',
+  name: 'ThingsDetailChannelLightActor',
 
-    components: {
-      PropertyContainer,
+  components: {
+    PropertyContainer,
 
-      SwitchActor,
-      LightActor,
+    SwitchActor,
+    LightActor,
 
-      VueSlider,
+    VueSlider,
+  },
+
+  props: {
+
+    thing: {
+      type: Object,
+      required: true,
     },
 
-    props: {
-
-      thing: {
-        type: Object,
-        required: true,
-      },
-
-      property: {
-        type: Object,
-        required: true,
-      },
-
+    property: {
+      type: Object,
+      required: true,
     },
 
-    data() {
-      return {
-        activeTab: 'white',
-        hasSwitch: this.channel.stateProperty !== undefined,
-        slider: {
-          style: {
-            brightness: {
-              background: 'linear-gradient(to right, #232526, #fff)',
-              border: '1px solid #dcdcdc',
-            },
-          },
-          model: {
-            brightness: 0,
+  },
+
+  data() {
+    return {
+      activeTab: 'white',
+      hasSwitch: this.channel.stateProperty !== undefined,
+      slider: {
+        style: {
+          brightness: {
+            background: 'linear-gradient(to right, #232526, #fff)',
+            border: '1px solid #dcdcdc',
           },
         },
-        show: {
-          light: false,
+        model: {
+          brightness: 0,
         },
-      }
+      },
+      show: {
+        light: false,
+      },
+    }
+  },
+
+  methods: {
+
+    showSettings() {
+      this.show.light = true
     },
 
-    methods: {
-
-      showSettings() {
-        this.show.light = true
-      },
-
-      closeSettings() {
-        this.show.light = false
-      },
-
+    closeSettings() {
+      this.show.light = false
     },
 
-  }
+  },
+
+}
 </script>
 
 <style>

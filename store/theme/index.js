@@ -7,4 +7,3 @@ export const getters = theme.getters
 export const actions = theme.actions
 
 export const mutations = theme.mutations
-

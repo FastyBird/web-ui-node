@@ -18,55 +18,55 @@
 </template>
 
 <script>
-  import PropertyContainer from '../../PropertyContainer'
+import PropertyContainer from '../../PropertyContainer'
 
-  export default {
+export default {
 
-    name: 'ThingsDetailPropertyBinarySensor',
+  name: 'ThingsDetailPropertyBinarySensor',
 
-    components: {
-      PropertyContainer,
+  components: {
+    PropertyContainer,
+  },
+
+  props: {
+
+    thing: {
+      type: Object,
+      required: true,
     },
 
-    props: {
-
-      thing: {
-        type: Object,
-        required: true,
-      },
-
-      property: {
-        type: Object,
-        required: true,
-      },
-
+    property: {
+      type: Object,
+      required: true,
     },
 
-    computed: {
+  },
 
-      /**
-       * Get property value
-       *
-       * @returns {Boolean}
-       */
-      propertyValue() {
-        const propertyValue = this.$store.getters['entities/channel_property_value/query']()
-          .where('channel_id', this.thing.channel_id)
-          .where('property_id', this.property.id)
-          .first()
+  computed: {
 
-        if (propertyValue) {
-          if (this.property.isBoolean) {
-            return !!propertyValue.value
-          } else if (this.property.isEnum) {
-            return propertyValue.value === 'on'
-          }
+    /**
+     * Get property value
+     *
+     * @returns {Boolean}
+     */
+    propertyValue() {
+      const propertyValue = this.$store.getters['entities/channel_property_value/query']()
+        .where('channel_id', this.thing.channel_id)
+        .where('property_id', this.property.id)
+        .first()
+
+      if (propertyValue) {
+        if (this.property.isBoolean) {
+          return !!propertyValue.value
+        } else if (this.property.isEnum) {
+          return propertyValue.value === 'on'
         }
+      }
 
-        return false
-      },
-
+      return false
     },
 
-  }
+  },
+
+}
 </script>

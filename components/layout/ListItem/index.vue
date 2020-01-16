@@ -45,39 +45,43 @@
   </div>
 </template>
 
-<script>
-  export default {
+<script lang="ts">
+import { createComponent } from '@vue/composition-api'
 
-    name: 'ListItem',
+export default createComponent({
 
-    props: {
+  name: 'ListItem',
 
-      showStatus: {
-        type: Boolean,
-        default: false,
-      },
+  props: {
 
-      status: {
-        type: Boolean,
-        default: false,
-      },
-
+    showStatus: {
+      type: Boolean,
+      default: false,
     },
 
-    methods: {
-
-      /**
-       * Double click and single click event handler
-       *
-       * @param {Object} event
-       */
-      oneClick(event) {
-        this.$emit('click', event)
-      },
-
+    status: {
+      type: Boolean,
+      default: false,
     },
 
-  }
+  },
+
+  setup(props, { emit }) {
+    /**
+     * Double click and single click event handler
+     *
+     * @param {Event} event
+     */
+    function oneClick(event: Event) {
+      emit('click', event)
+    }
+
+    return {
+      oneClick,
+    }
+  },
+
+})
 </script>
 
 <style rel="stylesheet/scss" lang="scss">

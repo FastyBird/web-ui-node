@@ -3,21 +3,21 @@
 </template>
 
 <script>
-  import RequestPassword from '@/components/account/RequestPassword'
+import RequestPassword from '@/components/account/RequestPassword'
 
-  export default {
+export default {
 
-    name: 'RequestPasswordPage',
+  name: 'RequestPasswordPage',
 
-    components: {
-      RequestPassword,
-    },
+  components: {
+    RequestPassword,
+  },
 
-    layout: 'sign',
+  layout: 'sign',
 
-    middleware: 'anonymous',
+  middleware: 'anonymous',
 
-    transition: 'fade',
+  transition: 'fade',
 
-  }
+}
 </script>

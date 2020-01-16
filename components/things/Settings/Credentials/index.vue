@@ -72,147 +72,147 @@
 </template>
 
 <script>
-  import {
-    MQTT_SERVER_ADDRESS,
-    MQTT_SERVER_PORT,
-  } from '@/configuration'
+import {
+  MQTT_SERVER_ADDRESS,
+  MQTT_SERVER_PORT,
+} from '@/configuration'
 
-  export default {
+export default {
 
-    name: 'ThingsSettingsThingCredentials',
+  name: 'ThingsSettingsThingCredentials',
 
-    props: {
+  props: {
 
-      thing: {
-        type: Object,
-        required: true,
-      },
-
-      transparentBg: {
-        type: Boolean,
-        default: false,
-      },
-
+    thing: {
+      type: Object,
+      required: true,
     },
 
-    data() {
-      return {
-        credentials: null,
-        form: {
-          scope: 'io_server_thing_edit_credentials',
-          model: {
-            username: null,
-            password: null,
-            server: MQTT_SERVER_ADDRESS,
-            port: MQTT_SERVER_PORT,
-          },
-          result: null,
+    transparentBg: {
+      type: Boolean,
+      default: false,
+    },
+
+  },
+
+  data() {
+    return {
+      credentials: null,
+      form: {
+        scope: 'io_server_thing_edit_credentials',
+        model: {
+          username: null,
+          password: null,
+          server: MQTT_SERVER_ADDRESS,
+          port: MQTT_SERVER_PORT,
         },
-      }
+        result: null,
+      },
+    }
+  },
+
+  created() {
+    this.credentials = this.$store.getters['entities/credentials/query']()
+      .where('device_id', this.thing.device_id)
+      .first()
+
+    this._initModel()
+
+    this.$validator.localize({
+      en: {
+        custom: {
+          username: {
+            required: this.$t('things.vendor.global.username.validation.required'),
+          },
+          password: {
+            required: this.$t('things.vendor.global.password.validation.required'),
+          },
+        },
+      },
+    })
+  },
+
+  mounted() {
+    this.$emit('loaded')
+  },
+
+  methods: {
+
+    /**
+     * Submit thing form
+     *
+     * @param {Object} event
+     */
+    submit(event) {
+      event && event.preventDefault()
+
+      this.$validator.validateAll(this.form.scope)
+        .then((result) => {
+          if (result) {
+            const errorMessage = this.$t('things.messages.notEdited', {
+              thing: this.$tThing(this.thing),
+            })
+
+            this.$store.dispatch('entities/device/edit', {
+              id: this.thing.device_id,
+              data: {
+                credentials: this.form.model,
+              },
+            }, {
+              root: true,
+            })
+              .catch((e) => {
+                if (this._.get(e, 'exception', null) !== null) {
+                  this.handleFormError(e.exception, errorMessage)
+                } else {
+                  this.$flashMessage(errorMessage, 'error')
+                }
+              })
+
+            this.form.result = true
+
+            this.$timer.start('close')
+          } else {
+            this.$flashMessage(this.$t('application.messages.fixAllFormErrors'), 'info')
+          }
+        })
+        .catch(() => {
+          this.$flashMessage(this.$t('application.messages.fixAllFormErrors'), 'info')
+        })
     },
 
-    created() {
-      this.credentials = this.$store.getters['entities/credentials/query']()
-        .where('device_id', this.thing.device_id)
-        .first()
+    /**
+     * Close thing credentials window
+     *
+     * @param {Object} event
+     */
+    close(event) {
+      event && event.preventDefault()
 
       this._initModel()
 
-      this.$validator.localize({
-        en: {
-          custom: {
-            username: {
-              required: this.$t('things.vendor.global.username.validation.required'),
-            },
-            password: {
-              required: this.$t('things.vendor.global.password.validation.required'),
-            },
-          },
-        },
-      })
+      this.$emit('close')
     },
 
-    mounted() {
-      this.$emit('loaded')
+    /**
+     * Initialize form model object
+     *
+     * @private
+     */
+    _initModel() {
+      this.form.model.username = this.credentials.username
+      this.form.model.password = this.credentials.password
+
+      this.errors.clear(this.form.scope)
     },
 
-    methods: {
+  },
 
-      /**
-       * Submit thing form
-       *
-       * @param {Object} event
-       */
-      submit(event) {
-        event && event.preventDefault()
-
-        this.$validator.validateAll(this.form.scope)
-          .then(result => {
-            if (result) {
-              const errorMessage = this.$t('things.messages.notEdited', {
-                thing: this.$tThing(this.thing),
-              })
-
-              this.$store.dispatch('entities/device/edit', {
-                id: this.thing.device_id,
-                data: {
-                  credentials: this.form.model,
-                },
-              }, {
-                root: true,
-              })
-                .catch(e => {
-                  if (this._.get(e, 'exception', null) !== null) {
-                    this.handleFormError(e.exception, errorMessage)
-                  } else {
-                    this.$flashMessage(errorMessage, 'error')
-                  }
-                })
-
-              this.form.result = true
-
-              this.$timer.start('close')
-            } else {
-              this.$flashMessage(this.$t('application.messages.fixAllFormErrors'), 'info')
-            }
-          })
-          .catch(() => {
-            this.$flashMessage(this.$t('application.messages.fixAllFormErrors'), 'info')
-          })
-      },
-
-      /**
-       * Close thing credentials window
-       *
-       * @param {Object} event
-       */
-      close(event) {
-        event && event.preventDefault()
-
-        this._initModel()
-
-        this.$emit('close')
-      },
-
-      /**
-       * Initialize form model object
-       *
-       * @private
-       */
-      _initModel() {
-        this.form.model.username = this.credentials.username
-        this.form.model.password = this.credentials.password
-
-        this.errors.clear(this.form.scope)
-      },
-
+  timers: {
+    close: {
+      time: 2000,
     },
+  },
 
-    timers: {
-      close: {
-        time: 2000,
-      },
-    },
-
-  }
+}
 </script>

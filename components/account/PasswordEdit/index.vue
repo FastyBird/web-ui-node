@@ -77,163 +77,152 @@
 </template>
 
 <script>
-  export default {
+export default {
 
-    name: 'PasswordEdit',
+  name: 'PasswordEdit',
 
-    props: {
+  props: {
 
-      account: {
-        type: Object,
-        required: true,
+    account: {
+      type: Object,
+      required: true,
+    },
+
+  },
+
+  data() {
+    return {
+      form: {
+        scope: 'account_password_edit',
+        model: {
+          password: {
+            current: '',
+            new: '',
+            repeat: '',
+          },
+        },
       },
+    }
+  },
 
-    },
+  created() {
+    this._initModel()
 
-    data() {
-      return {
-        form: {
-          scope: 'account_password_edit',
-          model: {
-            password: {
-              current: '',
-              new: '',
-              repeat: '',
-            },
+    this.$validator.localize({
+      en: {
+        custom: {
+          current_password: {
+            required: this.$t('field.password.current.validation.required'),
+          },
+          new_password: {
+            required: this.$t('field.password.new.validation.required'),
+          },
+          repeat_password: {
+            required: this.$t('field.password.repeat.validation.required'),
           },
         },
-      }
-    },
+      },
+    })
 
-    created() {
-      this._initModel()
+    this.$validator.extend('checkCurrentPassword', {
+      validate: this.checkCurrentPassword,
+      getMessage: (field, params, data) => {
+        return this._.get(data, 'message', '')
+      },
+    })
+  },
 
-      this.$validator.localize({
-        en: {
-          custom: {
-            current_password: {
-              required: this.$t('field.password.current.validation.required'),
-            },
-            new_password: {
-              required: this.$t('field.password.new.validation.required'),
-            },
-            repeat_password: {
-              required: this.$t('field.password.repeat.validation.required'),
-            },
-          },
-        },
+  methods: {
+
+    /**
+     * Check if provided current password is correct
+     *
+     * @param {String} value
+     *
+     * @returns {Object}
+     */
+    checkCurrentPassword(value) {
+      return this.$store.dispatch('entities/account/validatePassword', {
+        password: value,
+      }, {
+        root: true,
       })
-
-      this.$validator.extend('checkCurrentPassword', {
-        validate: this.checkCurrentPassword,
-        getMessage: (field, params, data) => {
-          return this._.get(data, 'message', '')
-        },
-      })
-    },
-
-    methods: {
-
-      /**
-       * Check if provided current password is correct
-       *
-       * @param {String} value
-       *
-       * @returns {Object}
-       */
-      checkCurrentPassword(value) {
-        return this.$store.dispatch('entities/account/validatePassword', {
-          password: value,
-        }, {
-          root: true,
+        .then(() => {
+          return {
+            valid: true,
+          }
         })
-          .then(() => {
-            return {
-              valid: true,
-            }
-          })
-          .catch(e => {
-            if (this._.get(e, 'response', null) !== null && this._.get(e, 'response.data.errors', null) !== null) {
-              this._.get(e, 'response.data.errors', [])
-                .forEach(error => {
-                  if (parseInt(this._.get(error, 'code', 0), 10) === 422) {
-                    return {
-                      valid: false,
-                      data: {
-                        message: this._.get(error, 'detail'),
-                      },
-                    }
+        .catch((e) => {
+          if (this._.get(e, 'response', null) !== null && this._.get(e, 'response.data.errors', null) !== null) {
+            this._.get(e, 'response.data.errors', [])
+              .forEach((error) => {
+                if (parseInt(this._.get(error, 'code', 0), 10) === 422) {
+                  return {
+                    valid: false,
+                    data: {
+                      message: this._.get(error, 'detail'),
+                    },
                   }
-                })
-            }
+                }
+              })
+          }
 
-            return {
-              valid: false,
-              data: {
-                message: this.$t('application.messages.valueIsNotValid'),
+          return {
+            valid: false,
+            data: {
+              message: this.$t('application.messages.valueIsNotValid'),
+            },
+          }
+        })
+    },
+
+    /**
+     * Submit form values
+     *
+     * @param {Object} event
+     */
+    submit(event) {
+      event && event.preventDefault()
+
+      this.$validator.validateAll(this.form.scope)
+        .then((result) => {
+          if (result) {
+            const errorMessage = this.$t('messages.passwordNotEdited')
+
+            this.$store.dispatch('entities/account/changePassword', {
+              current_password: this.form.model.password.current,
+              new_password: this.form.model.password.new,
+            }, {
+              root: true,
+            })
+              .catch((e) => {
+                if (this._.get(e, 'exception', null) !== null) {
+                  this.handleFormError(e.exception, errorMessage)
+                } else {
+                  this.$toasted.error(errorMessage, {
+                    action: {
+                      text: this.$t('application.buttons.close.title'),
+                      onClick: (evnt, toastObject) => {
+                        toastObject.goAway(0)
+                      },
+                    },
+                  })
+                }
+              })
+
+            this.$toasted.success(this.$t('messages.passwordEdited'), {
+              action: {
+                text: this.$t('application.buttons.close.title'),
+                onClick: (evnt, toastObject) => {
+                  toastObject.goAway(0)
+                },
               },
-            }
-          })
-      },
+            })
 
-      /**
-       * Submit form values
-       *
-       * @param {Object} event
-       */
-      submit(event) {
-        event && event.preventDefault()
+            this._initModel()
 
-        this.$validator.validateAll(this.form.scope)
-          .then(result => {
-            if (result) {
-              const errorMessage = this.$t('messages.passwordNotEdited')
-
-              this.$store.dispatch('entities/account/changePassword', {
-                current_password: this.form.model.password.current,
-                new_password: this.form.model.password.new,
-              }, {
-                root: true,
-              })
-                .catch(e => {
-                  if (this._.get(e, 'exception', null) !== null) {
-                    this.handleFormError(e.exception, errorMessage)
-                  } else {
-                    this.$toasted.error(errorMessage, {
-                      action: {
-                        text: this.$t('application.buttons.close.title'),
-                        onClick: (evnt, toastObject) => {
-                          toastObject.goAway(0)
-                        },
-                      },
-                    })
-                  }
-                })
-
-              this.$toasted.success(this.$t('messages.passwordEdited'), {
-                action: {
-                  text: this.$t('application.buttons.close.title'),
-                  onClick: (evnt, toastObject) => {
-                    toastObject.goAway(0)
-                  },
-                },
-              })
-
-              this._initModel()
-
-              this.$emit('close', false)
-            } else {
-              this.$toasted.info(this.$t('application.messages.fixAllFormErrors'), {
-                action: {
-                  text: this.$t('application.buttons.close.title'),
-                  onClick: (evnt, toastObject) => {
-                    toastObject.goAway(0)
-                  },
-                },
-              })
-            }
-          })
-          .catch(() => {
+            this.$emit('close', false)
+          } else {
             this.$toasted.info(this.$t('application.messages.fixAllFormErrors'), {
               action: {
                 text: this.$t('application.buttons.close.title'),
@@ -242,42 +231,53 @@
                 },
               },
             })
+          }
+        })
+        .catch(() => {
+          this.$toasted.info(this.$t('application.messages.fixAllFormErrors'), {
+            action: {
+              text: this.$t('application.buttons.close.title'),
+              onClick: (evnt, toastObject) => {
+                toastObject.goAway(0)
+              },
+            },
           })
-      },
-
-      /**
-       * Close account edit window
-       *
-       * @param {Object} event
-       */
-      close(event) {
-        event && event.preventDefault()
-
-        this._initModel()
-
-        this.$emit('close', false)
-      },
-
-      /**
-       * Initialize form model object
-       *
-       * @private
-       */
-      _initModel() {
-        this.form.model = {
-          password: {
-            current: '',
-            new: '',
-            repeat: '',
-          },
-        }
-
-        this.errors.clear(this.form.scope)
-      },
-
+        })
     },
 
-  }
+    /**
+     * Close account edit window
+     *
+     * @param {Object} event
+     */
+    close(event) {
+      event && event.preventDefault()
+
+      this._initModel()
+
+      this.$emit('close', false)
+    },
+
+    /**
+     * Initialize form model object
+     *
+     * @private
+     */
+    _initModel() {
+      this.form.model = {
+        password: {
+          current: '',
+          new: '',
+          repeat: '',
+        },
+      }
+
+      this.errors.clear(this.form.scope)
+    },
+
+  },
+
+}
 </script>
 
 <i18n src="./locales.json" />

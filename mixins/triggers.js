@@ -15,7 +15,7 @@ export default {
       const conditions = []
 
       this._.get(trigger, 'conditions', [])
-        .forEach(condition => {
+        .forEach((condition) => {
           if (typeof conditions.find(({ channel_id }) => channel_id === condition.channel_id) === 'undefined') {
             conditions.push({
               thing: condition.channel_id,
@@ -28,13 +28,13 @@ export default {
         })
 
       for (const i in conditions) {
-        if (conditions.hasOwnProperty(i)) {
-          this._.filter(this._.get(trigger, 'conditions', []), { 'channel_id': conditions[i].channel_id })
-            .forEach(condition => {
+        if (Object.prototype.hasOwnProperty.call(conditions, i)) {
+          this._.filter(this._.get(trigger, 'conditions', []), { channel_id: conditions[i].channel_id })
+            .forEach((condition) => {
               conditions[i].rows.push({
                 condition_id: condition.id,
                 property_id: condition.property_id,
-                operands: condition.operands,
+                operand: condition.operand,
                 operator: condition.operator,
               })
             })
@@ -61,7 +61,7 @@ export default {
       const actions = []
 
       this._.get(trigger, 'actions', [])
-        .forEach(action => {
+        .forEach((action) => {
           if (typeof actions.find(({ channel_id }) => channel_id === action.channel_id) === 'undefined') {
             actions.push({
               thing: action.channel_id,
@@ -74,9 +74,9 @@ export default {
         })
 
       for (const i in actions) {
-        if (actions.hasOwnProperty(i)) {
-          this._.filter(this._.get(trigger, 'actions', []), { 'channel_id': actions[i].channel_id })
-            .forEach(action => {
+        if (Object.prototype.hasOwnProperty.call(actions, i)) {
+          this._.filter(this._.get(trigger, 'actions', []), { channel_id: actions[i].channel_id })
+            .forEach((action) => {
               actions[i].rows.push({
                 action_id: action.id,
                 property_id: action.property_id,
@@ -103,7 +103,7 @@ export default {
      */
     changeConditionState(condition, state) {
       this._.get(condition, 'rows', [])
-        .forEach(row => {
+        .forEach((row) => {
           this.$store.dispatch('entities/condition/edit', {
             id: row.condition_id,
             data: {
@@ -112,10 +112,10 @@ export default {
           }, {
             root: true,
           })
-            .catch(e => {
+            .catch((e) => {
               const errorMessage = this.$t('triggers.messages.conditionNotUpdated')
 
-              if (e.hasOwnProperty('exception')) {
+              if (Object.prototype.hasOwnProperty.call(e, 'exception')) {
                 this.handleFormError(e.exception, errorMessage)
               } else {
                 this.$flashMessage(errorMessage, 'error')
@@ -132,7 +132,7 @@ export default {
      */
     changeActionState(action, state) {
       this._.get(action, 'rows', [])
-        .forEach(row => {
+        .forEach((row) => {
           this.$store.dispatch('entities/action/edit', {
             id: row.action_id,
             data: {
@@ -141,10 +141,10 @@ export default {
           }, {
             root: true,
           })
-            .catch(e => {
+            .catch((e) => {
               const errorMessage = this.$t('triggers.messages.actionNotUpdated')
 
-              if (e.hasOwnProperty('exception')) {
+              if (Object.prototype.hasOwnProperty.call(e, 'exception')) {
                 this.handleFormError(e.exception, errorMessage)
               } else {
                 this.$flashMessage(errorMessage, 'error')
@@ -160,16 +160,16 @@ export default {
      */
     removeCondition(condition) {
       this._.get(condition, 'rows', [])
-        .forEach(row => {
+        .forEach((row) => {
           this.$store.dispatch('entities/condition/remove', {
             id: row.condition_id,
           }, {
             root: true,
           })
-            .catch(e => {
+            .catch((e) => {
               const errorMessage = this.$t('triggers.messages.conditionNotRemoved')
 
-              if (e.hasOwnProperty('exception')) {
+              if (Object.prototype.hasOwnProperty.call(e, 'exception')) {
                 this.handleFormError(e.exception, errorMessage)
               } else {
                 this.$flashMessage(errorMessage, 'error')
@@ -185,16 +185,16 @@ export default {
      */
     removeAction(action) {
       this._.get(action, 'rows', [])
-        .forEach(row => {
+        .forEach((row) => {
           this.$store.dispatch('entities/action/remove', {
             id: row.action_id,
           }, {
             root: true,
           })
-            .catch(e => {
+            .catch((e) => {
               const errorMessage = this.$t('triggers.messages.actionNotRemoved')
 
-              if (e.hasOwnProperty('exception')) {
+              if (Object.prototype.hasOwnProperty.call(e, 'exception')) {
                 this.handleFormError(e.exception, errorMessage)
               } else {
                 this.$flashMessage(errorMessage, 'error')

@@ -77,7 +77,7 @@ export default class BrowserWinHandler {
   }
 
   created() {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       this._eventEmitter.once('created', () => {
         resolve(this.browserWindow)
       })

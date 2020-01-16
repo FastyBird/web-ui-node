@@ -49,182 +49,182 @@
 </template>
 
 <script>
-  import { orderBy } from 'natural-orderby'
+import { orderBy } from 'natural-orderby'
 
-  export default {
+export default {
 
-    name: 'RoutinesEditSelectThing',
+  name: 'RoutinesEditSelectThing',
 
-    props: {
+  props: {
 
-      items: {
-        type: Array,
-        default: () => {
-          return []
-        },
-        validator: (value) => {
-          value.forEach(item => {
-            if (!item.hasOwnProperty('thing')) {
-              return false
-            }
-          })
-
-          return true
-        },
+    items: {
+      type: Array,
+      default: () => {
+        return []
       },
-
-      onlySettable: {
-        type: Boolean,
-        default: false,
-      },
-
-    },
-
-    computed: {
-
-      /**
-       * Find all registered things with settable properties
-       *
-       * @returns {Array}
-       */
-      things() {
-        let things = this.$store.getters['entities/thing/query']()
-          .with('device')
-          .with('channel')
-          .with('channel.properties')
-          .all()
-
-        if (this.onlySettable) {
-          things = this._.filter(things, thing => {
-            const properties = this._.get(thing, 'channel.properties', [])
-              .filter(property => {
-                return property.is_settable
-              })
-
-            return typeof properties !== 'undefined' && properties.length
-          })
-        }
-
-        return orderBy(
-          things,
-          [
-            v => this.$tThing(v),
-            v => this.$tThingDevice(v),
-          ],
-          ['asc'],
-        )
-      },
-
-      /**
-       * Flag signalizing that things are loading from server
-       *
-       * @returns {Boolean}
-       */
-      fetchingThings() {
-        return this.$store.getters['entities/thing/fetching']()
-      },
-
-    },
-
-    beforeMount() {
-      if (
-        this.$store.getters['entities/thing/query']().count() === 0 &&
-        !this.fetchingThings &&
-        !this.$store.getters['entities/thing/firstLoadFinished']()
-      ) {
-        this.$store.dispatch('entities/thing/fetch', {}, {
-          root: true,
+      validator: (value) => {
+        value.forEach((item) => {
+          if (!Object.prototype.hasOwnProperty.call(item, 'thing')) {
+            return false
+          }
         })
-          .catch(() => {
-            this.$nuxt.error({ statusCode: 503, message: 'Something went wrong' })
-          })
+
+        return true
+      },
+    },
+
+    onlySettable: {
+      type: Boolean,
+      default: false,
+    },
+
+  },
+
+  computed: {
+
+    /**
+     * Find all registered things with settable properties
+     *
+     * @returns {Array}
+     */
+    things() {
+      let things = this.$store.getters['entities/thing/query']()
+        .with('device')
+        .with('channel')
+        .with('channel.properties')
+        .all()
+
+      if (this.onlySettable) {
+        things = this._.filter(things, (thing) => {
+          const properties = this._.get(thing, 'channel.properties', [])
+            .filter((property) => {
+              return property.is_settable
+            })
+
+          return typeof properties !== 'undefined' && properties.length
+        })
       }
+
+      return orderBy(
+        things,
+        [
+          v => this.$tThing(v),
+          v => this.$tThingDevice(v),
+        ],
+        ['asc'],
+      )
     },
 
-    created() {
-      this.$store.dispatch('header/resetStore', null, {
-        root: true,
-      })
-
-      this.$store.dispatch('header/setLeftButton', {
-        name: this.$t('application.buttons.back.title'),
-        callback: () => {
-          this.close()
-        },
-        icon: 'arrow-left',
-      }, {
-        root: true,
-      })
-
-      this.$store.dispatch('header/hideRightButton', null, {
-        root: true,
-      })
-
-      this.$store.dispatch('header/setFullRowHeading', null, {
-        root: true,
-      })
-
-      this.$store.dispatch('header/setHeading', {
-        heading: this.$t('routines.headings.selectThing'),
-      }, {
-        root: true,
-      })
-
-      this.$store.dispatch('header/setHeadingIcon', {
-        icon: 'plug',
-      }, {
-        root: true,
-      })
-
-      this.$store.dispatch('bottomNavigation/resetStore', null, {
-        root: true,
-      })
-
-      this.$store.dispatch('bottomNavigation/hideNavigation', null, {
-        root: true,
-      })
+    /**
+     * Flag signalizing that things are loading from server
+     *
+     * @returns {Boolean}
+     */
+    fetchingThings() {
+      return this.$store.getters['entities/thing/fetching']()
     },
 
-    mounted() {
-      this.$emit('loaded')
-    },
+  },
 
-    methods: {
+  beforeMount() {
+    if (
+      this.$store.getters['entities/thing/query']().count() === 0 &&
+      !this.fetchingThings &&
+      !this.$store.getters['entities/thing/firstLoadFinished']()
+    ) {
+      this.$store.dispatch('entities/thing/fetch', {}, {
+        root: true,
+      })
+        .catch(() => {
+          this.$nuxt.error({ statusCode: 503, message: 'Something went wrong' })
+        })
+    }
+  },
 
-      /**
-       * Close select thing window
-       *
-       * @param {Object} event
-       */
-      close(event) {
-        event && event.preventDefault()
+  created() {
+    this.$store.dispatch('header/resetStore', null, {
+      root: true,
+    })
 
-        this.$emit('close')
+    this.$store.dispatch('header/setLeftButton', {
+      name: this.$t('application.buttons.back.title'),
+      callback: () => {
+        this.close()
       },
+      icon: 'arrow-left',
+    }, {
+      root: true,
+    })
 
-      /**
-       * Thing selected
-       *
-       * @param {Thing} thing
-       */
-      select(thing) {
-        this.$emit('select', thing)
-      },
+    this.$store.dispatch('header/hideRightButton', null, {
+      root: true,
+    })
 
-      /**
-       * Check if thing is already in list
-       *
-       * @param {Thing} thing
-       */
-      isSelected(thing) {
-        return typeof this.items.find(item => {
-          return item.thing === thing.id
-        }) !== 'undefined'
-      },
+    this.$store.dispatch('header/setFullRowHeading', null, {
+      root: true,
+    })
 
+    this.$store.dispatch('header/setHeading', {
+      heading: this.$t('routines.headings.selectThing'),
+    }, {
+      root: true,
+    })
+
+    this.$store.dispatch('header/setHeadingIcon', {
+      icon: 'plug',
+    }, {
+      root: true,
+    })
+
+    this.$store.dispatch('bottomNavigation/resetStore', null, {
+      root: true,
+    })
+
+    this.$store.dispatch('bottomNavigation/hideNavigation', null, {
+      root: true,
+    })
+  },
+
+  mounted() {
+    this.$emit('loaded')
+  },
+
+  methods: {
+
+    /**
+     * Close select thing window
+     *
+     * @param {Object} event
+     */
+    close(event) {
+      event && event.preventDefault()
+
+      this.$emit('close')
     },
 
-  }
+    /**
+     * Thing selected
+     *
+     * @param {Thing} thing
+     */
+    select(thing) {
+      this.$emit('select', thing)
+    },
+
+    /**
+     * Check if thing is already in list
+     *
+     * @param {Thing} thing
+     */
+    isSelected(thing) {
+      return typeof this.items.find((item) => {
+        return item.thing === thing.id
+      }) !== 'undefined'
+    },
+
+  },
+
+}
 </script>
 
 <style rel="stylesheet/scss" lang="scss">

@@ -54,57 +54,57 @@
 </template>
 
 <script>
-  export default {
+export default {
 
-    name: 'ThingsSettingsDeviceParameter',
+  name: 'ThingsSettingsDeviceParameter',
 
-    props: {
+  props: {
 
-      thing: {
-        type: Object,
-        required: true,
-      },
-
-      parameter: {
-        type: Object,
-        required: true,
-      },
-
-      hardware: {
-        type: Object,
-        required: true,
-      },
-
-      loading: {
-        type: Boolean,
-        default: false,
-      },
-
+    thing: {
+      type: Object,
+      required: true,
     },
 
-    computed: {
+    parameter: {
+      type: Object,
+      required: true,
+    },
 
-      /**
-       * Parse parameter items for select box
-       *
-       * @returns {String}
-       */
-      selectValue() {
-        for (const key in this.parameter.values) {
-          // eslint-disable-next-line
-          if (this.parameter.values.hasOwnProperty(key) && this.parameter.values[key].value == this.parameter.value) {
-            if (this.$t(`things.vendors.${this.hardware.manufacturer}.${this.parameter.name}.values.${this.parameter.values[key].name}`).indexOf('things.vendors.') === -1) {
-              return this.$t(`things.vendors.${this.hardware.manufacturer}.${this.parameter.name}.values.${this.parameter.values[key].name}`)
-            } else {
-              return this.parameter.value
-            }
+    hardware: {
+      type: Object,
+      required: true,
+    },
+
+    loading: {
+      type: Boolean,
+      default: false,
+    },
+
+  },
+
+  computed: {
+
+    /**
+     * Parse parameter items for select box
+     *
+     * @returns {String}
+     */
+    selectValue() {
+      for (const key in this.parameter.values) {
+        // eslint-disable-next-line
+        if (this.parameter.values.hasOwnProperty(key) && this.parameter.values[key].value == this.parameter.value) {
+          if (!this.$t(`things.vendors.${this.hardware.manufacturer}.${this.parameter.name}.values.${this.parameter.values[key].name}`).includes('things.vendors.')) {
+            return this.$t(`things.vendors.${this.hardware.manufacturer}.${this.parameter.name}.values.${this.parameter.values[key].name}`)
+          } else {
+            return this.parameter.value
           }
         }
+      }
 
-        return this.parameter.value
-      },
-
+      return this.parameter.value
     },
 
-  }
+  },
+
+}
 </script>

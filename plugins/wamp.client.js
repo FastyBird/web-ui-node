@@ -32,7 +32,7 @@ WampV1.prototype.open = function() {
 
     // Connection established with WS server
     this.socket.addEventListener('open', () => {
-      if (this.eventsListeners.hasOwnProperty('onopen') && this.eventsListeners.onopen instanceof Array) {
+      if (Object.prototype.hasOwnProperty.call(this.eventsListeners, 'onopen') && Array.isArray(this.eventsListeners.onopen)) {
         for (let i = 0, len = this.eventsListeners.onopen.length; i < len; i++) {
           this.eventsListeners.onopen[i].call()
         }
@@ -51,7 +51,7 @@ WampV1.prototype.open = function() {
     this.socket.addEventListener('close', (event) => {
       let callbacks = []
 
-      if (this.eventsListeners.hasOwnProperty('onclose') && this.eventsListeners.onclose instanceof Array) {
+      if (Object.prototype.hasOwnProperty.call(this.eventsListeners, 'onclose') && Array.isArray(this.eventsListeners.onclose)) {
         callbacks = this.eventsListeners.onclose
       }
 
@@ -103,7 +103,7 @@ WampV1.prototype.open = function() {
 
           this.log(`Connected! ${this.sessionId} : ${version} : ${server}`)
 
-          if (this.eventsListeners.hasOwnProperty('onconnect') && this.eventsListeners.onconnect instanceof Array) {
+          if (Object.prototype.hasOwnProperty.call(this.eventsListeners, 'onconnect') && Array.isArray(this.eventsListeners.onconnect)) {
             for (let i = 0, len = this.eventsListeners.onconnect.length; i < len; i++) {
               this.eventsListeners.onconnect[i].call()
             }
@@ -130,6 +130,7 @@ WampV1.prototype.open = function() {
         // Call result
         case 3:
         // Call error
+        // eslint-disable-next-line
         case 4:
           const callId = message[0]
           const promise = this.rpcCalls[callId]
@@ -152,7 +153,7 @@ WampV1.prototype.open = function() {
 
         // Event
         case 8:
-          if (this.subscriptions.hasOwnProperty(message[0])) {
+          if (Object.prototype.hasOwnProperty.call(this.subscriptions, message[0])) {
             this.subscriptions[message[0]](message[1])
           }
           break
@@ -260,7 +261,7 @@ WampV1.prototype.call = function(topic) {
           reject,
         }
       })
-      .catch(e => {
+      .catch((e) => {
         reject(e)
       })
   })
@@ -275,7 +276,7 @@ WampV1.prototype.on = function(type, listener) {
 }
 
 WampV1.prototype.off = function(type, listener) {
-  if (this.eventsListeners[`on${type}`] instanceof Array) {
+  if (Array.isArray(this.eventsListeners[`on${type}`])) {
     const listeners = this.eventsListeners[`on${type}`]
 
     for (let i = 0, len = listeners.length; i < len; i++) {

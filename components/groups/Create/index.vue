@@ -127,112 +127,112 @@
 </template>
 
 <script>
-  export default {
+export default {
 
-    name: 'GroupsCreate',
+  name: 'GroupsCreate',
 
-    props: {
+  props: {
 
-      transparentBg: {
-        type: Boolean,
-        default: false,
+    transparentBg: {
+      type: Boolean,
+      default: false,
+    },
+
+  },
+
+  data() {
+    return {
+      form: {
+        scope: 'io_server_group_create',
+        model: {
+          title: null,
+          comment: null,
+        },
       },
+    }
+  },
 
-    },
-
-    data() {
-      return {
-        form: {
-          scope: 'io_server_group_create',
-          model: {
-            title: null,
-            comment: null,
+  created() {
+    this.$validator.localize({
+      en: {
+        custom: {
+          title: {
+            required: this.$t('groups.fields.title.validation.required'),
           },
         },
-      }
-    },
+      },
+    })
+  },
 
-    created() {
-      this.$validator.localize({
-        en: {
-          custom: {
-            title: {
-              required: this.$t('groups.fields.title.validation.required'),
-            },
-          },
-        },
-      })
-    },
+  mounted() {
+    this.$emit('loaded')
+  },
 
-    mounted() {
-      this.$emit('loaded')
-    },
+  methods: {
 
-    methods: {
+    /**
+     * Submit group form
+     *
+     * @param {Object} event
+     */
+    submit(event) {
+      event && event.preventDefault()
 
-      /**
-       * Submit group form
-       *
-       * @param {Object} event
-       */
-      submit(event) {
-        event && event.preventDefault()
+      this.$validator.validateAll(this.form.scope)
+        .then((result) => {
+          if (result) {
+            const errorMessage = this.$t('groups.messages.notCreated')
 
-        this.$validator.validateAll(this.form.scope)
-          .then(result => {
-            if (result) {
-              const errorMessage = this.$t('groups.messages.notCreated')
-
-              this.$store.dispatch('entities/group/create', {
-                data: this.form.model,
-              }, {
-                root: true,
+            this.$store.dispatch('entities/group/create', {
+              data: this.form.model,
+            }, {
+              root: true,
+            })
+              .catch((e) => {
+                if (this._.get(e, 'exception', null) !== null) {
+                  this.handleFormError(e.exception, errorMessage)
+                } else {
+                  this.$flashMessage(errorMessage, 'error')
+                }
               })
-                .catch(e => {
-                  if (this._.get(e, 'exception', null) !== null) {
-                    this.handleFormError(e.exception, errorMessage)
-                  } else {
-                    this.$flashMessage(errorMessage, 'error')
-                  }
-                })
 
-              this._initModel()
+            this._initModel()
 
-              this.$emit('close')
-            } else {
-              this.$flashMessage(this.$t('application.messages.fixAllFormErrors'), 'info')
-            }
-          })
-          .catch(() => {
+            this.$emit('close')
+          } else {
             this.$flashMessage(this.$t('application.messages.fixAllFormErrors'), 'info')
-          })
-      },
-
-      /**
-       * Close group rename confirmation window
-       *
-       * @param {Object} event
-       */
-      close(event) {
-        event && event.preventDefault()
-
-        this._initModel()
-
-        this.$emit('close')
-      },
-
-      /**
-       * Initialize form model object
-       *
-       * @private
-       */
-      _initModel() {
-        this.errors.clear(this.form.scope)
-      },
-
+          }
+        })
+        .catch(() => {
+          this.$flashMessage(this.$t('application.messages.fixAllFormErrors'), 'info')
+        })
     },
 
-  }
+    /**
+     * Close group rename confirmation window
+     *
+     * @param {Object} event
+     */
+    close(event) {
+      event && event.preventDefault()
+
+      this._initModel()
+
+      this.$emit('close')
+    },
+
+    /**
+     * Initialize form model object
+     *
+     * @private
+     */
+    _initModel() {
+      this.errors.clear(this.form.scope)
+    },
+
+  },
+
+}
 </script>
 
 <style rel="stylesheet/scss" lang="scss">

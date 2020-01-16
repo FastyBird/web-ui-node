@@ -65,218 +65,218 @@
 </template>
 
 <script>
-  import { mapState, mapActions } from 'vuex'
+import { mapState, mapActions } from 'vuex'
 
-  const AccountEdit = () => import('@/components/account/AccountEdit')
-  const ProfileEdit = () => import('@/components/account/ProfileEdit')
-  const PasswordEdit = () => import('@/components/account/PasswordEdit')
-  const SecurityEdit = () => import('@/components/account/SecurityEdit')
+import { version } from './../package.json'
 
-  const FbDefaultLayout = () => import('@/node_modules/@fastybird-com/theme/layouts/default')
+import * as config from '@/configuration'
 
-  import * as config from '@/configuration'
+const AccountEdit = () => import('@/components/account/AccountEdit')
+const ProfileEdit = () => import('@/components/account/ProfileEdit')
+const PasswordEdit = () => import('@/components/account/PasswordEdit')
+const SecurityEdit = () => import('@/components/account/SecurityEdit')
 
-  import { version } from './../package.json'
+const FbDefaultLayout = () => import('@/node_modules/@fastybird-com/theme/layouts/default')
 
-  export default {
+export default {
 
-    name: 'LayoutDefault',
+  name: 'LayoutDefault',
 
-    components: {
-      AccountEdit,
-      ProfileEdit,
-      PasswordEdit,
-      SecurityEdit,
+  components: {
+    AccountEdit,
+    ProfileEdit,
+    PasswordEdit,
+    SecurityEdit,
 
-      FbDefaultLayout,
+    FbDefaultLayout,
+  },
+
+  data() {
+    return {
+      loadingOverlay: false,
+      view: {
+        accountEdit: {
+          show: false,
+        },
+        profileEdit: {
+          show: false,
+        },
+        passwordEdit: {
+          show: false,
+        },
+        securityEdit: {
+          show: false,
+        },
+      },
+      menuItems: [],
+      userMenuItems: [],
+      bottomMenuItems: [],
+      author: {
+        name: config.AUTHOR_NAME,
+        website: config.AUTHOR_WEBSITE,
+      },
+      version,
+    }
+  },
+
+  computed: {
+
+    ...mapState({
+      connectionStatus: state => state.connectionStatus,
+    }),
+
+    session() {
+      return this.$store.getters['entities/session/query']().first()
     },
 
-    data() {
-      return {
-        loadingOverlay: false,
-        view: {
-          accountEdit: {
-            show: false,
-          },
-          profileEdit: {
-            show: false,
-          },
-          passwordEdit: {
-            show: false,
-          },
-          securityEdit: {
-            show: false,
-          },
-        },
-        menuItems: [],
-        userMenuItems: [],
-        bottomMenuItems: [],
-        author: {
-          name: config.AUTHOR_NAME,
-          website: config.AUTHOR_WEBSITE,
-        },
-        version,
+    account() {
+      return this.$store.getters['entities/account/query']()
+        .with('emails')
+        .with('security_question')
+        .first()
+    },
+
+    profile() {
+      return this.$store.getters['entities/profile/query']().first()
+    },
+
+  },
+
+  watch: {
+
+    /**
+     * Session was updated or destroyed
+     *
+     * @param {(Session|null)} val
+     */
+    session(val) {
+      if (val) {
+        this.$cookies.set('token', val.token)
+        this.$cookies.set('refresh_token', val.refresh)
       }
     },
 
-    computed: {
+  },
 
-      ...mapState({
-        connectionStatus: state => state.connectionStatus,
-      }),
+  created() {
+    this.menuItems = this._.cloneDeep(config.MENU_ITEMS)
+    this.menuItems.forEach((item) => {
+      if (Object.prototype.hasOwnProperty.call(item, 'meta') && Object.prototype.hasOwnProperty.call(item.meta, 'label')) {
+        // eslint-disable-next-line
+        item.meta.label = this.$t(item.meta.label)
+      }
 
-      session() {
-        return this.$store.getters['entities/session/query']().first()
-      },
+      if (Object.prototype.hasOwnProperty.call(item, 'items')) {
+        item.items.forEach((subItem) => {
+          if (Object.prototype.hasOwnProperty.call(subItem, 'link')) {
+            // eslint-disable-next-line
+            subItem.link = this.localePath({ name: subItem.link, hash: this._.get(item, 'hash') })
+          }
 
-      account() {
-        return this.$store.getters['entities/account/query']()
-          .with('emails')
-          .with('security_question')
-          .first()
-      },
+          if (Object.prototype.hasOwnProperty.call(subItem, 'meta') && Object.prototype.hasOwnProperty.call(subItem.meta, 'label')) {
+            // eslint-disable-next-line
+            subItem.meta.label = this.$t(subItem.meta.label)
+          }
+        })
+      }
+    })
 
-      profile() {
-        return this.$store.getters['entities/profile/query']().first()
-      },
-
-    },
-
-    watch: {
-
-      /**
-       * Session was updated or destroyed
-       *
-       * @param {(Session|null)} val
-       */
-      session(val) {
-        if (val) {
-          this.$cookies.set('token', val.token)
-          this.$cookies.set('refresh_token', val.refresh)
-        }
-      },
-
-    },
-
-    created() {
-      this.menuItems = this._.cloneDeep(config.MENU_ITEMS)
-      this.menuItems.forEach(item => {
-        if (item.hasOwnProperty('meta') && item.meta.hasOwnProperty('label')) {
-          // eslint-disable-next-line
-          item.meta.label = this.$t(item.meta.label)
-        }
-
-        if (item.hasOwnProperty('items')) {
-          item.items.forEach(subItem => {
-            if (subItem.hasOwnProperty('link')) {
-              // eslint-disable-next-line
-              subItem.link = this.localePath({ name: subItem.link, hash: this._.get(item, 'hash') })
-            }
-
-            if (subItem.hasOwnProperty('meta') && subItem.meta.hasOwnProperty('label')) {
-              // eslint-disable-next-line
-              subItem.meta.label = this.$t(subItem.meta.label)
-            }
-          })
-        }
-      })
-
-      this.userMenuItems = this._.cloneDeep(config.USER_MENU_ITEMS)
-      this.userMenuItems.forEach(item => {
-        if (item.hasOwnProperty('link')) {
-          // eslint-disable-next-line
-          item.link = this.localePath({ name: item.link, hash: this._.get(item, 'hash') })
-        }
-
-        if (item.hasOwnProperty('meta') && item.meta.hasOwnProperty('label')) {
-          // eslint-disable-next-line
-          item.meta.label = this.$t(item.meta.label)
-        }
-      })
-
-      this.bottomMenuItems = this._.cloneDeep(config.MOBILE_BOTTOM_TABS)
-      this.bottomMenuItems.forEach(item => {
+    this.userMenuItems = this._.cloneDeep(config.USER_MENU_ITEMS)
+    this.userMenuItems.forEach((item) => {
+      if (Object.prototype.hasOwnProperty.call(item, 'link')) {
         // eslint-disable-next-line
         item.link = this.localePath({ name: item.link, hash: this._.get(item, 'hash') })
+      }
+
+      if (Object.prototype.hasOwnProperty.call(item, 'meta') && Object.prototype.hasOwnProperty.call(item.meta, 'label')) {
         // eslint-disable-next-line
-        item.name = this.$t(item.name)
-      })
+        item.meta.label = this.$t(item.meta.label)
+      }
+    })
+
+    this.bottomMenuItems = this._.cloneDeep(config.MOBILE_BOTTOM_TABS)
+    this.bottomMenuItems.forEach((item) => {
+      // eslint-disable-next-line
+      item.link = this.localePath({ name: item.link, hash: this._.get(item, 'hash') })
+      // eslint-disable-next-line
+      item.name = this.$t(item.name)
+    })
+  },
+
+  mounted() {
+    this.$bus.$on('openAccountSettings', () => {
+      this.openView('accountEdit')
+    })
+
+    this.$bus.$on('openProfileSettings', () => {
+      this.openView('profileEdit')
+    })
+
+    this.$bus.$on('openPasswordChange', () => {
+      this.openView('passwordEdit')
+    })
+
+    this.$bus.$on('openSecuritySettings', () => {
+      this.openView('securityEdit')
+    })
+
+    this.$bus.$on('wait-page_reloading', (status) => {
+      this.loadingOverlay = status
+    })
+
+    window.addEventListener('online', this._setNetworkConnected)
+    window.addEventListener('offline', this._setNetworkDisconnected)
+  },
+
+  beforeDestroy() {
+    window.removeEventListener('online', this._setNetworkConnected)
+    window.removeEventListener('offline', this._setNetworkDisconnected)
+
+    this.$bus.$off('openAccountSettings')
+    this.$bus.$off('openProfileSettings')
+    this.$bus.$off('openPasswordChange')
+    this.$bus.$off('openSecuritySettings')
+
+    this.$bus.$off('wait-page_reloading')
+  },
+
+  methods: {
+
+    ...mapActions([
+      'setConnectionStatus',
+    ]),
+
+    /**
+     * Open view
+     *
+     * @param {String} view
+     */
+    openView(view) {
+      if (Object.prototype.hasOwnProperty.call(this.view, view)) {
+        this.view[view].show = true
+      }
     },
 
-    mounted() {
-      this.$bus.$on('openAccountSettings', () => {
-        this.openView('accountEdit')
-      })
-
-      this.$bus.$on('openProfileSettings', () => {
-        this.openView('profileEdit')
-      })
-
-      this.$bus.$on('openPasswordChange', () => {
-        this.openView('passwordEdit')
-      })
-
-      this.$bus.$on('openSecuritySettings', () => {
-        this.openView('securityEdit')
-      })
-
-      this.$bus.$on('wait-page_reloading', (status) => {
-        this.loadingOverlay = status
-      })
-
-      window.addEventListener('online', this._setNetworkConnected)
-      window.addEventListener('offline', this._setNetworkDisconnected)
+    /**
+     * Close opened view
+     *
+     * @param {String} view
+     */
+    closeView(view) {
+      if (Object.prototype.hasOwnProperty.call(this.view, view)) {
+        this.view[view].show = false
+      }
     },
 
-    beforeDestroy() {
-      window.removeEventListener('online', this._setNetworkConnected)
-      window.removeEventListener('offline', this._setNetworkDisconnected)
-
-      this.$bus.$off('openAccountSettings')
-      this.$bus.$off('openProfileSettings')
-      this.$bus.$off('openPasswordChange')
-      this.$bus.$off('openSecuritySettings')
-
-      this.$bus.$off('wait-page_reloading')
+    _setNetworkConnected() {
+      this.setConnectionStatus({ status: true })
     },
 
-    methods: {
-
-      ...mapActions([
-        'setConnectionStatus',
-      ]),
-
-      /**
-       * Open view
-       *
-       * @param {String} view
-       */
-      openView(view) {
-        if (this.view.hasOwnProperty(view)) {
-          this.view[view].show = true
-        }
-      },
-
-      /**
-       * Close opened view
-       *
-       * @param {String} view
-       */
-      closeView(view) {
-        if (this.view.hasOwnProperty(view)) {
-          this.view[view].show = false
-        }
-      },
-
-      _setNetworkConnected() {
-        this.setConnectionStatus({ status: true })
-      },
-
-      _setNetworkDisconnected() {
-        this.setConnectionStatus({ status: false })
-      },
-
+    _setNetworkDisconnected() {
+      this.setConnectionStatus({ status: false })
     },
 
-  }
+  },
+
+}
 </script>

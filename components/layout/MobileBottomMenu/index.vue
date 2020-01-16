@@ -1,5 +1,6 @@
 <template>
   <div
+    ref="root"
     class="fb-mobile-bottom-menu__container"
     @keyup.esc="close"
   >
@@ -39,55 +40,61 @@
   </div>
 </template>
 
-<script>
-  export default {
+<script lang="ts">
+import { createComponent, ref, watch } from '@vue/composition-api'
 
-    name: 'MobileBottomMenu',
+export default createComponent({
 
-    props: {
+  name: 'MobileBottomMenu',
 
-      show: {
-        type: Boolean,
-        default: false,
-      },
+  props: {
 
-      showHeader: {
-        type: Boolean,
-        default: false,
-      },
-
-      showClose: {
-        type: Boolean,
-        default: false,
-      },
-
-      heading: {
-        type: String,
-        default: null,
-      },
-
+    show: {
+      type: Boolean,
+      default: false,
     },
 
-    watch: {
-
-      show(val) {
-        if (val) {
-          this.$el.tabIndex = 1
-          this.$el.focus()
-        }
-      },
-
+    showHeader: {
+      type: Boolean,
+      default: false,
     },
 
-    methods: {
-
-      close() {
-        this.$emit('close')
-      },
-
+    showClose: {
+      type: Boolean,
+      default: false,
     },
 
-  }
+    heading: {
+      type: String,
+      default: null,
+    },
+
+  },
+
+  setup(props, context) {
+    const root = ref(null);
+
+    watch(() => props.show, (val: Boolean) => {
+      if (val && root.value) {
+        // @ts-ignore: Object is possibly 'null'.
+        root.value.tabIndex = 1;
+
+        context.root.$nextTick(() => {
+          // @ts-ignore: Object is possibly 'null'.
+          root.value.focus();
+        })
+      }
+    });
+
+    return {
+      root,
+      close: () => {
+        context.emit('close')
+      },
+    }
+  },
+
+})
 </script>
 
 <style rel="stylesheet/scss" lang="scss">

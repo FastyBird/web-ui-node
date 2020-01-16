@@ -11,17 +11,19 @@
       r="62.1"
     />
     <polyline
-      points="100.2,40.2 51.5,88.8 29.8,67.5 "
+      points="100.2,40.2 51.5,88.8 29.8,67.5"
     />
   </svg>
 </template>
 
-<script>
-  export default {
+<script lang="ts">
+import { createComponent } from '@vue/composition-api'
 
-    name: 'ResultOk',
+export default createComponent({
 
-  }
+  name: 'ResultOk',
+
+})
 </script>
 
 <style rel="stylesheet/scss" lang="scss">

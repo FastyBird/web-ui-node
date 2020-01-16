@@ -40,25 +40,25 @@
 </template>
 
 <script>
-  export default {
+export default {
 
-    name: 'ThingsDetailPropertyContainer',
+  name: 'ThingsDetailPropertyContainer',
 
-    props: {
+  props: {
 
-      thing: {
-        type: Object,
-        required: true,
-      },
-
-      property: {
-        type: Object,
-        required: true,
-      },
-
+    thing: {
+      type: Object,
+      required: true,
     },
 
-  }
+    property: {
+      type: Object,
+      required: true,
+    },
+
+  },
+
+}
 </script>
 
 <style rel="stylesheet/scss" lang="scss">

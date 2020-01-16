@@ -12,33 +12,33 @@
 </template>
 
 <script>
-  import PropertyContainer from '../../PropertyContainer'
+import PropertyContainer from '../../PropertyContainer'
 
-  import SwitchActor from '@/components/things/Actors/Switch'
+import SwitchActor from '@/components/things/Actors/Switch'
 
-  export default {
+export default {
 
-    name: 'ThingsDetailPropertySwitchActor',
+  name: 'ThingsDetailPropertySwitchActor',
 
-    components: {
-      PropertyContainer,
+  components: {
+    PropertyContainer,
 
-      SwitchActor,
+    SwitchActor,
+  },
+
+  props: {
+
+    thing: {
+      type: Object,
+      required: true,
     },
 
-    props: {
-
-      thing: {
-        type: Object,
-        required: true,
-      },
-
-      property: {
-        type: Object,
-        required: true,
-      },
-
+    property: {
+      type: Object,
+      required: true,
     },
 
-  }
+  },
+
+}
 </script>

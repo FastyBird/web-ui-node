@@ -12,7 +12,7 @@ const winHandler = new BrowserWinHandler({
   width: 1000,
 })
 
-winHandler.onCreated(browserWindow => {
+winHandler.onCreated((browserWindow) => {
   if (isDev) {
     browserWindow.loadURL(DEV_SERVER_URL)
   } else {

@@ -41,111 +41,111 @@
 </template>
 
 <script>
-  export default {
+export default {
 
-    name: 'ThingsActorsSwitch',
+  name: 'ThingsActorsSwitch',
 
-    props: {
+  props: {
 
-      thing: {
-        type: Object,
-        required: true,
-      },
-
-      property: {
-        type: Object,
-        required: true,
-      },
-
+    thing: {
+      type: Object,
+      required: true,
     },
 
-    computed: {
-
-      /**
-       * Get property socket data
-       *
-       * @returns {(ChannelPropertyValue|null)}
-       */
-      propertySocket() {
-        if (!this.property) {
-          return null
-        }
-
-        return this.$store.getters['entities/channel_property_value/query']()
-          .where('channel_id', this.thing.channel_id)
-          .where('property_id', this.property.id)
-          .first()
-      },
-
-      /**
-       * Get channel state property value
-       *
-       * @returns {Boolean}
-       */
-      propertyValue() {
-        if (this.propertySocket) {
-          if (this.property.isBoolean) {
-            return !!this.propertySocket.value
-          } else if (this.property.isEnum) {
-            return this.propertySocket.value === 'on'
-          }
-        }
-
-        return false
-      },
-
-      /**
-       * Channel command status
-       *
-       * @returns {(String|null)}
-       */
-      propertyCommand() {
-        return this.propertySocket ? this.propertySocket.command : null
-      },
-
+    property: {
+      type: Object,
+      required: true,
     },
 
-    methods: {
+  },
 
-      /**
-       * Toggle channel button state
-       */
-      toggleChannelState() {
-        // Check if some command on channel is in progress
-        if (this.propertyCommand !== null) {
-          return
+  computed: {
+
+    /**
+     * Get property socket data
+     *
+     * @returns {(ChannelPropertyValue|null)}
+     */
+    propertySocket() {
+      if (!this.property) {
+        return null
+      }
+
+      return this.$store.getters['entities/channel_property_value/query']()
+        .where('channel_id', this.thing.channel_id)
+        .where('property_id', this.property.id)
+        .first()
+    },
+
+    /**
+     * Get channel state property value
+     *
+     * @returns {Boolean}
+     */
+    propertyValue() {
+      if (this.propertySocket) {
+        if (this.property.isBoolean) {
+          return !!this.propertySocket.value
+        } else if (this.property.isEnum) {
+          return this.propertySocket.value === 'on'
         }
+      }
 
-        // Check if thing is connected to cloud
-        if (this.thing.state !== true) {
-          this.$flashMessage(this.$t('things.messages.notOnline', {
+      return false
+    },
+
+    /**
+     * Channel command status
+     *
+     * @returns {(String|null)}
+     */
+    propertyCommand() {
+      return this.propertySocket ? this.propertySocket.command : null
+    },
+
+  },
+
+  methods: {
+
+    /**
+     * Toggle channel button state
+     */
+    toggleChannelState() {
+      // Check if some command on channel is in progress
+      if (this.propertyCommand !== null) {
+        return
+      }
+
+      // Check if thing is connected to cloud
+      if (this.thing.state !== true) {
+        this.$flashMessage(this.$t('things.messages.notOnline', {
+          thing: this.$tThing(this.thing),
+        }), 'error')
+
+        return
+      }
+
+      if (!this.property) {
+        return
+      }
+
+      this.$store.dispatch('entities/channel_property_value/togglePayload', {
+        device_id: this.thing.device_id,
+        channel_id: this.thing.channel_id,
+        property_id: this.property.id,
+      }, {
+        root: true,
+      })
+        .catch(() => {
+          this.$flashMessage(this.$t('things.messages.commandNotAccepted', {
             thing: this.$tThing(this.thing),
           }), 'error')
-
-          return
-        }
-
-        if (!this.property) {
-          return
-        }
-
-        this.$store.dispatch('entities/channel_property_value/togglePayload', {
-          device_id: this.thing.device_id,
-          channel_id: this.thing.channel_id,
-          property_id: this.property.id,
-        }, {
-          root: true,
         })
-          .catch(() => {
-            this.$flashMessage(this.$t('things.messages.commandNotAccepted', {
-              thing: this.$tThing(this.thing),
-            }), 'error')
-          })
-      },
-
     },
 
-  }
+  },
+
+}
 </script>
 
 <style rel="stylesheet/scss" lang="scss">

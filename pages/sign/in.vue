@@ -3,21 +3,21 @@
 </template>
 
 <script>
-  import SignIn from '@/components/account/SignIn'
+import SignIn from '@/components/account/SignIn'
 
-  export default {
+export default {
 
-    name: 'SignInPage',
+  name: 'SignInPage',
 
-    components: {
-      SignIn,
-    },
+  components: {
+    SignIn,
+  },
 
-    layout: 'sign',
+  layout: 'sign',
 
-    middleware: 'anonymous',
+  middleware: 'anonymous',
 
-    transition: 'fade',
+  transition: 'fade',
 
-  }
+}
 </script>

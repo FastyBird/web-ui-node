@@ -16,27 +16,29 @@
   </div>
 </template>
 
-<script>
-  export default {
+<script lang="ts">
+import { createComponent } from '@vue/composition-api'
 
-    name: 'OffCanvasHeading',
+export default createComponent({
 
-    props: {
+  name: 'OffCanvasHeading',
 
-      heading: {
-        type: String,
-        required: true,
-      },
+  props: {
 
-      subHeading: {
-        type: String,
-        required: false,
-        default: null,
-      },
-
+    heading: {
+      type: String,
+      required: true,
     },
 
-  }
+    subHeading: {
+      type: String,
+      required: false,
+      default: null,
+    },
+
+  },
+
+})
 </script>
 
 <style rel="stylesheet/scss" lang="scss">

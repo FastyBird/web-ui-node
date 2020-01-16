@@ -4,24 +4,11 @@ module.exports = {
     browser: true,
     node: true,
   },
-  parserOptions: {
-    'parser': 'babel-eslint',
-    'sourceType': 'module',
-  },
-  // https://github.com/vuejs/eslint-plugin-vue#priority-a-essential-error-prevention
-  // consider switching to `plugin:vue/strongly-recommended` or `plugin:vue/recommended` for stricter rules.
   extends: [
+    '@nuxtjs',
     'plugin:nuxt/recommended',
-    'plugin:vue/essential',
-    'plugin:vue/base',
-    'plugin:vue/strongly-recommended',
-    'plugin:vue/recommended',
+    '@nuxtjs/eslint-config-typescript',
   ],
-  // required to lint *.vue files
-  plugins: [
-    'vue',
-  ],
-  // add your custom rules here
   rules: {
     // don't require .vue extension when importing
     // disallow reassignment of function parameters
@@ -62,10 +49,9 @@ module.exports = {
     'no-trailing-spaces': 'error',
     'eol-last': ['error', 'always'],
     'quotes': ['error', 'single', { avoidEscape: true }],
-    'semi': ['error', 'never'],
+    // 'semi': ['error', 'never'],
     'no-shadow': 'error',
     'no-undef': 'error',
-    'no-unused-vars': ['error', { vars: 'all', args: 'after-used', ignoreRestSiblings: true }],
     'no-use-before-define': ['error', { functions: true, classes: true, variables: true }],
     'space-before-function-paren': ['error', 'never'],
     'vue/html-closing-bracket-spacing': ['error', {
@@ -74,7 +60,21 @@ module.exports = {
     // allow optionalDependencies
     // allow debugger during development
     'no-debugger': (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging') ? 'error' : 'off',
-    'vue/script-indent': ['error', 2, { 'baseIndent': 1, 'switchCase': 1 }],
     'nuxt/no-cjs-in-config': 'off',
+    'no-case-declarations': 'off',
+    'camelcase': 'off',
+    'no-template-curly-in-string': 'off',
+    '@typescript-eslint/no-unused-vars': 'off',
+    'no-useless-computed-key': 'off',
+    'semi': 'off',
   },
+  'overrides': [
+    {
+      'files': ['**/*.ts', '**/*.tsx'],
+      'rules': {
+        'no-unused-vars': ['off'],
+        'no-undef': ['off'],
+      },
+    },
+  ],
 }

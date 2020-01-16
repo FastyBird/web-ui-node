@@ -54,66 +54,66 @@
 </template>
 
 <script>
-  export default {
+export default {
 
-    name: 'ThingsSettingsChannelParameter',
+  name: 'ThingsSettingsChannelParameter',
 
-    props: {
+  props: {
 
-      thing: {
-        type: Object,
-        required: true,
-      },
-
-      parameter: {
-        type: Object,
-        required: true,
-      },
-
-      hardware: {
-        type: Object,
-        required: true,
-      },
-
-      loading: {
-        type: Boolean,
-        default: false,
-      },
-
+    thing: {
+      type: Object,
+      required: true,
     },
 
-    computed: {
+    parameter: {
+      type: Object,
+      required: true,
+    },
 
-      value() {
-        const stored = this.$store.getters['entities/channel_configuration_value/query']()
-          .where('channel_id', this.thing.channel_id)
-          .where('configuration_id', this.parameter.id)
-          .first()
+    hardware: {
+      type: Object,
+      required: true,
+    },
 
-        return stored !== null ? stored.value : 'N/A'
-      },
+    loading: {
+      type: Boolean,
+      default: false,
+    },
 
-      /**
-       * Parse parameter items for select box
-       *
-       * @returns {String}
-       */
-      selectValue() {
-        for (const key in this.parameter.values) {
-          // eslint-disable-next-line
-          if (this.parameter.values.hasOwnProperty(key) && this.parameter.values[key].value == this.value) {
-            if (this.$t(`things.vendors.${this.hardware.manufacturer}.${this.parameter.name}.values.${this.parameter.values[key].name}`).indexOf('things.vendors.') === -1) {
-              return this.$t(`things.vendors.${this.hardware.manufacturer}.${this.parameter.name}.values.${this.parameter.values[key].name}`)
-            } else {
-              return this.value
-            }
+  },
+
+  computed: {
+
+    value() {
+      const stored = this.$store.getters['entities/channel_configuration_value/query']()
+        .where('channel_id', this.thing.channel_id)
+        .where('configuration_id', this.parameter.id)
+        .first()
+
+      return stored !== null ? stored.value : 'N/A'
+    },
+
+    /**
+     * Parse parameter items for select box
+     *
+     * @returns {String}
+     */
+    selectValue() {
+      for (const key in this.parameter.values) {
+        // eslint-disable-next-line
+        if (this.parameter.values.hasOwnProperty(key) && this.parameter.values[key].value == this.value) {
+          if (!this.$t(`things.vendors.${this.hardware.manufacturer}.${this.parameter.name}.values.${this.parameter.values[key].name}`).includes('things.vendors.')) {
+            return this.$t(`things.vendors.${this.hardware.manufacturer}.${this.parameter.name}.values.${this.parameter.values[key].name}`)
+          } else {
+            return this.value
           }
         }
+      }
 
-        return this.value
-      },
-
+      return this.value
     },
 
-  }
+  },
+
+}
 </script>

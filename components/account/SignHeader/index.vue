@@ -5,20 +5,20 @@
 </template>
 
 <script>
-  export default {
+export default {
 
-    name: 'SignHeader',
+  name: 'SignHeader',
 
-    props: {
+  props: {
 
-      heading: {
-        type: String,
-        required: true,
-      },
-
+    heading: {
+      type: String,
+      required: true,
     },
 
-  }
+  },
+
+}
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>

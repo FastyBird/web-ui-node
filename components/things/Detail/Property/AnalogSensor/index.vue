@@ -16,58 +16,58 @@
 </template>
 
 <script>
-  import PropertyContainer from '../../PropertyContainer'
+import PropertyContainer from '../../PropertyContainer'
 
-  export default {
+export default {
 
-    name: 'ThingsDetailPropertyAnalogSensor',
+  name: 'ThingsDetailPropertyAnalogSensor',
 
-    components: {
-      PropertyContainer,
+  components: {
+    PropertyContainer,
+  },
+
+  props: {
+
+    thing: {
+      type: Object,
+      required: true,
     },
 
-    props: {
-
-      thing: {
-        type: Object,
-        required: true,
-      },
-
-      property: {
-        type: Object,
-        required: true,
-      },
-
+    property: {
+      type: Object,
+      required: true,
     },
 
-    computed: {
+  },
 
-      /**
-       * Get property value
-       *
-       * @returns {Number}
-       */
-      propertyValue() {
-        const propertyValue = this.$store.getters['entities/channel_property_value/query']()
-          .where('channel_id', this.thing.channel_id)
-          .where('property_id', this.property.id)
-          .first()
+  computed: {
 
-        if (
-          propertyValue &&
-          (
-            this.property.isInteger || this.property.isFloat || this.property.isNumber
-          )
-        ) {
-          return parseFloat(propertyValue.value)
-        }
+    /**
+     * Get property value
+     *
+     * @returns {Number}
+     */
+    propertyValue() {
+      const propertyValue = this.$store.getters['entities/channel_property_value/query']()
+        .where('channel_id', this.thing.channel_id)
+        .where('property_id', this.property.id)
+        .first()
 
-        return 0.0
-      },
+      if (
+        propertyValue &&
+        (
+          this.property.isInteger || this.property.isFloat || this.property.isNumber
+        )
+      ) {
+        return parseFloat(propertyValue.value)
+      }
 
+      return 0.0
     },
 
-  }
+  },
+
+}
 </script>
 
 <style rel="stylesheet/scss" lang="scss">

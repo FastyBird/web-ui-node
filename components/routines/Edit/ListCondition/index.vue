@@ -36,87 +36,87 @@
 </template>
 
 <script>
-  export default {
+export default {
 
-    name: 'RoutinesEditListCondition',
+  name: 'RoutinesEditListCondition',
 
-    props: {
+  props: {
 
-      condition: {
-        type: Object,
-        required: true,
-        validator: (value) => {
-          return !(
-            !value.hasOwnProperty('enabled') ||
-            !value.hasOwnProperty('thing') ||
-            !value.hasOwnProperty('rows') ||
-            !Array.isArray(value.rows) ||
-            !value.rows.length
-          )
-        },
+    condition: {
+      type: Object,
+      required: true,
+      validator: (value) => {
+        return !(
+          !Object.prototype.hasOwnProperty.call(value, 'enabled') ||
+          !Object.prototype.hasOwnProperty.call(value, 'thing') ||
+          !Object.prototype.hasOwnProperty.call(value, 'rows') ||
+          !Array.isArray(value.rows) ||
+          !value.rows.length
+        )
       },
-
     },
 
-    data() {
-      return {
-        enabled: true,
-      }
+  },
+
+  data() {
+    return {
+      enabled: true,
+    }
+  },
+
+  computed: {
+
+    /**
+     * Condition thing
+     *
+     * @returns {Thing}
+     */
+    thing() {
+      return this.$store.getters['entities/thing/query']()
+        .with('device')
+        .with('channel')
+        .with('channel.properties')
+        .where('id', this.condition.thing)
+        .first()
     },
 
-    computed: {
+    /**
+     * Mapped properties with values
+     *
+     * @returns {Array}
+     */
+    properties() {
+      const mapped = []
 
-      /**
-       * Condition thing
-       *
-       * @returns {Thing}
-       */
-      thing() {
-        return this.$store.getters['entities/thing/query']()
-          .with('device')
-          .with('channel')
-          .with('channel.properties')
-          .where('id', this.condition.thing)
-          .first()
-      },
-
-      /**
-       * Mapped properties with values
-       *
-       * @returns {Array}
-       */
-      properties() {
-        const mapped = []
-
-        this.condition.rows
-          .forEach(row => {
-            mapped.push({
-              operand: row.operand,
-              operator: row.operator,
-              property: this.$store.getters['entities/channel_property/find'](row.property_id),
-            })
+      this.condition.rows
+        .forEach((row) => {
+          mapped.push({
+            operand: row.operand,
+            operator: row.operator,
+            property: this.$store.getters['entities/channel_property/find'](row.property_id),
           })
+        })
 
-        return mapped
-      },
-
+      return mapped
     },
 
-    watch: {
+  },
 
-      enabled() {
-        this.$emit('toggle')
-      },
+  watch: {
 
+    enabled() {
+      this.$emit('toggle')
     },
 
-    methods: {
+  },
 
-      edit() {
-        this.$emit('edit')
-      },
+  methods: {
 
+    edit() {
+      this.$emit('edit')
     },
 
-  }
+  },
+
+}
 </script>

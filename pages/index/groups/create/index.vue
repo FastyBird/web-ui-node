@@ -5,156 +5,156 @@
 </template>
 
 <script>
-  import { mapState } from 'vuex'
+import { mapState } from 'vuex'
 
-  import {
-    GROUPS_HASH_CREATE,
-  } from '@/configuration/routes'
+import {
+  GROUPS_HASH_CREATE,
+} from '@/configuration/routes'
 
-  import GroupsCreateGroup from '@/components/groups/Create'
+import GroupsCreateGroup from '@/components/groups/Create'
 
-  export default {
+export default {
 
-    name: 'GroupDetailPage',
+  name: 'GroupDetailPage',
 
-    components: {
-      GroupsCreateGroup,
-    },
+  components: {
+    GroupsCreateGroup,
+  },
 
-    transition: 'fade',
+  transition: 'fade',
 
-    computed: {
+  computed: {
 
-      ...mapState('theme', {
-        windowSize: state => state.windowSize,
-      }),
+    ...mapState('theme', {
+      windowSize: state => state.windowSize,
+    }),
 
-    },
+  },
 
-    watch: {
+  watch: {
 
-      windowSize(val) {
-        if (val !== 'xs') {
-          this.$router.push(this.localePath({
-            name: this.$routes.groups.list,
-            hash: GROUPS_HASH_CREATE,
-          }))
-        }
-      },
-
-    },
-
-    fetch({ app, store }) {
-      store.dispatch('header/resetStore', null, {
-        root: true,
-      })
-
-      store.dispatch('header/setLeftButton', {
-        name: app.i18n.t('application.buttons.back.title'),
-        link: app.localePath(app.$routes.groups.list),
-        icon: 'arrow-left',
-      }, {
-        root: true,
-      })
-
-      store.dispatch('header/hideRightButton', null, {
-        root: true,
-      })
-
-      store.dispatch('header/setFullRowHeading', null, {
-        root: true,
-      })
-
-      store.dispatch('header/setHeading', {
-        heading: app.i18n.t('application.headings.groups.add'),
-      }, {
-        root: true,
-      })
-
-      store.dispatch('header/setHeadingIcon', {
-        icon: 'folder-plus',
-      }, {
-        root: true,
-      })
-
-      store.dispatch('bottomNavigation/resetStore', null, {
-        root: true,
-      })
-
-      store.dispatch('bottomNavigation/hideNavigation', null, {
-        root: true,
-      })
-    },
-
-    beforeMount() {
-      if (this.windowSize !== null && this.windowSize !== 'xs') {
+    windowSize(val) {
+      if (val !== 'xs') {
         this.$router.push(this.localePath({
           name: this.$routes.groups.list,
           hash: GROUPS_HASH_CREATE,
         }))
       }
-
-      this._configureNavigation()
     },
 
-    methods: {
+  },
 
-      /**
-       * Configure page header for small devices
-       *
-       * @private
-       */
-      _configureNavigation() {
-        this.$store.dispatch('header/resetStore', null, {
-          root: true,
-        })
+  fetch({ app, store }) {
+    store.dispatch('header/resetStore', null, {
+      root: true,
+    })
 
-        this.$store.dispatch('header/setLeftButton', {
-          name: this.$t('application.buttons.back.title'),
-          link: this.localePath(this.$routes.groups.list),
-          icon: 'arrow-left',
-        }, {
-          root: true,
-        })
+    store.dispatch('header/setLeftButton', {
+      name: app.i18n.t('application.buttons.back.title'),
+      link: app.localePath(app.$routes.groups.list),
+      icon: 'arrow-left',
+    }, {
+      root: true,
+    })
 
-        this.$store.dispatch('header/hideRightButton', null, {
-          root: true,
-        })
+    store.dispatch('header/hideRightButton', null, {
+      root: true,
+    })
 
-        this.$store.dispatch('header/setFullRowHeading', null, {
-          root: true,
-        })
+    store.dispatch('header/setFullRowHeading', null, {
+      root: true,
+    })
 
-        this.$store.dispatch('header/setHeading', {
-          heading: this.$t('application.headings.groups.add'),
-        }, {
-          root: true,
-        })
+    store.dispatch('header/setHeading', {
+      heading: app.i18n.t('application.headings.groups.add'),
+    }, {
+      root: true,
+    })
 
-        this.$store.dispatch('header/setHeadingIcon', {
-          icon: 'folder-plus',
-        }, {
-          root: true,
-        })
+    store.dispatch('header/setHeadingIcon', {
+      icon: 'folder-plus',
+    }, {
+      root: true,
+    })
 
-        this.$store.dispatch('bottomNavigation/resetStore', null, {
-          root: true,
-        })
+    store.dispatch('bottomNavigation/resetStore', null, {
+      root: true,
+    })
 
-        this.$store.dispatch('bottomNavigation/hideNavigation', null, {
-          root: true,
-        })
-      },
+    store.dispatch('bottomNavigation/hideNavigation', null, {
+      root: true,
+    })
+  },
 
+  beforeMount() {
+    if (this.windowSize !== null && this.windowSize !== 'xs') {
+      this.$router.push(this.localePath({
+        name: this.$routes.groups.list,
+        hash: GROUPS_HASH_CREATE,
+      }))
+    }
+
+    this._configureNavigation()
+  },
+
+  methods: {
+
+    /**
+     * Configure page header for small devices
+     *
+     * @private
+     */
+    _configureNavigation() {
+      this.$store.dispatch('header/resetStore', null, {
+        root: true,
+      })
+
+      this.$store.dispatch('header/setLeftButton', {
+        name: this.$t('application.buttons.back.title'),
+        link: this.localePath(this.$routes.groups.list),
+        icon: 'arrow-left',
+      }, {
+        root: true,
+      })
+
+      this.$store.dispatch('header/hideRightButton', null, {
+        root: true,
+      })
+
+      this.$store.dispatch('header/setFullRowHeading', null, {
+        root: true,
+      })
+
+      this.$store.dispatch('header/setHeading', {
+        heading: this.$t('application.headings.groups.add'),
+      }, {
+        root: true,
+      })
+
+      this.$store.dispatch('header/setHeadingIcon', {
+        icon: 'folder-plus',
+      }, {
+        root: true,
+      })
+
+      this.$store.dispatch('bottomNavigation/resetStore', null, {
+        root: true,
+      })
+
+      this.$store.dispatch('bottomNavigation/hideNavigation', null, {
+        root: true,
+      })
     },
 
-    head() {
-      return {
-        title: this.$t('meta.groups.create.title'),
-      }
-    },
+  },
 
-  }
+  head() {
+    return {
+      title: this.$t('meta.groups.create.title'),
+    }
+  },
+
+}
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>

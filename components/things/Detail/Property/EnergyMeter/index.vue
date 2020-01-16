@@ -50,143 +50,143 @@
 </template>
 
 <script>
-  import PropertyContainer from '../../PropertyContainer'
+import PropertyContainer from '../../PropertyContainer'
 
-  export default {
+export default {
 
-    name: 'ThingsDetailPropertyEnergyMeter',
+  name: 'ThingsDetailPropertyEnergyMeter',
 
-    components: {
-      PropertyContainer,
+  components: {
+    PropertyContainer,
+  },
+
+  props: {
+
+    thing: {
+      type: Object,
+      required: true,
     },
 
-    props: {
-
-      thing: {
-        type: Object,
-        required: true,
-      },
-
-      property: {
-        type: Object,
-        required: true,
-      },
-
+    property: {
+      type: Object,
+      required: true,
     },
 
-    data() {
-      return {
-        transparentModal: false,
-        clearTotal: {
-          show: false,
-        },
+  },
+
+  data() {
+    return {
+      transparentModal: false,
+      clearTotal: {
+        show: false,
+      },
+    }
+  },
+
+  computed: {
+
+    /**
+     * Get property value
+     *
+     * @returns {Number}
+     */
+    propertyValue() {
+      const propertyValue = this.$store.getters['entities/channel_property_value/query']()
+        .where('channel_id', this.thing.channel_id)
+        .where('property_id', this.property.id)
+        .first()
+
+      if (
+        propertyValue &&
+        (
+          this.property.isInteger || this.property.isFloat || this.property.isNumber
+        )
+      ) {
+        return parseFloat(propertyValue.value)
       }
+
+      return 0.0
     },
 
-    computed: {
+  },
 
-      /**
-       * Get property value
-       *
-       * @returns {Number}
-       */
-      propertyValue() {
-        const propertyValue = this.$store.getters['entities/channel_property_value/query']()
-          .where('channel_id', this.thing.channel_id)
-          .where('property_id', this.property.id)
-          .first()
+  created() {
+    this.transparentModal = this.$parent.$options.name !== 'Layout'
+  },
 
-        if (
-          propertyValue &&
-          (
-            this.property.isInteger || this.property.isFloat || this.property.isNumber
-          )
-        ) {
-          return parseFloat(propertyValue.value)
-        }
+  methods: {
 
-        return 0.0
-      },
+    /**
+     * Show reset total consumption confirmation window
+     */
+    showClearTotal() {
+      if (!this._clearingCheck()) {
+        return
+      }
 
+      this.clearTotal.show = true
     },
 
-    created() {
-      this.transparentModal = this.$parent.$options.name !== 'Layout'
+    closeClearTotal() {
+      this.clearTotal.show = false
     },
 
-    methods: {
+    /**
+     * Process resetting of total consumption counter
+     */
+    processClearTotal() {
+      this.clearTotal.show = false
 
-      /**
-       * Show reset total consumption confirmation window
-       */
-      showClearTotal() {
-        if (!this._clearingCheck()) {
-          return
-        }
+      if (!this._clearingCheck()) {
+        return
+      }
 
-        this.clearTotal.show = true
-      },
-
-      closeClearTotal() {
-        this.clearTotal.show = false
-      },
-
-      /**
-       * Process resetting of total consumption counter
-       */
-      processClearTotal() {
-        this.clearTotal.show = false
-
-        if (!this._clearingCheck()) {
-          return
-        }
-
-        this.$store.dispatch('entities/channel_property_value/setPayload', {
-          value: 0.0,
-          device_id: this.thing.device_id,
-          channel_id: this.thing.channel_id,
-          property_id: this.property.id,
-        }, {
-          root: true,
+      this.$store.dispatch('entities/channel_property_value/setPayload', {
+        value: 0.0,
+        device_id: this.thing.device_id,
+        channel_id: this.thing.channel_id,
+        property_id: this.property.id,
+      }, {
+        root: true,
+      })
+        .catch(() => {
+          this.$flashMessage(this.$t('things.messages.commandNotAccepted', {
+            thing: this.$tThing(this.thing),
+          }), 'error')
         })
-          .catch(() => {
-            this.$flashMessage(this.$t('things.messages.commandNotAccepted', {
-              thing: this.$tThing(this.thing),
-            }), 'error')
-          })
-      },
-
-      /**
-       * Check if property set action is enabled
-       *
-       * @return {Boolean}
-       *
-       * @private
-       */
-      _clearingCheck() {
-        if (this._.get(this.property, 'is_settable', false) === false) {
-          this.$flashMessage(this.$t('things.messages.notSupported', {
-            thing: this.$tThing(this.thing),
-          }), 'error')
-
-          return false
-        }
-
-        // Check if thing is connected to cloud
-        if (this.thing.state !== true) {
-          this.$flashMessage(this.$t('things.messages.notOnline', {
-            thing: this.$tThing(this.thing),
-          }), 'error')
-
-          return false
-        }
-
-        return true
-      },
-
     },
 
-  }
+    /**
+     * Check if property set action is enabled
+     *
+     * @return {Boolean}
+     *
+     * @private
+     */
+    _clearingCheck() {
+      if (this._.get(this.property, 'is_settable', false) === false) {
+        this.$flashMessage(this.$t('things.messages.notSupported', {
+          thing: this.$tThing(this.thing),
+        }), 'error')
+
+        return false
+      }
+
+      // Check if thing is connected to cloud
+      if (this.thing.state !== true) {
+        this.$flashMessage(this.$t('things.messages.notOnline', {
+          thing: this.$tThing(this.thing),
+        }), 'error')
+
+        return false
+      }
+
+      return true
+    },
+
+  },
+
+}
 </script>
 
 <style rel="stylesheet/scss" lang="scss">

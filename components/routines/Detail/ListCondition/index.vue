@@ -31,7 +31,7 @@
         v-for="(row, index) in properties"
         :key="index"
         class="fb-routines-condition__condition"
-      >{{ $t(`routines.conditions.${row.operator}`, { property: $tChannelProperty(thing, row.property), value: row.operands }) }}</span>
+      >{{ $t(`routines.conditions.${row.operator}`, { property: $tChannelProperty(thing, row.property), value: row.operand }) }}</span>
     </template>
 
     <template slot="detail-large">
@@ -52,111 +52,111 @@
 </template>
 
 <script>
-  export default {
+export default {
 
-    name: 'RoutinesDetailListCondition',
+  name: 'RoutinesDetailListCondition',
 
-    props: {
+  props: {
 
-      condition: {
-        type: Object,
-        required: true,
-        validator: (value) => {
-          return !(
-            !value.hasOwnProperty('thing') ||
-            !value.hasOwnProperty('enabled') ||
-            !value.hasOwnProperty('rows') ||
-            !Array.isArray(value.rows) ||
-            !value.rows.length
-          )
-        },
+    condition: {
+      type: Object,
+      required: true,
+      validator: (value) => {
+        return !(
+          !Object.prototype.hasOwnProperty.call(value, 'thing') ||
+          !Object.prototype.hasOwnProperty.call(value, 'enabled') ||
+          !Object.prototype.hasOwnProperty.call(value, 'rows') ||
+          !Array.isArray(value.rows) ||
+          !value.rows.length
+        )
       },
-
     },
 
-    data() {
-      return {
-        enabled: true,
-      }
+  },
+
+  data() {
+    return {
+      enabled: true,
+    }
+  },
+
+  computed: {
+
+    /**
+     * Condition thing
+     *
+     * @returns {Thing}
+     */
+    thing() {
+      return this.$store.getters['entities/thing/query']()
+        .with('device')
+        .with('channel')
+        .with('channel.properties')
+        .where('id', this.condition.thing)
+        .first()
     },
 
-    computed: {
+    /**
+     * Mapped properties with values
+     *
+     * @returns {Array}
+     */
+    properties() {
+      const mapped = []
 
-      /**
-       * Condition thing
-       *
-       * @returns {Thing}
-       */
-      thing() {
-        return this.$store.getters['entities/thing/query']()
-          .with('device')
-          .with('channel')
-          .with('channel.properties')
-          .where('id', this.condition.thing)
-          .first()
-      },
-
-      /**
-       * Mapped properties with values
-       *
-       * @returns {Array}
-       */
-      properties() {
-        const mapped = []
-
-        this.condition.rows
-          .forEach(row => {
-            mapped.push({
-              operands: row.operands,
-              operator: row.operator,
-              property: this.$store.getters['entities/channel_property/find'](row.property_id),
-            })
+      this.condition.rows
+        .forEach((row) => {
+          mapped.push({
+            operand: row.operand,
+            operator: row.operator,
+            property: this.$store.getters['entities/channel_property/find'](row.property_id),
           })
+        })
 
-        return mapped
-      },
-
-      /**
-       * Flag signalizing that things are loading from server
-       *
-       * @returns {Boolean}
-       */
-      fetchingThings() {
-        return this.$store.getters['entities/thing/fetching']()
-      },
-
-      /**
-       * Flag signalizing that thing is loading from server
-       *
-       * @returns {Boolean}
-       */
-      fetchingThing() {
-        return this.$store.getters['entities/thing/getting'](this.condition.thing)
-      },
-
+      return mapped
     },
 
-    watch: {
-
-      enabled() {
-        this.$emit('toggle')
-      },
-
+    /**
+     * Flag signalizing that things are loading from server
+     *
+     * @returns {Boolean}
+     */
+    fetchingThings() {
+      return this.$store.getters['entities/thing/fetching']()
     },
 
-    created() {
-      this.enabled = this.condition.enabled
+    /**
+     * Flag signalizing that thing is loading from server
+     *
+     * @returns {Boolean}
+     */
+    fetchingThing() {
+      return this.$store.getters['entities/thing/getting'](this.condition.thing)
     },
 
-    methods: {
+  },
 
-      remove() {
-        this.$emit('remove')
-      },
+  watch: {
 
+    enabled() {
+      this.$emit('toggle')
     },
 
-  }
+  },
+
+  created() {
+    this.enabled = this.condition.enabled
+  },
+
+  methods: {
+
+    remove() {
+      this.$emit('remove')
+    },
+
+  },
+
+}
 </script>
 
 <style rel="stylesheet/scss" lang="scss">

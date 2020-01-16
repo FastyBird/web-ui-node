@@ -21,31 +21,31 @@
 </template>
 
 <script>
-  export default {
+export default {
 
-    name: 'GroupsListItem',
+  name: 'GroupsListItem',
 
-    props: {
+  props: {
 
-      group: {
-        type: Object,
-        required: true,
-      },
-
+    group: {
+      type: Object,
+      required: true,
     },
 
-    methods: {
+  },
 
-      /**
-       * Double click and single click event handler
-       *
-       * @param {Object} event
-       */
-      oneClick(event) {
-        this.$emit('click', event, this.group)
-      },
+  methods: {
 
+    /**
+     * Double click and single click event handler
+     *
+     * @param {Object} event
+     */
+    oneClick(event) {
+      this.$emit('click', event, this.group)
     },
 
-  }
+  },
+
+}
 </script>

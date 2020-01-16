@@ -42,147 +42,147 @@
 </template>
 
 <script>
-  export default {
+export default {
 
-    name: 'ThingsSettingsThingRename',
+  name: 'ThingsSettingsThingRename',
 
-    props: {
+  props: {
 
-      thing: {
-        type: Object,
-        required: true,
-      },
-
-      transparentBg: {
-        type: Boolean,
-        default: false,
-      },
-
+    thing: {
+      type: Object,
+      required: true,
     },
 
-    data() {
-      return {
-        form: {
-          scope: 'io_server_thing_edit_name',
-          model: {},
-          result: null,
-        },
-      }
+    transparentBg: {
+      type: Boolean,
+      default: false,
     },
 
-    created() {
-      this._initModel()
+  },
 
-      this.$validator.localize({
-        en: {
-          custom: {
-            title: {
-              required: this.$t('things.vendors.global.title.validation.required'),
-            },
+  data() {
+    return {
+      form: {
+        scope: 'io_server_thing_edit_name',
+        model: {},
+        result: null,
+      },
+    }
+  },
+
+  created() {
+    this._initModel()
+
+    this.$validator.localize({
+      en: {
+        custom: {
+          title: {
+            required: this.$t('things.vendors.global.title.validation.required'),
           },
         },
-      })
-    },
+      },
+    })
+  },
 
-    mounted() {
-      this.$emit('loaded')
-    },
+  mounted() {
+    this.$emit('loaded')
+  },
 
-    methods: {
+  methods: {
 
-      /**
-       * Submit thing form
-       *
-       * @param {Object} event
-       */
-      submit(event) {
-        event && event.preventDefault()
+    /**
+     * Submit thing form
+     *
+     * @param {Object} event
+     */
+    submit(event) {
+      event && event.preventDefault()
 
-        this.$validator.validateAll(this.form.scope)
-          .then(result => {
-            if (result) {
-              const errorMessage = this.$t('things.messages.notRenamed', {
-                thing: this.$tThing(this.thing),
+      this.$validator.validateAll(this.form.scope)
+        .then((result) => {
+          if (result) {
+            const errorMessage = this.$t('things.messages.notRenamed', {
+              thing: this.$tThing(this.thing),
+            })
+
+            this.$store.dispatch('entities/channel/edit', {
+              id: this.thing.channel_id,
+              data: {
+                title: this.form.model.title,
+              },
+            }, {
+              root: true,
+            })
+              .catch((e) => {
+                if (this._.get(e, 'exception', null) !== null) {
+                  this.handleFormError(e.exception, errorMessage)
+                } else {
+                  this.$flashMessage(errorMessage, 'error')
+                }
               })
 
-              this.$store.dispatch('entities/channel/edit', {
-                id: this.thing.channel_id,
-                data: {
-                  title: this.form.model.title,
-                },
-              }, {
-                root: true,
+            this.$store.dispatch('entities/device/edit', {
+              id: this.thing.device_id,
+              data: {
+                title: this.form.model.comment,
+              },
+            }, {
+              root: true,
+            })
+              .catch((e) => {
+                if (this._.get(e, 'exception', null) !== null) {
+                  this.handleFormError(e.exception, errorMessage)
+                } else {
+                  this.$flashMessage(errorMessage, 'error')
+                }
               })
-                .catch(e => {
-                  if (this._.get(e, 'exception', null) !== null) {
-                    this.handleFormError(e.exception, errorMessage)
-                  } else {
-                    this.$flashMessage(errorMessage, 'error')
-                  }
-                })
 
-              this.$store.dispatch('entities/device/edit', {
-                id: this.thing.device_id,
-                data: {
-                  title: this.form.model.comment,
-                },
-              }, {
-                root: true,
-              })
-                .catch(e => {
-                  if (this._.get(e, 'exception', null) !== null) {
-                    this.handleFormError(e.exception, errorMessage)
-                  } else {
-                    this.$flashMessage(errorMessage, 'error')
-                  }
-                })
+            this.form.result = true
 
-              this.form.result = true
-
-              this.$timer.start('close')
-            } else {
-              this.$flashMessage(this.$t('application.messages.fixAllFormErrors'), 'info')
-            }
-          })
-          .catch(() => {
+            this.$timer.start('close')
+          } else {
             this.$flashMessage(this.$t('application.messages.fixAllFormErrors'), 'info')
-          })
-      },
-
-      /**
-       * Close thing rename confirmation window
-       *
-       * @param {Object} event
-       */
-      close(event) {
-        event && event.preventDefault()
-
-        this._initModel()
-
-        this.$emit('close')
-      },
-
-      /**
-       * Initialize form model object
-       *
-       * @private
-       */
-      _initModel() {
-        this.form.model = {
-          title: this.$tThing(this.thing),
-          comment: this.$tThingDevice(this.thing),
-        }
-
-        this.errors.clear(this.form.scope)
-      },
-
+          }
+        })
+        .catch(() => {
+          this.$flashMessage(this.$t('application.messages.fixAllFormErrors'), 'info')
+        })
     },
 
-    timers: {
-      close: {
-        time: 2000,
-      },
+    /**
+     * Close thing rename confirmation window
+     *
+     * @param {Object} event
+     */
+    close(event) {
+      event && event.preventDefault()
+
+      this._initModel()
+
+      this.$emit('close')
     },
 
-  }
+    /**
+     * Initialize form model object
+     *
+     * @private
+     */
+    _initModel() {
+      this.form.model = {
+        title: this.$tThing(this.thing),
+        comment: this.$tThingDevice(this.thing),
+      }
+
+      this.errors.clear(this.form.scope)
+    },
+
+  },
+
+  timers: {
+    close: {
+      time: 2000,
+    },
+  },
+
+}
 </script>
