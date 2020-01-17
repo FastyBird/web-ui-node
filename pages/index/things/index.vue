@@ -544,14 +544,6 @@ export default {
       this.view.opened.type = null
 
       if (typeof view !== 'undefined' && Object.prototype.hasOwnProperty.call(this.view, view)) {
-        if (this.exchangeConnected) {
-          this.$store.dispatch('entities/device_socket/unsubscribe', {
-            device_id: this.view[view].id,
-          }, {
-            root: true,
-          })
-        }
-
         if (Object.prototype.hasOwnProperty.call(this.view[view], 'id')) {
           this.view[view].id = null
         }

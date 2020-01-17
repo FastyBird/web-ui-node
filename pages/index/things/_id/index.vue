@@ -314,19 +314,6 @@ export default {
   },
 
   beforeDestroy() {
-    if (this.thing) {
-      if (
-        this.$route.path !== this.localePath(this.$routes.things.list) &&
-        this.exchangeConnected
-      ) {
-        this.$store.dispatch('entities/device_socket/unsubscribe', {
-          device_id: this.thing.device_id,
-        }, {
-          root: true,
-        })
-      }
-    }
-
     window.removeEventListener('resize', this._windowResizeHandler)
   },
 

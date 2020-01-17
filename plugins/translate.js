@@ -7,19 +7,18 @@ export default ({ app, store }, inject) => {
       .where('device_id', thing.device_id)
       .first()
 
+    const channel = get(thing, 'channel.title', null) !== null ? get(thing, 'channel.title', null) : get(thing, 'channel.name', null)
+
     if (!hardware || hardware.isCustom) {
-      return capitalize(get(thing, 'channel.label', ''))
+      return capitalize(channel)
     }
 
-    let channel = get(thing, 'channel.label', '')
-    let channelNum = 0
+    if (channel.includes('_')) {
+      const channelPart = channel.substring(0, (channel.indexOf('_')))
+      const channelNum = parseInt(channel.substring(channel.indexOf('_') + 1), 10)
 
-    if (get(thing, 'channel.label', '').includes('_')) {
-      channel = get(thing, 'channel.label', '').substring(0, (get(thing, 'channel.label', '').indexOf('_')))
-      channelNum = parseInt(get(thing, 'channel.label', '').substring(get(thing, 'channel.label', '').indexOf('_') + 1), 10)
-
-      if (!app.i18n.t(`things.vendors.${hardware.manufacturer}.things.${hardware.model}.channels.${channel}`).includes('things.vendors.')) {
-        return app.i18n.t(`things.vendors.${hardware.manufacturer}.things.${hardware.model}.channels.${channel}`, { number: (channelNum + 1) })
+      if (!app.i18n.t(`things.vendors.${hardware.manufacturer}.things.${hardware.model}.channels.${channelPart}`).includes('things.vendors.')) {
+        return app.i18n.t(`things.vendors.${hardware.manufacturer}.things.${hardware.model}.channels.${channelPart}`, { number: (channelNum + 1) })
       }
     }
 
@@ -27,7 +26,7 @@ export default ({ app, store }, inject) => {
       return app.i18n.t(`things.vendors.${hardware.manufacturer}.things.${hardware.model}.channels.${channel}`)
     }
 
-    return capitalize(get(thing, 'channel.label', ''))
+    return capitalize(channel)
   })
 
   inject('tThingDevice', (thing) => {

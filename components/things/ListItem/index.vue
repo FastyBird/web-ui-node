@@ -131,21 +131,6 @@ export default {
     this._subscribeSockets()
   },
 
-  beforeDestroy() {
-    if (
-      (this.switchProperty || this.environmentProperty) &&
-      this.exchangeConnected
-    ) {
-      if (this.$route.path !== this.localePath({ name: this.$routes.things.detail, params: { id: this.thing.channel_id } })) {
-        this.$store.dispatch('entities/device_socket/unsubscribe', {
-          device_id: this.thing.device_id,
-        }, {
-          root: true,
-        })
-      }
-    }
-  },
-
   methods: {
 
     /**
@@ -163,10 +148,7 @@ export default {
      * @private
      */
     _subscribeSockets() {
-      if (
-        (this.switchProperty || this.environmentProperty) &&
-        this.exchangeConnected
-      ) {
+      if (this.exchangeConnected) {
         this.$store.dispatch('entities/device_socket/subscribe', {
           device_id: this.thing.device_id,
         }, {

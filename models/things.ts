@@ -3,14 +3,12 @@ import Thing from './Thing'
 
 import { ModelError } from './errors'
 
-// @ts-ignore
 import Device from '@/node_modules/@fastybird-com/io-logic/store/modules/io-server/Device'
 // @ts-ignore
 import Channel from '@/node_modules/@fastybird-com/io-logic/store/modules/io-server/Channel'
 
 import {
   PROPERTY_TYPE_STATE,
-// @ts-ignore
 } from '@/node_modules/@fastybird-com/io-logic/constants'
 
 import {

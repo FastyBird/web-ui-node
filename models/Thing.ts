@@ -2,16 +2,17 @@ import { Model, Fields } from '@vuex-orm/core'
 import get from 'lodash/get'
 import find from 'lodash/find'
 
-// @ts-ignore
+import {
+  ChannelInterface,
+  DeviceInterface,
+  DevicePropertyInterface,
+} from '@/node_modules/@fastybird-com/io-logic/types'
+
 import Device from '@/node_modules/@fastybird-com/io-logic/store/modules/io-server/Device'
-// @ts-ignore
 import Channel from '@/node_modules/@fastybird-com/io-logic/store/modules/io-server/Channel'
-// @ts-ignore
-import DeviceProperty from '@/node_modules/@fastybird-com/io-logic/store/modules/io-server/DeviceProperty'
 
 import {
   PROPERTY_TYPE_STATE,
-// @ts-ignore
 } from '@/node_modules/@fastybird-com/io-logic/constants'
 
 export interface ThingInterface {
@@ -20,17 +21,17 @@ export interface ThingInterface {
   channel_id:string,
   name:string,
   state:boolean,
-  device:Device,
-  channel:Channel,
-  stateProperty?:DeviceProperty,
+  device:DeviceInterface,
+  channel:ChannelInterface,
+  stateProperty:DevicePropertyInterface | null,
 }
 
 export default class Thing extends Model implements ThingInterface {
-  static get entity(): string {
+  static get entity():string {
     return 'thing';
   }
 
-  static fields(): Fields {
+  static fields():Fields {
     return {
       id: this.string(''),
 
@@ -45,24 +46,26 @@ export default class Thing extends Model implements ThingInterface {
   id!:string;
   device_id!:string;
   channel_id!:string;
-  device!:Device;
-  channel!:Channel;
+  device!:DeviceInterface;
+  channel!:ChannelInterface;
 
-  get name() {
-    return get(this, 'channel.name')
+  get name():string {
+    return get(this, 'channel.name');
   }
 
-  get state() {
-    const property = find(get(this, 'device.properties', []), { property: PROPERTY_TYPE_STATE })
+  get state():boolean {
+    const property = find(get(this, 'device.properties', []), { property: PROPERTY_TYPE_STATE });
 
     if (property !== undefined) {
-      return property.value === 'ready'
+      return property.value === 'ready';
     }
 
-    return false
+    return false;
   }
 
-  get stateProperty() {
-    return find(get(this, 'device.properties', []), { property: PROPERTY_TYPE_STATE })
+  get stateProperty():DevicePropertyInterface | null {
+    const property = find(get(this, 'device.properties', []), { property: PROPERTY_TYPE_STATE });
+
+    return typeof property !== 'undefined' ? property : null;
   }
 }
