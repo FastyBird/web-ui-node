@@ -20,7 +20,7 @@
           :has-error="errors.has(form.scope + '.title')"
           :name="'title'"
           :label="$t('things.vendors.global.title.title')"
-          :placeholder="thing.name"
+          :placeholder="$tThing(thing, true)"
           :required="true"
           :tab-index="2"
         />
@@ -32,6 +32,7 @@
           :has-error="errors.has(form.scope + '.comment')"
           :name="'comment'"
           :label="$t('things.vendors.global.comment.title')"
+          :placeholder="$tThingDevice(thing, true)"
           :tab-index="3"
         />
       </template>
@@ -140,12 +141,12 @@ export default {
             this.form.result = true
 
             this.$timer.start('close')
-          } else {
-            this.$flashMessage(this.$t('application.messages.fixAllFormErrors'), 'info')
           }
         })
-        .catch(() => {
-          this.$flashMessage(this.$t('application.messages.fixAllFormErrors'), 'info')
+        .catch((e) => {
+          if (Object.prototype.hasOwnProperty.call(this, '$sentry')) {
+            this.$sentry.captureException(e)
+          }
         })
     },
 
@@ -169,8 +170,8 @@ export default {
      */
     _initModel() {
       this.form.model = {
-        title: this.$tThing(this.thing),
-        comment: this.$tThingDevice(this.thing),
+        title: this.$tThing(this.thing) !== this.$tThing(this.thing, true) ? this.$tThing(this.thing) : null,
+        comment: this.$tThingDevice(this.thing) !== this.$tThingDevice(this.thing, true) ? this.$tThingDevice(this.thing) : null,
       }
 
       this.errors.clear(this.form.scope)

@@ -1,0 +1,9 @@
+@import "../../../../node_modules/@fastybird-com/theme/assets/variables/colors";
+
+.fb-iot-pages-things-detail-button {
+  &__container {
+    .fb-divider__container {
+      margin: 0;
+    }
+  }
+}

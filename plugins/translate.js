@@ -2,12 +2,16 @@ import get from 'lodash/get'
 import capitalize from 'lodash/capitalize'
 
 export default ({ app, store }, inject) => {
-  inject('tThing', (thing) => {
+  inject('tThing', (thing, original = false) => {
+    if (get(thing, 'channel.title', null) !== null && !original) {
+      return get(thing, 'channel.title', null)
+    }
+
     const hardware = store.getters['entities/hardware/query']()
       .where('device_id', thing.device_id)
       .first()
 
-    const channel = get(thing, 'channel.title', null) !== null ? get(thing, 'channel.title', null) : get(thing, 'channel.name', null)
+    const channel = get(thing, 'channel.name', null)
 
     if (!hardware || hardware.isCustom) {
       return capitalize(channel)
@@ -29,20 +33,26 @@ export default ({ app, store }, inject) => {
     return capitalize(channel)
   })
 
-  inject('tThingDevice', (thing) => {
+  inject('tThingDevice', (thing, original = false) => {
+    if (get(thing, 'device.title', null) !== null && !original) {
+      return get(thing, 'device.title', null)
+    }
+
     const hardware = store.getters['entities/hardware/query']()
       .where('device_id', thing.device_id)
       .first()
 
+    const device = get(thing, 'device.name', null)
+
     if (!hardware || hardware.isCustom) {
-      return capitalize(get(thing, 'device.name', ''))
+      return capitalize(device)
     }
 
     if (!app.i18n.t(`things.vendors.${hardware.manufacturer}.things.${hardware.model}.title`).includes('things.vendors.')) {
       return app.i18n.t(`things.vendors.${hardware.manufacturer}.things.${hardware.model}.title`)
     }
 
-    return capitalize(get(thing, 'device.name', ''))
+    return capitalize(device)
   })
 
   inject('tThingProperty', (thing, property) => {

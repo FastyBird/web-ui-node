@@ -1,0 +1,49 @@
+.fb-iot-things-connect-view {
+  &__container {
+    .fb-btn-mobile {
+      text-align: right;
+      line-height: 2em;
+    }
+  }
+
+  &__step-1 {
+    padding: 5px 10px;
+
+    &-icon {
+      text-align: center;
+      padding: 10px 0;
+
+      svg {
+        font-size: 4em;
+      }
+    }
+
+    &-info {
+      text-align: justify;
+    }
+  }
+
+  &__step-2 {
+    padding: 5px 10px;
+  }
+
+  &__step-3 {
+    padding: 5px 10px;
+    text-align: center;
+
+    > svg {
+      display: inline-block;
+      font-size: 50px;
+      height: 100px;
+      line-height: 100px;
+      text-align: center;
+      width: 100px;
+    }
+
+    .fb-spinner__container {
+      height: 100px;
+      position: relative;
+      display: inline-block;
+    }
+  }
+}

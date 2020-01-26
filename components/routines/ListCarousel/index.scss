@@ -1,0 +1,81 @@
+@import "~@fastybird-com/theme/assets/variables/colors";
+@import "~@fastybird-com/theme/assets/mixins/utilities";
+
+.fb-routines-today-carousel {
+  &__container {
+    position: relative;
+    padding-bottom: 10px;
+    border-bottom: 1px solid $gray-lighter;
+
+    &:before {
+      width: 100%;
+      height: 25px;
+      background-color: $brand-primary;
+      content: "";
+      display: inline-block;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    > div {
+      @include gridRow(0, 0);
+    }
+  }
+
+  &__day {
+    text-align: center;
+    padding-top: 5px;
+    @include gridCel(0, 0);
+
+    -webkit-box-flex: 0;
+    -ms-flex: 0 0 15%;
+    flex: 0 0 15%;
+    max-width: 15%;
+
+    span {
+      display: block;
+      color: $brand-primary;
+    }
+
+    span:first-child {
+      color: $brand-primary-contrast;
+    }
+
+    span:nth-child(2) {
+      font-weight: bold;
+      font-size: 135%;
+      line-height: 120%;
+    }
+
+    span:last-child {
+      font-size: 90%;
+      line-height: 90%;
+      padding-bottom: 5px;
+    }
+  }
+
+  &__carousel {
+    @include gridCel(0, 0);
+
+    -webkit-box-flex: 0;
+    -ms-flex: 0 0 85%;
+    flex: 0 0 85%;
+    max-width: 85%;
+
+    .hooper,
+    .hooper-list {
+      height: 60px;
+    }
+
+    ul {
+      height: 55px;
+      padding-top: 5px;
+
+      li {
+        width: 280px;
+        height: 55px;
+      }
+    }
+  }
+}

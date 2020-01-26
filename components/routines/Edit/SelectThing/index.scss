@@ -1,7 +1,13 @@
 @import "~@fastybird-com/theme/assets/variables/colors";
+@import "~@fastybird-com/theme/assets/variables/screen";
 
 .fb-routines-select-thing {
   &__container {
+    @media (max-width: $screen-xs-max) {
+      margin-left: 10px;
+      margin-right: 10px;
+    }
+
     .fb-list-item__container {
       margin-left: 0;
       margin-right: 0;

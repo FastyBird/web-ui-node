@@ -5,7 +5,7 @@
   >
     <list-items-container
       v-if="isCustom || hasSettings"
-      :heading="$t('things.headings.thingSettings')"
+      :heading="$t('things.headings.settings')"
     >
       <settings-list-item
         v-if="isCustom"

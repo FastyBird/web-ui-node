@@ -1,6 +1,5 @@
 export default {
   layout: {
-    projectName: 'FastyBird.com',
     buttons: {
       toggleNavigation: {
         title: 'Toggle navigation',
@@ -29,6 +28,9 @@ export default {
       routines: {
         title: 'Thing routines: {thing}',
       },
+      connect: {
+        title: 'Connect new thing',
+      },
     },
     routines: {
       list: {
@@ -45,27 +47,14 @@ export default {
   application: {
     headings: {
       offlineState: 'No internet connection',
-      things: {
-        list: 'All things',
-      },
       groups: {
         list: 'All groups',
         add: 'New group',
       },
-      routines: {
-        list: 'All routines',
-        add: 'New routine',
-      },
     },
     subHeadings: {
-      things: {
-        list: 'no things | one thing | {count} things',
-      },
       groups: {
         list: 'no groups | one group | {count} groups',
-      },
-      routines: {
-        list: 'no routines | one routine | {count} routines',
       },
     },
     buttons: {
@@ -81,6 +70,9 @@ export default {
       close: {
         title: 'Close',
       },
+      cancel: {
+        title: 'Cancel',
+      },
       yes: {
         title: 'Yes',
       },
@@ -90,41 +82,17 @@ export default {
       back: {
         title: 'Go back',
       },
-      settings: {
-        title: 'Settings',
-      },
-      previous: {
-        title: 'Previous',
-      },
       next: {
-        title: 'Next',
-      },
-      cancel: {
-        title: 'Cancel',
+        title: 'Next step',
       },
       add: {
         title: 'Add',
-      },
-      routines: {
-        title: 'Routines',
-      },
-      favouriteAdd: {
-        title: 'Add to favourite',
       },
       things: {
         title: 'Things',
       },
       groups: {
         title: 'Groups',
-      },
-      connect: {
-        title: 'Connect thing',
-      },
-      automation: {
-        title: 'Automation',
-      },
-      schedules: {
-        title: 'Schedules',
       },
     },
     tabs: {
@@ -146,10 +114,11 @@ export default {
       offlineState: 'It looks like you have no internet connection. Application need internet connection to be able to communicate with services. Try to go online please.',
     },
     menu: {
-      root: 'Cloud',
+      root: 'IO server',
       dashboard: 'Dashboard',
       things: 'Things',
       routines: 'Routines',
+      user: 'Your account',
     },
     userMenu: {
       accountSettings: 'Account settings',
@@ -164,11 +133,34 @@ export default {
       off: 'Off',
       notAvailable: 'N/A',
     },
-  },
-  home: {
-    buttons: {
-      things: {
-        title: 'Things',
+    days: {
+      mon: {
+        short: 'Mon',
+        long: 'Monday',
+      },
+      tue: {
+        short: 'Tue',
+        long: 'Tuesday',
+      },
+      wed: {
+        short: 'Wed',
+        long: 'Wednesday',
+      },
+      thu: {
+        short: 'Thu',
+        long: 'Thursday',
+      },
+      fri: {
+        short: 'Fri',
+        long: 'Friday',
+      },
+      sat: {
+        short: 'Sat',
+        long: 'Saturday',
+      },
+      sun: {
+        short: 'Sun',
+        long: 'Sunday',
       },
     },
   },
@@ -180,12 +172,9 @@ export default {
     },
     messages: {
       notFound: 'Group was not found, please try reload page.',
-      created: 'Group {group} was successfully created.',
       notCreated: 'Group {group} couldn\'t be created, please try again later.',
       confirmRemove: 'Are you sure to remove group {group} ?',
-      removed: 'Group {group} was successfully removed.',
       notRemoved: 'Group {group} couldn\'t be removed, please try again later.',
-      edited: 'Group {group} was successfully renamed.',
       notEdited: 'Group {group} couldn\'t be renamed, please try again later.',
     },
     texts: {
@@ -212,10 +201,14 @@ export default {
       rename: {
         title: 'Rename group',
       },
+      addNew: {
+        title: 'Add new group',
+      },
     },
   },
   things: {
     headings: {
+      allThings: 'All things',
       analogSensors: 'Analog sensor|Analog sensors',
       analogActors: 'Analog actor|Analog actors',
       binaryActors: 'Digital actor|Digital actors',
@@ -226,32 +219,31 @@ export default {
       switches: 'Switch|Switches',
       calibrate: 'Calibrate energy sensors',
       clearCounter: 'Clear counter',
-      credentials: 'Thing MQTT credentials',
+      credentials: 'Thing connection credentials',
       remove: 'Remove thing',
       rename: 'Rename thing',
-      thingSettings: 'Thing settings',
+      settings: 'Thing settings',
       generalSettings: 'General settings',
       moduleSensorSettings: 'Thing sensor settings',
       moduleTimeSettings: 'Thing time settings',
       manufacturerAndNetwork: 'Manufacturer & Network info',
-      newButton: 'Add new action when...',
+      newAction: 'Add new action when...',
       removeAction: 'Remove action',
       buttonActionPressed: 'Button pressed',
       buttonActionClicked: 'Button clicked',
       buttonActionDblClicked: 'Button double-clicked',
     },
+    subHeadings: {
+      allThings: 'no things | one thing | {count} things',
+    },
     messages: {
-      edited: 'Thing {thing} was successfully edited.',
       notEdited: 'Thing {thing} couldn\'t be updated, please try again later.',
-      notFound: 'Thing was not found, please try reload page.',
       commandNotAccepted: 'Last command was not accepted by thing <strong>{thing}</strong>.',
-      notOnline: 'Thing <strong>{thing}</strong> is not connected to cloud.',
+      notOnline: 'Thing <strong>{thing}</strong> is not connected to server.',
       notSupported: 'This function is not supported by <strong>{thing}</strong>.',
       confirmClearCounter: 'Clear total consumption counter for thing {thing} ?',
       confirmRemove: 'Are you sure to remove thing {thing} ?',
-      removed: 'Thing {thing} was successfully removed.',
       notRemoved: 'Thing {thing} couldn\'t be removed, please try again later.',
-      renamed: 'Thing {thing} was successfully renamed.',
       notRenamed: 'Thing {thing} couldn\'t be renamed, please try again later.',
       triggerNotCreated: 'Configured action couldn\'t be created, please try again later.',
       actionNotRemoved: 'Selected action couldn\'t be removed, please try again later.',
@@ -273,6 +265,20 @@ export default {
       },
       noThingsActions: 'You don\'t have assigned any action to this thing',
       loadingTriggers: 'Loading details...',
+    },
+    fields: {
+      wifi: {
+        name: {
+          title: 'Wifi SSID name',
+          validation: {
+            required: 'Please fill in wifi SSID name.',
+          },
+        },
+        password: {
+          title: 'Password for wifi access',
+          placeholder: 'Leave blank if your wifi is without password',
+        },
+      },
     },
     buttons: {
       remove: {
@@ -304,8 +310,11 @@ export default {
       dblClick: {
         title: 'Button is double-clicked',
       },
-      addAction: {
-        title: 'Add new action',
+      addTriggerAction: {
+        title: 'Add action',
+      },
+      search: {
+        title: 'Start searching',
       },
     },
     vendors: {
@@ -613,21 +622,31 @@ export default {
   },
   routines: {
     headings: {
+      allRoutines: 'All routines',
+      createRoutine: 'New routine',
       selectThing: 'Things',
       smsNotification: 'Send sms to',
       emailNotification: 'Send email to',
-      conditions: 'Watching for states...',
-      actions: '...and performing actions',
+      conditions: 'Routine thing conditions',
+      actions: 'Routine actions',
       rename: 'Rename routine',
       refresh: 'Refresh routine',
       remove: 'Remove routine',
       generalSettings: 'General settings',
       addCondition: 'Add a thing condition to this routine?',
+      addSchedule: 'Schedule this routine?',
       addAction: 'Add a thing action to this routine?',
       automaticRoutine: 'Automatic routine',
       manualRoutine: 'Manual routine',
+      scheduledRoutine: '{days}, {time}',
       removeCondition: 'Remove condition',
       removeAction: 'Remove action',
+      scheduledTime: 'Routine scheduled for time',
+      selectSchedule: 'Select schedule time',
+      editSchedule: 'Update schedule time',
+    },
+    subHeadings: {
+      allRoutines: 'no routines | one routine | {count} routines',
     },
     messages: {
       notFound: 'Routine was not found, please try reload page.',
@@ -665,6 +684,7 @@ export default {
       loadingThing: 'Loading thing...',
       noThings: 'You don\'t have assigned any thing',
       routineThings: 'no things | {count} thing | {count} things',
+      everyday: 'Everyday',
     },
     fields: {
       name: {
@@ -713,6 +733,12 @@ export default {
           custom: 'Send to custom address',
         },
       },
+      time: {
+        title: 'Time of the day',
+      },
+      repeat: {
+        title: 'Repeat',
+      },
     },
     buttons: {
       addThing: {
@@ -720,6 +746,12 @@ export default {
       },
       updateThing: {
         title: 'Update thing',
+      },
+      addSchedule: {
+        title: 'Select schedule',
+      },
+      updateSchedule: {
+        title: 'Update schedule',
       },
       save: {
         title: 'Add routine',
@@ -737,13 +769,28 @@ export default {
         title: 'Remove routine',
       },
       thingToCondition: {
-        title: 'Thing to condition',
+        title: 'Controlled thing to condition',
+      },
+      sensorToCondition: {
+        title: 'Sensor thing to condition',
       },
       thingToAction: {
-        title: 'Thing to action',
+        title: 'Controlled thing to action',
       },
       addNew: {
         title: 'Add new routine',
+      },
+      addTypeTimeOfDay: {
+        title: 'A time of day occurs',
+      },
+      addTypeThingControlled: {
+        title: 'An thing is controlled',
+      },
+      addTypeSensorDetect: {
+        title: 'A sensor detects something',
+      },
+      addTypeManual: {
+        title: 'Custom manual scene',
       },
     },
     groups: {
@@ -759,7 +806,6 @@ export default {
         energy: 'Energy meters',
         environment: 'Environment meters',
         events: 'Events',
-        buttons: 'Buttons',
       },
     },
     variations: {

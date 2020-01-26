@@ -5,23 +5,27 @@
       :text="$t('texts.loading')"
     />
 
-    <template v-else>
-      <template v-if="thing !== null">
-        <thing-detail
-          v-if="view.opened === view.items.detail.name || view.opened === view.items.settings.name"
-          ref="detail"
-          :thing="thing"
-        />
+    <template v-else-if="thing !== null">
+      <thing-detail-button
+        v-if="isButtonThing && (view.opened === view.items.detail.name || view.opened === view.items.settings.name)"
+        ref="detail"
+        :thing="thing"
+      />
 
-        <thing-settings
-          v-if="view.opened === view.items.settings.name"
-          ref="settings"
-          v-body-scroll-lock="true"
-          :thing="thing"
-          class="fb-iot-things-thing-detail-view__container-settings"
-          @removed="thingRemoved"
-        />
-      </template>
+      <thing-detail-default
+        v-if="!isButtonThing && (view.opened === view.items.detail.name || view.opened === view.items.settings.name)"
+        ref="detail"
+        :thing="thing"
+      />
+
+      <thing-settings
+        v-if="view.opened === view.items.settings.name"
+        ref="settings"
+        v-body-scroll-lock="true"
+        :thing="thing"
+        class="fb-iot-things-thing-detail-view__container-settings"
+        @removed="thingRemoved"
+      />
     </template>
   </div>
 </template>
@@ -36,7 +40,9 @@ import {
   THINGS_HASH_SETTINGS,
 } from '@/configuration/routes'
 
-import ThingDetail from '@/components/things/Detail'
+import ThingDetailDefault from '@/components/things/Phone/DetailDefault'
+import ThingDetailButton from '@/components/things/Phone/DetailButton'
+
 import ThingSettings from '@/components/things/Settings'
 
 export default {
@@ -44,7 +50,9 @@ export default {
   name: 'ThingDetailPage',
 
   components: {
-    ThingDetail,
+    ThingDetailDefault,
+    ThingDetailButton,
+
     ThingSettings,
   },
 
@@ -100,6 +108,29 @@ export default {
     },
 
     /**
+     * Get thing hardware info
+     *
+     * @returns {(Hardware|null)}
+     */
+    hardware() {
+      return this.$store.getters['entities/hardware/query']()
+        .where('device_id', this.thing.device_id)
+        .first()
+    },
+
+    /**
+     * Check if thing is button type
+     *
+     * @returns {Boolean}
+     */
+    isButtonThing() {
+      return !!(this._.get(this.hardware, 'isManufacturerFastyBird', false) &&
+        (
+          this._.get(this.hardware, 'model') === '8ch_buttons' || this._.get(this.hardware, 'model') === '16ch_buttons'
+        ))
+    },
+
+    /**
      * Flag signalizing that things are loading from server
      *
      * @returns {Boolean}
@@ -138,7 +169,7 @@ export default {
         const component = this._.get(this.$refs, 'detail')
 
         this.$scrollTo(component.$el, 500, {
-          offset: (-1 * this.$store.state.theme.marginTop),
+          container: '.fb-default-layout__content',
           onDone: () => {
             this.openView(this.view.items.detail.name)
           },
@@ -171,8 +202,6 @@ export default {
 
           return
         }
-
-        this._configureNavigation()
 
         this._subscribeSockets()
       }
@@ -293,8 +322,6 @@ export default {
     }
 
     if (this.thing) {
-      this._configureNavigation()
-
       this._subscribeSockets()
     }
   },
@@ -351,7 +378,7 @@ export default {
 
                 // Scroll view to setting part
                 this.$scrollTo(component.$el, 500, {
-                  offset: (-1 * this.$store.state.theme.marginTop),
+                  container: '.fb-default-layout__content',
                 })
               }
             })
@@ -369,82 +396,6 @@ export default {
 
         this.view.opened = view
       }
-
-      // Reconfigure navigation after changes
-      this._configureNavigation()
-    },
-
-    /**
-     * Configure page header for small devices
-     *
-     * @private
-     */
-    _configureNavigation() {
-      this.$store.dispatch('header/resetStore', null, {
-        root: true,
-      })
-
-      this.$store.dispatch('header/setLeftButton', {
-        name: this.$t('application.buttons.back.title'),
-        link: this.localePath(this.$routes.things.list),
-        icon: 'arrow-left',
-      }, {
-        root: true,
-      })
-
-      if (this.view.opened === this.view.items.settings.name) {
-        this.$store.dispatch('header/setRightButton', {
-          name: this.$t('application.buttons.close.title'),
-          callback: () => {
-            if (this._.get(this.$refs, 'detail')) {
-              const component = this._.get(this.$refs, 'detail')
-
-              this.$scrollTo(component.$el, 500, {
-                offset: (-1 * this.$store.state.theme.marginTop),
-                onDone: () => {
-                  this.openView(this.view.items.detail.name)
-                },
-              })
-            }
-          },
-        }, {
-          root: true,
-        })
-      } else {
-        this.$store.dispatch('header/setRightButton', {
-          name: this.$t('application.buttons.edit.title'),
-          callback: () => {
-            this.openView(this.view.items.settings.name)
-          },
-        }, {
-          root: true,
-        })
-      }
-
-      this.$store.dispatch('header/setFullRowHeading', null, {
-        root: true,
-      })
-
-      this.$store.dispatch('header/setHeading', {
-        heading: this.$tThing(this.thing),
-        subHeading: this.$tThingDevice(this.thing),
-      }, {
-        root: true,
-      })
-
-      this.$store.dispatch('header/setHeadingIcon', {
-        icon: this.$thingIcon(this.thing),
-      }, {
-        root: true,
-      })
-
-      this.$store.dispatch('bottomNavigation/resetStore', null, {
-        root: true,
-      })
-
-      this.$store.dispatch('bottomNavigation/hideNavigation', null, {
-        root: true,
-      })
     },
 
     /**
@@ -488,7 +439,7 @@ export default {
         const component = this._.get(this.$refs, this.view.opened)
 
         this.$scrollTo(component.$el, 1, {
-          offset: (-1 * this.$store.state.theme.marginTop),
+          container: '.fb-default-layout__content',
         })
       }
     },
@@ -505,7 +456,7 @@ export default {
       if (this._.get(this.$refs, block)) {
         const component = this._.get(this.$refs, block)
 
-        component.$el.style[attribute] = `${document.querySelector('body').clientHeight}px`
+        component.$el.style[attribute] = `${document.getElementsByClassName('fb-default-layout__content')[0].clientHeight}px`
       }
     },
 

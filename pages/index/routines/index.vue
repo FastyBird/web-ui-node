@@ -1,5 +1,7 @@
 <template>
   <div class="fb-routines-list-view__container">
+    <routine-list-carousel />
+
     <div class="fb-routines-list-view__items-container">
       <routine-list-item
         v-for="routine in routines"
@@ -9,48 +11,54 @@
       />
     </div>
 
-    <!-- ROUTINE DETAIL FOR LARGE DEVICES //-->
     <off-canvas
-      :show="view.opened !== null && windowSize !== 'xs'"
+      v-if="windowSize !== 'xs'"
+      :show="view.opened === view.items.detail.name || view.opened === view.items.settings.name"
       @close="closeView(view.opened)"
     >
-      <off-canvas-body
-        v-if="viewRoutine !== null && view.opened !== null && windowSize !== 'xs'"
+      <routine-detail
+        v-if="view.opened === view.items.detail.name"
+        :id="view.items.detail.id"
         slot="body"
-        :heading="detailHeading"
-        :sub-heading="detailSubHeading"
-      >
-        <template slot="left-button">
-          <button
-            class="button"
-            @click.prevent="closeView(view.opened)"
-          >
-            <font-awesome-icon icon="times" />
-          </button>
-        </template>
+        @close="closeView(view.opened)"
+      />
 
-        <transition
-          slot="body"
-          name="fade"
-          mode="out-in"
-        >
-          <routine-detail
-            v-if="view.opened === view.items.detail.name"
-            :routine="viewRoutine"
-            :style="`height: ${offCanvasHeight}px`"
-            class="fb-routines-list-view__off-canvas-body"
-          />
-
-          <routine-settings
-            v-if="view.opened === view.items.settings.name"
-            :routine="viewRoutine"
-            :style="`height: ${offCanvasHeight}px`"
-            class="fb-routines-list-view__off-canvas-body"
-            @removed="closeView"
-          />
-        </transition>
-      </off-canvas-body>
+      <routine-detail
+        v-if="view.opened === view.items.settings.name"
+        :id="view.items.settings.id"
+        slot="body"
+        :settings="true"
+        @close="closeView(view.opened)"
+      />
     </off-canvas>
+
+    <fb-modal-window
+      v-if="(view.opened === view.items.type.name || view.opened === view.items.create.name) && windowSize !== 'xs'"
+      @close="closeView(view.opened)"
+    >
+      <template slot="modal-content">
+        <select-routine-type
+          v-if="view.opened === view.items.type.name"
+          @close="closeView(view.opened)"
+        />
+
+        <create-routine
+          v-if="view.opened === view.items.create.name"
+          :type="view.items.create.type"
+          @close="closeView(view.opened)"
+        />
+      </template>
+    </fb-modal-window>
+
+    <mobile-bottom-menu
+      v-if="windowSize === 'xs'"
+      :show-header="true"
+      :show="view.opened === view.items.type.name"
+      :heading="'Add new'"
+      @close="closeView(view.opened)"
+    >
+      <select-routine-type-phone slot="items" />
+    </mobile-bottom-menu>
 
     <fb-loading-box
       v-if="fetchingRoutines && routines.length === 0"
@@ -67,7 +75,7 @@
         <fb-button
           variant="outline-primary"
           name="press"
-          @click.prevent="createNewRoutine"
+          @click.prevent="openView(view.items.type.name)"
         >
           {{ $t('routines.buttons.addNew.title') }}
         </fb-button>
@@ -82,28 +90,17 @@ import { mapState } from 'vuex'
 import {
   ROUTINES_HASH_DETAIL,
   ROUTINES_HASH_SETTINGS,
-
-  ROUTINES_HASH_AUTOMATION,
-  ROUTINES_HASH_SCHEDULES,
+  ROUTINES_HASH_CREATE,
 } from '@/configuration/routes'
 
-import FbComponentLoading from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoading'
-import FbComponentLoadingError from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoadingError'
-
 import RoutineListItem from '@/components/routines/ListItem'
+import RoutineListCarousel from '@/components/routines/ListCarousel'
 
-const RoutineDetail = () => ({
-  component: import('@/components/routines/Detail'),
-  loading: FbComponentLoading,
-  error: FbComponentLoadingError,
-  timeout: 5000,
-})
-const RoutineSettings = () => ({
-  component: import('@/components/routines/Settings'),
-  loading: FbComponentLoading,
-  error: FbComponentLoadingError,
-  timeout: 5000,
-})
+const RoutineDetail = () => import('@/components/routines/Desktop/Detail')
+const SelectRoutineType = () => import('@/components/routines/Desktop/SelectType')
+const CreateRoutine = () => import('@/components/routines/Desktop/Create')
+
+const SelectRoutineTypePhone = () => import('@/components/routines/Phone/SelectType')
 
 export default {
 
@@ -111,17 +108,19 @@ export default {
 
   components: {
     RoutineListItem,
+    RoutineListCarousel,
+
     RoutineDetail,
-    RoutineSettings,
+    SelectRoutineType,
+    CreateRoutine,
+
+    SelectRoutineTypePhone,
   },
 
   transition: 'fade',
 
   data() {
     return {
-      loading: {
-        detail: null,
-      },
       view: {
         opened: null,
         items: {
@@ -141,6 +140,17 @@ export default {
               length: 10,
             },
           },
+          type: {
+            name: 'type',
+          },
+          create: {
+            name: 'create',
+            type: null,
+            route: {
+              hash: ROUTINES_HASH_CREATE,
+              length: 8,
+            },
+          },
         },
       },
       click: {
@@ -148,7 +158,6 @@ export default {
         clicks: 0,
         timer: null,
       },
-      offCanvasHeight: null,
     }
   },
 
@@ -174,64 +183,12 @@ export default {
     },
 
     /**
-     * View device data
-     *
-     * @returns {(Trigger|null)}
-     */
-    viewRoutine() {
-      if (this.view.opened === null) {
-        return null
-      }
-
-      let triggerId = 0
-
-      switch (this.view.opened) {
-        case this.view.items.detail.name:
-          triggerId = this.view.items.detail.id
-          break
-      }
-
-      return this.$store.getters['entities/trigger/query']()
-        .with('actions')
-        .with('conditions')
-        .with('notifications')
-        .where('id', triggerId)
-        .first()
-    },
-
-    /**
      * Flag signalizing that routines are loading from server
      *
      * @returns {Boolean}
      */
     fetchingRoutines() {
       return this.$store.getters['entities/trigger/fetching']()
-    },
-
-    /**
-     * Get detail window heading
-     *
-     * @returns {String}
-     */
-    detailHeading() {
-      if (this.view.opened === this.view.items.detail.name) {
-        return this.viewRoutine.name
-      }
-
-      return 'N/A'
-    },
-
-    /**
-     * Get detail window sub-heading
-     *
-     * @returns {(String|null)}
-     */
-    detailSubHeading() {
-      if (this.view.opened === this.view.items.detail.name) {
-        return this.viewRoutine.hasComment ? this.viewRoutine.comment : null
-      }
-
-      return null
     },
 
   },
@@ -245,9 +202,10 @@ export default {
         for (const viewName in this.view.items) {
           if (
             Object.prototype.hasOwnProperty.call(this.view.items, viewName) &&
+            this._.get(this.view.items[viewName], 'route.hash', '') !== '' &&
             val.hash.includes(this._.get(this.view.items[viewName], 'route.hash', ''))
           ) {
-            this.openView(this.view.items[viewName].name, val.hash.substring(this._.get(this.view.items[viewName], 'route.length', 0)))
+            this.openView(viewName, val.hash.substring(this._.get(this.view.items[viewName], 'route.length', 0)))
 
             return
           }
@@ -262,6 +220,21 @@ export default {
             name: this.$routes.routines.detail,
             params: {
               id: this.view.items.detail.id,
+            },
+          }))
+        } else if (this.view.opened === this.view.items.settings.name) {
+          this.$router.push(this.localePath({
+            name: this.$routes.routines.detail,
+            params: {
+              id: this.view.items.settings.id,
+            },
+            hash: ROUTINES_HASH_SETTINGS,
+          }))
+        } else if (this.view.opened === this.view.items.create.name) {
+          this.$router.push(this.localePath({
+            name: this.$routes.routines.create,
+            query: {
+              type: this.view.items.create.type,
             },
           }))
         }
@@ -288,13 +261,9 @@ export default {
             root: true,
           })
 
-          store.dispatch('header/hideHamburger', null, {
-            root: true,
-          })
-
           store.dispatch('header/setHeading', {
-            heading: app.i18n.t('application.headings.routines.list'),
-            subHeading: app.i18n.tc('application.subHeadings.routines.list', routinesCount, { count: routinesCount }),
+            heading: app.i18n.t('routines.headings.allRoutines'),
+            subHeading: app.i18n.tc('routines.subHeadings.allRoutines', routinesCount, { count: routinesCount }),
           }, {
             root: true,
           })
@@ -302,26 +271,6 @@ export default {
           store.dispatch('header/setAddButton', {
             name: app.i18n.t('application.buttons.add.title'),
             callback: null, // Null is set because of SSR and serialization
-          }, {
-            root: true,
-          })
-
-          store.dispatch('header/addTab', {
-            name: app.i18n.t('application.buttons.automation.title'),
-            link: app.localePath({
-              name: app.$routes.routines.list,
-              hash: ROUTINES_HASH_AUTOMATION,
-            }),
-          }, {
-            root: true,
-          })
-
-          store.dispatch('header/addTab', {
-            name: app.i18n.t('application.buttons.schedules.title'),
-            link: app.localePath({
-              name: app.$routes.routines.list,
-              hash: ROUTINES_HASH_SCHEDULES,
-            }),
           }, {
             root: true,
           })
@@ -354,39 +303,12 @@ export default {
   },
 
   mounted() {
-    this._calculateWindowHeight()
-
     if (!this.fetchingRoutines) {
       this._checkRoute()
     }
-
-    window.addEventListener('resize', this._calculateWindowHeight)
-  },
-
-  beforeDestroy() {
-    window.removeEventListener('resize', this._calculateWindowHeight)
   },
 
   methods: {
-
-    createNewRoutine() {
-      if (this.windowSize === 'xs') {
-        this.$router.push(this.localePath(this.$routes.routines.create))
-      } else {
-        this.openView('create')
-      }
-    },
-
-    /**
-     * Event fired by loaded component
-     *
-     * @param {String} component
-     */
-    componentLoaded(component) {
-      if (Object.prototype.hasOwnProperty.call(this.loading, component)) {
-        this.loading[component] = null
-      }
-    },
 
     /**
      * Open routines view
@@ -396,6 +318,14 @@ export default {
      */
     openView(view, id) {
       if (Object.prototype.hasOwnProperty.call(this.view.items, view)) {
+        for (const viewName in this.view.items) {
+          if (Object.prototype.hasOwnProperty.call(this.view.items, viewName)) {
+            if (Object.prototype.hasOwnProperty.call(this.view.items[viewName], 'id')) {
+              this.view.items[viewName].id = null
+            }
+          }
+        }
+
         switch (view) {
           case this.view.items.detail.name:
             if (this.windowSize === 'xs') {
@@ -412,21 +342,61 @@ export default {
               }))
             }
             break
+
+          case this.view.items.settings.name:
+            if (this.windowSize === 'xs') {
+              this.$router.push(this.localePath({
+                name: this.$routes.routines.detail,
+                params: {
+                  id,
+                },
+                hash: ROUTINES_HASH_SETTINGS,
+              }))
+            } else {
+              this.$router.push(this.localePath({
+                name: this.$routes.routines.list,
+                hash: `${this.view.items.settings.route.hash}-${id}`,
+              }))
+            }
+            break
+
+          case this.view.items.create.name:
+            if (this.windowSize === 'xs') {
+              this.$router.push(this.localePath({
+                name: this.$routes.routines.create,
+                query: {
+                  type: id,
+                },
+              }))
+
+              return
+            } else {
+              this.$router.push(this.localePath({
+                name: this.$routes.routines.list,
+                hash: `${this.view.items.create.route.hash}-${id}`,
+              }))
+            }
+            break
         }
 
         this.view.opened = view
 
         if (Object.prototype.hasOwnProperty.call(this.view.items[view], 'id') && typeof id !== 'undefined') {
           this.view.items[view].id = id
+
+          const routine = this.$store.getters['entities/trigger/query']()
+            .where('id', id)
+            .first()
+
+          if (routine === null) {
+            this.closeView(view)
+          }
+        }
+
+        if (Object.prototype.hasOwnProperty.call(this.view.items[view], 'type') && typeof id !== 'undefined') {
+          this.view.items[view].type = id
         }
       }
-
-      if (Object.prototype.hasOwnProperty.call(this.loading, view) && typeof id !== 'undefined') {
-        this.loading[view] = id
-      }
-
-      // Reconfigure navigation after changes
-      this._configureNavigation()
     },
 
     /**
@@ -469,13 +439,17 @@ export default {
       this.click.clicks++
 
       if (this.click.clicks === 1) {
-        const that = this
-
         this.click.timer = setTimeout(() => {
-          that.openView(this.view.items.detail.name, item.id)
+          this.openView(this.view.items.detail.name, item.id)
 
-          that.click.clicks = 0
+          this.click.clicks = 0
         }, this.click.delay)
+      } else {
+        clearTimeout(this.click.timer)
+
+        this.click.clicks = 0
+
+        this.openView(this.view.items.settings.name, item.id)
       }
     },
 
@@ -486,8 +460,12 @@ export default {
      */
     _checkRoute() {
       if (this.$route.hash !== '') {
-        if (this.$route.hash.search(this.view.items.detail.route.hash) !== -1) {
+        if (this.$route.hash.includes(this.view.items.detail.route.hash)) {
           this.openView(this.view.items.detail.name, this.$route.hash.substring(this.view.items.detail.route.length))
+        } else if (this.$route.hash.includes(this.view.items.settings.route.hash)) {
+          this.openView(this.view.items.settings.name, this.$route.hash.substring(this.view.items.settings.route.length))
+        } else if (this.$route.hash.includes(this.view.items.create.route.hash)) {
+          this.openView(this.view.items.create.name, this.$route.hash.substring(this.view.items.create.route.length))
         }
       }
     },
@@ -502,13 +480,9 @@ export default {
         root: true,
       })
 
-      this.$store.dispatch('header/hideHamburger', null, {
-        root: true,
-      })
-
       this.$store.dispatch('header/setHeading', {
-        heading: this.$t('application.headings.routines.list'),
-        subHeading: this.$tc('application.subHeadings.routines.list', this.routines.length, { count: this.routines.length }),
+        heading: this.$t('routines.headings.allRoutines'),
+        subHeading: this.$tc('routines.subHeadings.allRoutines', this.routines.length, { count: this.routines.length }),
       }, {
         root: true,
       })
@@ -517,49 +491,16 @@ export default {
         this.$store.dispatch('header/setAddButton', {
           name: this.$t('application.buttons.add.title'),
           callback: () => {
-            this.createNewRoutine()
+            this.openView(this.view.items.type.name)
           },
         }, {
           root: true,
         })
       }
 
-      this.$store.dispatch('header/addTab', {
-        name: this.$t('application.buttons.automation.title'),
-        link: this.localePath({
-          name: this.$routes.routines.list,
-          hash: ROUTINES_HASH_AUTOMATION,
-        }),
-      }, {
-        root: true,
-      })
-
-      this.$store.dispatch('header/addTab', {
-        name: this.$t('application.buttons.schedules.title'),
-        link: this.localePath({
-          name: this.$routes.routines.list,
-          hash: ROUTINES_HASH_SCHEDULES,
-        }),
-      }, {
-        root: true,
-      })
-
       this.$store.dispatch('bottomNavigation/resetStore', null, {
         root: true,
       })
-    },
-
-    /**
-     * Calculate viewport size after window resizing
-     *
-     * @private
-     */
-    _calculateWindowHeight() {
-      if (this.windowSize === 'xs') {
-        this.offCanvasHeight = null
-      } else {
-        this.offCanvasHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
-      }
     },
 
   },
@@ -573,6 +514,6 @@ export default {
 }
 </script>
 
-<style rel="stylesheet/scss" lang="scss" scoped>
+<style rel="stylesheet/scss" lang="scss">
   @import 'index';
 </style>

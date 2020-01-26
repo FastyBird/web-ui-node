@@ -1,34 +1,12 @@
+@import "~@fastybird-com/theme/assets/mixins/utilities";
+
 .fb-routines-create-view {
   &__container {
-    padding: 5px 10px;
-
-    .fb-btn:not(:last-child) {
-      svg {
-        margin-right: 15px;
-        float: left;
-        font-size: 2em;
-      }
-
-      span {
-        float: left;
+    > div {
+      .fb-btn-mobile {
+        text-align: right;
         line-height: 2em;
       }
     }
-
-    .fb-btn:last-child {
-      text-align: right;
-    }
-  }
-
-  &__heading {
-    font-weight: bold;
-    font-size: 13px;
-    margin: 0 0 10px 0;
-  }
-
-  &__conditions-container,
-  &__actions-container {
-    margin-left: 0 !important;
-    margin-right: 0 !important;;
   }
 }

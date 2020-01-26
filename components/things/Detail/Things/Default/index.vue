@@ -114,80 +114,28 @@ export default {
 
   },
 
-  computed: {
+  data() {
+    return {
+      analogSensorsProperties: [],
+      analogActorsProperties: [],
+      binarySensorsProperties: [],
+      binaryActorsProperties: [],
+      lightProperties: [],
+      energyProperties: [],
+      environmentProperties: [],
+      switchProperties: [],
+    }
+  },
 
-    /**
-     * Get all analog sensors properties
-     *
-     * @returns {Array}
-     */
-    analogSensorsProperties() {
-      return this._.filter(this._.get(this.thing, 'channel.properties', []), 'isAnalogSensor')
-    },
-
-    /**
-     * Get all analog actors properties
-     *
-     * @returns {Array}
-     */
-    analogActorsProperties() {
-      return this._.filter(this._.get(this.thing, 'channel.properties', []), 'isAnalogActor')
-    },
-
-    /**
-     * Get all binary sensors properties
-     *
-     * @returns {Array}
-     */
-    binarySensorsProperties() {
-      return this._.filter(this._.get(this.thing, 'channel.properties', []), 'isBinarySensor')
-    },
-
-    /**
-     * Get all binary actors properties
-     *
-     * @returns {Array}
-     */
-    binaryActorsProperties() {
-      return this._.filter(this._.get(this.thing, 'channel.properties', []), 'isBinaryActor')
-    },
-
-    /**
-     * Get all light properties
-     *
-     * @returns {Array}
-     */
-    lightProperties() {
-      return this._.filter(this._.get(this.thing, 'channel.properties', []), 'isLight')
-    },
-
-    /**
-     * Get all energy meter properties
-     *
-     * @returns {Array}
-     */
-    energyProperties() {
-      return this._.filter(this._.get(this.thing, 'channel.properties', []), 'isEnergy')
-    },
-
-    /**
-     * Get all energy meter properties
-     *
-     * @returns {Array}
-     */
-    environmentProperties() {
-      return this._.filter(this._.get(this.thing, 'channel.properties', []), 'isEnvironment')
-    },
-
-    /**
-     * Get all relay switch properties
-     *
-     * @returns {Array}
-     */
-    switchProperties() {
-      return this._.filter(this._.get(this.thing, 'channel.properties', []), 'isSwitch')
-    },
-
+  created() {
+    this.analogSensorsProperties = this._.filter(this._.get(this.thing, 'channel.properties', []), 'isAnalogSensor')
+    this.analogActorsProperties = this._.filter(this._.get(this.thing, 'channel.properties', []), 'isAnalogActor')
+    this.binarySensorsProperties = this._.filter(this._.get(this.thing, 'channel.properties', []), 'isBinarySensor')
+    this.binaryActorsProperties = this._.filter(this._.get(this.thing, 'channel.properties', []), 'isBinaryActor')
+    this.lightProperties = this._.filter(this._.get(this.thing, 'channel.properties', []), 'isLight')
+    this.energyProperties = this._.filter(this._.get(this.thing, 'channel.properties', []), 'isEnergy')
+    this.environmentProperties = this._.filter(this._.get(this.thing, 'channel.properties', []), 'isEnvironment')
+    this.switchProperties = this._.filter(this._.get(this.thing, 'channel.properties', []), 'isSwitch')
   },
 
 }

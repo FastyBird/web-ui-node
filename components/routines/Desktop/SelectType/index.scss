@@ -1,0 +1,36 @@
+@import "~@fastybird-com/theme/assets/variables/colors";
+@import "~@fastybird-com/theme/assets/mixins/utilities";
+
+.fb-routines-select-type {
+  &__container {
+    .fb-modal-window__header {
+      text-align: center;
+
+      svg {
+        font-size: 5em;
+        margin-bottom: 10px;
+      }
+    }
+
+    .fb-modal-window__body {
+      @include gridRow;
+
+      > div {
+        @include gridCel;
+
+        -webkit-box-flex: 0;
+        -ms-flex: 0 0 50%;
+        flex: 0 0 50%;
+        max-width: 50%;
+
+        margin-bottom: 10px;
+      }
+    }
+
+    .fb-modal-window__footer {
+      .fb-btn-link {
+        color: $text-muted !important;
+      }
+    }
+  }
+}

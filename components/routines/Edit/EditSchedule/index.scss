@@ -1,0 +1,51 @@
+@import "~@fastybird-com/theme/assets/variables/texts";
+@import "~@fastybird-com/theme/assets/mixins/utilities";
+
+.fb-routines-edit-schedule {
+  &__container {
+    margin-top: 5px;
+    padding-bottom: 50px;
+
+    .vue-scroll-picker {
+      font-size: 24px;
+    }
+
+    .vue-scroll-picker-layer {
+      div.top {
+        background: linear-gradient(180deg, #fcfcfc 10%, rgba(255, 255, 255, 0.7));
+      }
+      div.bottom {
+        background: linear-gradient(0deg, #fcfcfc 10%, rgba(255, 255, 255, 0.7));
+      }
+    }
+
+    h3 {
+      display: inline-block;
+      max-width: 100%;
+      margin: 0 0 10px 10px;
+      font-weight: bold;
+      font-size: $font-size-base;
+    }
+  }
+
+  &__days {
+    @include gridRow;
+
+    margin: 0;
+  }
+
+  &__day {
+    @include gridCel;
+
+    -webkit-box-flex: 0;
+    -ms-flex: 0 0 14.2%;
+    flex: 0 0 14.2%;
+    max-width: 14.2%;
+
+    text-align: center;
+
+    .fb-checkbox__container {
+      padding-top: 5px;
+    }
+  }
+}

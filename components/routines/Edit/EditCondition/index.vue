@@ -31,30 +31,6 @@
         />
       </list-items-container>
     </template>
-
-    <fb-button
-      v-if="condition !== null"
-      variant="primary"
-      size="lg"
-      block
-      mobile
-      @click="edit"
-    >
-      {{ $t('routines.buttons.updateThing.title') }}
-      <font-awesome-icon icon="sync-alt" />
-    </fb-button>
-
-    <fb-button
-      v-else
-      variant="primary"
-      size="lg"
-      block
-      mobile
-      @click="add"
-    >
-      {{ $t('routines.buttons.addThing.title') }}
-      <font-awesome-icon icon="plus" />
-    </fb-button>
   </div>
 </template>
 
@@ -90,123 +66,50 @@ export default {
       },
     },
 
+    typeThing: {
+      type: Boolean,
+      default: false,
+    },
+
+    typeSensor: {
+      type: Boolean,
+      default: false,
+    },
+
+    remoteSubmit: {
+      type: Boolean,
+      default: false,
+    },
+
   },
 
   data() {
     return {
       model: {},
+      groupedProperties: {
+        actors: {
+          analog: [],
+          binary: [],
+          lights: [],
+          switches: [],
+        },
+        sensors: {
+          analog: [],
+          binary: [],
+          energy: [],
+          environment: [],
+          events: [],
+        },
+      },
     }
   },
 
-  computed: {
+  watch: {
 
-    groupedProperties() {
-      return {
-        actors: {
-          analog: this.analogActorsProperties,
-          binary: this.binaryActorsProperties,
-          lights: this.lightProperties,
-          switches: this.switchProperties,
-        },
-        sensors: {
-          analog: this.analogSensorsProperties,
-          binary: this.binarySensorsProperties,
-          energy: this.energyProperties,
-          environment: this.environmentProperties,
-          events: this.eventProperties,
-          buttons: this.buttonProperties,
-        },
+    remoteSubmit(val) {
+      if (val) {
+        this._collectData()
       }
-    },
-
-    /**
-     * Get all analog sensors properties
-     *
-     * @returns {Array}
-     */
-    analogSensorsProperties() {
-      return this._.filter(this._.get(this.thing, 'channel.properties', []), 'isAnalogSensor')
-    },
-
-    /**
-     * Get all analog actors properties
-     *
-     * @returns {Array}
-     */
-    analogActorsProperties() {
-      return this._.filter(this._.get(this.thing, 'channel.properties', []), 'isAnalogActor')
-    },
-
-    /**
-     * Get all binary sensors properties
-     *
-     * @returns {Array}
-     */
-    binarySensorsProperties() {
-      return this._.filter(this._.get(this.thing, 'channel.properties', []), 'isBinarySensor')
-    },
-
-    /**
-     * Get all binary actors properties
-     *
-     * @returns {Array}
-     */
-    binaryActorsProperties() {
-      return this._.filter(this._.get(this.thing, 'channel.properties', []), 'isBinaryActor')
-    },
-
-    /**
-     * Get all light properties
-     *
-     * @returns {Array}
-     */
-    lightProperties() {
-      return this._.filter(this._.get(this.thing, 'channel.properties', []), 'isLight')
-    },
-
-    /**
-     * Get all energy meter properties
-     *
-     * @returns {Array}
-     */
-    energyProperties() {
-      return this._.filter(this._.get(this.thing, 'channel.properties', []), 'isEnergy')
-    },
-
-    /**
-     * Get all energy meter properties
-     *
-     * @returns {Array}
-     */
-    environmentProperties() {
-      return this._.filter(this._.get(this.thing, 'channel.properties', []), 'isEnvironment')
-    },
-
-    /**
-     * Get all relay switch properties
-     *
-     * @returns {Array}
-     */
-    switchProperties() {
-      return this._.filter(this._.get(this.thing, 'channel.properties', []), 'isSwitch')
-    },
-
-    /**
-     * Get all event properties
-     *
-     * @returns {Array}
-     */
-    eventProperties() {
-      return this._.filter(this._.get(this.thing, 'channel.properties', []), 'isEvent')
-    },
-
-    /**
-     * Get all button properties
-     *
-     * @returns {Array}
-     */
-    buttonProperties() {
-      return this._.filter(this._.get(this.thing, 'channel.properties', []), 'isButton')
     },
 
   },
@@ -214,70 +117,15 @@ export default {
   created() {
     this._initModel()
 
-    this.$store.dispatch('header/resetStore', null, {
-      root: true,
-    })
-
-    this.$store.dispatch('header/setLeftButton', {
-      name: this.$t('application.buttons.back.title'),
-      callback: () => {
-        this._initModel()
-
-        this.$emit('back')
-      },
-      icon: 'arrow-left',
-    }, {
-      root: true,
-    })
-
-    if (this.condition !== null) {
-      this.$store.dispatch('header/setRightButton', {
-        name: this.$t('application.buttons.remove.title'),
-        callback: () => {
-          this._initModel()
-
-          this.$emit('remove', this.thing)
-        },
-      }, {
-        root: true,
-      })
-    } else {
-      this.$store.dispatch('header/setRightButton', {
-        name: this.$t('application.buttons.close.title'),
-        callback: () => {
-          this._initModel()
-
-          this.$emit('close')
-        },
-      }, {
-        root: true,
-      })
-    }
-
-    this.$store.dispatch('header/setFullRowHeading', null, {
-      root: true,
-    })
-
-    this.$store.dispatch('header/setHeading', {
-      heading: this.$tThing(this.thing),
-      subHeading: this.$tThingDevice(this.thing),
-    }, {
-      root: true,
-    })
-
-    this.$store.dispatch('header/setHeadingIcon', {
-      icon: 'project-diagram',
-    }, {
-      root: true,
-    })
-
-    this.$store.dispatch('bottomNavigation/resetStore', null, {
-      root: true,
-    })
-
-    this.$store.dispatch('bottomNavigation/hideNavigation', null, {
-      root: true,
-    })
+    this.groupedProperties.sensors.analog = this.typeSensor ? this._.filter(this._.get(this.thing, 'channel.properties', []), 'isAnalogSensor') : []
+    this.groupedProperties.actors.analog = this.typeThing ? this._.filter(this._.get(this.thing, 'channel.properties', []), 'isAnalogActor') : []
+    this.groupedProperties.sensors.binary = this.typeSensor ? this._.filter(this._.get(this.thing, 'channel.properties', []), 'isBinarySensor') : []
+    this.groupedProperties.actors.analog = this.typeThing ? this._.filter(this._.get(this.thing, 'channel.properties', []), 'isBinaryActor') : []
+    this.groupedProperties.actors.lights = this.typeThing ? this._.filter(this._.get(this.thing, 'channel.properties', []), 'isLight') : []
+    this.groupedProperties.sensors.energy = this.typeSensor ? this._.filter(this._.get(this.thing, 'channel.properties', []), 'isEnergy') : []
+    this.groupedProperties.sensors.environment = this.typeSensor ? this._.filter(this._.get(this.thing, 'channel.properties', []), 'isEnvironment') : []
+    this.groupedProperties.actors.switches = this.typeThing ? this._.filter(this._.get(this.thing, 'channel.properties', []), 'isSwitch') : []
+    this.groupedProperties.sensors.events = this._.filter(this._.get(this.thing, 'channel.properties', []), 'isEvent')
   },
 
   mounted() {
@@ -287,31 +135,11 @@ export default {
   methods: {
 
     /**
-     * Add values
-     *
-     * @param {Object} event
-     */
-    add(event) {
-      event && event.preventDefault()
-
-      this._collectData()
-    },
-
-    /**
-     * Update values
-     *
-     * @param {Object} event
-     */
-    edit(event) {
-      event && event.preventDefault()
-
-      this._collectData()
-    },
-
-    /**
      * Submit values
      */
     _collectData() {
+      this.$emit('update:remoteSubmit', false)
+
       const condition = {
         thing: this.condition ? this.condition.thing : this.thing.id,
         enabled: this.condition ? this.condition.enabled : true,

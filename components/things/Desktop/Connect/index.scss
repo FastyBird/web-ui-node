@@ -1,0 +1,122 @@
+@import "~@fastybird-com/theme/assets/variables/colors";
+@import "~@fastybird-com/theme/assets/mixins/utilities";
+
+.fb-things-connect {
+  &__container {
+    .fb-modal-window__header {
+      text-align: center;
+
+      svg {
+        font-size: 5em;
+        margin-bottom: 10px;
+      }
+
+      .fb-icon-with-child__container {
+        > svg {
+          font-size: 5em;
+          margin-top: 15px;
+          margin-bottom: 15px;
+        }
+
+        .fb-icon-with-child__container-child {
+          border-radius: 50%;
+          font-size: 16px;
+          display: inline-block;
+          height: 32px;
+          line-height: 32px;
+          text-align: center;
+          width: 32px;
+          margin-top: 15px;
+          margin-bottom: 15px;
+
+          svg {
+            font-size: 1em;
+            margin-bottom: 0;
+          }
+        }
+      }
+    }
+
+    .fb-modal-window__body {
+
+    }
+
+    .fb-modal-window__footer {
+      .fb-btn-link {
+        color: $text-muted !important;
+      }
+    }
+  }
+
+  &__step-1 {
+    &-row {
+      @include gridRow;
+    }
+
+    &-icon {
+      -webkit-box-flex: 0;
+      -ms-flex: 0 0 22%;
+      flex: 0 0 22%;
+      max-width: 22%;
+
+      @include gridCel;
+
+      text-align: center;
+
+      svg {
+        font-size: 2em;
+      }
+    }
+
+    &-info {
+      -ms-flex-preferred-size: 0;
+      flex-basis: 0;
+      -webkit-box-flex: 1;
+      -ms-flex-positive: 1;
+      flex-grow: 1;
+      max-width: 100%;
+
+      @include gridCel;
+    }
+  }
+
+  &__step-2 {
+    &-row {
+      @include gridRow;
+
+      > div {
+        @include gridCel;
+
+        -webkit-box-flex: 0;
+        -ms-flex: 0 0 66.666667%;
+        flex: 0 0 66.666667%;
+        max-width: 66.666667%;
+
+        margin-left: 16.666667%;
+      }
+    }
+  }
+
+  &__step-3 {
+    text-align: center;
+
+    svg {
+      display: inline-block;
+      font-size: 50px;
+      height: 100px;
+      line-height: 100px;
+      text-align: center;
+      width: 100px;
+    }
+
+    .fb-spinner__container {
+      height: 100px;
+      position: relative;
+      display: inline-block;
+    }
+  }
+
+  &__step-4 {
+
+  }
+}

@@ -123,10 +123,6 @@ export default {
             root: true,
           })
 
-          store.dispatch('header/hideRightButton', null, {
-            root: true,
-          })
-
           store.dispatch('header/setHeading', {
             heading: app.$tThing(thing),
             subHeading: app.$tThingDevice(thing),
@@ -212,10 +208,6 @@ export default {
         link: this.localePath({ name: this.$routes.things.detail, params: { id: this.thing.channel_id } }),
         icon: 'arrow-left',
       }, {
-        root: true,
-      })
-
-      this.$store.dispatch('header/hideRightButton', null, {
         root: true,
       })
 

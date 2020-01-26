@@ -1,5 +1,4 @@
 @import "~@fastybird-com/theme/assets/variables/colors";
-@import "~@fastybird-com/theme/assets/variables/screen";
 
 .fb-list-items-container {
   &__container {
@@ -16,8 +15,6 @@
   }
 
   &__items {
-    @media (max-width: $screen-xs-max) {
-      padding: 0 10px;
-    }
+    padding: 0 10px;
   }
 }

@@ -44,6 +44,11 @@ export default {
         .first()
     },
 
+    /**
+     * Check if thing is button type
+     *
+     * @returns {Boolean}
+     */
     isButtonThing() {
       return !!(this._.get(this.hardware, 'isManufacturerFastyBird', false) &&
         (

@@ -41,8 +41,6 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
-
 import number from '@/helpers/number'
 
 import SwitchActor from '@/components/things/Actors/Switch'
@@ -62,40 +60,21 @@ export default {
       required: true,
     },
 
+    exchangeStatus: {
+      type: Boolean,
+      default: false,
+    },
+
+  },
+
+  data() {
+    return {
+      switchProperty: null,
+      environmentProperty: null,
+    }
   },
 
   computed: {
-
-    ...mapState('wamp', {
-      exchangeConnected: state => state.isConnected,
-    }),
-
-    /**
-     * Get switch property from channel
-     *
-     * @returns {(ChannelProperty|null)}
-     */
-    switchProperty() {
-      const property = this._.first(this._.filter(this._.get(this.thing, 'channel.properties', []), 'isSwitch'))
-
-      return typeof property !== 'undefined' ? property : null
-    },
-
-    /**
-     * Get environment property from channel
-     *
-     * @returns {(ChannelProperty|null)}
-     */
-    environmentProperty() {
-      if (this._.get(this.hardware, 'isManufacturerItead') && this._.get(this.hardware, 'model') === 'sonoff_sc') {
-        const envProperty = this._.filter(this._.get(this.thing, 'channel.properties', []), 'isEnvironment')
-          .find(({ property }) => property === 'temperature')
-
-        return typeof envProperty !== 'undefined' ? envProperty : null
-      }
-
-      return null
-    },
 
     environmentPropertyValue() {
       const propertyValue = this.$store.getters['entities/channel_property_value/query']()
@@ -106,25 +85,31 @@ export default {
       return propertyValue !== null ? number.format(parseFloat(propertyValue.value), 2, ',', ' ') : '-'
     },
 
-    /**
-     * Get thing hardware info
-     *
-     * @returns {(Hardware|null)}
-     */
-    hardware() {
-      return this.$store.getters['entities/hardware/query']()
-        .where('device_id', this.thing.device_id)
-        .first()
-    },
-
   },
 
   watch: {
 
-    exchangeConnected() {
+    exchangeStatus() {
       this._subscribeSockets()
     },
 
+  },
+
+  created() {
+    const hardware = this.$store.getters['entities/hardware/query']()
+      .where('device_id', this.thing.device_id)
+      .first()
+
+    const switchProperty = this._.first(this._.filter(this._.get(this.thing, 'channel.properties', []), 'isSwitch'))
+
+    this.switchProperty = typeof switchProperty !== 'undefined' ? switchProperty : null
+
+    if (this._.get(hardware, 'isManufacturerItead') && this._.get(hardware, 'model') === 'sonoff_sc') {
+      const envProperty = this._.filter(this._.get(this.thing, 'channel.properties', []), 'isEnvironment')
+        .find(({ property }) => property === 'temperature')
+
+      this.environmentProperty = typeof envProperty !== 'undefined' ? envProperty : null
+    }
   },
 
   beforeMount() {
@@ -148,7 +133,7 @@ export default {
      * @private
      */
     _subscribeSockets() {
-      if (this.exchangeConnected) {
+      if (this.exchangeStatus) {
         this.$store.dispatch('entities/device_socket/subscribe', {
           device_id: this.thing.device_id,
         }, {

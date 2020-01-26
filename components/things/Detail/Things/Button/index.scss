@@ -1,26 +1,8 @@
 @import "~@fastybird-com/theme/assets/variables/colors";
 
 .fb-iot-things-detail-button {
-  &__container {
-    padding: 5px 10px;
-
-    .fb-list-items-container__container {
-      margin-left: -10px;
-      margin-right: -10px;
-    }
-
-    .fb-divider__container {
-      margin: 0;
-    }
-  }
-
   &__new-action {
     text-align: center;
     margin: 10px 0;
-  }
-
-  &__action-container {
-    margin-left: 10px;
-    margin-right: 10px;
   }
 }

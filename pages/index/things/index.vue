@@ -5,87 +5,63 @@
         v-for="thing in things"
         :key="thing.id"
         :thing="thing"
+        :exchange-status="exchangeConnected"
         @click="oneClick"
       />
     </div>
 
-    <!-- THING DETAIL FOR LARGE DEVICES //-->
     <off-canvas
-      :show="(view.opened.type === view.detail.name || view.opened.type === view.settings.name) && windowSize !== 'xs'"
-      @close="closeView(view.opened.type)"
+      v-if="windowSize !== 'xs'"
+      :show="view.opened === view.items.detail.name || view.opened === view.items.settings.name"
+      @close="closeView(view.opened)"
     >
-      <off-canvas-body
-        v-if="view.opened.type !== null && windowSize !== 'xs'"
+      <thing-detail
+        v-if="view.opened === view.items.detail.name"
+        :id="view.items.detail.id"
         slot="body"
-        :heading="detailHeading"
-        :sub-heading="detailSubHeading"
-      >
-        <template slot="left-button">
-          <button
-            class="button"
-            @click.prevent="handleDetailLeftButton"
-          >
-            <font-awesome-icon
-              v-if="view.opened.type === view.detail.name"
-              icon="times"
-            />
-            <font-awesome-icon
-              v-else
-              icon="arrow-left"
-            />
-          </button>
-        </template>
+        @close="closeView(view.opened)"
+      />
 
-        <template slot="right-button">
-          <button
-            v-if="view.opened.type === view.detail.name"
-            class="button"
-            @click.prevent="openView(view.settings.name, viewThing.channel_id)"
-          >
-            <font-awesome-icon icon="cogs" />
-          </button>
-          <button
-            v-if="view.opened.type === view.settings.name"
-            class="button"
-            @click.prevent="closeView(view.opened.type)"
-          >
-            <font-awesome-icon icon="times" />
-          </button>
-        </template>
-
-        <transition
-          slot="body"
-          name="fade"
-          mode="out-in"
-        >
-          <thing-detail
-            v-if="viewThing !== null && view.opened.type === view.detail.name"
-            :thing="viewThing"
-            :style="`height: ${offCanvasHeight}px`"
-            class="fb-iot-things-list-view__off-canvas-body"
-          />
-
-          <thing-settings
-            v-if="viewThing !== null && view.opened.type === view.settings.name"
-            :thing="viewThing"
-            :style="`height: ${offCanvasHeight}px`"
-            class="fb-iot-things-list-view__off-canvas-body"
-            @removed="closeView(view.opened.type)"
-          />
-        </transition>
-      </off-canvas-body>
+      <thing-detail
+        v-if="view.opened === view.items.settings.name"
+        :id="view.items.settings.id"
+        slot="body"
+        :settings="true"
+        @close="closeView(view.opened)"
+      />
     </off-canvas>
+
+    <fb-modal-window
+      v-if="view.opened === view.items.connect.name && windowSize !== 'xs'"
+      @close="closeView(view.opened)"
+    >
+      <connect-thing
+        slot="modal-content"
+        @close="closeView(view.opened)"
+      />
+    </fb-modal-window>
 
     <fb-loading-box
       v-if="fetchingThings && things.length === 0"
       :text="$t('things.texts.loadingThings')"
     />
 
-    <no-results
-      v-if="!fetchingThings && things.length === 0"
-      :message="$t('things.texts.noThings')"
-      icon="plug"
-    />
+    <template v-if="!fetchingThings && things.length === 0">
+      <no-results
+        :message="$t('things.texts.noThings')"
+        icon="plug"
+      />
+
+      <div class="fb-routines-list-view__new-routine">
+        <fb-button
+          variant="outline-primary"
+          name="press"
+          @click.prevent="openThingConnect"
+        >
+          {{ $t('things.buttons.addNew.title') }}
+        </fb-button>
+      </div>
+    </template>
   </div>
 </template>
 
@@ -100,23 +76,10 @@ import {
   THINGS_HASH_CONNECT,
 } from '@/configuration/routes'
 
-import FbComponentLoading from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoading'
-import FbComponentLoadingError from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoadingError'
-
 import ThingListItem from '@/components/things/ListItem'
 
-const ThingDetail = () => ({
-  component: import('@/components/things/Detail'),
-  loading: FbComponentLoading,
-  error: FbComponentLoadingError,
-  timeout: 5000,
-})
-const ThingSettings = () => ({
-  component: import('@/components/things/Settings'),
-  loading: FbComponentLoading,
-  error: FbComponentLoadingError,
-  timeout: 5000,
-})
+const ThingDetail = () => import('@/components/things/Desktop/Detail')
+const ConnectThing = () => import('@/components/things/Desktop/Connect')
 
 export default {
 
@@ -124,45 +87,40 @@ export default {
 
   components: {
     ThingListItem,
+
     ThingDetail,
-    ThingSettings,
+    ConnectThing,
   },
 
   transition: 'fade',
 
   data() {
     return {
-      loading: {
-        detail: null,
-      },
       view: {
-        opened: {
-          type: null,
-        },
-        connect: {
-          name: 'connect',
-          type: undefined,
-          id: null,
-          route: {
-            hash: THINGS_HASH_CONNECT,
-            length: 8,
+        opened: null,
+        items: {
+          connect: {
+            name: 'connect',
+            route: {
+              hash: THINGS_HASH_CONNECT,
+              length: 8,
+            },
           },
-        },
-        detail: {
-          name: 'detail',
-          type: undefined,
-          id: null,
-          route: {
-            hash: THINGS_HASH_DETAIL,
-            length: 8,
+          detail: {
+            name: 'detail',
+            id: null,
+            route: {
+              hash: THINGS_HASH_DETAIL,
+              length: 8,
+            },
           },
-        },
-        settings: {
-          name: 'settings',
-          id: null,
-          route: {
-            hash: THINGS_HASH_SETTINGS,
-            length: 10,
+          settings: {
+            name: 'settings',
+            id: null,
+            route: {
+              hash: THINGS_HASH_SETTINGS,
+              length: 10,
+            },
           },
         },
       },
@@ -171,7 +129,6 @@ export default {
         clicks: 0,
         timer: null,
       },
-      offCanvasHeight: null,
     }
   },
 
@@ -210,74 +167,12 @@ export default {
     },
 
     /**
-     * View thing data
-     *
-     * @returns {(Thing|null)}
-     */
-    viewThing() {
-      if (this.view.opened.type === null) {
-        return null
-      }
-
-      let id = ''
-
-      switch (this.view.opened.type) {
-        case this.view.detail.name:
-          id = this.view.detail.id
-          break
-
-        case this.view.settings.name:
-          id = this.view.settings.id
-          break
-      }
-
-      return this.$store.getters['entities/thing/query']()
-        .with('device')
-        .with('device.properties')
-        .with('device.socket')
-        .with('channel')
-        .with('channel.properties')
-        .where('channel_id', id)
-        .first()
-    },
-
-    /**
      * Flag signalizing that things are loading from server
      *
      * @returns {Boolean}
      */
     fetchingThings() {
       return this.$store.getters['entities/thing/fetching']()
-    },
-
-    /**
-     * Get detail window heading
-     *
-     * @returns {String}
-     */
-    detailHeading() {
-      if (this.view.opened.type === this.view.detail.name) {
-        return this.$tThing(this.viewThing)
-      } else if (this.view.opened.type === this.view.settings.name) {
-        return this.$tThing(this.viewThing)
-      }
-
-      return 'N/A'
-    },
-
-    /**
-     * Get detail window sub-heading
-     *
-     * @returns {(String|null)}
-     */
-    detailSubHeading() {
-      if (this.view.opened.type === this.view.detail.name) {
-        return this.$tThingDevice(this.viewThing)
-      } else if (this.view.opened.type === this.view.settings.name) {
-        return this.$tThingDevice(this.viewThing)
-      }
-
-      return null
     },
 
   },
@@ -288,13 +183,12 @@ export default {
       if (this._.get(val, 'hash', '') === '') {
         this.closeView()
       } else if (this._.get(val, 'hash', '') !== '') {
-        for (const viewName in this.view) {
+        for (const viewName in this.view.items) {
           if (
-            Object.prototype.hasOwnProperty.call(this.view, viewName) &&
-            viewName !== 'opened' &&
-            val.hash.includes(this._.get(this.view[viewName], 'route.hash', ''))
+            Object.prototype.hasOwnProperty.call(this.view.items, viewName) &&
+            val.hash.includes(this._.get(this.view.items[viewName], 'route.hash', ''))
           ) {
-            this.openView(viewName, val.hash.substring(this._.get(this.view[viewName], 'route.length', 0)))
+            this.openView(viewName, val.hash.substring(this._.get(this.view.items[viewName], 'route.length', 0)))
 
             return
           }
@@ -304,44 +198,32 @@ export default {
 
     windowSize(val) {
       if (val === 'xs') {
-        if (this.view.opened.type === this.view.settings.name) {
+        if (this.view.opened === this.view.items.detail.name) {
           this.$router.push(this.localePath({
             name: this.$routes.things.detail,
             params: {
-              id: this.view.settings.id,
+              id: this.view.items.detail.id,
+            },
+          }))
+        } else if (this.view.opened === this.view.items.settings.name) {
+          this.$router.push(this.localePath({
+            name: this.$routes.things.detail,
+            params: {
+              id: this.view.items.settings.id,
             },
             hash: THINGS_HASH_SETTINGS,
           }))
-
-          return
-        } else if (this.view.opened.type === this.view.detail.name) {
+        } else if (this.view.opened === this.view.items.connect.name) {
           this.$router.push(this.localePath({
-            name: this.$routes.things.detail,
-            params: {
-              id: this.view.detail.id,
-            },
+            name: this.$routes.things.connect,
           }))
-
-          return
         }
       }
-
-      this._calculateWindowHeight()
     },
 
     fetchingThings(val) {
       if (!val) {
         this._checkRoute()
-      }
-    },
-
-    exchangeConnected(val) {
-      if (val && this.view.opened.type !== null && this.viewThing) {
-        this.$store.dispatch('entities/device_socket/subscribe', {
-          device_id: this.viewThing.device_id,
-        }, {
-          root: true,
-        })
       }
     },
 
@@ -361,13 +243,9 @@ export default {
             root: true,
           })
 
-          store.dispatch('header/hideHamburger', null, {
-            root: true,
-          })
-
           store.dispatch('header/setHeading', {
-            heading: app.i18n.t('application.headings.things.list'),
-            subHeading: app.i18n.tc('application.subHeadings.things.list', thingsCount, { count: thingsCount }),
+            heading: app.i18n.t('things.headings.allThings'),
+            subHeading: app.i18n.tc('things.subHeadings.allThings', thingsCount, { count: thingsCount }),
           }, {
             root: true,
           })
@@ -421,8 +299,6 @@ export default {
   },
 
   mounted() {
-    this._calculateWindowHeight()
-
     if (!this.fetchingThings) {
       this._checkRoute()
     }
@@ -431,21 +307,16 @@ export default {
   methods: {
 
     /**
-     * Event fired by loaded component
-     *
-     * @param {String} component
+     * Open connect new thing window
      */
-    componentLoaded(component) {
-      if (Object.prototype.hasOwnProperty.call(this.loading, component)) {
-        this.loading[component] = null
-      }
-    },
-
     openThingConnect() {
       if (this.windowSize === 'xs') {
         this.$router.push(this.localePath(this.$routes.things.connect))
       } else {
-        this.openView('connect')
+        this.$router.push(this.localePath({
+          name: this.$routes.things.list,
+          hash: this.view.items.connect.route.hash,
+        }))
       }
     },
 
@@ -453,83 +324,70 @@ export default {
      * Open thing dialog
      *
      * @param {String} view
-     * @param {String} id
+     * @param {String} [id]
      */
     openView(view, id) {
-      if (
-        this.view.opened.type === view &&
-        (
-          (Object.prototype.hasOwnProperty.call(this.view[view], 'id') && typeof id !== 'undefined' && this.view[view].id === id) || (typeof id === 'undefined')
-        )
-      ) {
-        return
-      }
-
-      for (const viewName in this.view) {
-        if (Object.prototype.hasOwnProperty.call(this.view, viewName)) {
-          if (Object.prototype.hasOwnProperty.call(this.view[viewName], 'id')) {
-            this.view[viewName].id = null
+      if (Object.prototype.hasOwnProperty.call(this.view.items, view)) {
+        for (const viewName in this.view.items) {
+          if (Object.prototype.hasOwnProperty.call(this.view.items, viewName)) {
+            if (Object.prototype.hasOwnProperty.call(this.view.items[viewName], 'id')) {
+              this.view.items[viewName].id = null
+            }
           }
         }
-      }
 
-      switch (view) {
-        case this.view.detail.name:
-          if (this.windowSize === 'xs') {
-            this.$router.push(this.localePath({
-              name: this.$routes.things.detail,
-              params: {
-                id,
-              },
-            }))
+        switch (view) {
+          case this.view.items.detail.name:
+            if (this.windowSize === 'xs') {
+              this.$router.push(this.localePath({
+                name: this.$routes.things.detail,
+                params: {
+                  id,
+                },
+              }))
 
-            return
-          } else {
-            this.$router.push(this.localePath({
-              name: this.$routes.things.list,
-              hash: `${this.view.detail.route.hash}-${id}`,
-            }))
-          }
-          break
+              return
+            } else {
+              this.$router.push(this.localePath({
+                name: this.$routes.things.list,
+                hash: `${this.view.items.detail.route.hash}-${id}`,
+              }))
+            }
+            break
 
-        case this.view.settings.name:
-          if (this.windowSize === 'xs') {
-            this.$router.push(this.localePath({
-              name: this.$routes.things.detail,
-              params: {
-                id,
-              },
-              hash: THINGS_HASH_SETTINGS,
-            }))
+          case this.view.items.settings.name:
+            if (this.windowSize === 'xs') {
+              this.$router.push(this.localePath({
+                name: this.$routes.things.detail,
+                params: {
+                  id,
+                },
+                hash: THINGS_HASH_SETTINGS,
+              }))
 
-            return
-          } else {
-            this.$router.push(this.localePath({
-              name: this.$routes.things.list,
-              hash: `${this.view.settings.route.hash}-${id}`,
-            }))
-          }
-          break
-      }
-
-      if (Object.prototype.hasOwnProperty.call(this.view, view)) {
-        this.view.opened.type = view
-
-        if (Object.prototype.hasOwnProperty.call(this.view[view], 'id') && typeof id !== 'undefined') {
-          this.view[view].id = id
+              return
+            } else {
+              this.$router.push(this.localePath({
+                name: this.$routes.things.list,
+                hash: `${this.view.items.settings.route.hash}-${id}`,
+              }))
+            }
+            break
         }
-      }
 
-      if (Object.prototype.hasOwnProperty.call(this.loading, view) && typeof id !== 'undefined') {
-        this.loading[view] = id
-      }
+        this.view.opened = view
 
-      if (this.exchangeConnected && this.viewThing) {
-        this.$store.dispatch('entities/device_socket/subscribe', {
-          device_id: this.viewThing.device_id,
-        }, {
-          root: true,
-        })
+        if (Object.prototype.hasOwnProperty.call(this.view.items[view], 'id') && typeof id !== 'undefined') {
+          this.view.items[view].id = id
+
+          const thing = this.$store.getters['entities/thing/query']()
+            .where('channel_id', id)
+            .first()
+
+          if (thing === null) {
+            this.closeView(view)
+          }
+        }
       }
     },
 
@@ -541,26 +399,15 @@ export default {
     closeView(view) {
       this.$router.push(this.localePath(this.$routes.things.list))
 
-      this.view.opened.type = null
+      this.view.opened = null
 
-      if (typeof view !== 'undefined' && Object.prototype.hasOwnProperty.call(this.view, view)) {
-        if (Object.prototype.hasOwnProperty.call(this.view[view], 'id')) {
-          this.view[view].id = null
+      if (typeof view !== 'undefined' && Object.prototype.hasOwnProperty.call(this.view.items, view)) {
+        if (Object.prototype.hasOwnProperty.call(this.view.items[view], 'id')) {
+          this.view.items[view].id = null
         }
       }
 
       this.$el.focus()
-    },
-
-    /**
-     * Switch detail display according to actual state
-     */
-    handleDetailLeftButton() {
-      if (this.view.opened.type === this.view.detail.name) {
-        this.closeView(this.view.detail.name)
-      } else if (this.view.opened.type === this.view.settings.name) {
-        this.openView(this.view.detail.name, this.view.settings.id)
-      }
     },
 
     /**
@@ -578,7 +425,10 @@ export default {
       for (const pathItem of path) {
         if (
           typeof pathItem.getAttribute === 'function' &&
-          (pathItem.getAttribute('role') === 'button' || pathItem.getAttribute('role') === 'dialog')
+          (
+            pathItem.getAttribute('role') === 'button' ||
+            pathItem.getAttribute('role') === 'dialog'
+          )
         ) {
           return
         }
@@ -587,19 +437,17 @@ export default {
       this.click.clicks++
 
       if (this.click.clicks === 1) {
-        const that = this
-
         this.click.timer = setTimeout(() => {
-          that.openView(this.view.detail.name, item.channel_id)
+          this.openView(this.view.items.detail.name, item.channel_id)
 
-          that.click.clicks = 0
+          this.click.clicks = 0
         }, this.click.delay)
       } else {
         clearTimeout(this.click.timer)
 
         this.click.clicks = 0
 
-        this.openView(this.view.settings.name, item.channel_id)
+        this.openView(this.view.items.settings.name, item.channel_id)
       }
     },
 
@@ -610,24 +458,13 @@ export default {
      */
     _checkRoute() {
       if (this.$route.hash !== '') {
-        if (this.$route.hash.includes(this.view.detail.route.hash)) {
-          this.openView(this.view.detail.name, this.$route.hash.substring(this.view.detail.route.length))
-        } else if (this.$route.hash.includes(this.view.settings.route.hash)) {
-          this.openView(this.view.settings.name, this.$route.hash.substring(this.view.settings.route.length))
+        if (this.$route.hash.includes(this.view.items.detail.route.hash)) {
+          this.openView(this.view.items.detail.name, this.$route.hash.substring(this.view.items.detail.route.length))
+        } else if (this.$route.hash.includes(this.view.items.settings.route.hash)) {
+          this.openView(this.view.items.settings.name, this.$route.hash.substring(this.view.items.settings.route.length))
+        } else if (this.$route.hash.includes(this.view.items.connect.route.hash)) {
+          this.openView(this.view.items.connect.name)
         }
-      }
-    },
-
-    /**
-     * Calculate viewport size after window resizing
-     *
-     * @private
-     */
-    _calculateWindowHeight() {
-      if (this.windowSize === 'xs') {
-        this.offCanvasHeight = null
-      } else {
-        this.offCanvasHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
       }
     },
 
@@ -641,25 +478,23 @@ export default {
         root: true,
       })
 
-      this.$store.dispatch('header/hideHamburger', null, {
-        root: true,
-      })
-
       this.$store.dispatch('header/setHeading', {
-        heading: this.$t('application.headings.things.list'),
-        subHeading: this.$tc('application.subHeadings.things.list', this.things.length, { count: this.things.length }),
+        heading: this.$t('things.headings.allThings'),
+        subHeading: this.$tc('things.subHeadings.allThings', this.things.length, { count: this.things.length }),
       }, {
         root: true,
       })
 
-      this.$store.dispatch('header/setAddButton', {
-        name: this.$t('application.buttons.add.title'),
-        callback: () => {
-          this.openThingConnect()
-        },
-      }, {
-        root: true,
-      })
+      if (this.things.length) {
+        this.$store.dispatch('header/setAddButton', {
+          name: this.$t('application.buttons.add.title'),
+          callback: () => {
+            this.openThingConnect()
+          },
+        }, {
+          root: true,
+        })
+      }
 
       this.$store.dispatch('header/addTab', {
         name: this.$t('application.buttons.things.title'),

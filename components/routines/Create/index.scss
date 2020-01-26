@@ -1,0 +1,35 @@
+@import "~@fastybird-com/theme/assets/variables/screen";
+
+.fb-routines-create {
+  &__container {
+    @media (max-width: $screen-xs-max) {
+      padding: 5px 10px;
+    }
+
+    .fb-btn {
+      text-align: left;
+
+      svg {
+        margin-right: 15px;
+        float: left;
+        font-size: 2em;
+      }
+
+      span {
+        float: left;
+        line-height: 2em;
+      }
+    }
+  }
+
+  &__heading {
+    font-weight: bold;
+    font-size: 13px;
+    margin: 0 0 10px 0;
+  }
+
+  &__items {
+    margin-left: 0 !important;
+    margin-right: 0 !important;;
+  }
+}

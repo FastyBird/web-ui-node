@@ -81,11 +81,22 @@
       :text="$t('groups.texts.loadingGroups')"
     />
 
-    <no-results
-      v-if="!fetchingGroups && groups.length === 0"
-      :message="$t('groups.texts.noGroups')"
-      icon="folder"
-    />
+    <template v-if="!fetchingGroups && groups.length === 0">
+      <no-results
+        :message="$t('groups.texts.noGroups')"
+        icon="folder"
+      />
+
+      <div class="fb-routines-list-view__new-routine">
+        <fb-button
+          variant="outline-primary"
+          name="press"
+          @click.prevent="openGroupCreate"
+        >
+          {{ $t('groups.buttons.addNew.title') }}
+        </fb-button>
+      </div>
+    </template>
   </div>
 </template>
 
@@ -660,14 +671,16 @@ export default {
         root: true,
       })
 
-      this.$store.dispatch('header/setAddButton', {
-        name: this.$t('application.buttons.add.title'),
-        callback: () => {
-          this.openGroupCreate()
-        },
-      }, {
-        root: true,
-      })
+      if (this.groups.length) {
+        this.$store.dispatch('header/setAddButton', {
+          name: this.$t('application.buttons.add.title'),
+          callback: () => {
+            this.openGroupCreate()
+          },
+        }, {
+          root: true,
+        })
+      }
 
       this.$store.dispatch('header/addTab', {
         name: this.$t('application.buttons.things.title'),

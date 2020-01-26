@@ -6,19 +6,12 @@
   &__container {
     height: 55px;
     cursor: pointer;
-
-    @media (min-width: $screen-sm-min) {
-      margin-bottom: 10px;
-      margin-right: 0;
-    }
+    margin-top: 5px;
+    margin-bottom: 5px;
 
     @media (max-width: $screen-xs-max) {
       margin: 5px;
       padding: 0;
-    }
-
-    @media (min-width: $screen-sm-min) AND (max-width: $screen-sm-max) {
-      padding-right: 10px;
     }
 
     .fb-spinner__container {
@@ -64,6 +57,7 @@
 
     border: 1px solid $gray-lighter;
     border-radius: 4px;
+    background-color: #fff;
 
     &:not(:last-child) {
       @media (min-width: $screen-sm-min) {
@@ -179,9 +173,9 @@
 
   &__detail-content-large {
     -webkit-box-flex: 0;
-    -ms-flex: 0 0 20%;
-    flex: 0 0 20%;
-    max-width: 20%;
+    -ms-flex: 0 0 22%;
+    flex: 0 0 22%;
+    max-width: 22%;
 
     @media (max-width: $screen-xs-max) {
       -webkit-box-flex: 0;

@@ -5,11 +5,10 @@
   &__items-container {
     @include gridRow(0, 0);
 
-    padding: 15px 5px 35px 5px;
+    padding: 5px;
 
     @media (max-width: $screen-xs-max) {
       padding: 15px 5px;
-      margin: 0;
     }
 
     > div {
@@ -21,10 +20,7 @@
         flex: 0 0 50%;
         max-width: 50%;
 
-        @include gridCel;
-
-        padding-left: 5px;
-        padding-right: 5px;
+        @include gridCel(5px, 5px);
       }
 
       @media (min-width: $screen-lg-min) {
@@ -34,6 +30,11 @@
         max-width: 33.333333%;
       }
     }
+  }
+
+  &__new-thing {
+    text-align: center;
+    margin: 10px 0;
   }
 
   &__off-canvas-body {

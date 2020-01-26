@@ -177,12 +177,12 @@ export default {
                   this.$flashMessage(errorMessage, 'error')
                 }
               })
-          } else {
-            this.$flashMessage(this.$t('application.messages.fixAllFormErrors'), 'info')
           }
         })
-        .catch(() => {
-          this.$flashMessage(this.$t('application.messages.fixAllFormErrors'), 'info')
+        .catch((e) => {
+          if (Object.prototype.hasOwnProperty.call(this, '$sentry')) {
+            this.$sentry.captureException(e)
+          }
         })
     },
 

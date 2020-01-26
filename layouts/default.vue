@@ -4,7 +4,8 @@
     :has-profile="profile !== null"
     :user-name="_.get(profile, 'name')"
     :user-email="_.get(profile, 'email')"
-    :menu-items="menuItems"
+    :menu-items="navigationItems"
+    :phone-menu-items="phoneNavigationItems"
     :user-menu-items="userMenuItems"
     :bottom-menu-items="bottomMenuItems"
     :home-link="localePath({ name: $routes.home })"
@@ -108,7 +109,7 @@ export default {
           show: false,
         },
       },
-      menuItems: [],
+      navigationItems: [],
       userMenuItems: [],
       bottomMenuItems: [],
       author: {
@@ -120,6 +121,10 @@ export default {
   },
 
   computed: {
+
+    ...mapState('theme', {
+      windowSize: state => state.windowSize,
+    }),
 
     ...mapState({
       connectionStatus: state => state.connectionStatus,
@@ -138,6 +143,22 @@ export default {
 
     profile() {
       return this.$store.getters['entities/profile/query']().first()
+    },
+
+    phoneNavigationItems() {
+      const items = []
+
+      Object.assign(items, this.navigationItems)
+
+      items.push({
+        name: 'User',
+        meta: {
+          label: this.$t('application.menu.user'),
+        },
+        items: this.userMenuItems,
+      })
+
+      return items
     },
 
   },
@@ -159,8 +180,8 @@ export default {
   },
 
   created() {
-    this.menuItems = this._.cloneDeep(config.MENU_ITEMS)
-    this.menuItems.forEach((item) => {
+    this.navigationItems = this._.cloneDeep(config.MENU_ITEMS)
+    this.navigationItems.forEach((item) => {
       if (Object.prototype.hasOwnProperty.call(item, 'meta') && Object.prototype.hasOwnProperty.call(item.meta, 'label')) {
         // eslint-disable-next-line
         item.meta.label = this.$t(item.meta.label)
@@ -278,5 +299,17 @@ export default {
 
   },
 
+  head() {
+    return {
+      bodyAttrs: {
+        'data-page': this._.get(this.$route, 'name', 'not-defined'),
+      },
+    }
+  },
+
 }
 </script>
+
+<style rel="stylesheet/scss" lang="scss">
+  @import 'default';
+</style>

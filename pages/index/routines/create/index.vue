@@ -1,80 +1,14 @@
 <template>
   <div class="fb-routines-create-view__container">
-    <form
-      v-show="view.opened === null"
-      @submit.prevent="submit"
-    >
-      <fb-form-input
-        v-model="form.model.name"
-        v-validate="'required'"
-        :data-vv-scope="form.scope"
-        :error="errors.first(form.scope + '.name')"
-        :has-error="errors.has(form.scope + '.name')"
-        :name="'name'"
-        :label="$t('routines.fields.name.title')"
-        :required="true"
-        :tab-index="1"
+    <div v-show="view.opened === null">
+      <create-routine
+        :type="type"
+        :remote-submit.sync="submitForm"
+        @view="openView"
+        @editCondition="editCondition"
+        @editSchedule="editSchedule"
+        @editAction="editAction"
       />
-
-      <fb-form-text-area
-        v-model="form.model.comment"
-        :data-vv-scope="form.scope"
-        :error="errors.first(form.scope + '.comment')"
-        :has-error="errors.has(form.scope + '.comment')"
-        :name="'comment'"
-        :label="$t('routines.fields.comment.title')"
-        :tab-index="2"
-      />
-
-      <h3 class="fb-routines-create-view__heading">
-        {{ $t('routines.headings.addCondition') }}
-      </h3>
-
-      <fb-button
-        variant="outline-default"
-        block
-        @click="openView(view.items.condition.name)"
-      >
-        <font-awesome-icon icon="plus-circle" />
-        <span>{{ $t('routines.buttons.addThing.title') }}</span>
-      </fb-button>
-
-      <template v-if="view.opened === null">
-        <list-condition
-          v-for="(condition, index) in conditions"
-          :key="`c-${index}`"
-          :condition="condition"
-          class="fb-routines-create-view__conditions-container"
-          @edit="editCondition(index)"
-          @toggle="toggleConditionState(index)"
-        />
-      </template>
-
-      <hr>
-
-      <h3 class="fb-routines-create-view__heading">
-        {{ $t('routines.headings.addAction') }}
-      </h3>
-
-      <fb-button
-        variant="outline-default"
-        block
-        @click="openView(view.items.action.name)"
-      >
-        <font-awesome-icon icon="plus-circle" />
-        <span>{{ $t('routines.buttons.addThing.title') }}</span>
-      </fb-button>
-
-      <template v-if="view.opened === null">
-        <list-action
-          v-for="(action, index) in actions"
-          :key="`a-${index}`"
-          :action="action"
-          class="fb-routines-create-view__actions-container"
-          @edit="editAction(index)"
-          @toggle="toggleActionState(index)"
-        />
-      </template>
 
       <fb-button
         variant="primary"
@@ -86,12 +20,14 @@
         {{ $t('routines.buttons.save.title') }}
         <font-awesome-icon icon="plus" />
       </fb-button>
-    </form>
+    </div>
 
     <select-thing
       v-if="view.opened === view.items.action.name || view.opened === view.items.condition.name"
       :items="view.items[view.opened].items"
       :only-settable="view.opened === view.items.action.name"
+      :type-thing="view.opened === view.items.condition.name && isThingCondition"
+      :type-sensor="view.opened === view.items.condition.name && isSensorCondition"
       @select="thingSelected"
       @close="closeView(view.opened)"
     />
@@ -99,6 +35,8 @@
     <edit-condition
       v-if="view.opened === view.items.conditionThing.name"
       :thing="view.items.conditionThing.thing"
+      :type-thing="isThingCondition"
+      :type-sensor="isSensorCondition"
       @add="addCondition"
       @remove="removeCondition"
       @back="openView(view.items.condition.name)"
@@ -109,6 +47,8 @@
       v-if="view.opened === view.items.conditionThingEdit.name"
       :thing="view.items.conditionThingEdit.thing"
       :condition="view.items.conditionThingEdit.item"
+      :type-thing="isThingCondition"
+      :type-sensor="isSensorCondition"
       @add="addCondition"
       @remove="removeCondition"
       @back="closeView(view.items.conditionThingEdit.name)"
@@ -133,6 +73,14 @@
       @back="closeView(view.items.actionThingEdit.name)"
       @close="closeView(view.items.actionThingEdit.name)"
     />
+
+    <edit-schedule
+      v-if="view.opened === view.items.schedule.name"
+      :schedule="view.items.schedule.item"
+      @add="addSchedule"
+      @back="closeOrRedirect(view.items.schedule.name)"
+      @close="closeOrRedirect(view.items.schedule.name)"
+    />
   </div>
 </template>
 
@@ -141,42 +89,45 @@ import { mapState } from 'vuex'
 
 import {
   ROUTINES_HASH_CREATE,
+
+  ROUTINES_QUERY_TYPE_SCHEDULED,
+  ROUTINES_QUERY_TYPE_THING,
+  ROUTINES_QUERY_TYPE_SENSOR,
+  ROUTINES_QUERY_TYPE_MANUAL,
 } from '@/configuration/routes'
 
-const SelectThing = () => import('@/components/routines/Edit/SelectThing')
+const CreateRoutine = () => import('@/components/routines/Create')
 
-const ListCondition = () => import('@/components/routines/Edit/ListCondition')
-const EditCondition = () => import('@/components/routines/Edit/EditCondition')
-const ListAction = () => import('@/components/routines/Edit/ListAction')
-const EditAction = () => import('@/components/routines/Edit/EditAction')
+const SelectThing = () => import('@/components/routines/Phone/SelectThing')
+
+const EditCondition = () => import('@/components/routines/Phone/EditCondition')
+const EditAction = () => import('@/components/routines/Phone/EditAction')
+const EditSchedule = () => import('@/components/routines/Phone/EditSchedule')
 
 export default {
 
   name: 'RoutineCreatePage',
 
   components: {
+    CreateRoutine,
+
     SelectThing,
 
-    ListCondition,
     EditCondition,
-    ListAction,
     EditAction,
+    EditSchedule,
   },
 
   transition: 'fade',
 
   data() {
     return {
-      form: {
-        scope: 'routines_create',
-        model: {
-          name: '',
-          comment: '',
-          conditions: [],
-          actions: [],
-          notifications: [],
-        },
-      },
+      type: this.$route.query.type,
+      submitForm: false,
+      isScheduled: this.$route.query.type === ROUTINES_QUERY_TYPE_SCHEDULED,
+      isThingCondition: this.$route.query.type === ROUTINES_QUERY_TYPE_THING,
+      isSensorCondition: this.$route.query.type === ROUTINES_QUERY_TYPE_SENSOR,
+      isManual: this.$route.query.type === ROUTINES_QUERY_TYPE_MANUAL,
       view: {
         opened: null,
         items: {
@@ -209,6 +160,10 @@ export default {
           notification: {
             name: 'notification',
           },
+          schedule: {
+            name: 'schedule',
+            item: null,
+          },
         },
       },
     }
@@ -220,30 +175,17 @@ export default {
       windowSize: state => state.windowSize,
     }),
 
-    /**
-     * Get all assigned conditions
-     *
-     * @returns {Array}
-     */
-    conditions() {
-      return this._sortItemsThings(this._.get(this.form.model, 'conditions', []))
-    },
-
-    /**
-     * Get all assigned actions
-     *
-     * @returns {Array}
-     */
-    actions() {
-      return this._sortItemsThings(this._.get(this.form.model, 'actions', []))
-    },
-
   },
 
   watch: {
 
-    windowSize() {
-      this._configureNavigation()
+    windowSize(val) {
+      if (val !== 'xs') {
+        this.$router.push(this.localePath({
+          name: this.$routes.routines.list,
+          hash: `${ROUTINES_HASH_CREATE}-${this.type}`,
+        }))
+      }
     },
 
   },
@@ -270,7 +212,7 @@ export default {
     })
 
     store.dispatch('header/setHeading', {
-      heading: app.i18n.t('application.headings.routines.add'),
+      heading: app.i18n.t('routines.headings.createRoutine'),
     }, {
       root: true,
     })
@@ -290,30 +232,65 @@ export default {
     })
   },
 
+  created() {
+    if (
+      !this.isScheduled &&
+      !this.isThingCondition &&
+      !this.isSensorCondition &&
+      !this.isManual
+    ) {
+      this.$router.push(this.localePath(this.$routes.routines.list))
+    }
+  },
+
   beforeMount() {
     if (this.windowSize !== null && this.windowSize !== 'xs') {
       this.$router.push(this.localePath({
         name: this.$routes.routines.list,
-        hash: `${ROUTINES_HASH_CREATE}`,
+        hash: `${ROUTINES_HASH_CREATE}-${this.type}`,
       }))
 
       return
     }
 
     this._configureNavigation()
+  },
 
-    this.$validator.localize({
-      en: {
-        custom: {
-          name: {
-            required: this.$t('routines.fields.name.validation.required'),
-          },
-        },
-      },
+  mounted() {
+    if (this.isScheduled && this.$store.state.routineCreate.conditions.schedules.length === 0) {
+      this.openView(this.view.items.schedule.name)
+    }
+  },
+
+  beforeDestroy() {
+    this.$store.dispatch('routineCreate/clear', {}, {
+      root: true,
     })
   },
 
   methods: {
+
+    /**
+     * Pass submit call to child component
+     */
+    submit() {
+      this.submitForm = true
+    },
+
+    /**
+     * Schedule select close action
+     *
+     * @param {String} view
+     */
+    closeOrRedirect(view) {
+      if (view === this.view.items.schedule.name) {
+        if (this.$store.state.routineCreate.conditions.schedules.length === 0) {
+          this.$router.push(this.localePath(this.$routes.routines.list))
+        } else {
+          this.closeView(view)
+        }
+      }
+    },
 
     /**
      * Condition or action thing is selected, opening properties select
@@ -337,6 +314,10 @@ export default {
      */
 
     /**
+     * CONDITIONS - THINGS
+     */
+
+    /**
      * Add condition settings to collection
      *
      * @param {Object} data
@@ -344,76 +325,77 @@ export default {
     addCondition(data) {
       this.closeView(this.view.items.conditionThing.name)
 
-      for (const index in this.form.model.conditions) {
-        if (Object.prototype.hasOwnProperty.call(this.form.model.conditions, index)) {
-          if (JSON.stringify(this.form.model.conditions[index]) === JSON.stringify(data)) {
-            // Same condition added, nothing to do
-            return
-          } else if (this.form.model.conditions[index].thing === data.thing) {
-            // Conditions thing is updated
-            this.form.model.conditions[index] = data
-
-            return
-          }
-        }
-      }
-
-      this.form.model.conditions.push(data)
+      this.$store.dispatch('routineCreate/addCondition', {
+        data,
+      }, {
+        root: true,
+      })
     },
 
     /**
      * Open edit routine action window
      *
-     * @param {Number} index
+     * @param {Object} condition
      */
-    editCondition(index) {
-      if (Object.prototype.hasOwnProperty.call(this.form.model.conditions, index)) {
-        this.view.items.conditionThingEdit.thing = this.$store.getters['entities/thing/query']()
-          .with('device')
-          .with('channel')
-          .with('channel.properties')
-          .where('id', this.form.model.conditions[index].thing)
-          .first()
+    editCondition(condition) {
+      this.view.items.conditionThingEdit.item = condition
+      this.view.items.conditionThingEdit.thing = this.$store.getters['entities/thing/query']()
+        .with('device')
+        .with('channel')
+        .with('channel.properties')
+        .where('id', condition.thing)
+        .first()
 
-        if (Object.prototype.hasOwnProperty.call(this.form.model.conditions, index)) {
-          this.view.items.conditionThingEdit.item = this.form.model.conditions[index]
-        }
-
-        this.openView(this.view.items.conditionThingEdit.name)
-      }
+      this.openView(this.view.items.conditionThingEdit.name)
     },
 
     /**
-     * Change action state
-     *
-     * @param {Number} index
-     */
-    toggleConditionState(index) {
-      if (Object.prototype.hasOwnProperty.call(this.form.model.conditions, index)) {
-        this.form.model.conditions[index].enabled = !this.form.model.conditions[index].enabled
-      }
-    },
-
-    /**
-     * Remove action settings from collection
+     * Remove condition settings from collection
      *
      * @param {Thing} thing
      */
     removeCondition(thing) {
-      for (const index in this.form.model.conditions) {
-        if (
-          Object.prototype.hasOwnProperty.call(this.form.model.conditions, index) &&
-          this.form.model.conditions[index].thing === thing.id
-        ) {
-          this.form.model.conditions.splice(index, 1)
-        }
-      }
+      this.$store.dispatch('routineCreate/removeCondition', {
+        thing,
+      }, {
+        root: true,
+      })
 
       if (this.view.opened === this.view.items.conditionThingEdit.name) {
         this.closeView(this.view.items.conditionThingEdit.name)
       } else {
         this.openView(this.view.items.condition.name)
       }
+    },
+
+    /**
+     * CONDITIONS - SCHEDULES
+     */
+
+    /**
+     * Add condition settings to collection
+     *
+     * @param {Object} data
+     */
+    addSchedule(data) {
+      this.closeView(this.view.items.schedule.name)
+
+      this.$store.dispatch('routineCreate/addSchedule', {
+        data,
+      }, {
+        root: true,
+      })
+    },
+
+    /**
+     * Open edit routine action window
+     *
+     * @param {Object} condition
+     */
+    editSchedule(condition) {
+      this.view.items.schedule.item = condition
+
+      this.openView(this.view.items.schedule.name)
     },
 
     /**
@@ -428,54 +410,28 @@ export default {
     addAction(data) {
       this.closeView(this.view.items.actionThing.name)
 
-      for (const index in this.form.model.actions) {
-        if (Object.prototype.hasOwnProperty.call(this.form.model.actions, index)) {
-          if (JSON.stringify(this.form.model.actions[index]) === JSON.stringify(data)) {
-            // Same action added, nothing to do
-            return
-          } else if (this.form.model.actions[index].thing === data.thing) {
-            // Action thing is updated
-            this.form.model.actions[index] = data
-
-            return
-          }
-        }
-      }
-
-      this.form.model.actions.push(data)
+      this.$store.dispatch('routineCreate/addAction', {
+        data,
+      }, {
+        root: true,
+      })
     },
 
     /**
      * Open edit routine action window
      *
-     * @param {Number} index
+     * @param {Object} action
      */
-    editAction(index) {
-      if (Object.prototype.hasOwnProperty.call(this.form.model.actions, index)) {
-        this.view.items.actionThingEdit.thing = this.$store.getters['entities/thing/query']()
-          .with('device')
-          .with('channel')
-          .with('channel.properties')
-          .where('id', this.form.model.actions[index].thing)
-          .first()
+    editAction(action) {
+      this.view.items.actionThingEdit.item = action
+      this.view.items.actionThingEdit.thing = this.$store.getters['entities/thing/query']()
+        .with('device')
+        .with('channel')
+        .with('channel.properties')
+        .where('id', action.thing)
+        .first()
 
-        if (Object.prototype.hasOwnProperty.call(this.form.model.actions, index)) {
-          this.view.items.actionThingEdit.item = this.form.model.actions[index]
-        }
-
-        this.openView(this.view.items.actionThingEdit.name)
-      }
-    },
-
-    /**
-     * Change action state
-     *
-     * @param {Number} index
-     */
-    toggleActionState(index) {
-      if (Object.prototype.hasOwnProperty.call(this.form.model.actions, index)) {
-        this.form.model.actions[index].enabled = !this.form.model.actions[index].enabled
-      }
+      this.openView(this.view.items.actionThingEdit.name)
     },
 
     /**
@@ -484,168 +440,17 @@ export default {
      * @param {Thing} thing
      */
     removeAction(thing) {
-      for (const index in this.form.model.actions) {
-        if (
-          Object.prototype.hasOwnProperty.call(this.form.model.actions, index) &&
-          this.form.model.actions[index].thing === thing.id
-        ) {
-          this.form.model.actions.splice(index, 1)
-        }
-      }
+      this.$store.dispatch('routineCreate/removeAction', {
+        thing,
+      }, {
+        root: true,
+      })
 
       if (this.view.opened === this.view.items.actionThingEdit.name) {
         this.closeView(this.view.items.actionThingEdit.name)
       } else {
         this.openView(this.view.items.action.name)
       }
-    },
-
-    /**
-     * NOTIFICATIONS
-     */
-
-    /**
-     * Add notification settings to collection
-     *
-     * @param {Object} data
-     */
-    addNotification(data) {
-      for (const notification of this.form.model.notifications) {
-        if (JSON.stringify(notification) === JSON.stringify(data)) {
-          this.$flashMessage(this.$t('routines.messages.sameNotificationAdded'), 'error')
-
-          return
-        }
-      }
-
-      this.form.model.notifications.push(data)
-
-      this.closeView('notification')
-    },
-
-    /**
-     * Change notification state
-     *
-     * @param {Number} index
-     */
-    toggleNotificationState(index) {
-      if (Object.prototype.hasOwnProperty.call(this.form.model.notifications, index)) {
-        this.form.model.notifications[index].enabled = !this.form.model.notifications[index].enabled
-      }
-    },
-
-    /**
-     * Remove notification settings from collection
-     *
-     * @param {Number} index
-     */
-    removeNotification(index) {
-      if (
-        Object.prototype.hasOwnProperty.call(this.form.model.notifications, index)
-      ) {
-        this.form.model.notifications.splice(index, 1)
-      }
-    },
-
-    /**
-     * ROUTINE GLOBAL
-     */
-
-    submit() {
-      this.$validator.validateAll(this.form.scope)
-        .then((result) => {
-          if (result) {
-            if (this.form.model.conditions.length <= 0) {
-              this.$flashMessage(this.$t('routines.messages.missingCondition'), 'error')
-
-              return
-            }
-
-            if (this.form.model.actions.length <= 0 && this.form.model.notifications.length <= 0) {
-              this.$flashMessage(this.$t('routines.messages.missingActionOrNotification'), 'error')
-
-              return
-            }
-
-            this.$bus.$emit('wait-page_reloading', true)
-
-            const errorMessage = this.$t('routines.messages.notCreated', {
-              routine: this.form.model.name,
-            })
-
-            const mappedConditions = []
-
-            this.form.model.conditions.forEach((condition) => {
-              condition.rows.forEach((row) => {
-                mappedConditions.push({
-                  type: 'channel_property',
-                  enabled: condition.enabled,
-                  channel: condition.thing,
-                  property: row.property_id,
-                  operator: row.operator,
-                  operand: row.operand,
-                })
-              })
-            })
-
-            const mappedActions = []
-
-            this.form.model.actions.forEach((action) => {
-              action.rows.forEach((row) => {
-                mappedActions.push({
-                  type: 'channel_property',
-                  enabled: action.enabled,
-                  channel: action.thing,
-                  property: row.property_id,
-                  value: row.operation,
-                })
-              })
-            })
-
-            this.$store.dispatch('entities/trigger/add', {
-              automatic: true,
-              data: {
-                name: this.form.model.name,
-                comment: this.form.model.comment,
-                enabled: true,
-                conditions: mappedConditions,
-                actions: mappedActions,
-                notifications: [],
-              },
-            }, {
-              root: true,
-            })
-              .then((routine) => {
-                this.$bus.$emit('wait-page_reloading', false)
-
-                this.$router.push(this.localePath({
-                  name: this.$routes.routines.detail,
-                  params: {
-                    id: routine.id,
-                  },
-                }))
-              })
-              .catch((e) => {
-                this.$bus.$emit('wait-page_reloading', false)
-
-                if (Object.prototype.hasOwnProperty.call(e, 'exception')) {
-                  this.handleFormError(e.exception, errorMessage)
-                } else {
-                  this.$flashMessage(errorMessage, 'error')
-                }
-              })
-          }
-        })
-        .catch(() => {
-          // Nothing to do here
-        })
-    },
-
-    /**
-     * Close create action and navigate to list
-     */
-    closeCreate() {
-      this.$router.push(this.localePath(this.$routes.routines.list))
     },
 
     /**
@@ -663,9 +468,9 @@ export default {
         }
 
         if (view === this.view.items.action.name) {
-          this.view.items[view].items = this.actions
+          this.view.items[view].items = this.$store.getters['routineCreate/getActions']()
         } else if (view === this.view.items.condition.name) {
-          this.view.items[view].items = this.conditions
+          this.view.items[view].items = this.$store.getters['routineCreate/getThingsConditions']()
         }
       }
     },
@@ -684,24 +489,7 @@ export default {
         }
       }
 
-      this.errors.clear(this.form.scope)
-
       this._configureNavigation()
-    },
-
-    _sortItemsThings(items) {
-      return items.sort((a, b) => {
-        const aThing = this.$store.getters['entities/thing/find'](a.thing)
-        const bThing = this.$store.getters['entities/thing/find'](b.thing)
-
-        if (aThing.label > bThing.label) {
-          return -1
-        } else if (bThing.label > aThing.label) {
-          return 1
-        }
-
-        return 0
-      })
     },
 
     /**
@@ -731,7 +519,7 @@ export default {
       })
 
       this.$store.dispatch('header/setHeading', {
-        heading: this.$t('application.headings.routines.add'),
+        heading: this.$t('routines.headings.createRoutine'),
       }, {
         root: true,
       })

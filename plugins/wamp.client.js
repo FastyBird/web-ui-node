@@ -1,7 +1,3 @@
-// Store mutation constant
-export const WAMP_WS_STATE = 'WAMP_WS_STATE'
-export const WAMP_RESET_STATE = 'WAMP_RESET_STATE'
-
 function WampV1(host, store) {
   this.wsuri = host
   this.store = store
@@ -291,6 +287,7 @@ WampV1.prototype.off = function(type, listener) {
 
 WampV1.prototype.log = function() {
   if (this.showDebug) {
+    // eslint-disable-next-line
     console.debug.apply(console, arguments)
   }
 }

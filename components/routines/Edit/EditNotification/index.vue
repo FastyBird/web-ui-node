@@ -197,16 +197,16 @@ export default {
                 data.value = this.form.model.email
               }
             } else {
-              this.$flashMessage(this.$t('application.messages.fixAllFormErrors'), 'info')
-
               return
             }
 
             this.$emit('add', data)
           }
         })
-        .catch(() => {
-          this.$flashMessage(this.$t('application.messages.fixAllFormErrors'), 'info')
+        .catch((e) => {
+          if (Object.prototype.hasOwnProperty.call(this, '$sentry')) {
+            this.$sentry.captureException(e)
+          }
         })
     },
 

@@ -1,6 +1,9 @@
 <template>
   <div class="fb-routines-detail__container">
-    <list-items-container :heading="$t('routines.headings.conditions')">
+    <list-items-container
+      v-if="routine.isAutomatic && schedule === null"
+      :heading="$t('routines.headings.conditions')"
+    >
       <list-condition
         v-for="(condition, index) in conditions"
         :key="`c-${index}`"
@@ -102,6 +105,11 @@ export default {
 
   computed: {
 
+    account() {
+      return this.$store.getters['entities/account/query']()
+        .first()
+    },
+
     /**
      * Remap trigger conditions to routine conditions
      *
@@ -127,6 +135,21 @@ export default {
      */
     notifications() {
       return []
+    },
+
+    /**
+     * View routine data
+     *
+     * @returns {(Condition|null)}
+     */
+    schedule() {
+      const condition = this._.get(this.routine, 'conditions', []).find(item => item.isTime)
+
+      if (typeof condition === 'undefined') {
+        return null
+      }
+
+      return condition
     },
 
     /**

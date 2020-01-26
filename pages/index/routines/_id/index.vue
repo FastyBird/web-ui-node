@@ -21,70 +21,87 @@
           class="fb-routines-detail-view__container-settings"
           @removed="routineRemoved"
         />
+
+        <mobile-bottom-menu
+          :show-header="true"
+          :show="view.opened === view.items.type.name"
+          :heading="'Add new'"
+          @close="openView(view.items.detail.name)"
+        >
+          <template slot="items">
+            <template v-if="routine.isAutomatic && schedule === null">
+              <fb-button
+                block
+                variant="link"
+                name="condition"
+                @click.prevent="openView(view.items.conditionThing.name)"
+              >
+                {{ $t('routines.buttons.thingToCondition.title') }}
+              </fb-button>
+
+              <fb-divider
+                text="OR"
+                type="vertical"
+              />
+
+              <fb-button
+                block
+                variant="link"
+                name="condition"
+                @click.prevent="openView(view.items.conditionSensor.name)"
+              >
+                {{ $t('routines.buttons.sensorToCondition.title') }}
+              </fb-button>
+
+              <fb-divider
+                text="OR"
+                type="vertical"
+              />
+            </template>
+
+            <fb-button
+              block
+              variant="link"
+              name="action"
+              @click.prevent="openView(view.items.action.name)"
+            >
+              {{ $t('routines.buttons.thingToAction.title') }}
+            </fb-button>
+          </template>
+        </mobile-bottom-menu>
+
+        <select-thing
+          v-if="view.opened === view.items.conditionThing.name || view.opened === view.items.conditionSensor.name || view.opened === view.items.action.name"
+          :items="view.items[view.opened].items"
+          :only-settable="view.opened === view.items.action.name"
+          :type-thing="view.opened === view.items.conditionThing.name"
+          :type-sensor="view.opened === view.items.conditionSensor.name"
+          @select="thingSelected"
+          @close="openView(view.items.detail.name)"
+        />
+
+        <edit-condition
+          v-if="view.opened === view.items.condition.name"
+          :thing="view.items.condition.thing"
+          :condition="view.items.condition.item"
+          :type-thing="view.items.condition.type === 'thing'"
+          :type-sensor="view.items.condition.type === 'sensor'"
+          @add="addCondition"
+          @remove="removeRoutineCondition"
+          @back="openView(view.items.condition.type === 'thing' ? view.items.conditionThing.name : view.items.conditionSensor.name)"
+          @close="openView(view.items.detail.name)"
+        />
+
+        <edit-action
+          v-if="view.opened === view.items.actionThing.name"
+          :thing="view.items.actionThing.thing"
+          :action="view.items.actionThing.item"
+          @add="addAction"
+          @remove="removeRoutineAction"
+          @back="openView(view.items.action.name)"
+          @close="openView(view.items.detail.name)"
+        />
       </template>
-
-      <mobile-bottom-menu
-        :show-header="true"
-        :show="view.opened === view.items.type.name"
-        :heading="'Add new'"
-        @close="openView(view.items.detail.name)"
-      >
-        <template slot="items">
-          <fb-button
-            block
-            variant="link"
-            name="condition"
-            @click.prevent="openView(view.items.condition.name)"
-          >
-            {{ $t('routines.buttons.thingToCondition.title') }}
-          </fb-button>
-
-          <fb-divider
-            text="OR"
-            type="vertical"
-          />
-
-          <fb-button
-            block
-            variant="link"
-            name="action"
-            @click.prevent="openView(view.items.action.name)"
-          >
-            {{ $t('routines.buttons.thingToAction.title') }}
-          </fb-button>
-        </template>
-      </mobile-bottom-menu>
-
-      <select-thing
-        v-if="view.opened === view.items.condition.name || view.opened === view.items.action.name"
-        :items="view.items[view.opened].items"
-        :only-settable="view.opened === view.items.action.name"
-        class="fb-routines-detail-view__container-things"
-        @select="thingSelected"
-        @close="openView(view.items.detail.name)"
-      />
-
-      <edit-condition
-        v-if="view.opened === view.items.conditionThing.name"
-        :thing="view.items.conditionThing.thing"
-        :condition="view.items.conditionThing.item"
-        class="fb-routines-detail-view__container-thing"
-        @add="addCondition"
-        @remove="removeRoutineCondition"
-        @back="openView(view.items.condition.name)"
-        @close="openView(view.items.detail.name)"
-      />
-
-      <edit-action
-        v-if="view.opened === view.items.actionThing.name"
-        :thing="view.items.actionThing.thing"
-        :action="view.items.actionThing.item"
-        class="fb-routines-detail-view__container-thing"
-        @add="addAction"
-        @remove="removeRoutineAction"
-        @back="openView(view.items.action.name)"
-        @close="openView(view.items.detail.name)"
-      />
     </template>
   </div>
 </template>
@@ -104,9 +121,9 @@ import RoutineSettings from '@/components/routines/Settings'
 
 import triggersMixin from '@/mixins/triggers'
 
-const SelectThing = () => import('@/components/routines/Edit/SelectThing')
-const EditCondition = () => import('@/components/routines/Edit/EditCondition')
-const EditAction = () => import('@/components/routines/Edit/EditAction')
+const SelectThing = () => import('@/components/routines/Phone/SelectThing')
+const EditCondition = () => import('@/components/routines/Phone/EditCondition')
+const EditAction = () => import('@/components/routines/Phone/EditAction')
 
 export default {
 
@@ -146,14 +163,19 @@ export default {
           type: {
             name: 'type',
           },
-          condition: {
-            name: 'condition',
-            items: [],
-          },
           conditionThing: {
             name: 'conditionThing',
+            items: [],
+          },
+          conditionSensor: {
+            name: 'conditionSensor',
+            items: [],
+          },
+          condition: {
+            name: 'condition',
             thing: null,
             items: [],
+            type: null,
           },
           action: {
             name: 'action',
@@ -175,6 +197,11 @@ export default {
       windowSize: state => state.windowSize,
     }),
 
+    account() {
+      return this.$store.getters['entities/account/query']()
+        .first()
+    },
+
     /**
      * View routine data
      *
@@ -187,6 +214,21 @@ export default {
         .with('notifications')
         .where('id', this.id)
         .first()
+    },
+
+    /**
+     * View routine data
+     *
+     * @returns {(Condition|null)}
+     */
+    schedule() {
+      const condition = this._.get(this.routine, 'conditions', []).find(item => item.isTime)
+
+      if (typeof condition === 'undefined') {
+        return null
+      }
+
+      return condition
     },
 
     /**
@@ -433,7 +475,7 @@ export default {
 
                 // Scroll view to setting part
                 this.$scrollTo(component.$el, 500, {
-                  offset: (-1 * this.$store.state.theme.marginTop),
+                  container: '.fb-default-layout__content',
                 })
               }
             })
@@ -452,7 +494,8 @@ export default {
 
         switch (view) {
           // Show things list for condition select
-          case this.view.items.condition.name:
+          case this.view.items.conditionThing.name:
+          case this.view.items.conditionSensor.name:
             const conditionThings = []
 
             this._.get(this.routine, 'conditions', [])
@@ -468,9 +511,9 @@ export default {
             break
 
           // Show window for configuring condition
-          case this.view.items.conditionThing.name:
+          case this.view.items.condition.name:
             const storedCondition = this._.get(this.routine, 'conditions', [])
-              .find(({ channel_id }) => channel_id === this.view.items.conditionThing.thing.id)
+              .find(({ channel_id }) => channel_id === this.view.items.condition.thing.id)
 
             if (typeof storedCondition !== 'undefined') {
               const condition = {
@@ -554,10 +597,14 @@ export default {
         this.view.items.actionThing.thing = thing
 
         this.openView(this.view.items.actionThing.name)
-      } else if (this.view.opened === this.view.items.condition.name) {
-        this.view.items.conditionThing.thing = thing
+      } else if (
+        this.view.opened === this.view.items.conditionThing.name ||
+        this.view.opened === this.view.items.conditionSensor.name
+      ) {
+        this.view.items.condition.thing = thing
+        this.view.items.condition.type = this.view.opened === this.view.items.conditionThing.name ? 'thing' : (this.view.opened === this.view.items.conditionSensor.name ? 'sensor' : null)
 
-        this.openView(this.view.items.conditionThing.name)
+        this.openView(this.view.items.condition.name)
       } else {
         this.closeView()
       }
@@ -814,8 +861,7 @@ export default {
     },
 
     _openEditIcon() {
-      console.log('Edit icon here')
-      // Edit icon action...
+      // TODO: Edit icon action...
     },
 
     /**
@@ -844,7 +890,7 @@ export default {
               const component = this._.get(this.$refs, 'detail')
 
               this.$scrollTo(component.$el, 500, {
-                offset: (-1 * this.$store.state.theme.marginTop),
+                container: '.fb-default-layout__content',
                 onDone: () => {
                   this.openView(this.view.items.detail.name)
                 },
@@ -871,7 +917,11 @@ export default {
         this.$store.dispatch('header/setAddButton', {
           name: this.$t('application.buttons.add.title'),
           callback: () => {
-            this.openView(this.view.items.type.name)
+            if (this.routine.isAutomatic && this.schedule === null) {
+              this.openView(this.view.items.type.name)
+            } else {
+              this.openView(this.view.items.action.name)
+            }
           },
         }, {
           root: true,
@@ -882,9 +932,53 @@ export default {
         root: true,
       })
 
+      let days = ''
+
+      if (this.schedule !== null) {
+        if (this.schedule.days.length === 7) {
+          days = this.$t('routines.texts.everyday')
+        } else {
+          days = []
+
+          for (const day of this.schedule.days) {
+            switch (day) {
+              case 1:
+                days.push(this.$t('application.days.mon.short'))
+                break
+
+              case 2:
+                days.push(this.$t('application.days.tue.short'))
+                break
+
+              case 3:
+                days.push(this.$t('application.days.wed.short'))
+                break
+
+              case 4:
+                days.push(this.$t('application.days.thu.short'))
+                break
+
+              case 5:
+                days.push(this.$t('application.days.fri.short'))
+                break
+
+              case 6:
+                days.push(this.$t('application.days.sat.short'))
+                break
+
+              case 0:
+                days.push(this.$t('application.days.sun.short'))
+                break
+            }
+          }
+
+          days = days.join(', ')
+        }
+      }
+
       this.$store.dispatch('header/setHeading', {
         heading: this.routine.name,
-        subHeading: this.routine.isAutomatic ? this.$t('routines.headings.automaticRoutine') : this.$t('routines.headings.manualRoutine'),
+        subHeading: this.routine.isAutomatic ? (this.schedule !== null ? this.$t('routines.headings.scheduledRoutine', { days, time: this.$dateFns.format(this.schedule.time, this.account.timeFormat) }) : this.$t('routines.headings.automaticRoutine')) : this.$t('routines.headings.manualRoutine'),
       }, {
         root: true,
       })
@@ -939,7 +1033,7 @@ export default {
         const component = this._.get(this.$refs, this.view.opened)
 
         this.$scrollTo(component.$el, 1, {
-          offset: (-1 * this.$store.state.theme.marginTop),
+          container: '.fb-default-layout__content',
         })
       }
     },
@@ -956,7 +1050,7 @@ export default {
       if (this._.get(this.$refs, block)) {
         const component = this._.get(this.$refs, block)
 
-        component.$el.style[attribute] = `${document.querySelector('body').clientHeight}px`
+        component.$el.style[attribute] = `${document.getElementsByClassName('fb-default-layout__content')[0].clientHeight}px`
       }
     },
 

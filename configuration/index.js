@@ -89,7 +89,7 @@ export const USER_MENU_ITEMS = [
       context.$bus.$emit('openProfileSettings', true)
     },
     meta: {
-      icon: 'user',
+      icon: 'address-card',
       label: 'application.userMenu.accountProfile',
       type: 'account',
     },
@@ -103,7 +103,7 @@ export const USER_MENU_ITEMS = [
       context.$bus.$emit('openPasswordChange', true)
     },
     meta: {
-      icon: 'user',
+      icon: 'lock',
       label: 'application.userMenu.passwordChange',
       type: 'account',
     },
@@ -117,7 +117,7 @@ export const USER_MENU_ITEMS = [
       context.$bus.$emit('openSecuritySettings', true)
     },
     meta: {
-      icon: 'user',
+      icon: 'key',
       label: 'application.userMenu.securitySettings',
       type: 'account',
     },

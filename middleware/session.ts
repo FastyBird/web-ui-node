@@ -30,9 +30,16 @@ const sessionMiddleware: Middleware = ({ app, store }) => {
               app.$cookies.set('token', tokens.token);
               app.$cookies.set('refresh_token', tokens.refresh);
             })
-            .catch(() => {
+            .catch((e) => {
               app.$cookies.remove('token');
               app.$cookies.remove('refresh_token');
+
+              if (Object.prototype.hasOwnProperty.call(app, '$sentry')) {
+                app.$sentry.captureException(e);
+              } else {
+                // eslint-disable-next-line
+                console.log('Middleware: Refresh session error');
+              }
             })
         } else {
           app.$cookies.remove('token');
@@ -47,7 +54,12 @@ const sessionMiddleware: Middleware = ({ app, store }) => {
           root: true,
         })
           .catch((e) => {
-            console.log(e)
+            if (Object.prototype.hasOwnProperty.call(app, '$sentry')) {
+              app.$sentry.captureException(e);
+            } else {
+              // eslint-disable-next-line
+              console.log('Middleware: Fetch session error');
+            }
           })
       }
     } catch (error) {

@@ -19,7 +19,7 @@
       v-for="thing in things"
       :key="thing.id"
       :data-state="isSelected(thing) ? 'on' : 'off'"
-      @click="select(thing)"
+      @click="$emit('select', thing)"
     >
       <template slot="icon">
         <font-awesome-icon :icon="$thingIcon(thing)" />
@@ -78,6 +78,16 @@ export default {
       default: false,
     },
 
+    typeThing: {
+      type: Boolean,
+      default: false,
+    },
+
+    typeSensor: {
+      type: Boolean,
+      default: false,
+    },
+
   },
 
   computed: {
@@ -93,6 +103,28 @@ export default {
         .with('channel')
         .with('channel.properties')
         .all()
+
+      if (this.typeThing) {
+        things = this._.filter(things, (thing) => {
+          const properties = this._.get(thing, 'channel.properties', [])
+            .filter((property) => {
+              return property.isAnalogActor || property.isBinaryActor || property.isSwitch
+            })
+
+          return typeof properties !== 'undefined' && properties.length
+        })
+      }
+
+      if (this.typeSensor) {
+        things = this._.filter(things, (thing) => {
+          const properties = this._.get(thing, 'channel.properties', [])
+            .filter((property) => {
+              return property.isAnalogSensor || property.isBinarySensor || property.isEnergy || property.isEnvironment
+            })
+
+          return typeof properties !== 'undefined' && properties.length
+        })
+      }
 
       if (this.onlySettable) {
         things = this._.filter(things, (thing) => {
@@ -141,75 +173,11 @@ export default {
     }
   },
 
-  created() {
-    this.$store.dispatch('header/resetStore', null, {
-      root: true,
-    })
-
-    this.$store.dispatch('header/setLeftButton', {
-      name: this.$t('application.buttons.back.title'),
-      callback: () => {
-        this.close()
-      },
-      icon: 'arrow-left',
-    }, {
-      root: true,
-    })
-
-    this.$store.dispatch('header/hideRightButton', null, {
-      root: true,
-    })
-
-    this.$store.dispatch('header/setFullRowHeading', null, {
-      root: true,
-    })
-
-    this.$store.dispatch('header/setHeading', {
-      heading: this.$t('routines.headings.selectThing'),
-    }, {
-      root: true,
-    })
-
-    this.$store.dispatch('header/setHeadingIcon', {
-      icon: 'plug',
-    }, {
-      root: true,
-    })
-
-    this.$store.dispatch('bottomNavigation/resetStore', null, {
-      root: true,
-    })
-
-    this.$store.dispatch('bottomNavigation/hideNavigation', null, {
-      root: true,
-    })
-  },
-
   mounted() {
     this.$emit('loaded')
   },
 
   methods: {
-
-    /**
-     * Close select thing window
-     *
-     * @param {Object} event
-     */
-    close(event) {
-      event && event.preventDefault()
-
-      this.$emit('close')
-    },
-
-    /**
-     * Thing selected
-     *
-     * @param {Thing} thing
-     */
-    select(thing) {
-      this.$emit('select', thing)
-    },
 
     /**
      * Check if thing is already in list

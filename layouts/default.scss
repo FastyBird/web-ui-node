@@ -1,0 +1,81 @@
+@import "~@fastybird-com/theme/assets/variables/screen";
+
+body[data-page^="index___"] {
+  @media (max-width: $screen-xs-max) {
+    padding-top: 60px;
+  }
+
+  @media (min-width: $screen-sm-min) {
+    padding-top: 50px;
+  }
+}
+
+body[data-page^="index-things___"] {
+  @media (max-width: $screen-xs-max) {
+    padding-top: 94px;
+  }
+
+  @media (min-width: $screen-sm-min) {
+    padding-top: 50px;
+  }
+}
+
+body[data-page^="index-things-id___"] {
+  @media (max-width: $screen-xs-max) {
+    padding-top: 100px;
+  }
+
+  @media (min-width: $screen-sm-min) {
+    padding-top: 50px;
+  }
+}
+
+body[data-page^="index-routines___"] {
+  @media (max-width: $screen-xs-max) {
+    padding-top: 60px;
+  }
+
+  @media (min-width: $screen-sm-min) {
+    padding-top: 50px;
+  }
+}
+
+body[data-page^="index-routines-id___"] {
+  @media (max-width: $screen-xs-max) {
+    padding-top: 135px;
+  }
+
+  @media (min-width: $screen-sm-min) {
+    padding-top: 50px;
+  }
+}
+
+body[data-page^="index-routines-create___"] {
+  @media (max-width: $screen-xs-max) {
+    padding-top: 100px;
+  }
+
+  @media (min-width: $screen-sm-min) {
+    padding-top: 50px;
+  }
+}
+
+body[data-page^="index-groups___"] {
+  @media (max-width: $screen-xs-max) {
+    padding-top: 94px;
+  }
+
+  @media (min-width: $screen-sm-min) {
+    padding-top: 50px;
+  }
+}
+
+body[data-page^="index-groups-create___"] {
+  @media (max-width: $screen-xs-max) {
+    padding-top: 100px;
+  }
+
+  @media (min-width: $screen-sm-min) {
+    padding-top: 50px;
+  }
+}

@@ -1,5 +1,7 @@
 import Vue from 'vue'
 
+import VueContentLoading from 'vue-content-loading'
+
 import FastyBirdTheme from '@/node_modules/@fastybird-com/theme'
 
 // Layout components
@@ -26,3 +28,5 @@ Vue.component('OffCanvasBody', OffCanvasBody)
 Vue.component('ResultOk', ResultOk)
 Vue.component('ResultError', ResultError)
 Vue.component('SettingsListItem', SettingsListItem)
+
+Vue.component('ContentLoading', VueContentLoading)

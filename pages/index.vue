@@ -68,10 +68,12 @@ export default {
   methods: {
 
     _wampOnConnect() {
+      // eslint-disable-next-line
       console.log('[WAMP] connected')
     },
 
     _wampOnDisconnect(reason) {
+      // eslint-disable-next-line
       console.log(`[WAMP] closed: ${reason}`)
     },
 

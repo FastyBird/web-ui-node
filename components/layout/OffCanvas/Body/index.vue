@@ -18,7 +18,7 @@
 </template>
 
 <script lang="ts">
-import { createComponent, ref, watch } from '@vue/composition-api'
+import { createComponent, ref } from '@vue/composition-api'
 
 import OffCanvasHeading from './../Heading/index.vue'
 
@@ -31,11 +31,6 @@ export default createComponent({
   },
 
   props: {
-
-    show: {
-      type: Boolean,
-      default: false,
-    },
 
     heading: {
       type: String,
@@ -52,18 +47,6 @@ export default createComponent({
 
   setup(props, context) {
     const root = ref(null);
-
-    watch(() => props.show, (val: Boolean) => {
-      if (val && root.value) {
-        // @ts-ignore: Object is possibly 'null'.
-        root.value.tabIndex = 1;
-
-        context.root.$nextTick(() => {
-          // @ts-ignore: Object is possibly 'null'.
-          root.value.focus();
-        })
-      }
-    });
 
     return {
       root,

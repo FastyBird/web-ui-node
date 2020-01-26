@@ -1,4 +1,13 @@
+@import "~@fastybird-com/theme/assets/variables/colors";
+
 .fb-things-trigger-action {
+  &__preloading {
+    border: 1px solid $gray-lighter;
+    border-radius: 4px;
+    width: 100%;
+    margin-top: 5px;
+  }
+
   &__action:not(:last-child):after {
     content: ",";
     margin-right: 5px;
