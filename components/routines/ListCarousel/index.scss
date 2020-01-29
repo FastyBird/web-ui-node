@@ -1,11 +1,26 @@
 @import "~@fastybird-com/theme/assets/variables/colors";
+@import "~@fastybird-com/theme/assets/variables/screen";
 @import "~@fastybird-com/theme/assets/mixins/utilities";
 
 .fb-routines-today-carousel {
   &__container {
-    position: relative;
+    position: fixed;
+    top: 50px;
+    left: $layout-sidebar-width;
+    right: 0;
     padding-bottom: 10px;
     border-bottom: 1px solid $gray-lighter;
+    z-index: 1000;
+    background-color: #fefefe;
+
+    @media (max-width: $screen-xs-max) {
+      top: 60px;
+      left: 0;
+    }
+
+    @media (min-width: $screen-sm-min) AND (max-width: $screen-md-max) {
+      left: $layout-sidebar-collapsed-width;
+    }
 
     &:before {
       width: 100%;

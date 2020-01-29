@@ -3,6 +3,8 @@
 
 .fb-routines-list-view {
   &__container {
+    padding-top: 72px;
+
     .fb-divider__container {
       margin: 0;
     }
@@ -12,10 +14,6 @@
     @include gridRow(0, 0);
 
     padding: 5px;
-
-    @media (max-width: $screen-xs-max) {
-      padding: 15px 5px;
-    }
 
     > div {
       @include gridCel(0, 0);

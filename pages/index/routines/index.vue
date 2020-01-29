@@ -85,12 +85,7 @@ const RoutineDetail = () => ({
   error: FbComponentLoadingError,
   timeout: 5000,
 })
-const CreateRoutine = () => ({
-  component: import('@/components/routines/Desktop/Create'),
-  loading: FbComponentLoading,
-  error: FbComponentLoadingError,
-  timeout: 5000,
-})
+const CreateRoutine = () => import('@/components/routines/Desktop/Create')
 
 const SelectRoutineTypePhone = () => import('@/components/routines/Phone/SelectType')
 
