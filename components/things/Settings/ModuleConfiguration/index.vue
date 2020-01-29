@@ -106,7 +106,7 @@
 <script>
 export default {
 
-  name: 'ThingsSettingsThingModuleConfiguration',
+  name: 'ThingsSettingsModuleConfiguration',
 
   props: {
 

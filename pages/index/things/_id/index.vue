@@ -40,10 +40,45 @@ import {
   THINGS_HASH_SETTINGS,
 } from '@/configuration/routes'
 
-import ThingDetailDefault from '@/components/things/Phone/DetailDefault'
-import ThingDetailButton from '@/components/things/Phone/DetailButton'
+import FbComponentLoading from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoading'
+import FbComponentLoadingError from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoadingError'
 
-import ThingSettings from '@/components/things/Settings'
+const ThingDetailDefault = () => ({
+  component: import('@/components/things/Phone/DetailDefault'),
+  loading: FbComponentLoading,
+  error: FbComponentLoadingError,
+  timeout: 5000,
+})
+const ThingDetailButton = () => ({
+  component: import('@/components/things/Phone/DetailButton'),
+  loading: FbComponentLoading,
+  error: FbComponentLoadingError,
+  timeout: 5000,
+})
+const ThingSettings = () => ({
+  component: import('@/components/things/Settings'),
+  loading: FbComponentLoading,
+  error: FbComponentLoadingError,
+  timeout: 5000,
+})
+
+const viewSettings = {
+  opened: 'detail', // Detail is by default
+  items: {
+    detail: {
+      name: 'detail',
+      route: {
+        hash: THINGS_HASH_DETAIL,
+      },
+    },
+    settings: {
+      name: 'settings',
+      route: {
+        hash: THINGS_HASH_SETTINGS,
+      },
+    },
+  },
+}
 
 export default {
 
@@ -61,23 +96,7 @@ export default {
   data() {
     return {
       id: this.$route.params.id,
-      view: {
-        opened: 'detail', // Detail is by default
-        items: {
-          detail: {
-            name: 'detail',
-            route: {
-              hash: THINGS_HASH_DETAIL,
-            },
-          },
-          settings: {
-            name: 'settings',
-            route: {
-              hash: THINGS_HASH_SETTINGS,
-            },
-          },
-        },
-      },
+      view: Object.assign({}, viewSettings),
     }
   },
 
@@ -354,7 +373,7 @@ export default {
     },
 
     /**
-     * Open things view
+     * Open selected view
      *
      * @param {String} view
      */
@@ -460,6 +479,10 @@ export default {
       }
     },
 
+  },
+
+  validate({ app, params }) {
+    return app.$validateUUID(params.id)
   },
 
   head() {

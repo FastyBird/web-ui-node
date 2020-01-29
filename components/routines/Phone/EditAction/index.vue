@@ -1,5 +1,5 @@
 <template>
-  <div class="fb-routines-pages-edit-action-thing__container">
+  <div class="fb-routines-phone-edit-action-thing__container">
     <edit-action
       :thing="thing"
       :action="action"
@@ -39,7 +39,7 @@ const EditAction = () => import('@/components/routines/Edit/EditAction')
 
 export default {
 
-  name: 'PagesRoutinesEditAction',
+  name: 'RoutinesPhoneEditAction',
 
   components: {
     EditAction,

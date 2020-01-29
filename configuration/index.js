@@ -11,17 +11,19 @@ export const MQTT_SERVER_ADDRESS = process.env.NUXT_ENV_MQTT_SERVER_ADDRESS
 export const MQTT_SERVER_PORT = '1883'
 export const MQTT_SERVER_SECURED_PORT = '8883'
 
-export const icons = [
-  'thermometer',
-  'lighting',
-  'valve',
-  'motor',
-  'lock',
-  'plug',
-  'button',
-  'humidity',
-  'luminosity',
-  'fan',
+export const groupIcons = [
+  'blender',
+  'baby',
+  'bath',
+  'shower',
+  'toilet',
+  'chair',
+  'couch',
+  'tv',
+  'gamepad',
+  'hot-tub',
+  'swimming-pool',
+  'bed',
 ]
 
 export const API_DEFAULT_THING_ROOT = 'http://192.168.4.1'
@@ -51,6 +53,7 @@ export const MENU_ITEMS = [
           label: 'application.menu.things',
           type: 'things',
         },
+        module: 'io-server',
       }, {
         name: 'Routines',
         link: ROUTINES_LIST_LINK,
@@ -59,6 +62,52 @@ export const MENU_ITEMS = [
           label: 'application.menu.routines',
           type: 'routines',
         },
+        module: 'triggers',
+      },
+    ],
+  }, {
+    name: 'Administration',
+    meta: {
+      label: 'application.menu.administration',
+    },
+    items: [
+      {
+        name: 'Users',
+        link: HOME_LINK,
+        meta: {
+          icon: 'users',
+          label: 'application.menu.users',
+          type: 'users',
+        },
+        module: 'users',
+      }, {
+        name: 'Access settings',
+        link: HOME_LINK,
+        meta: {
+          icon: 'unlock',
+          label: 'application.menu.access',
+          type: 'access',
+        },
+        module: 'acl',
+        items: [
+          {
+            name: 'Roles',
+            link: HOME_LINK,
+            meta: {
+              label: 'application.menu.roles',
+              type: 'roles',
+            },
+            module: 'acl',
+          }, {
+            name: 'Permission',
+            link: HOME_LINK,
+            meta: {
+              label: 'application.menu.permissions',
+              type: 'permissions',
+            },
+            module: 'acl',
+          },
+        ],
       },
     ],
   },

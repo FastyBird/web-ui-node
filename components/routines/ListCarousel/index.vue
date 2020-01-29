@@ -9,20 +9,13 @@
 
       <div class="fb-routines-today-carousel__carousel">
         <hooper :settings="carousel">
-          <slide>
-            <carousel-slide />
-          </slide>
-          <slide>
-            <carousel-slide />
-          </slide>
-          <slide>
-            <carousel-slide />
-          </slide>
-          <slide>
-            <carousel-slide />
-          </slide>
-          <slide>
-            <carousel-slide />
+          <slide
+            v-for="routine in routines"
+            :key="routine.id"
+          >
+            <carousel-slide
+              :routine="routine"
+            />
           </slide>
         </hooper>
       </div>
@@ -64,6 +57,34 @@ export default {
         },
       },
     }
+  },
+
+  computed: {
+
+    routines() {
+      let routines = this.$store.getters['entities/trigger/query']()
+        .with('conditions')
+        .where('isAutomatic', true)
+        .orderBy('name')
+        .all()
+
+      routines = this._.filter(routines, (routine) => {
+        const condition = this._.get(routine, 'conditions', []).find(item => item.isTime)
+
+        if (typeof condition === 'undefined') {
+          return false
+        }
+
+        const now = new Date()
+        const time = new Date(condition.time)
+
+        return this._.get(condition, 'days', []).includes(parseInt(this.$dateFns.format(now, 'i'), 10)) &&
+          this.$dateFns.compareDesc(now, new Date(`${this.$dateFns.format(now, 'Y-M-d')} ${this.$dateFns.format(time, 'H:m:s XXXX')}`)) === 1
+      })
+
+      return routines
+    },
+
   },
 
 }

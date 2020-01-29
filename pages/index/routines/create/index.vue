@@ -29,7 +29,7 @@
       :type-thing="view.opened === view.items.condition.name && isThingCondition"
       :type-sensor="view.opened === view.items.condition.name && isSensorCondition"
       @select="thingSelected"
-      @close="closeView(view.opened)"
+      @close="closeView"
     />
 
     <edit-condition
@@ -40,7 +40,7 @@
       @add="addCondition"
       @remove="removeCondition"
       @back="openView(view.items.condition.name)"
-      @close="closeView(view.items.conditionThing.name)"
+      @close="closeView"
     />
 
     <edit-condition
@@ -51,8 +51,8 @@
       :type-sensor="isSensorCondition"
       @add="addCondition"
       @remove="removeCondition"
-      @back="closeView(view.items.conditionThingEdit.name)"
-      @close="closeView(view.items.conditionThingEdit.name)"
+      @back="closeView"
+      @close="closeView"
     />
 
     <edit-action
@@ -61,7 +61,7 @@
       @add="addAction"
       @remove="removeAction"
       @back="openView(view.items.action.name)"
-      @close="closeView(view.items.actionThing.name)"
+      @close="closeView"
     />
 
     <edit-action
@@ -70,8 +70,8 @@
       :action="view.items.actionThingEdit.item"
       @add="addAction"
       @remove="removeAction"
-      @back="closeView(view.items.actionThingEdit.name)"
-      @close="closeView(view.items.actionThingEdit.name)"
+      @back="closeView"
+      @close="closeView"
     />
 
     <edit-schedule
@@ -96,13 +96,75 @@ import {
   ROUTINES_QUERY_TYPE_MANUAL,
 } from '@/configuration/routes'
 
-const CreateRoutine = () => import('@/components/routines/Create')
+import FbComponentLoading from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoading'
+import FbComponentLoadingError from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoadingError'
 
-const SelectThing = () => import('@/components/routines/Phone/SelectThing')
+import CreateRoutine from '@/components/routines/Create'
 
-const EditCondition = () => import('@/components/routines/Phone/EditCondition')
-const EditAction = () => import('@/components/routines/Phone/EditAction')
-const EditSchedule = () => import('@/components/routines/Phone/EditSchedule')
+const SelectThing = () => ({
+  component: import('@/components/routines/Phone/SelectThing'),
+  loading: FbComponentLoading,
+  error: FbComponentLoadingError,
+  timeout: 5000,
+})
+
+const EditCondition = () => ({
+  component: import('@/components/routines/Phone/EditCondition'),
+  loading: FbComponentLoading,
+  error: FbComponentLoadingError,
+  timeout: 5000,
+})
+const EditAction = () => ({
+  component: import('@/components/routines/Phone/EditAction'),
+  loading: FbComponentLoading,
+  error: FbComponentLoadingError,
+  timeout: 5000,
+})
+const EditSchedule = () => ({
+  component: import('@/components/routines/Phone/EditSchedule'),
+  loading: FbComponentLoading,
+  error: FbComponentLoadingError,
+  timeout: 5000,
+})
+
+const viewSettings = {
+  opened: null,
+  items: {
+    condition: {
+      name: 'condition',
+      items: [],
+    },
+    conditionThing: {
+      name: 'conditionThing',
+      thing: null,
+    },
+    conditionThingEdit: {
+      name: 'conditionThingEdit',
+      thing: null,
+      item: null,
+    },
+    action: {
+      name: 'action',
+      items: [],
+    },
+    actionThing: {
+      name: 'actionThing',
+      thing: null,
+    },
+    actionThingEdit: {
+      name: 'actionThingEdit',
+      thing: null,
+      item: null,
+    },
+    notification: {
+      name: 'notification',
+    },
+    schedule: {
+      name: 'schedule',
+      item: null,
+    },
+  },
+}
 
 export default {
 
@@ -128,44 +190,7 @@ export default {
       isThingCondition: this.$route.query.type === ROUTINES_QUERY_TYPE_THING,
       isSensorCondition: this.$route.query.type === ROUTINES_QUERY_TYPE_SENSOR,
       isManual: this.$route.query.type === ROUTINES_QUERY_TYPE_MANUAL,
-      view: {
-        opened: null,
-        items: {
-          condition: {
-            name: 'condition',
-            items: [],
-          },
-          conditionThing: {
-            name: 'conditionThing',
-            thing: null,
-          },
-          conditionThingEdit: {
-            name: 'conditionThingEdit',
-            thing: null,
-            item: null,
-          },
-          action: {
-            name: 'action',
-            items: [],
-          },
-          actionThing: {
-            name: 'actionThing',
-            thing: null,
-          },
-          actionThingEdit: {
-            name: 'actionThingEdit',
-            thing: null,
-            item: null,
-          },
-          notification: {
-            name: 'notification',
-          },
-          schedule: {
-            name: 'schedule',
-            item: null,
-          },
-        },
-      },
+      view: Object.assign({}, viewSettings),
     }
   },
 
@@ -287,7 +312,7 @@ export default {
         if (this.$store.state.routineCreate.conditions.schedules.length === 0) {
           this.$router.push(this.localePath(this.$routes.routines.list))
         } else {
-          this.closeView(view)
+          this.closeView()
         }
       }
     },
@@ -323,7 +348,7 @@ export default {
      * @param {Object} data
      */
     addCondition(data) {
-      this.closeView(this.view.items.conditionThing.name)
+      this.closeView()
 
       this.$store.dispatch('routineCreate/addCondition', {
         data,
@@ -362,7 +387,7 @@ export default {
       })
 
       if (this.view.opened === this.view.items.conditionThingEdit.name) {
-        this.closeView(this.view.items.conditionThingEdit.name)
+        this.closeView()
       } else {
         this.openView(this.view.items.condition.name)
       }
@@ -378,7 +403,7 @@ export default {
      * @param {Object} data
      */
     addSchedule(data) {
-      this.closeView(this.view.items.schedule.name)
+      this.closeView()
 
       this.$store.dispatch('routineCreate/addSchedule', {
         data,
@@ -408,7 +433,7 @@ export default {
      * @param {Object} data
      */
     addAction(data) {
-      this.closeView(this.view.items.actionThing.name)
+      this.closeView()
 
       this.$store.dispatch('routineCreate/addAction', {
         data,
@@ -447,14 +472,14 @@ export default {
       })
 
       if (this.view.opened === this.view.items.actionThingEdit.name) {
-        this.closeView(this.view.items.actionThingEdit.name)
+        this.closeView()
       } else {
         this.openView(this.view.items.action.name)
       }
     },
 
     /**
-     * Open routines view
+     * Open selected view
      *
      * @param {String} view
      * @param {Object} [item]
@@ -476,18 +501,11 @@ export default {
     },
 
     /**
-     * Close routines view window
-     *
-     * @param {String} view
+     * Close opened view
      */
-    closeView(view) {
-      if (Object.prototype.hasOwnProperty.call(this.view.items, view)) {
-        this.view.opened = null
-
-        if (Object.prototype.hasOwnProperty.call(this.view.items[view], 'item')) {
-          this.view.items[view].item = null
-        }
-      }
+    closeView() {
+      // Reset to default values
+      Object.assign(this.view, viewSettings)
 
       this._configureNavigation()
     },
@@ -541,6 +559,10 @@ export default {
 
   },
 
+  validate({ query }) {
+    return [ROUTINES_QUERY_TYPE_SCHEDULED, ROUTINES_QUERY_TYPE_THING, ROUTINES_QUERY_TYPE_SENSOR, ROUTINES_QUERY_TYPE_MANUAL].includes(query.type)
+  },
+
   head() {
     return {
       title: this.$t('meta.routines.create.title'),
@@ -550,6 +572,6 @@ export default {
 }
 </script>
 
-<style rel="stylesheet/scss" lang="scss" scoped>
+<style rel="stylesheet/scss" lang="scss">
   @import 'index';
 </style>

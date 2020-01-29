@@ -15,7 +15,7 @@ import GroupsCreateGroup from '@/components/groups/Create'
 
 export default {
 
-  name: 'GroupDetailPage',
+  name: 'GroupCreatePage',
 
   components: {
     GroupsCreateGroup,
@@ -157,6 +157,6 @@ export default {
 }
 </script>
 
-<style rel="stylesheet/scss" lang="scss" scoped>
+<style rel="stylesheet/scss" lang="scss">
   @import 'index';
 </style>

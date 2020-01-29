@@ -23,7 +23,7 @@
 <script>
 export default {
 
-  name: 'ThingsSettingsThingRemove',
+  name: 'ThingsSettingsRemove',
 
   props: {
 

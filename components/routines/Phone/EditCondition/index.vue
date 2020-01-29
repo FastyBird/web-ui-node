@@ -1,5 +1,5 @@
 <template>
-  <div class="fb-routines-pages-edit-condition-thing__container">
+  <div class="fb-routines-phone-edit-condition-thing__container">
     <edit-condition
       :thing="thing"
       :condition="condition"
@@ -41,7 +41,7 @@ const EditCondition = () => import('@/components/routines/Edit/EditCondition')
 
 export default {
 
-  name: 'PagesRoutinesEditCondition',
+  name: 'RoutinesPhoneEditCondition',
 
   components: {
     EditCondition,

@@ -10,10 +10,10 @@
 
       <div class="fb-routines-today-carousel-slide__heading">
         <h2>
-          Rise n' Shine
+          {{ routine.name }}
         </h2>
         <small>
-          Scheduled: 7.30 am
+          {{ subHeading }}
         </small>
       </div>
     </div>
@@ -24,6 +24,89 @@
 export default {
 
   name: 'RoutinesListCarouselSlide',
+
+  props: {
+
+    routine: {
+      type: Object,
+      required: true,
+    },
+
+  },
+
+  computed: {
+
+    /**
+     * User account details
+     *
+     * @returns {(Account|null)}
+     */
+    account() {
+      return this.$store.getters['entities/account/query']()
+        .first()
+    },
+
+    /**
+     * Get list sub-heading
+     *
+     * @returns {String}
+     */
+    subHeading() {
+      let days = ''
+
+      if (this.schedule.days.length === 7) {
+        days = this.$t('routines.texts.everyday')
+      } else {
+        days = []
+
+        for (const day of this.schedule.days) {
+          switch (day) {
+            case 1:
+              days.push(this.$t('application.days.mon.short'))
+              break
+
+            case 2:
+              days.push(this.$t('application.days.tue.short'))
+              break
+
+            case 3:
+              days.push(this.$t('application.days.wed.short'))
+              break
+
+            case 4:
+              days.push(this.$t('application.days.thu.short'))
+              break
+
+            case 5:
+              days.push(this.$t('application.days.fri.short'))
+              break
+
+            case 6:
+              days.push(this.$t('application.days.sat.short'))
+              break
+
+            case 7:
+              days.push(this.$t('application.days.sun.short'))
+              break
+          }
+        }
+
+        days = days.join(', ')
+      }
+
+      return this.$t('routines.headings.scheduledRoutine', { days, time: this.$dateFns.format(this.schedule.time, this._.get(this.account, 'timeFormat', 'HH:mm')) })
+    },
+
+    /**
+     * Routine schedule condition
+     *
+     * @returns {(Condition|null)}
+     */
+    schedule() {
+      return this._.get(this.routine, 'conditions', []).find(item => item.isTime)
+    },
+
+  },
 
   methods: {
 

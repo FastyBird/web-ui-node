@@ -14,48 +14,28 @@
     <off-canvas
       v-if="windowSize !== 'xs'"
       :show="view.opened === view.items.detail.name || view.opened === view.items.settings.name"
-      @close="closeView(view.opened)"
+      @close="closeView"
     >
       <routine-detail
-        v-if="view.opened === view.items.detail.name"
-        :id="view.items.detail.id"
+        v-if="view.opened === view.items.detail.name || view.opened === view.items.settings.name"
+        :id="view.opened === view.items.detail.name ? view.items.detail.id : view.items.settings.id"
         slot="body"
-        @close="closeView(view.opened)"
-      />
-
-      <routine-detail
-        v-if="view.opened === view.items.settings.name"
-        :id="view.items.settings.id"
-        slot="body"
-        :settings="true"
-        @close="closeView(view.opened)"
+        :settings="view.opened === view.items.settings.name"
+        @close="closeView"
       />
     </off-canvas>
 
-    <fb-modal-window
-      v-if="(view.opened === view.items.type.name || view.opened === view.items.create.name) && windowSize !== 'xs'"
-      @close="closeView(view.opened)"
-    >
-      <template slot="modal-content">
-        <select-routine-type
-          v-if="view.opened === view.items.type.name"
-          @close="closeView(view.opened)"
-        />
-
-        <create-routine
-          v-if="view.opened === view.items.create.name"
-          :type="view.items.create.type"
-          @close="closeView(view.opened)"
-        />
-      </template>
-    </fb-modal-window>
+    <create-routine
+      v-if="view.opened === view.items.create.name && windowSize !== 'xs'"
+      @close="closeView"
+    />
 
     <mobile-bottom-menu
       v-if="windowSize === 'xs'"
       :show-header="true"
       :show="view.opened === view.items.type.name"
-      :heading="'Add new'"
-      @close="closeView(view.opened)"
+      :heading="$t('routines.headings.addNew')"
+      @close="closeView"
     >
       <select-routine-type-phone slot="items" />
     </mobile-bottom-menu>
@@ -93,14 +73,59 @@ import {
   ROUTINES_HASH_CREATE,
 } from '@/configuration/routes'
 
+import FbComponentLoading from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoading'
+import FbComponentLoadingError from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoadingError'
+
 import RoutineListItem from '@/components/routines/ListItem'
 import RoutineListCarousel from '@/components/routines/ListCarousel'
 
-const RoutineDetail = () => import('@/components/routines/Desktop/Detail')
-const SelectRoutineType = () => import('@/components/routines/Desktop/SelectType')
-const CreateRoutine = () => import('@/components/routines/Desktop/Create')
+const RoutineDetail = () => ({
+  component: import('@/components/routines/Desktop/Detail'),
+  loading: FbComponentLoading,
+  error: FbComponentLoadingError,
+  timeout: 5000,
+})
+const CreateRoutine = () => ({
+  component: import('@/components/routines/Desktop/Create'),
+  loading: FbComponentLoading,
+  error: FbComponentLoadingError,
+  timeout: 5000,
+})
 
 const SelectRoutineTypePhone = () => import('@/components/routines/Phone/SelectType')
+
+const viewSettings = {
+  opened: null,
+  items: {
+    detail: {
+      name: 'detail',
+      id: null,
+      route: {
+        hash: ROUTINES_HASH_DETAIL,
+        length: 8,
+      },
+    },
+    settings: {
+      name: 'settings',
+      id: null,
+      route: {
+        hash: ROUTINES_HASH_SETTINGS,
+        length: 10,
+      },
+    },
+    type: {
+      name: 'type',
+    },
+    create: {
+      name: 'create',
+      type: null,
+      route: {
+        hash: ROUTINES_HASH_CREATE,
+        length: 8,
+      },
+    },
+  },
+}
 
 export default {
 
@@ -111,7 +136,6 @@ export default {
     RoutineListCarousel,
 
     RoutineDetail,
-    SelectRoutineType,
     CreateRoutine,
 
     SelectRoutineTypePhone,
@@ -121,38 +145,7 @@ export default {
 
   data() {
     return {
-      view: {
-        opened: null,
-        items: {
-          detail: {
-            name: 'detail',
-            id: null,
-            route: {
-              hash: ROUTINES_HASH_DETAIL,
-              length: 8,
-            },
-          },
-          settings: {
-            name: 'settings',
-            id: null,
-            route: {
-              hash: ROUTINES_HASH_SETTINGS,
-              length: 10,
-            },
-          },
-          type: {
-            name: 'type',
-          },
-          create: {
-            name: 'create',
-            type: null,
-            route: {
-              hash: ROUTINES_HASH_CREATE,
-              length: 8,
-            },
-          },
-        },
-      },
+      view: Object.assign({}, viewSettings),
       click: {
         delay: 200,
         clicks: 0,
@@ -247,6 +240,10 @@ export default {
       }
     },
 
+    routines() {
+      this._configureNavigation()
+    },
+
   },
 
   fetch({ app, store, error }) {
@@ -255,7 +252,9 @@ export default {
         root: true,
       })
         .then(() => {
-          const routinesCount = store.getters['entities/trigger/query']().count()
+          const routinesCount = store.getters['entities/trigger/query']()
+            .where('isForChannel', false)
+            .count()
 
           store.dispatch('header/resetStore', null, {
             root: true,
@@ -311,7 +310,7 @@ export default {
   methods: {
 
     /**
-     * Open routines view
+     * Open selected view
      *
      * @param {String} view
      * @param {String} [id]
@@ -373,7 +372,7 @@ export default {
             } else {
               this.$router.push(this.localePath({
                 name: this.$routes.routines.list,
-                hash: `${this.view.items.create.route.hash}-${id}`,
+                hash: this.view.items.create.route.hash,
               }))
             }
             break
@@ -389,7 +388,7 @@ export default {
             .first()
 
           if (routine === null) {
-            this.closeView(view)
+            this.closeView()
           }
         }
 
@@ -400,20 +399,13 @@ export default {
     },
 
     /**
-     * Close routines view window
-     *
-     * @param {String} view
+     * Close opened view
      */
-    closeView(view) {
+    closeView() {
       this.$router.push(this.localePath(this.$routes.routines.list))
 
-      this.view.opened = null
-
-      if (typeof view !== 'undefined' && Object.prototype.hasOwnProperty.call(this.view.items, view)) {
-        if (Object.prototype.hasOwnProperty.call(this.view.items[view], 'id')) {
-          this.view.items[view].id = null
-        }
-      }
+      // Reset to default values
+      Object.assign(this.view, viewSettings)
 
       this.$el.focus()
     },
@@ -491,7 +483,11 @@ export default {
         this.$store.dispatch('header/setAddButton', {
           name: this.$t('application.buttons.add.title'),
           callback: () => {
-            this.openView(this.view.items.type.name)
+            if (this.windowSize === 'xs') {
+              this.openView(this.view.items.type.name)
+            } else {
+              this.openView(this.view.items.create.name)
+            }
           },
         }, {
           root: true,

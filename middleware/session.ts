@@ -46,21 +46,41 @@ const sessionMiddleware: Middleware = ({ app, store }) => {
           app.$cookies.remove('refresh_token');
         }
       } else {
-        return store.dispatch('entities/session/fetch', {
-          id: process.env.NUXT_ENV_SESSION_KEY,
-          token: tokenCookie,
-          refresh: refreshToken,
-        }, {
-          root: true,
-        })
-          .catch((e) => {
-            if (Object.prototype.hasOwnProperty.call(app, '$sentry')) {
-              app.$sentry.captureException(e);
-            } else {
-              // eslint-disable-next-line
-              console.log('Middleware: Fetch session error');
-            }
+        const session = store.getters['entities/session/query'](process.env.NUXT_ENV_SESSION_KEY);
+
+        if (session !== null) {
+          return store.dispatch('entities/session/fetch', {
+            id: process.env.NUXT_ENV_SESSION_KEY,
+            token: tokenCookie,
+            refresh: refreshToken,
+          }, {
+            root: true,
           })
+            .catch((e) => {
+              if (Object.prototype.hasOwnProperty.call(app, '$sentry')) {
+                app.$sentry.captureException(e);
+              } else {
+                // eslint-disable-next-line
+                console.log('Middleware: Fetch session error');
+              }
+            })
+        } else {
+          const profile = store.getters['entities/profile/query']().first();
+
+          if (profile !== null) {
+            return store.dispatch('entities/account/fetch', {}, {
+              root: true,
+            })
+              .catch((e) => {
+                if (Object.prototype.hasOwnProperty.call(app, '$sentry')) {
+                  app.$sentry.captureException(e);
+                } else {
+                  // eslint-disable-next-line
+                  console.log('Middleware: Fetch account error');
+                }
+              })
+          }
+        }
       }
     } catch (error) {
       // Token could not be parsed

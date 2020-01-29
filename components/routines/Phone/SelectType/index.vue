@@ -63,7 +63,7 @@ import {
 
 export default {
 
-  name: 'RoutinesPhoneSelectTpe',
+  name: 'RoutinesPhoneSelectType',
 
   data() {
     return {

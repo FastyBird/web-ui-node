@@ -8,7 +8,7 @@
     </template>
 
     <template slot="heading">
-      Scheduled: {{ $dateFns.format(schedule.time, 'HH:mm') }}
+      {{ $t('routines.texts.scheduled', { time: $dateFns.format(schedule.time, _.get(account, 'timeFormat', 'HH:mm')) }) }}
     </template>
 
     <template slot="sub-heading">
@@ -16,7 +16,7 @@
         <span
           v-for="(row, index) in schedule.days"
           :key="index"
-        >{{ translateDay(row) }}</span>
+        >{{ translateDay(row) }}<template v-if="index < (schedule.days.length - 1)">, </template></span>
       </template>
       <span v-else>all week</span>
     </template>
@@ -54,6 +54,20 @@ export default {
 
   },
 
+  computed: {
+
+    /**
+     * User account details
+     *
+     * @returns {(Account|null)}
+     */
+    account() {
+      return this.$store.getters['entities/account/query']()
+        .first()
+    },
+
+  },
+
   methods: {
 
     edit() {
@@ -74,7 +88,7 @@ export default {
           return this.$t('application.days.fri.short')
         case 6:
           return this.$t('application.days.sat.short')
-        case 0:
+        case 7:
           return this.$t('application.days.sun.short')
         default:
           return ''

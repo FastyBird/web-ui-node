@@ -11,7 +11,7 @@ import DefaultThing from '@/components/things/Detail/Things/Default'
 
 export default {
 
-  name: 'PagesThingsDetailDefault',
+  name: 'ThingsPhoneDetailDefault',
 
   components: {
     DefaultThing,

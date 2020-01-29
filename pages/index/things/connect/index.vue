@@ -194,11 +194,11 @@
 <script>
 import { mapState } from 'vuex'
 
-import connectMixin from '@/mixins/connectDevice'
-
 import {
   THINGS_HASH_CONNECT,
 } from '@/configuration/routes'
+
+import connectMixin from '@/mixins/connectDevice'
 
 export default {
 

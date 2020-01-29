@@ -1,17 +1,25 @@
 <template>
   <div
     ref="root"
-    :class="['fb-off-canvas__container', {'show': show}]"
+    class="fb-off-canvas__container"
     @keyup.esc="close"
   >
-    <div
-      :class="['fb-off-canvas__overlay', {'hide': !show}]"
-      @click.prevent="close"
-    />
+    <transition name="off-canvas-overlay">
+      <div
+        v-if="show"
+        class="fb-off-canvas__overlay"
+        @click.prevent="close"
+      />
+    </transition>
 
-    <div class="fb-off-canvas__body">
-      <slot name="body" />
-    </div>
+    <transition name="off-canvas-body">
+      <div
+        v-if="show"
+        class="fb-off-canvas__body"
+      >
+        <slot name="body" />
+      </div>
+    </transition>
   </div>
 </template>
 

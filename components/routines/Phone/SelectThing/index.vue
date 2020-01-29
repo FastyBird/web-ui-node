@@ -14,7 +14,7 @@ const SelectThing = () => import('@/components/routines/Edit/SelectThing')
 
 export default {
 
-  name: 'PagesRoutinesSelectThing',
+  name: 'RoutinesPhoneSelectThing',
 
   components: {
     SelectThing,

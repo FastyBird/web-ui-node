@@ -42,19 +42,28 @@
       name="fade"
       mode="out-in"
     >
-      <thing-detail
-        v-if="view.opened === view.items.detail.name"
-        :thing="thing"
-        :style="`height: ${offCanvasHeight}px`"
-        class="fb-iot-things-list-view__off-canvas-body"
-      />
+      <template v-if="view.opened === view.items.detail.name">
+        <thing-detail-button
+          v-if="isButtonThing"
+          :thing="thing"
+          :style="`height: ${offCanvasHeight}px`"
+          class="fb-iot-things-list-view__off-canvas-body"
+        />
+
+        <thing-detail-default
+          v-else
+          :thing="thing"
+          :style="`height: ${offCanvasHeight}px`"
+          class="fb-iot-things-list-view__off-canvas-body"
+        />
+      </template>
 
       <thing-settings
         v-if="view.opened === view.items.settings.name"
         :thing="thing"
         :style="`height: ${offCanvasHeight}px`"
         class="fb-iot-things-list-view__off-canvas-body"
-        @removed="closeView(view.opened)"
+        @removed="$emit('close')"
       />
     </transition>
   </off-canvas-body>
@@ -69,8 +78,14 @@ import {
 import FbComponentLoading from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoading'
 import FbComponentLoadingError from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoadingError'
 
-const ThingDetail = () => ({
-  component: import('@/components/things/Detail'),
+const ThingDetailDefault = () => ({
+  component: import('@/components/things/Detail/Things/Default'),
+  loading: FbComponentLoading,
+  error: FbComponentLoadingError,
+  timeout: 5000,
+})
+const ThingDetailButton = () => ({
+  component: import('./Button'),
   loading: FbComponentLoading,
   error: FbComponentLoadingError,
   timeout: 5000,
@@ -82,12 +97,33 @@ const ThingSettings = () => ({
   timeout: 5000,
 })
 
+const viewSettings = {
+  opened: 'detail',
+  items: {
+    detail: {
+      name: 'detail',
+      route: {
+        hash: THINGS_HASH_DETAIL,
+        length: 8,
+      },
+    },
+    settings: {
+      name: 'settings',
+      route: {
+        hash: THINGS_HASH_SETTINGS,
+        length: 10,
+      },
+    },
+  },
+}
+
 export default {
 
   name: 'ThingsDesktopDetail',
 
   components: {
-    ThingDetail,
+    ThingDetailDefault,
+    ThingDetailButton,
     ThingSettings,
   },
 
@@ -107,25 +143,7 @@ export default {
 
   data() {
     return {
-      view: {
-        opened: this.settings ? 'settings' : 'detail',
-        items: {
-          detail: {
-            name: 'detail',
-            route: {
-              hash: THINGS_HASH_DETAIL,
-              length: 8,
-            },
-          },
-          settings: {
-            name: 'settings',
-            route: {
-              hash: THINGS_HASH_SETTINGS,
-              length: 10,
-            },
-          },
-        },
-      },
+      view: Object.assign({}, viewSettings),
       offCanvasHeight: null,
     }
   },
@@ -148,6 +166,33 @@ export default {
         .first()
     },
 
+    /**
+     * Get thing hardware info
+     *
+     * @returns {(Hardware|null)}
+     */
+    hardware() {
+      return this.$store.getters['entities/hardware/query']()
+        .where('device_id', this.thing.device_id)
+        .first()
+    },
+
+    /**
+     * Check if thing is button type
+     *
+     * @returns {Boolean}
+     */
+    isButtonThing() {
+      return !!(this._.get(this.hardware, 'isManufacturerFastyBird', false) &&
+        (
+          this._.get(this.hardware, 'model') === '8ch_buttons' || this._.get(this.hardware, 'model') === '16ch_buttons'
+        ))
+    },
+
+  },
+
+  created() {
+    this.view.opened = this.settings ? 'settings' : 'detail'
   },
 
   mounted() {
@@ -174,7 +219,7 @@ export default {
     },
 
     /**
-     * Open thing detail view
+     * Open selected view
      *
      * @param {String} view
      */

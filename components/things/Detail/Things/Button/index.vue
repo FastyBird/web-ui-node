@@ -9,7 +9,7 @@
       <template v-if="triggers.length === 0">
         <no-results
           :message="$t('things.texts.noThingsActions')"
-          icon="plug"
+          icon="project-diagram"
           second-icon="plus"
         />
 
@@ -26,8 +26,8 @@
 
       <template v-else>
         <button-trigger
-          v-for="(trigger, index) in triggers"
-          :key="index"
+          v-for="trigger in triggers"
+          :key="trigger.id"
           :thing="thing"
           :trigger="trigger"
         />

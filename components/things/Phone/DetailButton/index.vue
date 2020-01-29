@@ -1,5 +1,5 @@
 <template>
-  <div class="fb-iot-pages-things-detail-button__container">
+  <div class="fb-iot-things-phone-detail-button__container">
     <button-thing
       v-if="view.opened === null || view.opened === view.items.type.name"
       :thing="thing"
@@ -7,35 +7,35 @@
     />
 
     <select-thing
-      v-if="view.opened === view.items.action.name"
+      v-if="view.opened === view.items.selectThing.name"
       :items="view.items[view.opened].items"
       :only-settable="true"
       @select="thingSelected"
-      @close="closeView(view.opened)"
+      @close="closeView"
     />
 
     <edit-action
       v-if="view.opened === view.items.actionThing.name"
       :thing="view.items.actionThing.thing"
       :action="view.items.actionThing.item"
-      @add="addTriggerAction"
-      @remove="removeTriggerAction"
-      @back="openView(view.items.action.name, view.actionType)"
-      @close="closeView(view.items.actionThing.name)"
+      @add="addThingAction"
+      @remove="removeThingAction"
+      @back="openView(view.items.selectThing.name, actionType)"
+      @close="closeView"
     />
 
     <mobile-bottom-menu
       :show-header="true"
       :show="view.opened === view.items.type.name"
       :heading="$t('things.headings.newAction')"
-      @close="closeView(view.items.type.name)"
+      @close="closeView"
     >
       <template slot="items">
         <fb-button
           block
           variant="link"
           name="press"
-          @click.prevent="openView(view.items.action.name, 'press')"
+          @click.prevent="openView(view.items.selectThing.name, 'press')"
         >
           {{ $t('things.buttons.press.title') }}
         </fb-button>
@@ -49,7 +49,7 @@
           block
           variant="link"
           name="click"
-          @click.prevent="openView(view.items.action.name, 'click')"
+          @click.prevent="openView(view.items.selectThing.name, 'click')"
         >
           {{ $t('things.buttons.click.title') }}
         </fb-button>
@@ -63,7 +63,7 @@
           block
           variant="link"
           name="dblClick"
-          @click.prevent="openView(view.items.action.name, 'dblClick')"
+          @click.prevent="openView(view.items.selectThing.name, 'dblClick')"
         >
           {{ $t('things.buttons.dblClick.title') }}
         </fb-button>
@@ -74,25 +74,51 @@
 
 <script>
 import {
-  DEVICE_FASTYBIRD_BUTTON_PRESS,
-  DEVICE_FASTYBIRD_BUTTON_CLICK,
-  DEVICE_FASTYBIRD_BUTTON_DBL_CLICK,
-} from '@/configuration/devices'
-
-import {
   THINGS_HASH_SETTINGS,
 } from '@/configuration/routes'
 
-import triggersMixin from '@/mixins/triggers'
+import buttonThingTriggerMixin from '@/mixins/buttonThingTrigger'
+
+import FbComponentLoading from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoading'
+import FbComponentLoadingError from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoadingError'
 
 import ButtonThing from '@/components/things/Detail/Things/Button'
 
-const SelectThing = () => import('@/components/routines/Phone/SelectThing')
-const EditAction = () => import('@/components/routines/Phone/EditAction')
+const SelectThing = () => ({
+  component: import('@/components/routines/Phone/SelectThing'),
+  loading: FbComponentLoading,
+  error: FbComponentLoadingError,
+  timeout: 5000,
+})
+const EditAction = () => ({
+  component: import('@/components/routines/Phone/EditAction'),
+  loading: FbComponentLoading,
+  error: FbComponentLoadingError,
+  timeout: 5000,
+})
+
+const viewSettings = {
+  opened: null,
+  items: {
+    type: {
+      name: 'type',
+    },
+    selectThing: {
+      name: 'selectThing',
+      items: [],
+      item: null,
+    },
+    actionThing: {
+      name: 'actionThing',
+      thing: null,
+      item: null,
+    },
+  },
+}
 
 export default {
 
-  name: 'PagesThingsDetailButton',
+  name: 'ThingsPhoneDetailButton',
 
   components: {
     ButtonThing,
@@ -101,7 +127,7 @@ export default {
     EditAction,
   },
 
-  mixins: [triggersMixin],
+  mixins: [buttonThingTriggerMixin],
 
   props: {
 
@@ -114,25 +140,7 @@ export default {
 
   data() {
     return {
-      view: {
-        opened: null,
-        actionType: null,
-        items: {
-          type: {
-            name: 'type',
-          },
-          action: {
-            name: 'action',
-            items: [],
-            item: null,
-          },
-          actionThing: {
-            name: 'actionThing',
-            thing: null,
-            item: null,
-          },
-        },
-      },
+      view: Object.assign({}, viewSettings),
     }
   },
 
@@ -183,7 +191,7 @@ export default {
      * @param {Thing} thing
      */
     thingSelected(thing) {
-      if (this.view.opened === this.view.items.action.name) {
+      if (this.view.opened === this.view.items.selectThing.name) {
         this.view.items.actionThing.thing = thing
 
         this.openView(this.view.items.actionThing.name)
@@ -193,150 +201,29 @@ export default {
     },
 
     /**
-     * Add action settings to collection
+     * Add thing action to button trigger
      *
      * @param {Object} data
      */
-    addTriggerAction(data) {
-      this.closeView(this.view.items.actionThing.name)
+    addThingAction(data) {
+      this.closeView()
 
-      const errorMessage = this.$t('things.messages.triggerNotCreated')
-
-      const trigger = this._getButtonActionTrigger(this.view.actionType)
-
-      if (trigger) {
-        const triggerAction = this.mapActions(trigger)
-          .find((item) => {
-            return item.thing === data.thing
-          })
-
-        this._.get(data, 'rows', [])
-          .forEach((row) => {
-            if (
-              typeof triggerAction !== 'undefined' &&
-              typeof this._.get(triggerAction, 'rows', []).find(({ property_id }) => property_id === row.property_id) !== 'undefined'
-            ) {
-              const triggerActionProperty = this._.get(triggerAction, 'rows', [])
-                .find(({ property_id }) => property_id === row.property_id)
-
-              // Update existing trigger action
-              this.$store.dispatch('entities/action/edit', {
-                id: triggerActionProperty.action_id,
-                data: {
-                  enabled: data.enabled,
-                  value: row.operation,
-                },
-              }, {
-                root: true,
-              })
-                .catch((e) => {
-                  if (Object.prototype.hasOwnProperty.call(e, 'exception')) {
-                    this.handleFormError(e.exception, errorMessage)
-                  } else {
-                    this.$flashMessage(errorMessage, 'error')
-                  }
-                })
-            } else {
-              // Create existing trigger action
-              this.$store.dispatch('entities/action/add', {
-                trigger,
-                data: {
-                  type: 'channel_property',
-                  enabled: data.enabled,
-                  channel: data.thing,
-                  property: row.property_id,
-                  value: row.operation,
-                },
-              }, {
-                root: true,
-              })
-                .catch((e) => {
-                  if (Object.prototype.hasOwnProperty.call(e, 'exception')) {
-                    this.handleFormError(e.exception, errorMessage)
-                  } else {
-                    this.$flashMessage(errorMessage, 'error')
-                  }
-                })
-            }
-          })
-      } else {
-        const mappedActions = []
-
-        this._.get(data, 'rows', [])
-          .forEach((row) => {
-            mappedActions.push({
-              type: 'channel_property',
-              enabled: data.enabled,
-              channel: data.thing,
-              property: row.property_id,
-              value: row.operation,
-            })
-          })
-
-        // Create new trigger with remapped actions
-        this.$store.dispatch('entities/trigger/add', {
-          channelProperty: true,
-          data: {
-            name: this.thing.device_id,
-            comment: this.thing.channel_id,
-            channel: this.thing.channel_id,
-            enabled: true,
-            property: this._.first(this.thing.channel.properties).id,
-            operator: 'eq',
-            operand: this._mapActionToCode(this.view.actionType),
-            actions: mappedActions,
-          },
-        }, {
-          root: true,
-        })
-          .catch((e) => {
-            if (Object.prototype.hasOwnProperty.call(e, 'exception')) {
-              this.handleFormError(e.exception, errorMessage)
-            } else {
-              this.$flashMessage(errorMessage, 'error')
-            }
-          })
-      }
+      this.addAction(data)
     },
 
     /**
-     * Remove thing from opened action edit
+     * Remove thing action from button trigger
      *
      * @param {Thing} thing
      */
-    removeTriggerAction(thing) {
-      const trigger = this._getButtonActionTrigger(this.view.actionType)
+    removeThingAction(thing) {
+      this.closeView()
 
-      this.closeView(this.view.items.actionThing.name)
-
-      const mappedActions = this.mapActions(trigger)
-
-      const thingActions = this._.filter(mappedActions, action => action.thing === thing.id)
-
-      if (mappedActions.length > 1) {
-        thingActions.forEach((action) => {
-          this.removeAction(action)
-        })
-      } else {
-        this.$store.dispatch('entities/trigger/remove', {
-          id: trigger.id,
-        }, {
-          root: true,
-        })
-          .catch((e) => {
-            const errorMessage = this.$t('things.messages.actionNotRemoved')
-
-            if (Object.prototype.hasOwnProperty.call(e, 'exception')) {
-              this.handleFormError(e.exception, errorMessage)
-            } else {
-              this.$flashMessage(errorMessage, 'error')
-            }
-          })
-      }
+      this.removeAction(thing)
     },
 
     /**
-     * Open triggers view
+     * Open selected view
      *
      * @param {String} view
      * @param {String} [type]
@@ -350,7 +237,7 @@ export default {
           this.view.items[view].item = null
 
           // Try to find existing action via thing identifier
-          const storedAction = this.mapActions(this._getButtonActionTrigger(this.view.actionType))
+          const storedAction = this.mapActions(this._getButtonActionTrigger(this.actionType))
             .find(({ channel_id }) => channel_id === this.view.items.actionThing.thing.id)
 
           if (typeof storedAction !== 'undefined') {
@@ -359,8 +246,8 @@ export default {
         }
 
         // Open things select window
-        if (view === this.view.items.action.name) {
-          this.view.actionType = type
+        if (view === this.view.items.selectThing.name) {
+          this.actionType = type
 
           this.view.items[view].items = this._getButtonActionTrigger(type) ? this.mapActions(this._getButtonActionTrigger(type)) : []
         }
@@ -370,60 +257,13 @@ export default {
     },
 
     /**
-     * Close triggers view window
-     *
-     * @param {String} view
+     * Close opened view
      */
-    closeView(view) {
-      this.view.opened = null
-
-      if (Object.prototype.hasOwnProperty.call(this.view.items, view)) {
-        if (Object.prototype.hasOwnProperty.call(this.view.items[view], 'item')) {
-          this.view.items[view].item = null
-        }
-      }
+    closeView() {
+      // Reset to default values
+      Object.assign(this.view, viewSettings)
 
       this._configureNavigation()
-    },
-
-    /**
-     * Find thing trigger for given action type (press, click, dblClick, etc.)
-     *
-     * @param {String} type
-     *
-     * @private
-     */
-    _getButtonActionTrigger(type) {
-      const trigger = this.triggers.find(({ operand }) => operand === this._mapActionToCode(type))
-
-      if (typeof trigger !== 'undefined') {
-        return trigger
-      }
-
-      return null
-    },
-
-    /**
-     * Map action to device trigger code
-     *
-     * @param {String} action
-     *
-     * @private
-     */
-    _mapActionToCode(action) {
-      switch (action) {
-        case 'press':
-          return DEVICE_FASTYBIRD_BUTTON_PRESS
-
-        case 'click':
-          return DEVICE_FASTYBIRD_BUTTON_CLICK
-
-        case 'dblClick':
-          return DEVICE_FASTYBIRD_BUTTON_DBL_CLICK
-
-        default:
-          return null
-      }
     },
 
     /**

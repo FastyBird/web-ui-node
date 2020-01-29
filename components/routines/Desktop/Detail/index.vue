@@ -70,7 +70,7 @@ import FbComponentLoading from '@/node_modules/@fastybird-com/theme/components/U
 import FbComponentLoadingError from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoadingError'
 
 const RoutineDetail = () => ({
-  component: import('@/components/routines/Detail'),
+  component: import('./Routine'),
   loading: FbComponentLoading,
   error: FbComponentLoadingError,
   timeout: 5000,
@@ -81,6 +81,26 @@ const RoutineSettings = () => ({
   error: FbComponentLoadingError,
   timeout: 5000,
 })
+
+const viewSettings = {
+  opened: 'detail',
+  items: {
+    detail: {
+      name: 'detail',
+      route: {
+        hash: ROUTINES_HASH_DETAIL,
+        length: 8,
+      },
+    },
+    settings: {
+      name: 'settings',
+      route: {
+        hash: ROUTINES_HASH_SETTINGS,
+        length: 10,
+      },
+    },
+  },
+}
 
 export default {
 
@@ -107,30 +127,22 @@ export default {
 
   data() {
     return {
-      view: {
-        opened: this.settings ? 'settings' : 'detail',
-        items: {
-          detail: {
-            name: 'detail',
-            route: {
-              hash: ROUTINES_HASH_DETAIL,
-              length: 8,
-            },
-          },
-          settings: {
-            name: 'settings',
-            route: {
-              hash: ROUTINES_HASH_SETTINGS,
-              length: 10,
-            },
-          },
-        },
-      },
+      view: Object.assign({}, viewSettings),
       offCanvasHeight: null,
     }
   },
 
   computed: {
+
+    /**
+     * User account details
+     *
+     * @returns {(Account|null)}
+     */
+    account() {
+      return this.$store.getters['entities/account/query']()
+        .first()
+    },
 
     /**
      * View routine data
@@ -147,7 +159,7 @@ export default {
     },
 
     /**
-     * View routine data
+     * Routine schedule condition
      *
      * @returns {(Condition|null)}
      */
@@ -162,9 +174,9 @@ export default {
     },
 
     /**
-     * Get detail window sub-heading
+     * Get window sub-heading
      *
-     * @returns {(String|null)}
+     * @returns {String}
      */
     subHeading() {
       let days = ''
@@ -201,7 +213,7 @@ export default {
                 days.push(this.$t('application.days.sat.short'))
                 break
 
-              case 0:
+              case 7:
                 days.push(this.$t('application.days.sun.short'))
                 break
             }
@@ -211,9 +223,13 @@ export default {
         }
       }
 
-      return this.routine.isAutomatic ? (this.schedule !== null ? this.$t('routines.headings.scheduledRoutine', { days, time: this.$dateFns.format(this.schedule.time, this.account.timeFormat) }) : this.$t('routines.headings.automaticRoutine')) : this.$t('routines.headings.manualRoutine')
+      return this.routine.isAutomatic ? (this.schedule !== null ? this.$t('routines.headings.scheduledRoutine', { days, time: this.$dateFns.format(this.schedule.time, this._.get(this.account, 'timeFormat', 'HH:mm')) }) : this.$t('routines.headings.automaticRoutine')) : this.$t('routines.headings.manualRoutine')
     },
 
+  },
+
+  created() {
+    this.view.opened = this.settings ? 'settings' : 'detail'
   },
 
   mounted() {
@@ -240,7 +256,7 @@ export default {
     },
 
     /**
-     * Open routine detail view
+     * Open selected view
      *
      * @param {String} view
      */

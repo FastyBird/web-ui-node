@@ -239,6 +239,10 @@ export default {
 
   },
 
+  validate({ app, params }) {
+    return app.$validateUUID(params.id)
+  },
+
   head() {
     return {
       title: this.$t('meta.things.routines.title', { thing: this.$tThing(this.thing) }),

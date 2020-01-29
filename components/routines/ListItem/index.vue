@@ -46,6 +46,11 @@ export default {
 
   computed: {
 
+    /**
+     * User account details
+     *
+     * @returns {(Account|null)}
+     */
     account() {
       return this.$store.getters['entities/account/query']()
         .first()
@@ -65,6 +70,8 @@ export default {
     },
 
     /**
+     * Get list sub-heading
+     *
      * @returns {String}
      */
     subHeading() {
@@ -102,7 +109,7 @@ export default {
                 days.push(this.$t('application.days.sat.short'))
                 break
 
-              case 0:
+              case 7:
                 days.push(this.$t('application.days.sun.short'))
                 break
             }
@@ -111,7 +118,7 @@ export default {
           days = days.join(', ')
         }
 
-        return this.$t('routines.headings.scheduledRoutine', { days, time: this.$dateFns.format(this.schedule.time, this.account.timeFormat) })
+        return this.$t('routines.headings.scheduledRoutine', { days, time: this.$dateFns.format(this.schedule.time, this._.get(this.account, 'timeFormat', 'HH:mm')) })
       }
 
       if (this.routine.hasComment) {
@@ -122,7 +129,7 @@ export default {
     },
 
     /**
-     * View routine data
+     * Routine schedule condition
      *
      * @returns {(Condition|null)}
      */

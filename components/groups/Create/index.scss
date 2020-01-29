@@ -35,7 +35,6 @@
   }
 
   &__icon {
-    /* Positioning */
     position: absolute;
     top: 0;
     left: 0;
@@ -48,10 +47,16 @@
     text-transform: uppercase;
     border: 1px solid $gray-lighter;
     border-radius: 50%;
+    cursor: pointer;
 
     svg {
       height: 100%;
       font-size: 3em;
+    }
+
+    &-selected {
+      background-color: $brand-primary;
+      color: #fff;
     }
   }
 }

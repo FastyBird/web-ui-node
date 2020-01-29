@@ -66,7 +66,7 @@
 </template>
 
 <script>
-import triggersMixin from '@/mixins/triggers'
+import routineDetailMixin from '@/mixins/routineDetail'
 
 const ListAction = () => import('./ListAction')
 const ListCondition = () => import('./ListCondition')
@@ -80,7 +80,7 @@ export default {
     ListCondition,
   },
 
-  mixins: [triggersMixin],
+  mixins: [routineDetailMixin],
 
   props: {
 
@@ -105,6 +105,11 @@ export default {
 
   computed: {
 
+    /**
+     * User account details
+     *
+     * @returns {(Account|null)}
+     */
     account() {
       return this.$store.getters['entities/account/query']()
         .first()
@@ -129,16 +134,7 @@ export default {
     },
 
     /**
-     * Remap trigger notifications to routine notifications
-     *
-     * @returns {Array}
-     */
-    notifications() {
-      return []
-    },
-
-    /**
-     * View routine data
+     * Routine schedule condition
      *
      * @returns {(Condition|null)}
      */
@@ -158,7 +154,7 @@ export default {
      * @returns {Boolean}
      */
     enabledRemovingActionNotification() {
-      return this.actions.length > 1 || this.notifications.length > 1
+      return this.actions.length > 1
     },
 
   },
@@ -248,7 +244,7 @@ export default {
         }
 
         if (Object.prototype.hasOwnProperty.call(this.conditions, this.remove.index)) {
-          this.removeCondition(this.conditions[this.remove.index])
+          this.removeTriggerCondition(this.conditions[this.remove.index])
 
           this.resetRemoveConfirmation()
         }
@@ -260,48 +256,12 @@ export default {
         }
 
         if (Object.prototype.hasOwnProperty.call(this.actions, this.remove.index)) {
-          this.removeAction(this.actions[this.remove.index])
+          this.removeTriggerAction(this.actions[this.remove.index])
 
           this.resetRemoveConfirmation()
         }
-      } else if (this.remove.type === 'notification') {
-        this.removeNotification(this.remove.index)
-
-        this.resetRemoveConfirmation()
       } else {
         this.resetRemoveConfirmation()
-      }
-    },
-
-    /**
-     * Remove notification from routine
-     *
-     * @param {Number} index
-     */
-    removeNotification(index) {
-      this.resetRemoveConfirmation()
-
-      if (!this.enabledRemovingActionNotification) {
-        this.$flashMessage(this.$t('routines.messages.minimumActionsNotification'), 'error')
-
-        return
-      }
-
-      if (Object.prototype.hasOwnProperty.call(this.notifications, index)) {
-        const errorMessage = this.$t('routines.messages.notificationNotRemoved')
-
-        this.$store.dispatch('entities/notification/remove', {
-          id: this.notifications[index].id,
-        }, {
-          root: true,
-        })
-          .catch((e) => {
-            if (Object.prototype.hasOwnProperty.call(e, 'exception')) {
-              this.handleFormError(e.exception, errorMessage)
-            } else {
-              this.$flashMessage(errorMessage, 'error')
-            }
-          })
       }
     },
 

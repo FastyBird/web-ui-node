@@ -3,7 +3,7 @@
     <list-items-container :heading="heading">
       <trigger-action
         v-for="(action, index) in actions"
-        :key="index"
+        :key="action.id"
         :action="action"
         class="fb-iot-things-detail-button-trigger__actions"
         @toggle="toggleActionState(index)"
@@ -15,7 +15,7 @@
       v-if="remove.show"
       :transparent-bg="transparentModal"
       icon="trash"
-      @confirmed="removeTriggerAction"
+      @confirmed="removeAction"
       @close="resetRemoveConfirmation"
     >
       <template slot="header">
@@ -41,7 +41,7 @@ import {
   DEVICE_FASTYBIRD_BUTTON_DBL_CLICK,
 } from '@/configuration/devices'
 
-import triggersMixin from '@/mixins/triggers'
+import routineDetailMixin from '@/mixins/routineDetail'
 
 const TriggerAction = () => import('./../Action')
 
@@ -53,7 +53,7 @@ export default {
     TriggerAction,
   },
 
-  mixins: [triggersMixin],
+  mixins: [routineDetailMixin],
 
   props: {
 
@@ -161,14 +161,14 @@ export default {
     /**
      * Remove action from routine
      */
-    removeTriggerAction() {
+    removeAction() {
       const index = this.remove.index
 
       this.resetRemoveConfirmation()
 
       if (Object.prototype.hasOwnProperty.call(this.actions, index)) {
         if (this.actions.length > 1) {
-          this.removeAction(this.actions[index])
+          this.removeTriggerAction(this.actions[index])
         } else {
           this.$store.dispatch('entities/trigger/remove', {
             id: this.trigger.id,

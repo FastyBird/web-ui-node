@@ -118,6 +118,11 @@ export default {
       dashboard: 'Dashboard',
       things: 'Things',
       routines: 'Routines',
+      administration: 'Administration',
+      users: 'Users',
+      access: 'Access rights',
+      roles: 'Roles',
+      permissions: 'Permissions',
       user: 'Your account',
     },
     userMenu: {
@@ -623,7 +628,9 @@ export default {
   routines: {
     headings: {
       allRoutines: 'All routines',
+      addNew: 'Add new',
       createRoutine: 'New routine',
+      routineType: 'Routine type',
       selectThing: 'Things',
       smsNotification: 'Send sms to',
       emailNotification: 'Send email to',
@@ -685,6 +692,7 @@ export default {
       noThings: 'You don\'t have assigned any thing',
       routineThings: 'no things | {count} thing | {count} things',
       everyday: 'Everyday',
+      scheduled: 'Scheduled: {time}',
     },
     fields: {
       name: {

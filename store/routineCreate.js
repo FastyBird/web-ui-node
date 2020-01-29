@@ -50,6 +50,17 @@ export const actions = {
     module.commit('ADD_CONDITION', { data })
   },
 
+  toggleCondition(module, { thingId }) {
+    for (const index in module.state.conditions.things) {
+      if (
+        Object.prototype.hasOwnProperty.call(module.state.conditions.things, index) &&
+        module.state.conditions.things[index].thing === thingId
+      ) {
+        module.commit('TOGGLE_CONDITION', { index })
+      }
+    }
+  },
+
   removeCondition(module, { thing }) {
     for (const index in module.state.conditions.things) {
       if (
@@ -109,6 +120,17 @@ export const actions = {
     module.commit('ADD_ACTION', { data })
   },
 
+  toggleAction(module, { thingId }) {
+    for (const index in module.state.actions) {
+      if (
+        Object.prototype.hasOwnProperty.call(module.state.actions, index) &&
+        module.state.actions[index].thing === thingId
+      ) {
+        module.commit('TOGGLE_ACTION', { index })
+      }
+    }
+  },
+
   removeAction(module, { thing }) {
     for (const index in module.state.actions) {
       if (
@@ -136,6 +158,12 @@ export const mutations = {
     moduleState.conditions.things.splice(action.index, 1, action.data)
   },
 
+  ['TOGGLE_CONDITION'](moduleState, action) {
+    const data = Object.assign(moduleState.conditions.things[action.index], { enabled: !moduleState.conditions.things[action.index].enabled })
+
+    moduleState.conditions.things.splice(action.index, 1, data)
+  },
+
   ['REMOVE_CONDITION'](moduleState, action) {
     moduleState.conditions.things.splice(action.index, 1)
   },
@@ -154,6 +182,12 @@ export const mutations = {
 
   ['REPLACE_ACTION'](moduleState, action) {
     moduleState.actions.splice(action.index, 1, action.data)
+  },
+
+  ['TOGGLE_ACTION'](moduleState, action) {
+    const data = Object.assign(moduleState.actions[action.index], { enabled: !moduleState.actions[action.index].enabled })
+
+    moduleState.actions.splice(action.index, 1, data)
   },
 
   ['REMOVE_ACTION'](moduleState, action) {

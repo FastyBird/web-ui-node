@@ -35,7 +35,7 @@
           <fb-form-checkbox
             :id="`day_${key}`"
             name="days"
-            :value="key"
+            :value="key + 1"
           />
         </div>
       </fb-form-checkboxes-group>
@@ -88,30 +88,35 @@ export default {
       hours: [],
       minutes: [],
       ampm: [
-        { value: 'am', name: 'a.m.' },
-        { value: 'pm', name: 'p.m.' },
+        { value: 'a', name: 'a.m.' },
+        { value: 'p', name: 'p.m.' },
       ],
       days: [
-        'sun',
         'mon',
         'tue',
         'wed',
         'thu',
         'fri',
         'sat',
+        'sun',
       ],
     }
   },
 
   computed: {
 
+    /**
+     * User account details
+     *
+     * @returns {(Account|null)}
+     */
     account() {
       return this.$store.getters['entities/account/query']()
         .first()
     },
 
     show24hours() {
-      return this.account.timeFormat === 'HH:mm'
+      return this._.get(this.account, 'timeFormat', 'HH:mm') === 'HH:mm'
     },
 
   },
@@ -163,7 +168,7 @@ export default {
       if (this.show24hours) {
         date = new Date(today.getFullYear(), today.getMonth(), today.getDate(), this.model.hour, this.model.minute, 0)
       } else {
-        date = new Date(`${today.getDate()}/${today.getMonth()}/${today.getFullYear()} ${this.model.hour}:${this.model.minute}:00 ${this.model.ampm}`)
+        date = new Date(`${(`00${today.getMonth() + 1}`).substr(-2)}/${today.getDate()}/${today.getFullYear()} ${(`00${this.model.hour}`).substr(-2)}:${(`00${this.model.minute}`).substr(-2)}:00 ${this.model.ampm === 'a' ? 'am' : 'pm'}`)
       }
 
       const schedule = {
@@ -182,26 +187,26 @@ export default {
     _initModel() {
       if (this.schedule) {
         if (this.show24hours) {
-          this.model.hour = this.$dateFns.format(this.schedule.time, 'H')
+          this.model.hour = parseInt(this.$dateFns.format(this.schedule.time, 'H'), 10)
         } else {
-          this.model.hour = this.$dateFns.format(this.schedule.time, 'h')
+          this.model.hour = parseInt(this.$dateFns.format(this.schedule.time, 'h'), 10)
         }
 
-        this.model.minute = this.$dateFns.format(this.schedule.time, 'm')
+        this.model.minute = parseInt(this.$dateFns.format(this.schedule.time, 'm'), 10)
         this.model.ampm = this.$dateFns.format(this.schedule.time, 'aaaaa')
         this.model.days = this.schedule.days
       } else {
         const today = new Date()
 
         if (this.show24hours) {
-          this.model.hour = this.$dateFns.format(today, 'H')
+          this.model.hour = parseInt(this.$dateFns.format(today, 'H'), 10)
         } else {
-          this.model.hour = this.$dateFns.format(today, 'h')
+          this.model.hour = parseInt(this.$dateFns.format(today, 'h'), 10)
         }
 
-        this.model.minute = this.$dateFns.format(today, 'm')
+        this.model.minute = parseInt(this.$dateFns.format(today, 'm'), 10)
         this.model.ampm = this.$dateFns.format(today, 'aaaaa')
-        this.model.days = [0, 1, 2, 3, 4, 5, 6]
+        this.model.days = [1, 2, 3, 4, 5, 6, 7]
       }
     },
 

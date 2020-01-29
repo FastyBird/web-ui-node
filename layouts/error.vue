@@ -53,7 +53,7 @@ export default {
   computed: {
 
     statusCode() {
-      return (this.error && this.error.statusCode) || 500
+      return (this.error && parseInt(this.error.statusCode, 10)) || 500
     },
 
     message() {

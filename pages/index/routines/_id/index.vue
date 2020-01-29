@@ -25,7 +25,7 @@
         <mobile-bottom-menu
           :show-header="true"
           :show="view.opened === view.items.type.name"
-          :heading="'Add new'"
+          :heading="$t('routines.headings.addNew')"
           @close="openView(view.items.detail.name)"
         >
           <template slot="items">
@@ -63,7 +63,7 @@
               block
               variant="link"
               name="action"
-              @click.prevent="openView(view.items.action.name)"
+              @click.prevent="openView(view.items.actionThing.name)"
             >
               {{ $t('routines.buttons.thingToAction.title') }}
             </fb-button>
@@ -71,9 +71,9 @@
         </mobile-bottom-menu>
 
         <select-thing
-          v-if="view.opened === view.items.conditionThing.name || view.opened === view.items.conditionSensor.name || view.opened === view.items.action.name"
+          v-if="view.opened === view.items.conditionThing.name || view.opened === view.items.conditionSensor.name || view.opened === view.items.actionThing.name"
           :items="view.items[view.opened].items"
-          :only-settable="view.opened === view.items.action.name"
+          :only-settable="view.opened === view.items.actionThing.name"
           :type-thing="view.opened === view.items.conditionThing.name"
           :type-sensor="view.opened === view.items.conditionSensor.name"
           @select="thingSelected"
@@ -87,18 +87,18 @@
           :type-thing="view.items.condition.type === 'thing'"
           :type-sensor="view.items.condition.type === 'sensor'"
           @add="addCondition"
-          @remove="removeRoutineCondition"
+          @remove="removeCondition"
           @back="openView(view.items.condition.type === 'thing' ? view.items.conditionThing.name : view.items.conditionSensor.name)"
           @close="openView(view.items.detail.name)"
         />
 
         <edit-action
-          v-if="view.opened === view.items.actionThing.name"
-          :thing="view.items.actionThing.thing"
-          :action="view.items.actionThing.item"
+          v-if="view.opened === view.items.action.name"
+          :thing="view.items.action.thing"
+          :action="view.items.action.item"
           @add="addAction"
-          @remove="removeRoutineAction"
-          @back="openView(view.items.action.name)"
+          @remove="removeAction"
+          @back="openView(view.items.actionThing.name)"
           @close="openView(view.items.detail.name)"
         />
       </template>
@@ -116,14 +116,77 @@ import {
   ROUTINES_HASH_SETTINGS,
 } from '@/configuration/routes'
 
+import routineUpdateMixin from '@/mixins/routineUpdate'
+
+import FbComponentLoading from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoading'
+import FbComponentLoadingError from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoadingError'
+
 import RoutineDetail from '@/components/routines/Detail'
 import RoutineSettings from '@/components/routines/Settings'
 
-import triggersMixin from '@/mixins/triggers'
+const SelectThing = () => ({
+  component: import('@/components/routines/Phone/SelectThing'),
+  loading: FbComponentLoading,
+  error: FbComponentLoadingError,
+  timeout: 5000,
+})
 
-const SelectThing = () => import('@/components/routines/Phone/SelectThing')
-const EditCondition = () => import('@/components/routines/Phone/EditCondition')
-const EditAction = () => import('@/components/routines/Phone/EditAction')
+const EditCondition = () => ({
+  component: import('@/components/routines/Phone/EditCondition'),
+  loading: FbComponentLoading,
+  error: FbComponentLoadingError,
+  timeout: 5000,
+})
+const EditAction = () => ({
+  component: import('@/components/routines/Phone/EditAction'),
+  loading: FbComponentLoading,
+  error: FbComponentLoadingError,
+  timeout: 5000,
+})
+
+const viewSettings = {
+  opened: 'detail', // Detail is by default
+  items: {
+    detail: {
+      name: 'detail',
+      route: {
+        hash: ROUTINES_HASH_DETAIL,
+      },
+    },
+    settings: {
+      name: 'settings',
+      route: {
+        hash: ROUTINES_HASH_SETTINGS,
+      },
+    },
+    type: {
+      name: 'type',
+    },
+    conditionThing: {
+      name: 'conditionThing',
+      items: [],
+    },
+    conditionSensor: {
+      name: 'conditionSensor',
+      items: [],
+    },
+    condition: {
+      name: 'condition',
+      thing: null,
+      items: [],
+      type: null,
+    },
+    actionThing: {
+      name: 'actionThing',
+      items: [],
+    },
+    action: {
+      name: 'action',
+      thing: null,
+      items: [],
+    },
+  },
+}
 
 export default {
 
@@ -140,54 +203,12 @@ export default {
 
   transition: 'fade',
 
-  mixins: [triggersMixin],
+  mixins: [routineUpdateMixin],
 
   data() {
     return {
       id: this.$route.params.id,
-      view: {
-        opened: 'detail', // Detail is by default
-        items: {
-          detail: {
-            name: 'detail',
-            route: {
-              hash: ROUTINES_HASH_DETAIL,
-            },
-          },
-          settings: {
-            name: 'settings',
-            route: {
-              hash: ROUTINES_HASH_SETTINGS,
-            },
-          },
-          type: {
-            name: 'type',
-          },
-          conditionThing: {
-            name: 'conditionThing',
-            items: [],
-          },
-          conditionSensor: {
-            name: 'conditionSensor',
-            items: [],
-          },
-          condition: {
-            name: 'condition',
-            thing: null,
-            items: [],
-            type: null,
-          },
-          action: {
-            name: 'action',
-            items: [],
-          },
-          actionThing: {
-            name: 'actionThing',
-            thing: null,
-            items: [],
-          },
-        },
-      },
+      view: Object.assign({}, viewSettings),
     }
   },
 
@@ -197,6 +218,11 @@ export default {
       windowSize: state => state.windowSize,
     }),
 
+    /**
+     * User account details
+     *
+     * @returns {(Account|null)}
+     */
     account() {
       return this.$store.getters['entities/account/query']()
         .first()
@@ -217,7 +243,7 @@ export default {
     },
 
     /**
-     * View routine data
+     * Routine schedule condition
      *
      * @returns {(Condition|null)}
      */
@@ -449,7 +475,7 @@ export default {
     },
 
     /**
-     * Open routines view
+     * Open selected view
      *
      * @param {String} view
      */
@@ -493,6 +519,15 @@ export default {
         }
 
         switch (view) {
+          // Select add item type
+          case this.view.items.type.name:
+            if (this.schedule !== null || this.routine.isManual) {
+              this.openView(this.view.items.actionThing.name)
+
+              return
+            }
+            break
+
           // Show things list for condition select
           case this.view.items.conditionThing.name:
           case this.view.items.conditionSensor.name:
@@ -538,7 +573,7 @@ export default {
             break
 
           // Show things list for action select
-          case this.view.items.action.name:
+          case this.view.items.actionThing.name:
             const actionThings = []
 
             this._.get(this.routine, 'actions', [])
@@ -554,9 +589,9 @@ export default {
             break
 
           // Show window for configuring action
-          case this.view.items.actionThing.name:
+          case this.view.items.action.name:
             const storedAction = this._.get(this.routine, 'actions', [])
-              .find(({ channel_id }) => channel_id === this.view.items.actionThing.thing.id)
+              .find(({ channel_id }) => channel_id === this.view.items.action.thing.id)
 
             if (typeof storedAction !== 'undefined') {
               const action = {
@@ -593,10 +628,10 @@ export default {
      * @param {Thing} thing
      */
     thingSelected(thing) {
-      if (this.view.opened === this.view.items.action.name) {
-        this.view.items.actionThing.thing = thing
+      if (this.view.opened === this.view.items.actionThing.name) {
+        this.view.items.action.thing = thing
 
-        this.openView(this.view.items.actionThing.name)
+        this.openView(this.view.items.action.name)
       } else if (
         this.view.opened === this.view.items.conditionThing.name ||
         this.view.opened === this.view.items.conditionSensor.name
@@ -618,107 +653,7 @@ export default {
     addCondition(data) {
       this.openView(this.view.items.detail.name)
 
-      const storedConditions = this._.filter(this._.get(this.routine, 'conditions', []), ({ channel_id }) => channel_id === data.thing)
-
-      const toCreate = []
-      const toUpdate = []
-      const toDelete = []
-
-      this._.get(data, 'rows', [])
-        .forEach((row) => {
-          const condition = this._.get(this.routine, 'conditions', [])
-            .find(item => item.channel_id === this._.get(data, 'thing') && item.property_id === this._.get(row, 'property_id'))
-
-          // Editing existing condition
-          if (typeof condition !== 'undefined') {
-            toUpdate.push({
-              id: condition.id,
-              enabled: this._.get(data, 'enabled', false),
-              operator: this._.get(row, 'operator'),
-              operand: this._.get(row, 'operand'),
-            })
-            // Updating new condition
-          } else {
-            toCreate.push({
-              trigger: this._.get(data, 'thing'),
-              enabled: this._.get(data, 'enabled', false),
-              property: this._.get(row, 'property_id'),
-              operator: this._.get(row, 'operator'),
-              operand: this._.get(row, 'operand'),
-            })
-          }
-        })
-
-      storedConditions
-        .forEach((condition) => {
-          if (typeof toUpdate.find(({ id }) => id === condition.id) === 'undefined') {
-            toDelete.push({
-              id: condition.id,
-            })
-          }
-        })
-
-      const errorMessageNotCreated = this.$t('routines.messages.conditionNotCreated', {
-        routine: this.routine.name,
-      })
-
-      toCreate
-        .forEach((item) => {
-          this.$store.dispatch('entities/condition/add', {
-            trigger: this.routine,
-            data: item,
-          }, {
-            root: true,
-          })
-            .catch((e) => {
-              if (Object.prototype.hasOwnProperty.call(e, 'exception')) {
-                this.handleFormError(e.exception, errorMessageNotCreated)
-              } else {
-                this.$flashMessage(errorMessageNotCreated, 'error')
-              }
-            })
-        })
-
-      const errorMessageNotUpdated = this.$t('routines.messages.conditionNotUpdated', {
-        routine: this.routine.name,
-      })
-
-      toUpdate
-        .forEach((item) => {
-          this.$store.dispatch('entities/condition/edit', {
-            id: item.id,
-            data: item,
-          }, {
-            root: true,
-          })
-            .catch((e) => {
-              if (Object.prototype.hasOwnProperty.call(e, 'exception')) {
-                this.handleFormError(e.exception, errorMessageNotUpdated)
-              } else {
-                this.$flashMessage(errorMessageNotUpdated, 'error')
-              }
-            })
-        })
-
-      const errorMessageNotRemoved = this.$t('routines.messages.conditionNotRemoved', {
-        routine: this.routine.name,
-      })
-
-      toDelete
-        .forEach((item) => {
-          this.$store.dispatch('entities/condition/remove', {
-            id: item.id,
-          }, {
-            root: true,
-          })
-            .catch((e) => {
-              if (Object.prototype.hasOwnProperty.call(e, 'exception')) {
-                this.handleFormError(e.exception, errorMessageNotRemoved)
-              } else {
-                this.$flashMessage(errorMessageNotRemoved, 'error')
-              }
-            })
-        })
+      this.addRoutineCondition(this.routine, data)
     },
 
     /**
@@ -726,14 +661,10 @@ export default {
      *
      * @param {Object} thing
      */
-    removeRoutineCondition(thing) {
+    removeCondition(thing) {
       this.openView(this.view.items.detail.name)
 
-      const thingConditions = this._.filter(this.mapConditions(this.routine), condition => condition.thing === thing.id)
-
-      thingConditions.forEach((condition) => {
-        this.removeCondition(condition)
-      })
+      this.removeRoutineCondition(this.routine, thing)
     },
 
     /**
@@ -744,120 +675,18 @@ export default {
     addAction(data) {
       this.openView(this.view.items.detail.name)
 
-      const storedActions = this._.filter(this._.get(this.routine, 'actions', []), ({ channel_id }) => channel_id === data.thing)
-
-      const toCreate = []
-      const toUpdate = []
-      const toDelete = []
-
-      this._.get(data, 'rows', [])
-        .forEach((row) => {
-          const action = this._.get(this.routine, 'actions', [])
-            .find(item => item.channel_id === this._.get(data, 'thing') && item.property_id === this._.get(row, 'property_id'))
-
-          // Editing existing action
-          if (typeof action !== 'undefined') {
-            toUpdate.push({
-              id: action.id,
-              enabled: this._.get(data, 'enabled', false),
-              value: this._.get(row, 'operation'),
-            })
-            // Updating new action
-          } else {
-            toCreate.push({
-              channel: this._.get(data, 'thing'),
-              enabled: this._.get(data, 'enabled', false),
-              property: this._.get(row, 'property_id'),
-              value: this._.get(row, 'operation'),
-            })
-          }
-        })
-
-      storedActions
-        .forEach((action) => {
-          if (typeof toUpdate.find(({ id }) => id === action.id) === 'undefined') {
-            toDelete.push({
-              id: action.id,
-            })
-          }
-        })
-
-      const errorMessageNotCreated = this.$t('routines.messages.actionNotCreated', {
-        routine: this.routine.name,
-      })
-
-      toCreate
-        .forEach((item) => {
-          this.$store.dispatch('entities/action/add', {
-            trigger: this.routine,
-            data: item,
-          }, {
-            root: true,
-          })
-            .catch((e) => {
-              if (Object.prototype.hasOwnProperty.call(e, 'exception')) {
-                this.handleFormError(e.exception, errorMessageNotCreated)
-              } else {
-                this.$flashMessage(errorMessageNotCreated, 'error')
-              }
-            })
-        })
-
-      const errorMessageNotUpdated = this.$t('routines.messages.actionNotUpdated', {
-        routine: this.routine.name,
-      })
-
-      toUpdate
-        .forEach((item) => {
-          this.$store.dispatch('entities/action/edit', {
-            id: item.id,
-            data: item,
-          }, {
-            root: true,
-          })
-            .catch((e) => {
-              if (Object.prototype.hasOwnProperty.call(e, 'exception')) {
-                this.handleFormError(e.exception, errorMessageNotUpdated)
-              } else {
-                this.$flashMessage(errorMessageNotUpdated, 'error')
-              }
-            })
-        })
-
-      const errorMessageNotRemoved = this.$t('routines.messages.actionNotRemoved', {
-        routine: this.routine.name,
-      })
-
-      toDelete
-        .forEach((item) => {
-          this.$store.dispatch('entities/action/remove', {
-            id: item.id,
-          }, {
-            root: true,
-          })
-            .catch((e) => {
-              if (Object.prototype.hasOwnProperty.call(e, 'exception')) {
-                this.handleFormError(e.exception, errorMessageNotRemoved)
-              } else {
-                this.$flashMessage(errorMessageNotRemoved, 'error')
-              }
-            })
-        })
+      this.addRoutineAction(this.routine, data)
     },
 
     /**
-     * Remove thing action via edit window
+     * Remove thing condition via edit window
      *
      * @param {Object} thing
      */
-    removeRoutineAction(thing) {
+    removeAction(thing) {
       this.openView(this.view.items.detail.name)
 
-      const thingActions = this._.filter(this.mapActions(this.routine), action => action.thing === thing.id)
-
-      thingActions.forEach((action) => {
-        this.removeAction(action)
-      })
+      this.removeRoutineAction(this.routine, thing)
     },
 
     _openEditIcon() {
@@ -900,10 +729,6 @@ export default {
         }, {
           root: true,
         })
-
-        this.$store.dispatch('header/resetAddButton', null, {
-          root: true,
-        })
       } else if (this.view.opened === this.view.items.detail.name || this.view.opened === this.view.items.type.name) {
         this.$store.dispatch('header/setRightButton', {
           name: this.$t('application.buttons.edit.title'),
@@ -913,20 +738,16 @@ export default {
         }, {
           root: true,
         })
-
-        this.$store.dispatch('header/setAddButton', {
-          name: this.$t('application.buttons.add.title'),
-          callback: () => {
-            if (this.routine.isAutomatic && this.schedule === null) {
-              this.openView(this.view.items.type.name)
-            } else {
-              this.openView(this.view.items.action.name)
-            }
-          },
-        }, {
-          root: true,
-        })
       }
+
+      this.$store.dispatch('header/setAddButton', {
+        name: this.$t('application.buttons.add.title'),
+        callback: () => {
+          this.openView(this.view.items.type.name)
+        },
+      }, {
+        root: true,
+      })
 
       this.$store.dispatch('header/setFullRowHeading', null, {
         root: true,
@@ -966,7 +787,7 @@ export default {
                 days.push(this.$t('application.days.sat.short'))
                 break
 
-              case 0:
+              case 7:
                 days.push(this.$t('application.days.sun.short'))
                 break
             }
@@ -1056,6 +877,10 @@ export default {
 
   },
 
+  validate({ app, params }) {
+    return app.$validateUUID(params.id)
+  },
+
   head() {
     return {
       title: this.$t('meta.routines.detail.title', { routine: this._.get(this.routine, 'name') }),
@@ -1065,6 +890,6 @@ export default {
 }
 </script>
 
-<style rel="stylesheet/scss" lang="scss" scoped>
+<style rel="stylesheet/scss" lang="scss">
   @import 'index';
 </style>

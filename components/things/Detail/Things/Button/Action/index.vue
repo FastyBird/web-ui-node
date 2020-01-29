@@ -2,7 +2,7 @@
   <content-loading
     v-if="fetchingThings || fetchingThing || !thing"
     :height="53"
-    class="fb-things-trigger-action__preloading"
+    class="fb-iot-things-trigger-action__preloading"
   >
     <circle
       cx="25"
@@ -52,7 +52,7 @@
       <span
         v-for="(row, index) in properties"
         :key="index"
-        class="fb-things-trigger-action__action"
+        class="fb-iot-things-trigger-action__action"
       >{{ $t(`things.vendors.${hardware.manufacturer}.actions.${row.operation}`, { property: $tChannelProperty(thing, row.property).toLowerCase() }) }}</span>
     </template>
 
@@ -76,7 +76,7 @@
 <script>
 export default {
 
-  name: 'ButtonThingTriggerAction',
+  name: 'ThingsDetailButtonTriggerAction',
 
   props: {
 

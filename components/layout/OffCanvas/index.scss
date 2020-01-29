@@ -1,16 +1,6 @@
 .fb-off-canvas {
-  &__container {
-    &.show {
-      .fb-off-canvas {
-        &__body {
-          right: 0;
-        }
-      }
-    }
-  }
-
   &__overlay {
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, .5);
     overflow: hidden;
     position: fixed;
     top: 0;
@@ -25,15 +15,34 @@
   &__body {
     position: fixed;
     top: 0;
-    right: -450px;
+    right: 0;
     bottom: 0;
     width: 450px;
     background-color: #fff;
     z-index: 1060;
-    -webkit-transition: all 300ms ease;
-    -moz-transition: all 300ms ease;
-    -o-transition: all 300ms ease;
-    -ms-transition: all 300ms ease;
-    transition: all 300ms ease;
   }
+}
+
+.off-canvas-overlay-enter-active,
+.off-canvas-overlay-leave-active {
+  transition: opacity .15s ease-in-out;
+}
+
+.off-canvas-overlay-enter,
+.off-canvas-overlay-leave-to {
+  opacity: 0;
+}
+
+.off-canvas-body-enter-active,
+.off-canvas-body-leave-active {
+  -webkit-transition: all 300ms ease-in-out;
+  -moz-transition: all 300ms ease-in-out;
+  -o-transition: all 300ms ease-in-out;
+  -ms-transition: all 300ms ease-in-out;
+  transition: all 300ms ease-in-out;
+}
+
+.off-canvas-body-enter,
+.off-canvas-body-leave-to {
+  transform: translateX(450px);
 }

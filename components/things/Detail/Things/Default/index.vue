@@ -85,12 +85,12 @@
 </template>
 
 <script>
-import AnalogSensor from './../../Property/AnalogSensor'
-import BinaryActor from './../../Property/BinaryActor'
-import BinarySensor from './../../Property/BinarySensor'
-import EnergyMeter from './../../Property/EnergyMeter'
-import EnvironmentMeter from './../../Property/EnvironmentMeter'
-import SwitchActor from './../../Property/SwitchActor'
+const AnalogSensor = () => import('./../../Property/AnalogSensor')
+const BinaryActor = () => import('./../../Property/BinaryActor')
+const BinarySensor = () => import('./../../Property/BinarySensor')
+const EnergyMeter = () => import('./../../Property/EnergyMeter')
+const EnvironmentMeter = () => import('./../../Property/EnvironmentMeter')
+const SwitchActor = () => import('./../../Property/SwitchActor')
 
 export default {
 

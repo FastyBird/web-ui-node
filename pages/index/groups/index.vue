@@ -166,8 +166,8 @@ export default {
         opened: {
           type: null,
         },
-        connect: {
-          name: 'connect',
+        create: {
+          name: 'create',
           type: undefined,
           id: null,
           route: {
@@ -712,6 +712,6 @@ export default {
 }
 </script>
 
-<style rel="stylesheet/scss" lang="scss" scoped>
+<style rel="stylesheet/scss" lang="scss">
   @import 'index';
 </style>

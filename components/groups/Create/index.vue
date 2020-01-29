@@ -24,101 +24,16 @@
 
       <div class="fb-iot-groups-create__icons">
         <div>
-          <div>
-            <a
-              href="#"
-              class="fb-iot-groups-create__icon"
+          <div
+            v-for="(icon, index) in icons"
+            :key="index"
+          >
+            <span
+              :class="['fb-iot-groups-create__icon', { 'fb-iot-groups-create__icon-selected': form.model.icon === icon }]"
+              @click.prevent="selectIcon(icon)"
             >
-              <font-awesome-icon icon="blender" />
-            </a>
-          </div>
-          <div>
-            <a
-              href="#"
-              class="fb-iot-groups-create__icon"
-            >
-              <font-awesome-icon icon="baby" />
-            </a>
-          </div>
-          <div>
-            <a
-              href="#"
-              class="fb-iot-groups-create__icon"
-            >
-              <font-awesome-icon icon="bath" />
-            </a>
-          </div>
-          <div>
-            <a
-              href="#"
-              class="fb-iot-groups-create__icon"
-            >
-              <font-awesome-icon icon="shower" />
-            </a>
-          </div>
-          <div>
-            <a
-              href="#"
-              class="fb-iot-groups-create__icon"
-            >
-              <font-awesome-icon icon="toilet" />
-            </a>
-          </div>
-          <div>
-            <a
-              href="#"
-              class="fb-iot-groups-create__icon"
-            >
-              <font-awesome-icon icon="chair" />
-            </a>
-          </div>
-          <div>
-            <a
-              href="#"
-              class="fb-iot-groups-create__icon"
-            >
-              <font-awesome-icon icon="couch" />
-            </a>
-          </div>
-          <div>
-            <a
-              href="#"
-              class="fb-iot-groups-create__icon"
-            >
-              <font-awesome-icon icon="tv" />
-            </a>
-          </div>
-          <div>
-            <a
-              href="#"
-              class="fb-iot-groups-create__icon"
-            >
-              <font-awesome-icon icon="gamepad" />
-            </a>
-          </div>
-          <div>
-            <a
-              href="#"
-              class="fb-iot-groups-create__icon"
-            >
-              <font-awesome-icon icon="hot-tub" />
-            </a>
-          </div>
-          <div>
-            <a
-              href="#"
-              class="fb-iot-groups-create__icon"
-            >
-              <font-awesome-icon icon="swimming-pool" />
-            </a>
-          </div>
-          <div>
-            <a
-              href="#"
-              class="fb-iot-groups-create__icon"
-            >
-              <font-awesome-icon icon="bed" />
-            </a>
+              <font-awesome-icon :icon="icon" />
+            </span>
           </div>
         </div>
       </div>
@@ -127,6 +42,8 @@
 </template>
 
 <script>
+import { groupIcons } from '@/configuration'
+
 export default {
 
   name: 'GroupsCreate',
@@ -142,11 +59,13 @@ export default {
 
   data() {
     return {
+      icons: groupIcons,
       form: {
         scope: 'io_server_group_create',
         model: {
           title: null,
           comment: null,
+          icon: null,
         },
       },
     }
@@ -169,6 +88,10 @@ export default {
   },
 
   methods: {
+
+    selectIcon(icon) {
+      this.form.model.icon = icon
+    },
 
     /**
      * Submit group form

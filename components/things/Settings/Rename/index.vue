@@ -45,7 +45,7 @@
 <script>
 export default {
 
-  name: 'ThingsSettingsThingRename',
+  name: 'ThingsSettingsRename',
 
   props: {
 

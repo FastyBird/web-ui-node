@@ -114,7 +114,7 @@ const ListSchedule = () => import('@/components/routines/Edit/ListSchedule')
 
 export default {
 
-  name: 'RoutineCreate',
+  name: 'RoutinesCreate',
 
   components: {
     ListCondition,
@@ -138,6 +138,10 @@ export default {
 
   data() {
     return {
+      isScheduled: this.type === ROUTINES_QUERY_TYPE_SCHEDULED,
+      isThingCondition: this.type === ROUTINES_QUERY_TYPE_THING,
+      isSensorCondition: this.type === ROUTINES_QUERY_TYPE_SENSOR,
+      isManual: this.type === ROUTINES_QUERY_TYPE_MANUAL,
       form: {
         scope: 'routines_create',
         model: {
@@ -153,42 +157,6 @@ export default {
     ...mapState('theme', {
       windowSize: state => state.windowSize,
     }),
-
-    /**
-     * Detect selected type
-     *
-     * @returns {Boolean}
-     */
-    isScheduled() {
-      return this.type === ROUTINES_QUERY_TYPE_SCHEDULED
-    },
-
-    /**
-     * Detect selected type
-     *
-     * @returns {Boolean}
-     */
-    isThingCondition() {
-      return this.type === ROUTINES_QUERY_TYPE_THING
-    },
-
-    /**
-     * Detect selected type
-     *
-     * @returns {Boolean}
-     */
-    isSensorCondition() {
-      return this.type === ROUTINES_QUERY_TYPE_SENSOR
-    },
-
-    /**
-     * Detect selected type
-     *
-     * @returns {Boolean}
-     */
-    isManual() {
-      return this.type === ROUTINES_QUERY_TYPE_MANUAL
-    },
 
     /**
      * Get all assigned conditions with things
@@ -227,6 +195,13 @@ export default {
       }
     },
 
+    type(val) {
+      this.isScheduled = val === ROUTINES_QUERY_TYPE_SCHEDULED
+      this.isThingCondition = val === ROUTINES_QUERY_TYPE_THING
+      this.isSensorCondition = val === ROUTINES_QUERY_TYPE_SENSOR
+      this.isManual = val === ROUTINES_QUERY_TYPE_MANUAL
+    },
+
   },
 
   beforeMount() {
@@ -255,14 +230,19 @@ export default {
         }
       }
     },
+
     /**
      * Change action state
      *
      * @param {Number} index
      */
     toggleConditionState(index) {
-      if (Object.prototype.hasOwnProperty.call(this.form.model.thingConditions, index)) {
-        this.form.model.thingConditions[index].enabled = !this.form.model.thingConditions[index].enabled
+      if (Object.prototype.hasOwnProperty.call(this.$store.state.routineCreate.conditions.things, index)) {
+        this.$store.dispatch('routineCreate/toggleCondition', {
+          thingId: this.$store.state.routineCreate.conditions.things[index].thing,
+        }, {
+          root: true,
+        })
       }
     },
 
@@ -298,19 +278,12 @@ export default {
      * @param {Number} index
      */
     toggleActionState(index) {
-      if (Object.prototype.hasOwnProperty.call(this.form.model.actions, index)) {
-        this.form.model.actions[index].enabled = !this.form.model.actions[index].enabled
-      }
-    },
-
-    /**
-     * Change notification state
-     *
-     * @param {Number} index
-     */
-    toggleNotificationState(index) {
-      if (Object.prototype.hasOwnProperty.call(this.form.model.notifications, index)) {
-        this.form.model.notifications[index].enabled = !this.form.model.notifications[index].enabled
+      if (Object.prototype.hasOwnProperty.call(this.$store.state.routineCreate.actions, index)) {
+        this.$store.dispatch('routineCreate/toggleAction', {
+          thingId: this.$store.state.routineCreate.actions[index].thing,
+        }, {
+          root: true,
+        })
       }
     },
 
@@ -439,8 +412,10 @@ export default {
               })
           }
         })
-        .catch(() => {
-          // Nothing to do here
+        .catch((e) => {
+          if (Object.prototype.hasOwnProperty.call(this, '$sentry')) {
+            this.$sentry.captureException(e)
+          }
         })
     },
 
@@ -464,6 +439,6 @@ export default {
 }
 </script>
 
-<style rel="stylesheet/scss" lang="scss" scoped>
+<style rel="stylesheet/scss" lang="scss">
   @import 'index';
 </style>

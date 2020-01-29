@@ -1,5 +1,5 @@
 <template>
-  <div class="fb-routines-pages-edit-condition-schedule__container">
+  <div class="fb-routines-phone-edit-condition-schedule__container">
     <edit-schedule
       :schedule="schedule"
       :remote-submit.sync="submitSelect"
@@ -38,7 +38,7 @@ const EditSchedule = () => import('@/components/routines/Edit/EditSchedule')
 
 export default {
 
-  name: 'PagesRoutinesEditSchedule',
+  name: 'RoutinesPhoneEditSchedule',
 
   components: {
     EditSchedule,

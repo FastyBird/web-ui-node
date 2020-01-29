@@ -13,33 +13,21 @@
     <off-canvas
       v-if="windowSize !== 'xs'"
       :show="view.opened === view.items.detail.name || view.opened === view.items.settings.name"
-      @close="closeView(view.opened)"
+      @close="closeView"
     >
       <thing-detail
-        v-if="view.opened === view.items.detail.name"
-        :id="view.items.detail.id"
+        v-if="view.opened === view.items.detail.name || view.opened === view.items.settings.name"
+        :id="view.opened === view.items.detail.name ? view.items.detail.id : view.items.settings.id"
         slot="body"
-        @close="closeView(view.opened)"
-      />
-
-      <thing-detail
-        v-if="view.opened === view.items.settings.name"
-        :id="view.items.settings.id"
-        slot="body"
-        :settings="true"
-        @close="closeView(view.opened)"
+        :settings="view.opened === view.items.settings.name"
+        @close="closeView"
       />
     </off-canvas>
 
-    <fb-modal-window
+    <connect-thing
       v-if="view.opened === view.items.connect.name && windowSize !== 'xs'"
-      @close="closeView(view.opened)"
-    >
-      <connect-thing
-        slot="modal-content"
-        @close="closeView(view.opened)"
-      />
-    </fb-modal-window>
+      @close="closeView"
+    />
 
     <fb-loading-box
       v-if="fetchingThings && things.length === 0"
@@ -76,10 +64,47 @@ import {
   THINGS_HASH_CONNECT,
 } from '@/configuration/routes'
 
+import FbComponentLoading from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoading'
+import FbComponentLoadingError from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoadingError'
+
 import ThingListItem from '@/components/things/ListItem'
 
-const ThingDetail = () => import('@/components/things/Desktop/Detail')
+const ThingDetail = () => ({
+  component: import('@/components/things/Desktop/Detail'),
+  loading: FbComponentLoading,
+  error: FbComponentLoadingError,
+  timeout: 5000,
+})
 const ConnectThing = () => import('@/components/things/Desktop/Connect')
+
+const viewSettings = {
+  opened: null,
+  items: {
+    connect: {
+      name: 'connect',
+      route: {
+        hash: THINGS_HASH_CONNECT,
+        length: 8,
+      },
+    },
+    detail: {
+      name: 'detail',
+      id: null,
+      route: {
+        hash: THINGS_HASH_DETAIL,
+        length: 8,
+      },
+    },
+    settings: {
+      name: 'settings',
+      id: null,
+      route: {
+        hash: THINGS_HASH_SETTINGS,
+        length: 10,
+      },
+    },
+  },
+}
 
 export default {
 
@@ -96,34 +121,7 @@ export default {
 
   data() {
     return {
-      view: {
-        opened: null,
-        items: {
-          connect: {
-            name: 'connect',
-            route: {
-              hash: THINGS_HASH_CONNECT,
-              length: 8,
-            },
-          },
-          detail: {
-            name: 'detail',
-            id: null,
-            route: {
-              hash: THINGS_HASH_DETAIL,
-              length: 8,
-            },
-          },
-          settings: {
-            name: 'settings',
-            id: null,
-            route: {
-              hash: THINGS_HASH_SETTINGS,
-              length: 10,
-            },
-          },
-        },
-      },
+      view: Object.assign({}, viewSettings),
       click: {
         delay: 200,
         clicks: 0,
@@ -227,6 +225,10 @@ export default {
       }
     },
 
+    things() {
+      this._configureNavigation()
+    },
+
   },
 
   fetch({ app, store, error }) {
@@ -321,7 +323,7 @@ export default {
     },
 
     /**
-     * Open thing dialog
+     * Open selected view
      *
      * @param {String} view
      * @param {String} [id]
@@ -385,7 +387,7 @@ export default {
             .first()
 
           if (thing === null) {
-            this.closeView(view)
+            this.closeView()
           }
         }
       }
@@ -393,19 +395,12 @@ export default {
 
     /**
      * Close opened view
-     *
-     * @param {String} [view]
      */
-    closeView(view) {
+    closeView() {
       this.$router.push(this.localePath(this.$routes.things.list))
 
-      this.view.opened = null
-
-      if (typeof view !== 'undefined' && Object.prototype.hasOwnProperty.call(this.view.items, view)) {
-        if (Object.prototype.hasOwnProperty.call(this.view.items[view], 'id')) {
-          this.view.items[view].id = null
-        }
-      }
+      // Reset to default values
+      Object.assign(this.view, viewSettings)
 
       this.$el.focus()
     },
