@@ -5,7 +5,7 @@
     @close="close"
   >
     <template slot="header">
-      {{ $t('headings.profileSettings') }}
+      {{ $t('account.headings.profileSettings') }}
     </template>
 
     <template slot="form">
@@ -13,22 +13,21 @@
         v-model="form.model.emailAddress"
         v-validate="'required|email|checkEmail'"
         :data-vv-scope="form.scope"
-        :data-vv-as="$t('field.emailAddress.title')"
+        :data-vv-as="$t('account.fields.emailAddress.title')"
         :error="errors.first(form.scope + '.email_address')"
         :has-error="errors.has(form.scope + '.email_address')"
         :name="'email_address'"
-        :label="$t('field.emailAddress.title')"
+        :label="$t('account.fields.emailAddress.title')"
         :required="true"
         data-vv-validate-on="blur"
         type="email"
         spellcheck="false"
-        class="m-b-md"
       >
         <template
           v-if="!errors.has(form.scope + '.email_address')"
           slot="help-line"
         >
-          {{ $t('field.emailAddress.help') }}
+          {{ $t('account.fields.emailAddress.help') }}
         </template>
       </fb-form-input>
 
@@ -36,20 +35,19 @@
         v-model="form.model.firstName"
         v-validate="'required'"
         :data-vv-scope="form.scope"
-        :data-vv-as="$t('field.firstName.title')"
+        :data-vv-as="$t('account.fields.firstName.title')"
         :error="errors.first(form.scope + '.first_name')"
         :has-error="errors.has(form.scope + '.first_name')"
         :name="'first_name'"
-        :label="$t('field.firstName.title')"
+        :label="$t('account.fields.firstName.title')"
         :required="true"
         spellcheck="false"
-        class="m-b-md"
       >
         <template
           v-if="!errors.has(form.scope + '.first_name')"
           slot="help-line"
         >
-          {{ $t('field.firstName.help') }}
+          {{ $t('account.fields.firstName.help') }}
         </template>
       </fb-form-input>
 
@@ -57,20 +55,19 @@
         v-model="form.model.lastName"
         v-validate="'required'"
         :data-vv-scope="form.scope"
-        :data-vv-as="$t('field.lastName.title')"
+        :data-vv-as="$t('account.fields.lastName.title')"
         :error="errors.first(form.scope + '.last_name')"
         :has-error="errors.has(form.scope + '.last_name')"
         :name="'last_name'"
-        :label="$t('field.lastName.title')"
+        :label="$t('account.fields.lastName.title')"
         :required="true"
         spellcheck="false"
-        class="m-b-md"
       >
         <template
           v-if="!errors.has(form.scope + '.last_name')"
           slot="help-line"
         >
-          {{ $t('field.lastName.help') }}
+          {{ $t('account.fields.lastName.help') }}
         </template>
       </fb-form-input>
 
@@ -80,9 +77,8 @@
         :error="errors.first(form.scope + '.middle_name')"
         :has-error="errors.has(form.scope + '.middle_name')"
         :name="'middle_name'"
-        :label="$t('field.middleName.title')"
+        :label="$t('account.fields.middleName.title')"
         spellcheck="false"
-        class="m-b-0"
       />
     </template>
   </fb-modal-form>
@@ -128,13 +124,13 @@ export default {
       en: {
         custom: {
           email_address: {
-            required: this.$t('field.emailAddress.validation.required'),
+            required: this.$t('account.fields.emailAddress.validation.required'),
           },
           first_name: {
-            required: this.$t('field.firstName.validation.required'),
+            required: this.$t('account.fields.firstName.validation.required'),
           },
           last_name: {
-            required: this.$t('field.lastName.validation.required'),
+            required: this.$t('account.fields.lastName.validation.required'),
           },
         },
       },
@@ -213,7 +209,7 @@ export default {
       this.$validator.validateAll(this.form.scope)
         .then((result) => {
           if (result) {
-            const errorMessage = this.$t('messages.profileNotEdited')
+            const errorMessage = this.$t('account.messages.profileNotEdited')
 
             this.$store.dispatch('entities/profile/edit', {
               first_name: this.form.model.firstName,
@@ -226,14 +222,7 @@ export default {
                 if (this._.get(e, 'exception', null) !== null) {
                   this.handleFormError(e.exception, errorMessage)
                 } else {
-                  this.$toasted.error(errorMessage, {
-                    action: {
-                      text: this.$t('application.buttons.close.title'),
-                      onClick: (evnt, toastObject) => {
-                        toastObject.goAway(0)
-                      },
-                    },
-                  })
+                  this.$flashMessage(errorMessage, 'error')
                 }
               })
 
@@ -243,7 +232,7 @@ export default {
                 .where('address', this.form.model.emailAddress)
                 .first()
 
-              const emailErrorMessage = this.$t('messages.emailNotEdited')
+              const emailErrorMessage = this.$t('account.messages.emailNotEdited')
 
               if (storedEmail !== null) {
                 this.$store.dispatch('entities/email/edit', {
@@ -256,14 +245,7 @@ export default {
                     if (this._.get(e, 'exception', null) !== null) {
                       this.handleFormError(e.exception, emailErrorMessage)
                     } else {
-                      this.$toasted.error(emailErrorMessage, {
-                        action: {
-                          text: this.$t('application.buttons.close.title'),
-                          onClick: (evnt, toastObject) => {
-                            toastObject.goAway(0)
-                          },
-                        },
-                      })
+                      this.$flashMessage(emailErrorMessage, 'error')
                     }
                   })
               } else {
@@ -277,51 +259,21 @@ export default {
                     if (this._.get(e, 'exception', null) !== null) {
                       this.handleFormError(e.exception, emailErrorMessage)
                     } else {
-                      this.$toasted.error(emailErrorMessage, {
-                        action: {
-                          text: this.$t('application.buttons.close.title'),
-                          onClick: (evnt, toastObject) => {
-                            toastObject.goAway(0)
-                          },
-                        },
-                      })
+                      this.$flashMessage(emailErrorMessage, 'error')
                     }
                   })
               }
             }
 
-            this.$toasted.success(this.$t('messages.profileEdited'), {
-              action: {
-                text: this.$t('application.buttons.close.title'),
-                onClick: (evnt, toastObject) => {
-                  toastObject.goAway(0)
-                },
-              },
-            })
-
             this._initModel()
 
             this.$emit('close', false)
-          } else {
-            this.$toasted.info(this.$t('application.messages.fixAllFormErrors'), {
-              action: {
-                text: this.$t('application.buttons.close.title'),
-                onClick: (evnt, toastObject) => {
-                  toastObject.goAway(0)
-                },
-              },
-            })
           }
         })
-        .catch(() => {
-          this.$toasted.info(this.$t('application.messages.fixAllFormErrors'), {
-            action: {
-              text: this.$t('application.buttons.close.title'),
-              onClick: (evnt, toastObject) => {
-                toastObject.goAway(0)
-              },
-            },
-          })
+        .catch((e) => {
+          if (Object.prototype.hasOwnProperty.call(this, '$sentry')) {
+            this.$sentry.captureException(e)
+          }
         })
     },
 
@@ -358,5 +310,3 @@ export default {
 
 }
 </script>
-
-<i18n src="./locales.json" />

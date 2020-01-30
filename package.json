@@ -21,7 +21,6 @@
     "@fastybird-com/theme": "bitbucket:fastybird/fastybird-app-theme#master",
     "@fortawesome/free-brands-svg-icons": "^5.11.2",
     "@fortawesome/free-solid-svg-icons": "^5.11.2",
-    "@kazupon/vue-i18n-loader": "^0.4.1",
     "@nuxt/typescript-runtime": "^0.3.7",
     "@nuxtjs/date-fns": "^1.1.0",
     "@nuxtjs/device": "^1.2.3",

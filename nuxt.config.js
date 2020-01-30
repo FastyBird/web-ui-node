@@ -38,8 +38,7 @@ module.exports = {
   loading: { color: '#fff' },
 
   css: [
-    '@/node_modules/@fastybird-com/theme/assets/theme/theme',
-    '@/node_modules/@fastybird-com/theme/assets/layout/transitions',
+    '@/node_modules/@fastybird-com/theme/assets/theme',
   ],
 
   plugins: [

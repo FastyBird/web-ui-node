@@ -2,9 +2,13 @@
   &__container {
     padding: 0 30px 30px 30px;
 
-    form .fb-md-checkbox__container {
-      padding-bottom: 0;
-      padding-top: 0;
+    form {
+      margin-top: 15px;
+
+      .fb-checkbox__container {
+        padding-bottom: 0;
+        padding-top: 0;
+      }
     }
   }
 }

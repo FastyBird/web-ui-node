@@ -108,7 +108,6 @@ export default {
     },
     messages: {
       requestError: 'Something went wrong, please try again later.',
-      fixAllFormErrors: 'Please fix all marked form errors.',
       valueIsNotValid: 'This value is not valid.',
       loadingApp: 'Application is loading...',
       offlineState: 'It looks like you have no internet connection. Application need internet connection to be able to communicate with services. Try to go online please.',
@@ -166,6 +165,190 @@ export default {
       sun: {
         short: 'Sun',
         long: 'Sunday',
+      },
+    },
+  },
+  account: {
+    headings: {
+      signIn: 'Sign in',
+      signUp: 'Sign up',
+      passwordReset: 'Request password reset',
+      instructionEmailed: 'We emailed you a instructions...',
+      accountSettings: 'Account settings',
+      profileSettings: 'Profile settings',
+      securitySettings: 'Security settings',
+      passwordChange: 'Password change',
+    },
+    messages: {
+      passwordRequestFail: 'Password reset instruction couldn\'t be send.',
+      accountNotEdited: 'Your account couldn\'t be edited.',
+      profileNotEdited: 'Your profile couldn\'t be edited.',
+      emailNotEdited: 'Your email address couldn\'t be changed.',
+      questionNotSaved: 'Your security question couldn\'t be saved.',
+      passwordNotEdited: 'Your password couldn\'t be changed.',
+    },
+    texts: {
+      resetPasswordInfo: 'Provide your primary email address or your username and we will send you details with special link to reset your password.',
+      resetPasswordInstructionsEmailed: 'It should be there momentarily. Please check your email and click the link in the message. After one hour, the link to update your password will expire.',
+      processing: 'Processing request...',
+    },
+    fields: {
+      identity: {
+        uid: {
+          title: 'Primary email or username',
+          validation: {
+            required: 'Please fill in your primary email or username.',
+          },
+        },
+        password: {
+          title: 'Password',
+          validation: {
+            required: 'Please fill in your password.',
+          },
+        },
+      },
+      persistent: {
+        title: 'Keep me signed in',
+      },
+      emailAddress: {
+        title: 'Email',
+        help: 'Primary email, eg. john@doe.com',
+        validation: {
+          required: 'Please fill in your email address.',
+        },
+      },
+      firstName: {
+        title: 'First name',
+        help: 'First name, eg. John',
+        validation: {
+          required: 'Please fill in first name.',
+        },
+      },
+      lastName: {
+        title: 'Last name',
+        help: 'Last name, eg. Doe',
+        validation: {
+          required: 'Please fill in last name.',
+        },
+      },
+      middleName: {
+        title: 'Middle name',
+      },
+      language: {
+        title: 'Language',
+      },
+      datetime: {
+        timeZone: {
+          title: 'Time zone',
+        },
+        dateFormat: {
+          title: 'Date format',
+        },
+        timeFormat: {
+          title: 'Time format',
+        },
+        weekStartOn: {
+          title: 'Week start on',
+          values: {
+            monday: 'Monday',
+            saturday: 'Saturday',
+            sunday: 'Sunday',
+          },
+        },
+      },
+      securityQuestion: {
+        currentQuestion: {
+          title: 'Existing question',
+        },
+        currentAnswer: {
+          title: 'Answer',
+          help: 'Answer to your current security question',
+          invalid: 'Answer to security question is incorrect.',
+          validation: {
+            required: 'It is necessary to answer to your actual security question.',
+          },
+        },
+        question: {
+          title: 'New question',
+          prompt: 'Please select...',
+          values: {
+            motherMaidenName: 'Your mother\'s maiden name',
+            firstPetName: 'Your first pet\'s name',
+            elementarySchoolName: 'The name of your elementary school',
+            elementarySchoolMascot: 'Your elementary school mascot',
+            friedNickname: 'Your best friend\'s nickname',
+            favoriteSportsTeam: 'Your favorite sports team',
+            favoriteWriter: 'Your favorite writer',
+            favoriteActor: 'Your favorite actor',
+            favoriteSinger: 'Your favorite singer',
+            favoriteSong: 'Your favorite song',
+            grewUpStreetName: 'The name of the street you grew up on',
+            makeOfFirstCar: 'Make and model of your first car',
+            cityWhereYouMetSpouse: 'The city where you first met your spouse',
+            other: 'Other...',
+          },
+          validation: {
+            required: 'Please select your new security question.',
+          },
+        },
+        customQuestion: {
+          title: 'Custom question',
+          help: 'Write down your custom security question',
+          validation: {
+            required: 'Please fill in your custom question.',
+          },
+        },
+        answer: {
+          title: 'Answer',
+          help: 'Write down answer to your security question',
+          validation: {
+            required: 'Please fill in your answer to security question.',
+          },
+        },
+        lockingNotice: {
+          title: 'I understand my account will be locked if I am unable to answer this question',
+          validation: {
+            required: 'Please check this checkbox if you understand this action.',
+          },
+        },
+      },
+      password: {
+        current: {
+          title: 'Current password',
+          help: 'Your actual password',
+          validation: {
+            required: 'Please fill in your current password.',
+          },
+        },
+        new: {
+          title: 'New password',
+          help: 'Your new password',
+          validation: {
+            required: 'Please fill in your new password.',
+          },
+        },
+        repeat: {
+          title: 'Repeat new password',
+          help: 'Confirm your new password',
+          validation: {
+            required: 'Please repeat your new password.',
+          },
+        },
+      },
+    },
+    buttons: {
+      signIn: {
+        title: 'Sign in',
+      },
+      signUp: {
+        title: 'Sign up',
+      },
+      forgotPassword: {
+        title: 'Forgot password?',
+        tooltip: 'If you forget your password, just recover it.',
+      },
+      resetPassword: {
+        title: 'Request password reset',
       },
     },
   },

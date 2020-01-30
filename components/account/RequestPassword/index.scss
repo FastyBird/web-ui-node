@@ -1,5 +1,32 @@
 .fb-account-reset-password {
   &__container {
     padding: 0 30px 30px 30px;
+
+    form {
+      margin-top: 15px;
+    }
+  }
+
+  &__processing {
+    text-align: center;
+
+    .fb-spinner__container {
+      height: 48px;
+      width: 48px;
+      position: relative;
+      display: inline-block;
+      margin: 15px auto;
+    }
+
+    strong {
+      display: block;
+    }
+  }
+
+  &__info {
+    padding-left: 5px;
+    padding-right: 5px;
+    margin-top: 15px;
+    text-align: center;
   }
 }

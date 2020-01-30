@@ -1,0 +1,25 @@
+@import "~@fastybird-com/theme/assets/variables/colors";
+@import "~@fastybird-com/theme/assets/variables/texts";
+@import "~@fastybird-com/theme/assets/mixins/utilities";
+
+.fb-home-view {
+  &__container {
+    text-align: center;
+    padding-top: 30px;
+
+    img {
+      margin-top: 30px;
+      margin-bottom: 30px;
+      padding: 4px;
+      max-width: 100%;
+      height: auto;
+      line-height: $line-height-base;
+      background-color: $body-bg;
+      border: 1px solid $gray-lighter;
+      border-radius: 50%;
+
+      @include transition(all .2s ease-in-out);
+      @include box-shadow(0 1px 2px rgba(0,0,0,.075));
+    }
+  }
+}

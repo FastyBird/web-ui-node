@@ -5,14 +5,11 @@
     @close="close"
   >
     <template slot="header">
-      {{ $t('headings.securitySettings') }}
+      {{ $t('account.headings.securitySettings') }}
     </template>
 
     <template slot="form">
-      <fieldset
-        v-if="account.security_question !== null"
-        class="m-b-md"
-      >
+      <template v-if="account.security_question !== null">
         <fb-form-input
           v-model="form.model.currentAnswer"
           v-validate="'required|checkCurrentAnswer'"
@@ -20,7 +17,7 @@
           :error="errors.first(form.scope + '.current_answer')"
           :has-error="errors.has(form.scope + '.current_answer')"
           :name="'current_answer'"
-          :label="(account.security_question.is_custom ? account.security_question.question : $t(`field.securityQuestion.question.values.${account.security_question.question}`))"
+          :label="(account.security_question.is_custom ? account.security_question.question : $t(`account.fields.securityQuestion.question.values.${account.security_question.question}`))"
           :required="true"
           data-vv-validate-on="blur"
           spellcheck="false"
@@ -29,76 +26,72 @@
             v-if="!errors.has(form.scope + '.current_answer')"
             slot="help-line"
           >
-            {{ $t('field.securityQuestion.currentAnswer.help') }}
+            {{ $t('account.fields.securityQuestion.currentAnswer.help') }}
           </template>
         </fb-form-input>
-      </fieldset>
+      </template>
 
-      <fieldset>
-        <fb-form-select
-          v-model="form.model.question"
-          v-validate="'required'"
-          :data-vv-scope="form.scope"
-          :error="errors.first(form.scope + '.question')"
-          :has-error="errors.has(form.scope + '.question')"
-          :label="$t('field.securityQuestion.question.title')"
-          :items="form.options.questions"
-          name="question"
-          class="m-b-md"
-        />
+      <fb-form-select
+        v-model="form.model.question"
+        v-validate="'required'"
+        :data-vv-scope="form.scope"
+        :error="errors.first(form.scope + '.question')"
+        :has-error="errors.has(form.scope + '.question')"
+        :label="$t('account.fields.securityQuestion.question.title')"
+        :items="form.options.questions"
+        name="question"
+      />
 
-        <fb-form-input
-          v-model="form.model.otherQuestion"
-          v-validate="form.model.question === 'custom' ? 'required':''"
-          :data-vv-scope="form.scope"
-          :error="errors.first(form.scope + '.other_question')"
-          :has-error="errors.has(form.scope + '.other_question')"
-          :name="'other_question'"
-          :label="$t('field.securityQuestion.customQuestion.title')"
-          :required="true"
-          :class="['m-b-md', {'hidden':form.model.question!=='custom'}]"
-          spellcheck="false"
-          data-vv-validate-on="blur"
+      <fb-form-input
+        v-show="form.model.question !== 'custom'"
+        v-model="form.model.otherQuestion"
+        v-validate="form.model.question === 'custom' ? 'required':''"
+        :data-vv-scope="form.scope"
+        :error="errors.first(form.scope + '.other_question')"
+        :has-error="errors.has(form.scope + '.other_question')"
+        :name="'other_question'"
+        :label="$t('account.fields.securityQuestion.customQuestion.title')"
+        :required="true"
+        spellcheck="false"
+        data-vv-validate-on="blur"
+      >
+        <template
+          v-if="!errors.has(form.scope + '.other_question')"
+          slot="help-line"
         >
-          <template
-            v-if="!errors.has(form.scope + '.other_question')"
-            slot="help-line"
-          >
-            {{ $t('field.securityQuestion.customQuestion.help') }}
-          </template>
-        </fb-form-input>
+          {{ $t('account.fields.securityQuestion.customQuestion.help') }}
+        </template>
+      </fb-form-input>
 
-        <fb-form-input
-          v-model="form.model.answer"
-          v-validate="'required'"
-          :data-vv-scope="form.scope"
-          :error="errors.first(form.scope + '.answer')"
-          :has-error="errors.has(form.scope + '.answer')"
-          :name="'answer'"
-          :label="$t('field.securityQuestion.answer.title')"
-          :required="true"
-          spellcheck="false"
-          class="m-b-md"
+      <fb-form-input
+        v-model="form.model.answer"
+        v-validate="'required'"
+        :data-vv-scope="form.scope"
+        :error="errors.first(form.scope + '.answer')"
+        :has-error="errors.has(form.scope + '.answer')"
+        :name="'answer'"
+        :label="$t('account.fields.securityQuestion.answer.title')"
+        :required="true"
+        spellcheck="false"
+      >
+        <template
+          v-if="!errors.has(form.scope + '.answer')"
+          slot="help-line"
         >
-          <template
-            v-if="!errors.has(form.scope + '.answer')"
-            slot="help-line"
-          >
-            {{ $t('field.securityQuestion.answer.help') }}
-          </template>
-        </fb-form-input>
+          {{ $t('account.fields.securityQuestion.answer.help') }}
+        </template>
+      </fb-form-input>
 
-        <fb-form-checkbox
-          v-model="form.model.lockingNotice"
-          v-validate="'required'"
-          :data-vv-scope="form.scope"
-          :error="errors.first(form.scope + '.locking_notice')"
-          :has-error="errors.has(form.scope + '.locking_notice')"
-          :name="'locking_notice'"
-        >
-          {{ $t('field.securityQuestion.lockingNotice.title') }}
-        </fb-form-checkbox>
-      </fieldset>
+      <fb-form-checkbox
+        v-model="form.model.lockingNotice"
+        v-validate="'required'"
+        :data-vv-scope="form.scope"
+        :error="errors.first(form.scope + '.locking_notice')"
+        :has-error="errors.has(form.scope + '.locking_notice')"
+        :name="'locking_notice'"
+      >
+        {{ $t('account.fields.securityQuestion.lockingNotice.title') }}
+      </fb-form-checkbox>
     </template>
   </fb-modal-form>
 </template>
@@ -132,49 +125,49 @@ export default {
           questions: [
             {
               value: '',
-              name: this.$t('field.securityQuestion.question.prompt'),
+              name: this.$t('account.fields.securityQuestion.question.prompt'),
             }, {
               value: 'motherMaidenName',
-              name: this.$t('field.securityQuestion.question.values.motherMaidenName'),
+              name: this.$t('account.fields.securityQuestion.question.values.motherMaidenName'),
             }, {
               value: 'firstPetName',
-              name: this.$t('field.securityQuestion.question.values.firstPetName'),
+              name: this.$t('account.fields.securityQuestion.question.values.firstPetName'),
             }, {
               value: 'elementarySchoolName',
-              name: this.$t('field.securityQuestion.question.values.elementarySchoolName'),
+              name: this.$t('account.fields.securityQuestion.question.values.elementarySchoolName'),
             }, {
               value: 'elementarySchoolMascot',
-              name: this.$t('field.securityQuestion.question.values.elementarySchoolMascot'),
+              name: this.$t('account.fields.securityQuestion.question.values.elementarySchoolMascot'),
             }, {
               value: 'friedNickname',
-              name: this.$t('field.securityQuestion.question.values.friedNickname'),
+              name: this.$t('account.fields.securityQuestion.question.values.friedNickname'),
             }, {
               value: 'favoriteSportsTeam',
-              name: this.$t('field.securityQuestion.question.values.favoriteSportsTeam'),
+              name: this.$t('account.fields.securityQuestion.question.values.favoriteSportsTeam'),
             }, {
               value: 'favoriteWriter',
-              name: this.$t('field.securityQuestion.question.values.favoriteWriter'),
+              name: this.$t('account.fields.securityQuestion.question.values.favoriteWriter'),
             }, {
               value: 'favoriteActor',
-              name: this.$t('field.securityQuestion.question.values.favoriteActor'),
+              name: this.$t('account.fields.securityQuestion.question.values.favoriteActor'),
             }, {
               value: 'favoriteSinger',
-              name: this.$t('field.securityQuestion.question.values.favoriteSinger'),
+              name: this.$t('account.fields.securityQuestion.question.values.favoriteSinger'),
             }, {
               value: 'favoriteSong',
-              name: this.$t('field.securityQuestion.question.values.favoriteSong'),
+              name: this.$t('account.fields.securityQuestion.question.values.favoriteSong'),
             }, {
               value: 'grewUpStreetName',
-              name: this.$t('field.securityQuestion.question.values.grewUpStreetName'),
+              name: this.$t('account.fields.securityQuestion.question.values.grewUpStreetName'),
             }, {
               value: 'makeOfFirstCar',
-              name: this.$t('field.securityQuestion.question.values.makeOfFirstCar'),
+              name: this.$t('account.fields.securityQuestion.question.values.makeOfFirstCar'),
             }, {
               value: 'cityWhereYouMetSpouse',
-              name: this.$t('field.securityQuestion.question.values.cityWhereYouMetSpouse'),
+              name: this.$t('account.fields.securityQuestion.question.values.cityWhereYouMetSpouse'),
             }, {
               value: 'custom',
-              name: this.$t('field.securityQuestion.question.values.other'),
+              name: this.$t('account.fields.securityQuestion.question.values.other'),
             },
           ],
         },
@@ -189,19 +182,19 @@ export default {
       en: {
         custom: {
           current_answer: {
-            required: this.$t('field.securityQuestion.currentAnswer.validation.required'),
+            required: this.$t('account.fields.securityQuestion.currentAnswer.validation.required'),
           },
           question: {
-            required: this.$t('field.securityQuestion.question.validation.required'),
+            required: this.$t('account.fields.securityQuestion.question.validation.required'),
           },
           otherQuestion: {
-            required: this.$t('field.securityQuestion.customQuestion.validation.required'),
+            required: this.$t('account.fields.securityQuestion.customQuestion.validation.required'),
           },
           answer: {
-            required: this.$t('field.securityQuestion.answer.validation.required'),
+            required: this.$t('account.fields.securityQuestion.answer.validation.required'),
           },
           locking_notice: {
-            required: this.$t('field.securityQuestion.lockingNotice.validation.required'),
+            required: this.$t('account.fields.securityQuestion.lockingNotice.validation.required'),
           },
         },
       },
@@ -270,7 +263,7 @@ export default {
       this.$validator.validateAll(this.form.scope)
         .then((result) => {
           if (result) {
-            const errorMessage = this.$t('messages.profileNotEdited')
+            const errorMessage = this.$t('account.messages.questionNotSaved')
 
             if (this.account.security_question !== null) {
               this.$store.dispatch('entities/security_question/edit', {
@@ -287,25 +280,9 @@ export default {
                   if (this._.get(e, 'exception', null) !== null) {
                     this.handleFormError(e.exception, errorMessage)
                   } else {
-                    this.$toasted.error(errorMessage, {
-                      action: {
-                        text: this.$t('application.buttons.close.title'),
-                        onClick: (evnt, toastObject) => {
-                          toastObject.goAway(0)
-                        },
-                      },
-                    })
+                    this.$flashMessage(errorMessage, 'error')
                   }
                 })
-
-              this.$toasted.success(this.$t('messages.questionChanged'), {
-                action: {
-                  text: this.$t('application.buttons.close.title'),
-                  onClick: (evnt, toastObject) => {
-                    toastObject.goAway(0)
-                  },
-                },
-              })
             } else {
               this.$store.dispatch('entities/security_question/add', {
                 question: this.form.model.question === 'custom' ? this.form.model.otherQuestion : this.form.model.question,
@@ -319,50 +296,20 @@ export default {
                   if (this._.get(e, 'exception', null) !== null) {
                     this.handleFormError(e.exception, errorMessage)
                   } else {
-                    this.$toasted.error(errorMessage, {
-                      action: {
-                        text: this.$t('application.buttons.close.title'),
-                        onClick: (evnt, toastObject) => {
-                          toastObject.goAway(0)
-                        },
-                      },
-                    })
+                    this.$flashMessage(errorMessage, 'error')
                   }
                 })
-
-              this.$toasted.success(this.$t('messages.questionCreated'), {
-                action: {
-                  text: this.$t('application.buttons.close.title'),
-                  onClick: (evnt, toastObject) => {
-                    toastObject.goAway(0)
-                  },
-                },
-              })
             }
 
             this._initModel()
 
             this.$emit('close', false)
-          } else {
-            this.$toasted.info(this.$t('application.messages.fixAllFormErrors'), {
-              action: {
-                text: this.$t('application.buttons.close.title'),
-                onClick: (evnt, toastObject) => {
-                  toastObject.goAway(0)
-                },
-              },
-            })
           }
         })
-        .catch(() => {
-          this.$toasted.info(this.$t('application.messages.fixAllFormErrors'), {
-            action: {
-              text: this.$t('application.buttons.close.title'),
-              onClick: (evnt, toastObject) => {
-                toastObject.goAway(0)
-              },
-            },
-          })
+        .catch((e) => {
+          if (Object.prototype.hasOwnProperty.call(this, '$sentry')) {
+            this.$sentry.captureException(e)
+          }
         })
     },
 
@@ -400,5 +347,3 @@ export default {
 
 }
 </script>
-
-<i18n src="./locales.json" />

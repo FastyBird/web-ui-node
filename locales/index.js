@@ -19,5 +19,4 @@ module.exports = {
     fallbackLocale: 'en',
     silentTranslationWarn: true,
   },
-  vueI18nLoader: true,
 }

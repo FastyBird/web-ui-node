@@ -1,14 +1,14 @@
 <template>
   <div class="fb-account-sign-up__container">
-    <sign-header :heading="$t('headings.signUp')" />
+    <sign-header :heading="$t('account.headings.signUp')" />
 
     <p class="fb-account-sign-up__heading">
       <em>Get started with a free account. 30 day free trial, unlimited devices, no credit card required.</em>
     </p>
 
     <form @submit.prevent="submit">
-      <div class="row">
-        <div class="col-6">
+      <div class="fb-account-sign-up__name">
+        <div class="fb-account-sign-up__name-field">
           <fb-form-input
             v-model="form.model.profile.details.first_name"
             v-validate="'required'"
@@ -16,19 +16,18 @@
             :error="errors.first(form.scope + '.first_name')"
             :has-error="errors.has(form.scope + '.first_name')"
             :name="'first_name'"
-            :label="$t('field.firstName.title')"
+            :label="$t('account.fields.firstName.title')"
             :required="true"
             :tab-index="2"
             data-vv-validate-on="blur"
-            class="m-b-0"
           >
             <template slot="help-line">
-              {{ $t('field.firstName.help') }}
+              {{ $t('account.fields.firstName.help') }}
             </template>
           </fb-form-input>
         </div>
 
-        <div class="col-6">
+        <div class="fb-account-sign-up__name-field">
           <fb-form-input
             v-model="form.model.profile.details.last_name"
             v-validate="'required'"
@@ -36,14 +35,13 @@
             :error="errors.first(form.scope + '.last_name')"
             :has-error="errors.has(form.scope + '.last_name')"
             :name="'last_name'"
-            :label="$t('field.lastName.title')"
+            :label="$t('account.fields.lastName.title')"
             :required="true"
             :tab-index="3"
             data-vv-validate-on="blur"
-            class="m-b-0"
           >
             <template slot="help-line">
-              {{ $t('field.lastName.help') }}
+              {{ $t('account.fields.lastName.help') }}
             </template>
           </fb-form-input>
         </div>
@@ -56,14 +54,13 @@
         :error="errors.first(form.scope + '.email_address')"
         :has-error="errors.has(form.scope + '.email_address')"
         :name="'email_address'"
-        :label="$t('field.emailAddress.title')"
+        :label="$t('account.fields.emailAddress.title')"
         :required="true"
         :tab-index="4"
         data-vv-validate-on="blur"
-        class="m-b-0"
       >
         <template slot="help-line">
-          {{ $t('field.emailAddress.help') }}
+          {{ $t('account.fields.emailAddress.help') }}
         </template>
       </fb-form-input>
 
@@ -74,7 +71,7 @@
         :error="errors.first(form.scope + '.password')"
         :has-error="errors.has(form.scope + '.password')"
         :name="'password'"
-        :label="$t('field.password.title')"
+        :label="$t('account.fields.identity.password.title')"
         :required="true"
         :tab-index="5"
         data-vv-validate-on="blur"
@@ -87,7 +84,7 @@
         type="submit"
         tabindex="6"
       >
-        {{ $t('buttons.signUp.title') }}
+        {{ $t('account.buttons.signUp.title') }}
       </fb-button>
     </form>
   </div>
@@ -133,13 +130,16 @@ export default {
       en: {
         custom: {
           email_address: {
-            required: this.$t('field.emailAddress.validation.required'),
+            required: this.$t('account.fields.emailAddress.validation.required'),
           },
           first_name: {
-            required: this.$t('field.firstName.validation.required'),
+            required: this.$t('account.fields.firstName.validation.required'),
           },
           last_name: {
-            required: this.$t('field.lastName.validation.required'),
+            required: this.$t('account.fields.lastName.validation.required'),
+          },
+          password: {
+            required: this.$t('account.fields.identity.password.validation.required'),
           },
         },
       },
@@ -212,34 +212,13 @@ export default {
 
             this.$bus.$emit('wait-sign_up', false)
 
-            this.$toasted.error(errorMessage, {
-              action: {
-                text: this.$t('application.buttons.close.title'),
-                onClick: (evnt, toastObject) => {
-                  toastObject.goAway(0)
-                },
-              },
-            })
-          } else {
-            this.$toasted.info(this.$t('application.messages.fixAllFormErrors'), {
-              action: {
-                text: this.$t('application.buttons.close.title'),
-                onClick: (evnt, toastObject) => {
-                  toastObject.goAway(0)
-                },
-              },
-            })
+            this.$flashMessage(errorMessage, 'error')
           }
         })
-        .catch(() => {
-          this.$toasted.info(this.$t('application.messages.fixAllFormErrors'), {
-            action: {
-              text: this.$t('application.buttons.close.title'),
-              onClick: (evnt, toastObject) => {
-                toastObject.goAway(0)
-              },
-            },
-          })
+        .catch((e) => {
+          if (Object.prototype.hasOwnProperty.call(this, '$sentry')) {
+            this.$sentry.captureException(e)
+          }
         })
     },
 
@@ -251,5 +230,3 @@ export default {
 <style rel="stylesheet/scss" lang="scss">
   @import 'index';
 </style>
-
-<i18n src="./locales.json" />

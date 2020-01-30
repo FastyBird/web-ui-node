@@ -2,36 +2,31 @@
   <div class="fb-account-reset-password__container">
     <sign-header
       v-if="!isSubmitted"
-      :heading="$t('headings.passwordReset')"
+      :heading="$t('account.headings.passwordReset')"
     />
     <sign-header
       v-if="isSubmitted"
-      :heading="$t('headings.instructionEmailed')"
+      :heading="$t('account.headings.instructionEmailed')"
     />
 
     <div
       v-if="makingRequest"
-      class="row"
+      class="fb-account-reset-password__processing"
     >
-      <div class="col-6 offset-3 text-center">
-        <div class="spinner spinner-primary spinner-lg pos-r sq-80" />
-        <small>{{ $t('texts.processing') }}</small>
-      </div>
+      <fb-spinner size="lg" />
+      <strong>{{ $t('account.texts.processing') }}</strong>
     </div>
 
     <div v-if="!makingRequest">
-      <ul
+      <p
         v-if="isSubmitted"
-        class="list-inline"
+        class="fb-account-reset-password__info"
       >
-        <li class="text-center m-t-md">
-          <small>{{ $t('texts.resetPasswordInstructionsEmailed') }}</small>
-        </li>
-      </ul>
+        <small>{{ $t('account.texts.resetPasswordInstructionsEmailed') }}</small>
+      </p>
 
       <form
         v-if="!isSubmitted"
-        class="p-t-md"
         @submit.prevent="submit"
       >
         <fb-form-input
@@ -41,7 +36,7 @@
           :error="errors.first(form.scope + '.uid')"
           :has-error="errors.has(form.scope + '.uid')"
           :name="'uid'"
-          :label="$t('field.identity.uid.title')"
+          :label="$t('account.fields.identity.uid.title')"
           :required="true"
           data-vv-validate-on="blur"
         />
@@ -52,14 +47,12 @@
           variant="primary"
           type="submit"
         >
-          {{ $t('buttons.resetPassword.title') }}
+          {{ $t('account.buttons.resetPassword.title') }}
         </fb-button>
 
-        <ul class="list-inline">
-          <li class="text-center m-t-md">
-            <small>{{ $t('texts.resetPasswordInfo') }}</small>
-          </li>
-        </ul>
+        <p class="fb-account-reset-password__info">
+          <small>{{ $t('account.texts.resetPasswordInfo') }}</small>
+        </p>
       </form>
     </div>
   </div>
@@ -98,7 +91,7 @@ export default {
       en: {
         custom: {
           uid: {
-            required: this.$t('field.identity.uid.validation.required'),
+            required: this.$t('account.fields.identity.uid.validation.required'),
           },
         },
       },
@@ -163,7 +156,7 @@ export default {
       this.$validator.validateAll(this.form.scope)
         .then((result) => {
           if (result) {
-            const errorMessage = this.$t('messages.passwordRequestFail')
+            const errorMessage = this.$t('account.messages.passwordRequestFail')
 
             this.makingRequest = true
 
@@ -184,38 +177,17 @@ export default {
                 } else if (this._.get(e, 'response', null) !== null) {
                   this.handleRequestError(e.response, errorMessage)
                 } else {
-                  this.$toasted.error(errorMessage, {
-                    action: {
-                      text: this.$t('application.buttons.close.title'),
-                      onClick: (evnt, toastObject) => {
-                        toastObject.goAway(0)
-                      },
-                    },
-                  })
+                  this.$flashMessage(errorMessage, 'error')
                 }
 
                 this.isSubmitted = false
               })
-          } else {
-            this.$toasted.info(this.$t('application.messages.fixAllFormErrors'), {
-              action: {
-                text: this.$t('application.buttons.close.title'),
-                onClick: (evnt, toastObject) => {
-                  toastObject.goAway(0)
-                },
-              },
-            })
           }
         })
-        .catch(() => {
-          this.$toasted.info(this.$t('application.messages.fixAllFormErrors'), {
-            action: {
-              text: this.$t('application.buttons.close.title'),
-              onClick: (evnt, toastObject) => {
-                toastObject.goAway(0)
-              },
-            },
-          })
+        .catch((e) => {
+          if (Object.prototype.hasOwnProperty.call(this, '$sentry')) {
+            this.$sentry.captureException(e)
+          }
         })
     },
 
@@ -227,5 +199,3 @@ export default {
 <style rel="stylesheet/scss" lang="scss">
   @import 'index';
 </style>
-
-<i18n src="./locales.json" />

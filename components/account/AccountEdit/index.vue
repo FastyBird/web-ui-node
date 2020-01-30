@@ -5,53 +5,48 @@
     @close="close"
   >
     <template slot="header">
-      {{ $t('headings.accountSettings') }}
+      {{ $t('account.headings.accountSettings') }}
     </template>
 
     <template slot="form">
       <fb-form-select
         v-model="form.model.language"
         :data-vv-scope="form.scope"
-        :label="$t('field.language.title')"
+        :label="$t('account.fields.language.title')"
         :items="form.options.languages"
         name="language"
-        class="m-b-md"
       />
 
       <fb-form-select
         v-model="form.model.timeZone"
         :data-vv-scope="form.scope"
-        :label="$t('field.datetime.timeZone.title')"
+        :label="$t('account.fields.datetime.timeZone.title')"
         :items="zonesOptions"
         name="zone"
-        class="m-b-md"
       />
 
       <fb-form-select
         v-model="form.model.weekStart"
         :data-vv-scope="form.scope"
-        :label="$t('field.datetime.weekStartOn.title')"
+        :label="$t('account.fields.datetime.weekStartOn.title')"
         :items="form.options.weekStart"
         name="weekStart"
-        class="m-b-md"
       />
 
       <fb-form-select
         v-model="form.model.dateFormat"
         :data-vv-scope="form.scope"
-        :label="$t('field.datetime.dateFormat.title')"
+        :label="$t('account.fields.datetime.dateFormat.title')"
         :items="form.options.dateFormat"
         name="dateFormat"
-        class="m-b-md"
       />
 
       <fb-form-select
         v-model="form.model.timeFormat"
         :data-vv-scope="form.scope"
-        :label="$t('field.datetime.timeFormat.title')"
+        :label="$t('account.fields.datetime.timeFormat.title')"
         :items="form.options.timeFormat"
         name="timeFormat"
-        class="m-b-0"
       />
     </template>
   </fb-modal-form>
@@ -98,13 +93,13 @@ export default {
           weekStart: [
             {
               value: 1,
-              name: this.$t('field.datetime.weekStartOn.values.monday'),
+              name: this.$t('account.fields.datetime.weekStartOn.values.monday'),
             }, {
               value: 6,
-              name: this.$t('field.datetime.weekStartOn.values.saturday'),
+              name: this.$t('account.fields.datetime.weekStartOn.values.saturday'),
             }, {
-              value: 0,
-              name: this.$t('field.datetime.weekStartOn.values.sunday'),
+              value: 7,
+              name: this.$t('account.fields.datetime.weekStartOn.values.sunday'),
             },
           ],
           dateFormat: [
@@ -176,7 +171,7 @@ export default {
       this.$validator.validateAll(this.form.scope)
         .then((result) => {
           if (result) {
-            const errorMessage = this.$t('messages.accountNotEdited')
+            const errorMessage = this.$t('account.messages.accountNotEdited')
 
             this.$store.dispatch('entities/account/edit', {
               language: this.form.model.language,
@@ -191,49 +186,19 @@ export default {
                 if (this._.get(e, 'exception', null) !== null) {
                   this.handleFormError(e.exception, errorMessage)
                 } else {
-                  this.$toasted.error(errorMessage, {
-                    action: {
-                      text: this.$t('application.buttons.close.title'),
-                      onClick: (evnt, toastObject) => {
-                        toastObject.goAway(0)
-                      },
-                    },
-                  })
+                  this.$flashMessage(errorMessage, 'error')
                 }
               })
-
-            this.$toasted.success(this.$t('messages.accountEdited'), {
-              action: {
-                text: this.$t('application.buttons.close.title'),
-                onClick: (evnt, toastObject) => {
-                  toastObject.goAway(0)
-                },
-              },
-            })
 
             this._initModel()
 
             this.$emit('close', false)
-          } else {
-            this.$toasted.info(this.$t('application.messages.fixAllFormErrors'), {
-              action: {
-                text: this.$t('application.buttons.close.title'),
-                onClick: (evnt, toastObject) => {
-                  toastObject.goAway(0)
-                },
-              },
-            })
           }
         })
-        .catch(() => {
-          this.$toasted.info(this.$t('application.messages.fixAllFormErrors'), {
-            action: {
-              text: this.$t('application.buttons.close.title'),
-              onClick: (evnt, toastObject) => {
-                toastObject.goAway(0)
-              },
-            },
-          })
+        .catch((e) => {
+          if (Object.prototype.hasOwnProperty.call(this, '$sentry')) {
+            this.$sentry.captureException(e)
+          }
         })
     },
 
@@ -308,5 +273,3 @@ export default {
 
 }
 </script>
-
-<i18n src="./locales.json" />

@@ -1,11 +1,8 @@
 <template>
   <div class="fb-account-sign-in__container">
-    <sign-header :heading="$t('headings.signIn')" />
+    <sign-header :heading="$t('account.headings.signIn')" />
 
-    <form
-      class="p-t-md"
-      @submit.prevent="submit"
-    >
+    <form @submit.prevent="submit">
       <fb-form-input
         v-model="form.model.credentials.uid"
         v-validate="'required|checkUid'"
@@ -13,7 +10,7 @@
         :error="errors.first(form.scope + '.uid')"
         :has-error="errors.has(form.scope + '.uid')"
         :name="'uid'"
-        :label="$t('field.identity.uid.title')"
+        :label="$t('account.fields.identity.uid.title')"
         :required="true"
         :tab-index="2"
         data-vv-validate-on="blur"
@@ -26,7 +23,7 @@
         :error="errors.first(form.scope + '.password')"
         :has-error="errors.has(form.scope + '.password')"
         :name="'password'"
-        :label="$t('field.identity.password.title')"
+        :label="$t('account.fields.identity.password.title')"
         :required="true"
         :tab-index="3"
         type="password"
@@ -37,14 +34,13 @@
         :data-vv-scope="form.scope"
         :name="'persistent'"
         :tab-index="4"
-        class="p-y-0"
       >
-        {{ $t('field.persistent.title') }}
+        {{ $t('account.fields.persistent.title') }}
         <template slot="right-addon">
           <span aria-hidden="true"> · </span>
-          <router-link :to="links.resetPasswordLnk">
-            {{ $t('buttons.forgotPassword.title') }}
-          </router-link>
+          <nuxt-link :to="localePath({ name: $routes.account.resetPassword })">
+            {{ $t('account.buttons.forgotPassword.title') }}
+          </nuxt-link>
         </template>
       </fb-form-checkbox>
 
@@ -55,19 +51,13 @@
         type="submit"
         tabindex="5"
       >
-        {{ $t('buttons.signIn.title') }}
+        {{ $t('account.buttons.signIn.title') }}
       </fb-button>
     </form>
   </div>
 </template>
 
 <script>
-import {
-  HOME_LINK,
-  ACCOUNT_SIGN_IN_LINK,
-  ACCOUNT_RESET_PASSWORD_LINK,
-} from '@/configuration/routes'
-
 const SignHeader = () => import('@/components/account/SignHeader')
 
 export default {
@@ -90,9 +80,6 @@ export default {
           persistent: true,
         },
       },
-      links: {
-        resetPasswordLnk: this.localePath({ name: ACCOUNT_RESET_PASSWORD_LINK }),
-      },
     }
   },
 
@@ -105,10 +92,10 @@ export default {
       en: {
         custom: {
           uid: {
-            required: this.$t('field.identity.uid.validation.required'),
+            required: this.$t('account.fields.identity.uid.validation.required'),
           },
           password: {
-            required: this.$t('field.identity.password.validation.required'),
+            required: this.$t('account.fields.identity.password.validation.required'),
           },
         },
       },
@@ -201,7 +188,7 @@ export default {
 
                 this.$bus.$emit('signIn', true)
 
-                this.$router.push(this.localePath({ name: HOME_LINK }))
+                this.$router.push(this.localePath({ name: this.$routes.home }))
               })
               .catch((e) => {
                 this.$bus.$emit('wait-sign_in', false)
@@ -211,42 +198,21 @@ export default {
                 } else if (this._.get(e, 'response', null) !== null) {
                   this.handleRequestError(e.response, errorMessage)
                 } else {
-                  this.$toasted.error(errorMessage, {
-                    action: {
-                      text: this.$t('application.buttons.close.title'),
-                      onClick: (evnt, toastObject) => {
-                        toastObject.goAway(0)
-                      },
-                    },
-                  })
+                  this.$flashMessage(errorMessage, 'error')
                 }
 
-                this.$router.push(this.localePath({ name: ACCOUNT_SIGN_IN_LINK }))
+                this.$router.push(this.localePath({ name: this.$routes.account.signIn }))
               })
           } else {
             this.$bus.$emit('wait-sign_in', false)
-
-            this.$toasted.info(this.$t('application.messages.fixAllFormErrors'), {
-              action: {
-                text: this.$t('application.buttons.close.title'),
-                onClick: (evnt, toastObject) => {
-                  toastObject.goAway(0)
-                },
-              },
-            })
           }
         })
-        .catch(() => {
+        .catch((e) => {
           this.$bus.$emit('wait-sign_in', false)
 
-          this.$toasted.info(this.$t('application.messages.fixAllFormErrors'), {
-            action: {
-              text: this.$t('application.buttons.close.title'),
-              onClick: (evnt, toastObject) => {
-                toastObject.goAway(0)
-              },
-            },
-          })
+          if (Object.prototype.hasOwnProperty.call(this, '$sentry')) {
+            this.$sentry.captureException(e)
+          }
         })
     },
 
@@ -258,5 +224,3 @@ export default {
 <style rel="stylesheet/scss" lang="scss">
   @import 'index';
 </style>
-
-<i18n src="./locales.json" />
