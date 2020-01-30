@@ -806,7 +806,7 @@
 
 "@fastybird-com/theme@bitbucket:fastybird/fastybird-app-theme#master":
   version "1.0.0"
-  resolved "git+ssh://git@bitbucket.org/fastybird/fastybird-app-theme.git#d7dcad194fac2dfa0740cba3a0e97943bec7d4a6"
+  resolved "git+ssh://git@bitbucket.org/fastybird/fastybird-app-theme.git#777f6573b50e474a6826d0fb0877197a8516b7e2"
   dependencies:
     body-scroll-lock "^2.5.10"
     lodash "^4.17.15"
@@ -11554,9 +11554,9 @@ term-size@^1.2.0:
     execa "^0.7.0"
 
 term-size@^2.1.0:
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/term-size/-/term-size-2.1.1.tgz#f81ec25854af91a480d2f9d0c77ffcb26594ed1a"
-  integrity sha512-UqvQSch04R+69g4RDhrslmGvGL3ucDRX/U+snYW0Mab4uCAyKSndUksaoqlJ81QKSpRnIsuOYQCbC2ZWx2896A==
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/term-size/-/term-size-2.2.0.tgz#1f16adedfe9bdc18800e1776821734086fcc6753"
+  integrity sha512-a6sumDlzyHVJWb8+YofY4TW112G6p2FCPEAFk+59gIYHv3XHRhm9ltVQ9kli4hNWeQBwSpe8cRN25x0ROunMOw==
 
 terser-webpack-plugin@^1.4.3:
   version "1.4.3"

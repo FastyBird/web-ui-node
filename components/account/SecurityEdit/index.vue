@@ -1,5 +1,7 @@
 <template>
   <fb-modal-form
+    :lock-submit-button="form.result !== null"
+    :result-is-ok="form.result === true"
     icon="user-shield"
     @submit="submit"
     @close="close"
@@ -171,6 +173,7 @@ export default {
             },
           ],
         },
+        result: null,
       },
     }
   },
@@ -301,9 +304,9 @@ export default {
                 })
             }
 
-            this._initModel()
+            this.form.result = true
 
-            this.$emit('close', false)
+            this.$timer.start('close')
           }
         })
         .catch((e) => {
@@ -343,6 +346,12 @@ export default {
       this.errors.clear(this.form.scope)
     },
 
+  },
+
+  timers: {
+    close: {
+      time: 2000,
+    },
   },
 
 }

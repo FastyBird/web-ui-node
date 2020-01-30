@@ -3,6 +3,7 @@
     v-if="thing !== null"
     :transparent-bg="transparentBg"
     :lock-submit-button="form.result !== null"
+    :result-is-ok="form.result === true"
     icon="key"
     @submit="submit"
     @close="close"
@@ -12,61 +13,57 @@
     </template>
 
     <template slot="form">
-      <template v-if="form.result === null">
-        <fb-form-input
-          v-model="form.model.username"
-          v-validate="'required'"
-          :data-vv-scope="form.scope"
-          :error="errors.first(form.scope + '.username')"
-          :has-error="errors.has(form.scope + '.username')"
-          :name="'username'"
-          :label="$t('things.vendor.global.username.title')"
-          :required="true"
-          :tab-index="2"
-        />
+      <fb-form-input
+        v-model="form.model.username"
+        v-validate="'required'"
+        :data-vv-scope="form.scope"
+        :error="errors.first(form.scope + '.username')"
+        :has-error="errors.has(form.scope + '.username')"
+        :name="'username'"
+        :label="$t('things.vendor.global.username.title')"
+        :required="true"
+        :tab-index="2"
+      />
 
-        <fb-form-input
-          v-model="form.model.password"
-          v-validate="'required'"
-          :data-vv-scope="form.scope"
-          :error="errors.first(form.scope + '.password')"
-          :has-error="errors.has(form.scope + '.password')"
-          :name="'password'"
-          :label="$t('things.vendor.global.password.title')"
-          :required="true"
-          :tab-index="3"
-        />
+      <fb-form-input
+        v-model="form.model.password"
+        v-validate="'required'"
+        :data-vv-scope="form.scope"
+        :error="errors.first(form.scope + '.password')"
+        :has-error="errors.has(form.scope + '.password')"
+        :name="'password'"
+        :label="$t('things.vendor.global.password.title')"
+        :required="true"
+        :tab-index="3"
+      />
 
-        <div class="row m-t-lg">
-          <div class="col-md-8">
-            <fb-form-input
-              v-model="form.model.server"
-              :data-vv-scope="form.scope"
-              :error="errors.first(form.scope + '.server')"
-              :has-error="errors.has(form.scope + '.server')"
-              :name="'server'"
-              :label="$t('things.vendor.global.server.title')"
-              :readonly="true"
-              :tab-index="5"
-            />
-          </div>
-
-          <div class="col-md-4">
-            <fb-form-input
-              v-model="form.model.port"
-              :data-vv-scope="form.scope"
-              :error="errors.first(form.scope + '.port')"
-              :has-error="errors.has(form.scope + '.port')"
-              :name="'port'"
-              :label="$t('things.vendor.global.port.title')"
-              :readonly="true"
-              :tab-index="6"
-            />
-          </div>
+      <div class="row m-t-lg">
+        <div class="col-md-8">
+          <fb-form-input
+            v-model="form.model.server"
+            :data-vv-scope="form.scope"
+            :error="errors.first(form.scope + '.server')"
+            :has-error="errors.has(form.scope + '.server')"
+            :name="'server'"
+            :label="$t('things.vendor.global.server.title')"
+            :readonly="true"
+            :tab-index="5"
+          />
         </div>
-      </template>
 
-      <result-ok v-if="form.result === true" />
+        <div class="col-md-4">
+          <fb-form-input
+            v-model="form.model.port"
+            :data-vv-scope="form.scope"
+            :error="errors.first(form.scope + '.port')"
+            :has-error="errors.has(form.scope + '.port')"
+            :name="'port'"
+            :label="$t('things.vendor.global.port.title')"
+            :readonly="true"
+            :tab-index="6"
+          />
+        </div>
+      </div>
     </template>
   </fb-modal-form>
 </template>

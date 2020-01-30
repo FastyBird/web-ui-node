@@ -3,6 +3,7 @@
     v-if="thing !== null"
     :transparent-bg="transparentBg"
     :lock-submit-button="form.result !== null"
+    :result-is-ok="form.result === true"
     icon="cogs"
     @submit="submit"
     @close="close"
@@ -12,93 +13,89 @@
     </template>
 
     <template slot="form">
-      <template v-if="form.result === null">
-        <template v-for="(parameter, index) in parameters">
-          <fb-form-input
-            v-if="parameter.isNumber"
-            :key="index"
-            v-model="form.model[parameter.name]"
-            v-validate="`required|numeric|between:${parameter.min},${parameter.max}`"
-            :data-vv-scope="form.scope"
-            :data-vv-as="translateLabel(parameter)"
-            :data-vv-min="parameter.min"
-            :data-vv-max="parameter.max"
-            :error="errors.first(`${form.scope}.${parameter.name}`)"
-            :has-error="errors.has(`${form.scope}.${parameter.name}`)"
-            :name="parameter.name"
-            :label="translateLabel(parameter)"
-            :required="true"
-            :tab-index="index + 2"
-            type="number"
+      <template v-for="(parameter, index) in parameters">
+        <fb-form-input
+          v-if="parameter.isNumber"
+          :key="index"
+          v-model="form.model[parameter.name]"
+          v-validate="`required|numeric|between:${parameter.min},${parameter.max}`"
+          :data-vv-scope="form.scope"
+          :data-vv-as="translateLabel(parameter)"
+          :data-vv-min="parameter.min"
+          :data-vv-max="parameter.max"
+          :error="errors.first(`${form.scope}.${parameter.name}`)"
+          :has-error="errors.has(`${form.scope}.${parameter.name}`)"
+          :name="parameter.name"
+          :label="translateLabel(parameter)"
+          :required="true"
+          :tab-index="index + 2"
+          type="number"
+        >
+          <template
+            v-if="translateDescription(parameter) !== null && !errors.has(`${form.scope}.${parameter.name}`)"
+            slot="help-line"
           >
-            <template
-              v-if="translateDescription(parameter) !== null && !errors.has(`${form.scope}.${parameter.name}`)"
-              slot="help-line"
-            >
-              {{ translateDescription(parameter) }}
-            </template>
-          </fb-form-input>
+            {{ translateDescription(parameter) }}
+          </template>
+        </fb-form-input>
 
-          <fb-form-input
-            v-if="parameter.isText"
-            :key="index"
-            v-model="form.model[parameter.name]"
-            v-validate="'required'"
-            :data-vv-scope="form.scope"
-            :data-vv-as="translateLabel(parameter)"
-            :error="errors.first(`${form.scope}.${parameter.name}`)"
-            :has-error="errors.has(`${form.scope}.${parameter.name}`)"
-            :name="parameter.name"
-            :label="translateLabel(parameter)"
-            :required="true"
-            :tab-index="index + 2"
-            type="text"
+        <fb-form-input
+          v-if="parameter.isText"
+          :key="index"
+          v-model="form.model[parameter.name]"
+          v-validate="'required'"
+          :data-vv-scope="form.scope"
+          :data-vv-as="translateLabel(parameter)"
+          :error="errors.first(`${form.scope}.${parameter.name}`)"
+          :has-error="errors.has(`${form.scope}.${parameter.name}`)"
+          :name="parameter.name"
+          :label="translateLabel(parameter)"
+          :required="true"
+          :tab-index="index + 2"
+          type="text"
+        >
+          <template
+            v-if="translateDescription(parameter) !== null && !errors.has(`${form.scope}.${parameter.name}`)"
+            slot="help-line"
           >
-            <template
-              v-if="translateDescription(parameter) !== null && !errors.has(`${form.scope}.${parameter.name}`)"
-              slot="help-line"
-            >
-              {{ translateDescription(parameter) }}
-            </template>
-          </fb-form-input>
+            {{ translateDescription(parameter) }}
+          </template>
+        </fb-form-input>
 
-          <fb-form-select
-            v-if="parameter.isSelect"
-            :key="index"
-            v-model="form.model[parameter.name]"
-            :items="getParameterItems(parameter)"
-            :data-vv-scope="form.scope"
-            :data-vv-as="translateLabel(parameter)"
-            :error="errors.first(`${form.scope}.${parameter.name}`)"
-            :has-error="errors.has(`${form.scope}.${parameter.name}`)"
-            :name="parameter.name"
-            :label="translateLabel(parameter)"
-            :tab-index="index + 2"
-            :required="true"
+        <fb-form-select
+          v-if="parameter.isSelect"
+          :key="index"
+          v-model="form.model[parameter.name]"
+          :items="getParameterItems(parameter)"
+          :data-vv-scope="form.scope"
+          :data-vv-as="translateLabel(parameter)"
+          :error="errors.first(`${form.scope}.${parameter.name}`)"
+          :has-error="errors.has(`${form.scope}.${parameter.name}`)"
+          :name="parameter.name"
+          :label="translateLabel(parameter)"
+          :tab-index="index + 2"
+          :required="true"
+        >
+          <template
+            v-if="translateDescription(parameter) !== null && !errors.has(`${form.scope}.${parameter.name}`)"
+            slot="help-line"
           >
-            <template
-              v-if="translateDescription(parameter) !== null && !errors.has(`${form.scope}.${parameter.name}`)"
-              slot="help-line"
-            >
-              {{ translateDescription(parameter) }}
-            </template>
-          </fb-form-select>
+            {{ translateDescription(parameter) }}
+          </template>
+        </fb-form-select>
 
-          <fb-form-checkbox
-            v-if="parameter.isBoolean"
-            :key="index"
-            v-model="form.model[parameter.name]"
-            :data-vv-scope="form.scope"
-            :error="errors.first(`${form.scope}.${parameter.name}`)"
-            :has-error="errors.has(`${form.scope}.${parameter.name}`)"
-            :name="parameter.name"
-          >
-            {{ translateLabel(parameter) }}
-          </fb-form-checkbox>
-        </template>
+        <fb-form-checkbox
+          v-if="parameter.isBoolean"
+          :key="index"
+          v-model="form.model[parameter.name]"
+          :data-vv-scope="form.scope"
+          :error="errors.first(`${form.scope}.${parameter.name}`)"
+          :has-error="errors.has(`${form.scope}.${parameter.name}`)"
+          :name="parameter.name"
+        >
+          {{ translateLabel(parameter) }}
+        </fb-form-checkbox>
       </template>
-
-      <result-ok v-if="form.result === true" />
     </template>
   </fb-modal-form>
 </template>

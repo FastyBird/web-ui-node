@@ -2,6 +2,7 @@
   <fb-modal-form
     :transparent-bg="transparentBg"
     :lock-submit-button="form.result !== null"
+    :result-is-ok="form.result === true"
     icon="pencil-alt"
     @submit="submit"
     @close="close"
@@ -11,33 +12,29 @@
     </template>
 
     <template slot="form">
-      <template v-if="form.result === null">
-        <fb-form-input
-          v-model="form.model.title"
-          v-validate="'required'"
-          :data-vv-scope="form.scope"
-          :error="errors.first(form.scope + '.title')"
-          :has-error="errors.has(form.scope + '.title')"
-          :name="'title'"
-          :label="$t('things.vendors.global.title.title')"
-          :placeholder="$tThing(thing, true)"
-          :required="true"
-          :tab-index="2"
-        />
+      <fb-form-input
+        v-model="form.model.title"
+        v-validate="'required'"
+        :data-vv-scope="form.scope"
+        :error="errors.first(form.scope + '.title')"
+        :has-error="errors.has(form.scope + '.title')"
+        :name="'title'"
+        :label="$t('things.vendors.global.title.title')"
+        :placeholder="$tThing(thing, true)"
+        :required="true"
+        :tab-index="2"
+      />
 
-        <fb-form-text-area
-          v-model="form.model.comment"
-          :data-vv-scope="form.scope"
-          :error="errors.first(form.scope + '.comment')"
-          :has-error="errors.has(form.scope + '.comment')"
-          :name="'comment'"
-          :label="$t('things.vendors.global.comment.title')"
-          :placeholder="$tThingDevice(thing, true)"
-          :tab-index="3"
-        />
-      </template>
-
-      <result-ok v-if="form.result === true" />
+      <fb-form-text-area
+        v-model="form.model.comment"
+        :data-vv-scope="form.scope"
+        :error="errors.first(form.scope + '.comment')"
+        :has-error="errors.has(form.scope + '.comment')"
+        :name="'comment'"
+        :label="$t('things.vendors.global.comment.title')"
+        :placeholder="$tThingDevice(thing, true)"
+        :tab-index="3"
+      />
     </template>
   </fb-modal-form>
 </template>

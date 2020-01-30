@@ -2,6 +2,7 @@
   <fb-modal-form
     :transparent-bg="transparentBg"
     :lock-submit-button="form.result !== null"
+    :result-is-ok="form.result === true"
     icon="pencil-alt"
     @submit="submit"
     @close="close"
@@ -11,32 +12,28 @@
     </template>
 
     <template slot="form">
-      <template v-if="form.result === null">
-        <fb-form-input
-          v-model="form.model.name"
-          v-validate="'required'"
-          :data-vv-scope="form.scope"
-          :error="errors.first(form.scope + '.name')"
-          :has-error="errors.has(form.scope + '.name')"
-          :name="'name'"
-          :label="$t('routines.fields.name.title')"
-          :placeholder="routine.name"
-          :required="true"
-          :tab-index="2"
-        />
+      <fb-form-input
+        v-model="form.model.name"
+        v-validate="'required'"
+        :data-vv-scope="form.scope"
+        :error="errors.first(form.scope + '.name')"
+        :has-error="errors.has(form.scope + '.name')"
+        :name="'name'"
+        :label="$t('routines.fields.name.title')"
+        :placeholder="routine.name"
+        :required="true"
+        :tab-index="2"
+      />
 
-        <fb-form-text-area
-          v-model="form.model.comment"
-          :data-vv-scope="form.scope"
-          :error="errors.first(form.scope + '.comment')"
-          :has-error="errors.has(form.scope + '.comment')"
-          :name="'comment'"
-          :label="$t('routines.fields.comment.title')"
-          :tab-index="3"
-        />
-      </template>
-
-      <result-ok v-if="form.result === true" />
+      <fb-form-text-area
+        v-model="form.model.comment"
+        :data-vv-scope="form.scope"
+        :error="errors.first(form.scope + '.comment')"
+        :has-error="errors.has(form.scope + '.comment')"
+        :name="'comment'"
+        :label="$t('routines.fields.comment.title')"
+        :tab-index="3"
+      />
     </template>
   </fb-modal-form>
 </template>
