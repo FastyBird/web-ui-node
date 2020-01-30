@@ -36,3 +36,8 @@ export const ROUTINES_QUERY_TYPE_SCHEDULED = 'scheduled'
 export const ROUTINES_QUERY_TYPE_THING = 'thing'
 export const ROUTINES_QUERY_TYPE_SENSOR = 'sensor'
 export const ROUTINES_QUERY_TYPE_MANUAL = 'manual'
+
+export const USERS_LIST_LINK = 'index-users'
+export const USERS_USER_DETAIL_LINK = 'index-users-id'
+
+export const ACCESS_RIGHTS_LIST_LINK = 'index-access-rights'

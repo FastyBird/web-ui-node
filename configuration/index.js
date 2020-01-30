@@ -2,6 +2,8 @@ import {
   HOME_LINK,
   THINGS_LIST_LINK,
   ROUTINES_LIST_LINK,
+  USERS_LIST_LINK,
+  ACCESS_RIGHTS_LIST_LINK,
 } from '@/configuration/routes'
 
 export const AUTHOR_NAME = 'FastyBird s.r.o.'
@@ -73,7 +75,7 @@ export const MENU_ITEMS = [
     items: [
       {
         name: 'Users',
-        link: HOME_LINK,
+        link: USERS_LIST_LINK,
         meta: {
           icon: 'users',
           label: 'application.menu.users',
@@ -82,7 +84,7 @@ export const MENU_ITEMS = [
         module: 'users',
       }, {
         name: 'Access settings',
-        link: HOME_LINK,
+        link: ACCESS_RIGHTS_LIST_LINK,
         meta: {
           icon: 'unlock',
           label: 'application.menu.access',
