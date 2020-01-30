@@ -15,6 +15,34 @@ require('dotenv').config({
 // Generated session key
 process.env.NUXT_ENV_SESSION_KEY = '93b448d8-8b48-4606-9d99-96c4007b856d'
 
+const proxy = {}
+
+if (
+  Object.prototype.hasOwnProperty.call(process.env, 'NUXT_ENV_PROXY_PATH') &&
+  Object.prototype.hasOwnProperty.call(process.env, 'NUXT_ENV_PROXY_TARGET')
+) {
+  proxy[process.env.NUXT_ENV_PROXY_PATH] = {
+    target: process.env.NUXT_ENV_PROXY_TARGET,
+    secure: true,
+    changeOrigin: true,
+  }
+}
+
+if (
+  Object.prototype.hasOwnProperty.call(process.env, 'NUXT_ENV_WS_PROXY_PATH') &&
+  Object.prototype.hasOwnProperty.call(process.env, 'NUXT_ENV_WS_PROXY_TARGET')
+) {
+  proxy[process.env.NUXT_ENV_WS_PROXY_PATH] = {
+    target: process.env.NUXT_ENV_WS_PROXY_TARGET,
+    pathRewrite: {
+      '^/ws-exchange': '',
+    },
+    secure: true,
+    ws: true,
+    changeOrigin: true,
+  }
+}
+
 module.exports = {
 
   mode: process.env.BUILD_TARGET === 'electron' ? 'spa' : 'universal',
@@ -190,22 +218,7 @@ module.exports = {
     ],
   },
 
-  proxy: {
-    '/v1': {
-      target: 'https://io.fastybird.ovh/api',
-      secure: true,
-      changeOrigin: true,
-    },
-    '/ws-exchange': {
-      target: 'wss://io.fastybird.ovh/sockets',
-      pathRewrite: {
-        '^/ws-exchange': '',
-      },
-      secure: true,
-      ws: true,
-      changeOrigin: true,
-    },
-  },
+  proxy,
 
   // oneSignal: {
   //  init: {
