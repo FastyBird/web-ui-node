@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "cross-env BUILD_CONF=development nuxt-ts",
     "staging": "cross-env BUILD_CONF=staging nuxt-ts build",
-    "build": "nuxt-ts build",
+    "build": "cross-env BUILD_CONF=production nuxt-ts build",
     "dev:app": "cross-env NODE_ENV=development BUILD_TARGET=electron BUILD_CONF=staging node .electron/index.js",
     "build:app": "cross-env NODE_ENV=production BUILD_TARGET=electron BUILD_CONF=production node .electron/index.js",
     "start": "nuxt-ts start",

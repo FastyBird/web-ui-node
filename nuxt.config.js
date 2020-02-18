@@ -93,7 +93,7 @@ module.exports = {
 
   modules: [
     // '@nuxtjs/onesignal',
-    '@nuxtjs/pwa',
+    // '@nuxtjs/pwa',
     '@nuxtjs/svg',
     '@nuxtjs/toast',
     '@nuxtjs/proxy',
