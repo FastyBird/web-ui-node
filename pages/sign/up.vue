@@ -13,8 +13,6 @@ export default {
     SignUp,
   },
 
-  layout: 'sign',
-
   middleware: 'anonymous',
 
   transition: 'fade',

@@ -115,10 +115,8 @@ export default {
      * @returns {Object}
      */
     checkUid(value) {
-      return this.$store.dispatch('entities/session/validateUid', {
+      return this.$backendApi.validateSession({
         uid: value,
-      }, {
-        root: true,
       })
         .then(() => {
           return {
@@ -160,10 +158,8 @@ export default {
 
             this.makingRequest = true
 
-            this.$store.dispatch('entities/account/requestPassword', {
+            this.$backendApi.requestPassword({
               uid: this.form.model.credentials.uid,
-            }, {
-              root: true,
             })
               .then(() => {
                 this.makingRequest = false
@@ -185,7 +181,7 @@ export default {
           }
         })
         .catch((e) => {
-          if (Object.prototype.hasOwnProperty.call(this, '$sentry')) {
+          if (!this.isDev && Object.prototype.hasOwnProperty.call(this, '$sentry')) {
             this.$sentry.captureException(e)
           }
         })

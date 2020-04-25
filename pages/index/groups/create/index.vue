@@ -5,8 +5,6 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
-
 import {
   GROUPS_HASH_CREATE,
 } from '@/configuration/routes'
@@ -25,9 +23,12 @@ export default {
 
   computed: {
 
-    ...mapState('theme', {
-      windowSize: state => state.windowSize,
-    }),
+    /**
+     * @returns {String}
+     */
+    windowSize() {
+      return this.$store.state.template.windowSize
+    },
 
   },
 
@@ -45,43 +46,34 @@ export default {
   },
 
   fetch({ app, store }) {
-    store.dispatch('header/resetStore', null, {
+    store.dispatch('template/resetStore', null, {
       root: true,
     })
 
-    store.dispatch('header/setLeftButton', {
+    store.dispatch('template/setLeftButton', {
       name: app.i18n.t('application.buttons.back.title'),
-      link: app.localePath(app.$routes.groups.list),
       icon: 'arrow-left',
     }, {
       root: true,
     })
 
-    store.dispatch('header/hideRightButton', null, {
+    store.dispatch('template/setFullRowHeading', null, {
       root: true,
     })
 
-    store.dispatch('header/setFullRowHeading', null, {
-      root: true,
-    })
-
-    store.dispatch('header/setHeading', {
+    store.dispatch('template/setHeading', {
       heading: app.i18n.t('application.headings.groups.add'),
     }, {
       root: true,
     })
 
-    store.dispatch('header/setHeadingIcon', {
+    store.dispatch('template/setHeadingIcon', {
       icon: 'folder-plus',
     }, {
       root: true,
     })
 
-    store.dispatch('bottomNavigation/resetStore', null, {
-      root: true,
-    })
-
-    store.dispatch('bottomNavigation/hideNavigation', null, {
+    store.dispatch('app/bottomMenuCollapse', null, {
       root: true,
     })
   },
@@ -95,6 +87,14 @@ export default {
     }
 
     this._configureNavigation()
+
+    this.$bus.$on('heading_left_button-clicked', () => {
+      this.$router.push(this.localePath(this.$routes.groups.list))
+    })
+  },
+
+  beforeDestroy() {
+    this.$bus.$off('heading_left_button-clicked')
   },
 
   methods: {
@@ -105,43 +105,34 @@ export default {
      * @private
      */
     _configureNavigation() {
-      this.$store.dispatch('header/resetStore', null, {
+      this.$store.dispatch('template/resetStore', null, {
         root: true,
       })
 
-      this.$store.dispatch('header/setLeftButton', {
+      this.$store.dispatch('template/setLeftButton', {
         name: this.$t('application.buttons.back.title'),
-        link: this.localePath(this.$routes.groups.list),
         icon: 'arrow-left',
       }, {
         root: true,
       })
 
-      this.$store.dispatch('header/hideRightButton', null, {
+      this.$store.dispatch('template/setFullRowHeading', null, {
         root: true,
       })
 
-      this.$store.dispatch('header/setFullRowHeading', null, {
-        root: true,
-      })
-
-      this.$store.dispatch('header/setHeading', {
+      this.$store.dispatch('template/setHeading', {
         heading: this.$t('application.headings.groups.add'),
       }, {
         root: true,
       })
 
-      this.$store.dispatch('header/setHeadingIcon', {
+      this.$store.dispatch('template/setHeadingIcon', {
         icon: 'folder-plus',
       }, {
         root: true,
       })
 
-      this.$store.dispatch('bottomNavigation/resetStore', null, {
-        root: true,
-      })
-
-      this.$store.dispatch('bottomNavigation/hideNavigation', null, {
+      this.$store.dispatch('app/bottomMenuCollapse', null, {
         root: true,
       })
     },

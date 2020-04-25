@@ -25,8 +25,6 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
-
 import { orderBy } from 'natural-orderby'
 
 import get from 'lodash/get'
@@ -59,9 +57,12 @@ export default {
 
   computed: {
 
-    ...mapState('theme', {
-      windowSize: state => state.windowSize,
-    }),
+    /**
+     * @returns {String}
+     */
+    windowSize() {
+      return this.$store.state.template.windowSize
+    },
 
     /**
      * View group data
@@ -87,12 +88,12 @@ export default {
         .with('channel')
         .with('channel.properties')
         .where('channel_id', this.group.channels_ids)
-        .all()
+        .get()
 
       return orderBy(
         items,
         [
-          v => this.$tThing(v),
+          v => this.$tThingChannel(v),
           v => this.$tThingDevice(v),
         ],
         ['asc'],
@@ -172,40 +173,35 @@ export default {
         .then(() => {
           const group = store.getters['entities/group/find'](params.id)
 
-          store.dispatch('header/resetStore', null, {
+          store.dispatch('template/resetStore', null, {
             root: true,
           })
 
-          store.dispatch('header/setLeftButton', {
+          store.dispatch('template/setLeftButton', {
             name: app.i18n.t('application.buttons.back.title'),
-            link: app.localePath(app.$routes.groups.list),
             icon: 'arrow-left',
           }, {
             root: true,
           })
 
-          store.dispatch('header/hideRightButton', null, {
+          store.dispatch('template/setFullRowHeading', null, {
             root: true,
           })
 
-          store.dispatch('header/setFullRowHeading', null, {
-            root: true,
-          })
-
-          store.dispatch('header/setHeading', {
+          store.dispatch('template/setHeading', {
             heading: group.label,
             subHeading: group.comment,
           }, {
             root: true,
           })
 
-          store.dispatch('header/setHeadingIcon', {
+          store.dispatch('template/setHeadingIcon', {
             icon: app.$groupIcon(group),
           }, {
             root: true,
           })
 
-          store.dispatch('bottomNavigation/resetStore', null, {
+          store.dispatch('app/bottomMenuExpand', null, {
             root: true,
           })
         })
@@ -271,6 +267,10 @@ export default {
     if (this.group) {
       this._configureNavigation()
     }
+
+    this.$bus.$on('heading_left_button-clicked', () => {
+      this.$router.push(this.localePath(this.$routes.groups.list))
+    })
   },
 
   mounted() {
@@ -283,6 +283,9 @@ export default {
   },
 
   beforeDestroy() {
+    this.$bus.$off('heading_left_button-clicked')
+    this.$bus.$off('heading_right_button-clicked')
+
     window.removeEventListener('scroll', this._windowScrolledHandler)
     window.removeEventListener('resize', this._windowResizeHandler)
   },
@@ -310,7 +313,7 @@ export default {
 
           // Scroll view to setting part
           this.$scrollTo(component.$el, 500, {
-            offset: (-1 * this.$store.state.theme.marginTop),
+            offset: (-1 * this.$store.state.template.marginTop),
           })
         }
       })
@@ -324,7 +327,7 @@ export default {
         const component = this._.get(this.$refs, 'detail')
 
         this.$scrollTo(component.$el, 500, {
-          offset: (-1 * this.$store.state.theme.marginTop),
+          offset: (-1 * this.$store.state.template.marginTop),
           onDone: () => {
             this.$set(this, 'settings', false)
             this._configureNavigationRightButton()
@@ -352,40 +355,35 @@ export default {
      * @private
      */
     _configureNavigation() {
-      this.$store.dispatch('header/resetStore', null, {
+      this.$store.dispatch('template/resetStore', null, {
         root: true,
       })
 
-      this.$store.dispatch('header/setLeftButton', {
+      this.$store.dispatch('template/setLeftButton', {
         name: this.$t('application.buttons.back.title'),
-        link: this.localePath(this.$routes.groups.list),
         icon: 'arrow-left',
       }, {
         root: true,
       })
 
-      this.$store.dispatch('header/hideRightButton', null, {
+      this.$store.dispatch('template/setFullRowHeading', null, {
         root: true,
       })
 
-      this.$store.dispatch('header/setFullRowHeading', null, {
-        root: true,
-      })
-
-      this.$store.dispatch('header/setHeading', {
+      this.$store.dispatch('template/setHeading', {
         heading: this.group.label,
         subHeading: this.group.comment,
       }, {
         root: true,
       })
 
-      this.$store.dispatch('header/setHeadingIcon', {
+      this.$store.dispatch('template/setHeadingIcon', {
         icon: this.$groupIcon(this.group),
       }, {
         root: true,
       })
 
-      this.$store.dispatch('bottomNavigation/resetStore', null, {
+      this.$store.dispatch('app/bottomMenuExpand', null, {
         root: true,
       })
     },
@@ -396,9 +394,8 @@ export default {
      * @private
      */
     _configureNavigationRightButton() {
-      this.$store.dispatch('header/setLeftButton', {
+      this.$store.dispatch('template/setLeftButton', {
         name: this.$t('application.buttons.back.title'),
-        link: this.localePath(this.$routes.groups.list),
         icon: 'arrow-left',
       }, {
         root: true,
@@ -407,30 +404,36 @@ export default {
       if (
         this.settings &&
         this._.get(this.$refs, 'settings') &&
-        this._.get(this.$refs, 'settings.$el').getBoundingClientRect().top <= (this.$store.state.theme.marginTop + 1)
+        this._.get(this.$refs, 'settings.$el').getBoundingClientRect().top <= (this.$store.state.template.marginTop + 1)
       ) {
-        this.$store.dispatch('header/setRightButton', {
+        this.$store.dispatch('template/setRightButton', {
           name: this.$t('application.buttons.close.title'),
-          callback: () => {
-            this._closeSettings()
-          },
         }, {
           root: true,
         })
 
         this._setOpenedSettingsRoute()
       } else {
-        this.$store.dispatch('header/setRightButton', {
+        this.$store.dispatch('template/setRightButton', {
           name: this.$t('application.buttons.edit.title'),
-          callback: () => {
-            this._openSettings()
-          },
         }, {
           root: true,
         })
 
         this._setClosedSettingsRoute()
       }
+
+      this.$bus.$on('heading_right_button-clicked', () => {
+        if (
+          this.settings &&
+          this._.get(this.$refs, 'settings') &&
+          this._.get(this.$refs, 'settings.$el').getBoundingClientRect().top <= (this.$store.state.template.marginTop + 1)
+        ) {
+          this._closeSettings()
+        } else {
+          this._openSettings()
+        }
+      })
     },
 
     /**
@@ -455,7 +458,7 @@ export default {
         const component = this._.get(this.$refs, 'settings')
 
         this.$scrollTo(component.$el, 1, {
-          offset: (-1 * this.$store.state.theme.marginTop),
+          offset: (-1 * this.$store.state.template.marginTop),
         })
       }
     },

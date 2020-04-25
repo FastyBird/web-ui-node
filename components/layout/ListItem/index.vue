@@ -72,7 +72,7 @@ export default createComponent({
      *
      * @param {Event} event
      */
-    function oneClick(event: Event) {
+    function oneClick(event: Event): void {
       emit('click', event)
     }
 

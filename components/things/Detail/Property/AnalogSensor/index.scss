@@ -1,4 +1,16 @@
 .fb-iot-things-detail-analog-sensor{
+  &__value-container {
+    padding-right: 5px;
+
+    .fb-btn {
+      cursor: pointer;
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      border-radius: 50%;
+    }
+  }
+
   &__value {
     font-size: 15px;
   }

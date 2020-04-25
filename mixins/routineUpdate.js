@@ -1,8 +1,16 @@
-import routinesMixin from './routines'
+import routines from './routines'
+
+import Action from '~/models/triggers-node/Action'
+import Condition from '~/models/triggers-node/Condition'
+
+import {
+  TRIGGERS_ACTION_CHANNEL_PROPERTY,
+  TRIGGERS_CONDITION_CHANNEL_PROPERTY,
+} from '~/models/triggers-node/types'
 
 export default {
 
-  mixins: [routinesMixin],
+  mixins: [routines],
 
   methods: {
 
@@ -13,33 +21,36 @@ export default {
      * @param {Object} data
      */
     addRoutineCondition(routine, data) {
-      const storedConditions = this._.filter(this._.get(routine, 'conditions', []), ({ channel_id }) => channel_id === data.thing)
+      const storedConditions = this._.filter(routine.conditions, item => (item.device === data.device && item.channel === data.channel))
 
       const toCreate = []
       const toUpdate = []
       const toDelete = []
 
-      this._.get(data, 'rows', [])
+      data.rows
         .forEach((row) => {
-          const condition = this._.get(routine, 'conditions', [])
-            .find(item => item.channel_id === this._.get(data, 'thing') && item.property_id === this._.get(row, 'property_id'))
+          const condition = routine.conditions
+            .find(item => item.device === data.device && item.channel === data.channel && item.property === row.property)
 
           // Editing existing condition
           if (typeof condition !== 'undefined') {
             toUpdate.push({
               id: condition.id,
-              enabled: this._.get(data, 'enabled', false),
-              operator: this._.get(row, 'operator'),
-              operand: this._.get(row, 'operand'),
+              enabled: !!data.enabled,
+              operator: row.operator,
+              operand: row.operand,
             })
             // Updating new condition
           } else {
             toCreate.push({
-              trigger: this._.get(data, 'thing'),
-              enabled: this._.get(data, 'enabled', false),
-              property: this._.get(row, 'property_id'),
-              operator: this._.get(row, 'operator'),
-              operand: this._.get(row, 'operand'),
+              id: null,
+              type: TRIGGERS_CONDITION_CHANNEL_PROPERTY,
+              device: data.device,
+              channel: data.channel,
+              enabled: !!data.enabled,
+              property: row.property,
+              operator: row.operator,
+              operand: row.operand,
             })
           }
         })
@@ -59,11 +70,9 @@ export default {
 
       toCreate
         .forEach((item) => {
-          this.$store.dispatch('entities/condition/add', {
+          Condition.dispatch('add', {
             trigger: routine,
             data: item,
-          }, {
-            root: true,
           })
             .catch((e) => {
               if (Object.prototype.hasOwnProperty.call(e, 'exception')) {
@@ -80,11 +89,9 @@ export default {
 
       toUpdate
         .forEach((item) => {
-          this.$store.dispatch('entities/condition/edit', {
+          Condition.dispatch('edit', {
             id: item.id,
             data: item,
-          }, {
-            root: true,
           })
             .catch((e) => {
               if (Object.prototype.hasOwnProperty.call(e, 'exception')) {
@@ -101,10 +108,8 @@ export default {
 
       toDelete
         .forEach((item) => {
-          this.$store.dispatch('entities/condition/remove', {
+          Condition.dispatch('remove', {
             id: item.id,
-          }, {
-            root: true,
           })
             .catch((e) => {
               if (Object.prototype.hasOwnProperty.call(e, 'exception')) {
@@ -137,31 +142,34 @@ export default {
      * @param {Object} data
      */
     addRoutineAction(routine, data) {
-      const storedActions = this._.filter(this._.get(routine, 'actions', []), ({ channel_id }) => channel_id === data.thing)
+      const storedActions = this._.filter(routine.actions, item => (item.device === data.device && item.channel === data.channel))
 
       const toCreate = []
       const toUpdate = []
       const toDelete = []
 
-      this._.get(data, 'rows', [])
+      data.rows
         .forEach((row) => {
-          const action = this._.get(routine, 'actions', [])
-            .find(item => item.channel_id === this._.get(data, 'thing') && item.property_id === this._.get(row, 'property_id'))
+          const action = routine.actions
+            .find(item => item.device === data.device && item.channel === data.channel && item.property === row.property)
 
           // Editing existing action
           if (typeof action !== 'undefined') {
             toUpdate.push({
               id: action.id,
-              enabled: this._.get(data, 'enabled', false),
-              value: this._.get(row, 'operation'),
+              enabled: !!data.enabled,
+              value: row.operation,
             })
             // Updating new action
           } else {
             toCreate.push({
-              channel: this._.get(data, 'thing'),
-              enabled: this._.get(data, 'enabled', false),
-              property: this._.get(row, 'property_id'),
-              value: this._.get(row, 'operation'),
+              id: null,
+              type: TRIGGERS_ACTION_CHANNEL_PROPERTY,
+              device: data.device,
+              channel: data.channel,
+              enabled: !!data.enabled,
+              property: row.property,
+              value: row.operation,
             })
           }
         })
@@ -181,11 +189,9 @@ export default {
 
       toCreate
         .forEach((item) => {
-          this.$store.dispatch('entities/action/add', {
+          Action.dispatch('add', {
             trigger: routine,
             data: item,
-          }, {
-            root: true,
           })
             .catch((e) => {
               if (Object.prototype.hasOwnProperty.call(e, 'exception')) {
@@ -202,11 +208,9 @@ export default {
 
       toUpdate
         .forEach((item) => {
-          this.$store.dispatch('entities/action/edit', {
+          Action.dispatch('edit', {
             id: item.id,
             data: item,
-          }, {
-            root: true,
           })
             .catch((e) => {
               if (Object.prototype.hasOwnProperty.call(e, 'exception')) {
@@ -223,10 +227,8 @@ export default {
 
       toDelete
         .forEach((item) => {
-          this.$store.dispatch('entities/action/remove', {
+          Action.dispatch('remove', {
             id: item.id,
-          }, {
-            root: true,
           })
             .catch((e) => {
               if (Object.prototype.hasOwnProperty.call(e, 'exception')) {

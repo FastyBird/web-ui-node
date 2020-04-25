@@ -20,7 +20,7 @@
         :has-error="errors.has(form.scope + '.title')"
         :name="'title'"
         :label="$t('things.vendors.global.title.title')"
-        :placeholder="$tThing(thing, true)"
+        :placeholder="$tThingChannel(thing, true)"
         :required="true"
         :tab-index="2"
       />
@@ -40,6 +40,9 @@
 </template>
 
 <script>
+import Device from '~/models/devices-node/Device'
+import Channel from '~/models/devices-node/Channel'
+
 export default {
 
   name: 'ThingsSettingsRename',
@@ -100,10 +103,10 @@ export default {
         .then((result) => {
           if (result) {
             const errorMessage = this.$t('things.messages.notRenamed', {
-              thing: this.$tThing(this.thing),
+              thing: this.$tThingChannel(this.thing),
             })
 
-            this.$store.dispatch('entities/channel/edit', {
+            Channel.dispatch('edit', {
               id: this.thing.channel_id,
               data: {
                 title: this.form.model.title,
@@ -119,7 +122,7 @@ export default {
                 }
               })
 
-            this.$store.dispatch('entities/device/edit', {
+            Device.dispatch('edit', {
               id: this.thing.device_id,
               data: {
                 title: this.form.model.comment,
@@ -141,7 +144,7 @@ export default {
           }
         })
         .catch((e) => {
-          if (Object.prototype.hasOwnProperty.call(this, '$sentry')) {
+          if (!this.isDev && Object.prototype.hasOwnProperty.call(this, '$sentry')) {
             this.$sentry.captureException(e)
           }
         })
@@ -167,7 +170,7 @@ export default {
      */
     _initModel() {
       this.form.model = {
-        title: this.$tThing(this.thing) !== this.$tThing(this.thing, true) ? this.$tThing(this.thing) : null,
+        title: this.$tThingChannel(this.thing) !== this.$tThingChannel(this.thing, true) ? this.$tThingChannel(this.thing) : null,
         comment: this.$tThingDevice(this.thing) !== this.$tThingDevice(this.thing, true) ? this.$tThingDevice(this.thing) : null,
       }
 

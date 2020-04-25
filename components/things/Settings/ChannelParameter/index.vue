@@ -47,7 +47,7 @@
         <strong>{{ selectValue }}</strong>
       </template>
       <template v-else>
-        <strong>{{ value }}</strong>
+        <strong>{{ parameter.value }}</strong>
       </template>
     </small>
   </settings-list-item>
@@ -84,15 +84,6 @@ export default {
 
   computed: {
 
-    value() {
-      const stored = this.$store.getters['entities/channel_configuration_value/query']()
-        .where('channel_id', this.thing.channel_id)
-        .where('configuration_id', this.parameter.id)
-        .first()
-
-      return stored !== null ? stored.value : 'N/A'
-    },
-
     /**
      * Parse parameter items for select box
      *
@@ -101,16 +92,16 @@ export default {
     selectValue() {
       for (const key in this.parameter.values) {
         // eslint-disable-next-line
-        if (this.parameter.values.hasOwnProperty(key) && this.parameter.values[key].value == this.value) {
+        if (this.parameter.values.hasOwnProperty(key) && this.parameter.values[key].value == this.parameter.value) {
           if (!this.$t(`things.vendors.${this.hardware.manufacturer}.${this.parameter.name}.values.${this.parameter.values[key].name}`).includes('things.vendors.')) {
             return this.$t(`things.vendors.${this.hardware.manufacturer}.${this.parameter.name}.values.${this.parameter.values[key].name}`)
           } else {
-            return this.value
+            return this.parameter.value
           }
         }
       }
 
-      return this.value
+      return this.parameter.value
     },
 
   },

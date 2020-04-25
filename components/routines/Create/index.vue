@@ -42,7 +42,7 @@
 
     <template v-if="isThingCondition || isSensorCondition">
       <list-condition
-        v-for="(condition, index) in thingConditions"
+        v-for="(condition, index) in conditions"
         :key="`c-${index}`"
         :condition="condition"
         class="fb-routines-create__items"
@@ -60,7 +60,7 @@
 
       <div class="fb-routines-create__items">
         <list-schedule
-          v-for="(schedule, index) in scheduleConditions"
+          v-for="(schedule, index) in schedules"
           :key="`s-${index}`"
           :schedule="schedule"
           class="fb-routines-create__items"
@@ -99,14 +99,20 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
-
 import {
   ROUTINES_QUERY_TYPE_SCHEDULED,
   ROUTINES_QUERY_TYPE_THING,
   ROUTINES_QUERY_TYPE_SENSOR,
   ROUTINES_QUERY_TYPE_MANUAL,
 } from '@/configuration/routes'
+
+import Trigger from '~/models/triggers-node/Trigger'
+
+import {
+  TRIGGERS_ACTION_CHANNEL_PROPERTY,
+  TRIGGERS_CONDITION_CHANNEL_PROPERTY,
+  TRIGGERS_CONDITION_TIME,
+} from '~/models/triggers-node/types'
 
 const ListCondition = () => import('@/components/routines/Edit/ListCondition')
 const ListAction = () => import('@/components/routines/Edit/ListAction')
@@ -154,17 +160,11 @@ export default {
 
   computed: {
 
-    ...mapState('theme', {
-      windowSize: state => state.windowSize,
-    }),
-
     /**
-     * Get all assigned conditions with things
-     *
-     * @returns {Array}
+     * @returns {String}
      */
-    thingConditions() {
-      return this.$store.getters['routineCreate/getThingsConditions']()
+    windowSize() {
+      return this.$store.state.template.windowSize
     },
 
     /**
@@ -172,8 +172,17 @@ export default {
      *
      * @returns {Array}
      */
-    scheduleConditions() {
+    schedules() {
       return this.$store.getters['routineCreate/getSchedulesConditions']()
+    },
+
+    /**
+     * Get all assigned conditions with things
+     *
+     * @returns {Array}
+     */
+    conditions() {
+      return this.$store.getters['routineCreate/getThingsConditions']()
     },
 
     /**
@@ -239,7 +248,8 @@ export default {
     toggleConditionState(index) {
       if (Object.prototype.hasOwnProperty.call(this.$store.state.routineCreate.conditions.things, index)) {
         this.$store.dispatch('routineCreate/toggleCondition', {
-          thingId: this.$store.state.routineCreate.conditions.things[index].thing,
+          device: this.$store.state.routineCreate.conditions.things[index].device,
+          channel: this.$store.state.routineCreate.conditions.things[index].channel,
         }, {
           root: true,
         })
@@ -280,7 +290,8 @@ export default {
     toggleActionState(index) {
       if (Object.prototype.hasOwnProperty.call(this.$store.state.routineCreate.actions, index)) {
         this.$store.dispatch('routineCreate/toggleAction', {
-          thingId: this.$store.state.routineCreate.actions[index].thing,
+          device: this.$store.state.routineCreate.actions[index].device,
+          channel: this.$store.state.routineCreate.actions[index].channel,
         }, {
           root: true,
         })
@@ -336,10 +347,11 @@ export default {
             this.$store.state.routineCreate.conditions.things.forEach((condition) => {
               condition.rows.forEach((row) => {
                 mappedConditions.push({
-                  type: 'channel_property',
+                  type: TRIGGERS_CONDITION_CHANNEL_PROPERTY,
                   enabled: condition.enabled,
-                  channel: condition.thing,
-                  property: row.property_id,
+                  device: condition.device,
+                  channel: condition.channel,
+                  property: row.property,
                   operator: row.operator,
                   operand: row.operand,
                 })
@@ -348,7 +360,7 @@ export default {
 
             this.$store.state.routineCreate.conditions.schedules.forEach((condition) => {
               mappedConditions.push({
-                type: 'time',
+                type: TRIGGERS_CONDITION_TIME,
                 enabled: true,
                 time: this.$dateFns.format(condition.time, 'yyyy-MM-dd\'T\'HH:mm:ssXXXXX'),
                 days: condition.days,
@@ -360,16 +372,17 @@ export default {
             this.$store.state.routineCreate.actions.forEach((action) => {
               action.rows.forEach((row) => {
                 mappedActions.push({
-                  type: 'channel_property',
+                  type: TRIGGERS_ACTION_CHANNEL_PROPERTY,
                   enabled: action.enabled,
-                  channel: action.thing,
-                  property: row.property_id,
+                  device: action.device,
+                  channel: action.channel,
+                  property: row.property,
                   value: row.operation,
                 })
               })
             })
 
-            this.$store.dispatch('entities/trigger/add', {
+            Trigger.dispatch('add', {
               automatic: !this.isManual,
               manual: this.isManual,
               data: {
@@ -380,8 +393,6 @@ export default {
                 actions: mappedActions,
                 notifications: [],
               },
-            }, {
-              root: true,
             })
               .then((routine) => {
                 if (this.windowSize === 'xs') {
@@ -413,25 +424,10 @@ export default {
           }
         })
         .catch((e) => {
-          if (Object.prototype.hasOwnProperty.call(this, '$sentry')) {
+          if (!this.isDev && Object.prototype.hasOwnProperty.call(this, '$sentry')) {
             this.$sentry.captureException(e)
           }
         })
-    },
-
-    _sortItemsThings(items) {
-      return items.sort((a, b) => {
-        const aThing = this.$store.getters['entities/thing/find'](a.thing)
-        const bThing = this.$store.getters['entities/thing/find'](b.thing)
-
-        if (aThing.label > bThing.label) {
-          return -1
-        } else if (bThing.label > aThing.label) {
-          return 1
-        }
-
-        return 0
-      })
     },
 
   },

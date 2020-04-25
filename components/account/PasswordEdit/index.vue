@@ -33,6 +33,7 @@
       </fb-form-input>
 
       <fb-form-input
+        ref="new_password"
         v-model="form.model.password.new"
         v-validate="'required'"
         :data-vv-scope="form.scope"
@@ -54,7 +55,8 @@
 
       <fb-form-input
         v-model="form.model.password.repeat"
-        v-validate="'required'"
+        v-validate="'required|confirmed:new_password'"
+        :data-vv-as="$t('account.fields.password.repeat.title')"
         :data-vv-scope="form.scope"
         :error="errors.first(form.scope + '.repeat_password')"
         :has-error="errors.has(form.scope + '.repeat_password')"
@@ -76,6 +78,8 @@
 </template>
 
 <script>
+import Identity from '~/models/accounts-node/Identity'
+
 export default {
 
   name: 'PasswordEdit',
@@ -83,6 +87,11 @@ export default {
   props: {
 
     account: {
+      type: Object,
+      required: true,
+    },
+
+    identity: {
       type: Object,
       required: true,
     },
@@ -142,10 +151,9 @@ export default {
      * @returns {Object}
      */
     checkCurrentPassword(value) {
-      return this.$store.dispatch('entities/account/validatePassword', {
+      return this.$backendApi.validateIdentity({
+        id: this.identity.id,
         password: value,
-      }, {
-        root: true,
       })
         .then(() => {
           return {
@@ -189,11 +197,10 @@ export default {
           if (result) {
             const errorMessage = this.$t('account.messages.passwordNotEdited')
 
-            this.$store.dispatch('entities/account/changePassword', {
+            Identity.dispatch('edit', {
+              id: this.identity.id,
               current_password: this.form.model.password.current,
               new_password: this.form.model.password.new,
-            }, {
-              root: true,
             })
               .catch((e) => {
                 if (this._.get(e, 'exception', null) !== null) {
@@ -209,7 +216,7 @@ export default {
           }
         })
         .catch((e) => {
-          if (Object.prototype.hasOwnProperty.call(this, '$sentry')) {
+          if (!this.isDev && Object.prototype.hasOwnProperty.call(this, '$sentry')) {
             this.$sentry.captureException(e)
           }
         })

@@ -1,41 +1,37 @@
 <template>
   <div class="fb-routines-edit-condition-thing__container">
-    <template v-for="(groupProperties, group) in groupedProperties.actors">
-      <list-items-container
-        v-if="groupProperties.length"
-        :key="group"
-        :heading="$t(`routines.groups.actors.${group}`)"
-      >
-        <property
-          v-for="property in groupProperties"
-          :key="property.id"
-          v-model="model"
-          :thing="thing"
-          :property="property"
-        />
-      </list-items-container>
-    </template>
+    <list-items-container
+      v-if="actors.length"
+      :heading="$t('routines.groups.actors')"
+    >
+      <property
+        v-for="property in actors"
+        :key="property.id"
+        v-model="model"
+        :thing="thing"
+        :property="property"
+      />
+    </list-items-container>
 
-    <template v-for="(groupProperties, group) in groupedProperties.sensors">
-      <list-items-container
-        v-if="groupProperties.length"
-        :key="group"
-        :heading="$t(`routines.groups.sensors.${group}`)"
-      >
-        <property
-          v-for="property in groupProperties"
-          :key="property.id"
-          v-model="model"
-          :thing="thing"
-          :property="property"
-        />
-      </list-items-container>
-    </template>
+    <list-items-container
+      v-if="sensors.length"
+      :heading="$t('routines.groups.sensors')"
+    >
+      <property
+        v-for="property in sensors"
+        :key="property.id"
+        v-model="model"
+        :thing="thing"
+        :property="property"
+      />
+    </list-items-container>
   </div>
 </template>
 
 <script>
 import Property from './Property'
+
+import ChannelProperty from '~/models/devices-node/ChannelProperty'
 
 export default {
 
@@ -57,7 +53,8 @@ export default {
       default: null,
       validator: (value) => {
         return !(
-          !Object.prototype.hasOwnProperty.call(value, 'thing') ||
+          !Object.prototype.hasOwnProperty.call(value, 'device') ||
+          !Object.prototype.hasOwnProperty.call(value, 'channel') ||
           !Object.prototype.hasOwnProperty.call(value, 'enabled') ||
           !Object.prototype.hasOwnProperty.call(value, 'rows') ||
           !Array.isArray(value.rows) ||
@@ -86,21 +83,8 @@ export default {
   data() {
     return {
       model: {},
-      groupedProperties: {
-        actors: {
-          analog: [],
-          binary: [],
-          lights: [],
-          switches: [],
-        },
-        sensors: {
-          analog: [],
-          binary: [],
-          energy: [],
-          environment: [],
-          events: [],
-        },
-      },
+      actors: [],
+      sensors: [],
     }
   },
 
@@ -115,17 +99,19 @@ export default {
   },
 
   created() {
-    this._initModel()
+    this.actors = ChannelProperty
+      .query()
+      .where('channel_id', this.thing.channel_id)
+      .where('isSettable', true)
+      .get()
 
-    this.groupedProperties.sensors.analog = this.typeSensor ? this._.filter(this._.get(this.thing, 'channel.properties', []), 'isAnalogSensor') : []
-    this.groupedProperties.actors.analog = this.typeThing ? this._.filter(this._.get(this.thing, 'channel.properties', []), 'isAnalogActor') : []
-    this.groupedProperties.sensors.binary = this.typeSensor ? this._.filter(this._.get(this.thing, 'channel.properties', []), 'isBinarySensor') : []
-    this.groupedProperties.actors.analog = this.typeThing ? this._.filter(this._.get(this.thing, 'channel.properties', []), 'isBinaryActor') : []
-    this.groupedProperties.actors.lights = this.typeThing ? this._.filter(this._.get(this.thing, 'channel.properties', []), 'isLight') : []
-    this.groupedProperties.sensors.energy = this.typeSensor ? this._.filter(this._.get(this.thing, 'channel.properties', []), 'isEnergy') : []
-    this.groupedProperties.sensors.environment = this.typeSensor ? this._.filter(this._.get(this.thing, 'channel.properties', []), 'isEnvironment') : []
-    this.groupedProperties.actors.switches = this.typeThing ? this._.filter(this._.get(this.thing, 'channel.properties', []), 'isSwitch') : []
-    this.groupedProperties.sensors.events = this._.filter(this._.get(this.thing, 'channel.properties', []), 'isEvent')
+    this.sensors = ChannelProperty
+      .query()
+      .where('channel_id', this.thing.channel_id)
+      .where('isSettable', false)
+      .get()
+
+    this._initModel()
   },
 
   mounted() {
@@ -141,12 +127,13 @@ export default {
       this.$emit('update:remoteSubmit', false)
 
       const condition = {
-        thing: this.condition ? this.condition.thing : this.thing.id,
-        enabled: this.condition ? this.condition.enabled : true,
-        rows: this._.filter(this._.get(this.model, 'rows', []), 'selected')
+        device: this.action ? this.action.device : this.thing.device.identifier,
+        channel: this.action ? this.action.channel : this.thing.channel.channel,
+        enabled: this.action ? this.action.enabled : true,
+        rows: this._.filter(this.model.rows, 'selected')
           .map((row) => {
             return {
-              property_id: row.property_id,
+              property: row.property,
               operator: row.operator,
               operand: row.operand,
             }
@@ -158,8 +145,8 @@ export default {
       missingOperand
         .forEach((row) => {
           this.$flashMessage(this.$t('routines.messages.fillConditionOperand', {
-            thing: this.$tThing(this.thing),
-            property: this.$tChannelProperty(this.thing, this.$store.getters['entities/channel_property/find'](row.property)),
+            thing: this.$tThingChannel(this.thing),
+            property: this.$tChannelProperty(this.thing, ChannelProperty.query().where('property', row.property).first()),
           }), 'info')
         })
 
@@ -182,7 +169,7 @@ export default {
       }
 
       // Iterate over all thing[device channel] properties
-      this._.get(this.thing, 'channel.properties', [])
+      this.actors.concat(this.sensors)
         .forEach((property) => {
           let defaultOperand = null
 
@@ -193,18 +180,18 @@ export default {
           }
 
           if (this.condition) {
-            const storedProperty = this.condition.rows.find(row => row.property_id === property.id)
+            const storedProperty = this.condition.rows.find(row => row.property === property.property)
 
             if (typeof storedProperty !== 'undefined') {
               this.model.rows.push({
-                property_id: property.id,
+                property: property.property,
                 selected: true,
                 operator: storedProperty.operator,
                 operand: storedProperty.operand,
               })
             } else {
               this.model.rows.push({
-                property_id: property.id,
+                property: property.property,
                 selected: false,
                 operator: 'eq',
                 operand: defaultOperand,
@@ -212,7 +199,7 @@ export default {
             }
           } else {
             this.model.rows.push({
-              property_id: property.id,
+              property: property.property,
               selected: false,
               operator: 'eq',
               operand: defaultOperand,

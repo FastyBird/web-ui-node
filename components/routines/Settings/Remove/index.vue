@@ -21,6 +21,8 @@
 </template>
 
 <script>
+import Trigger from '~/models/triggers-node/Trigger'
+
 export default {
 
   name: 'RoutinesRemove',
@@ -57,10 +59,8 @@ export default {
         routine: this.routine.name,
       })
 
-      this.$store.dispatch('entities/trigger/remove', {
+      Trigger.dispatch('remove', {
         id: this.routine.id,
-      }, {
-        root: true,
       })
         .catch((e) => {
           if (Object.prototype.hasOwnProperty.call(e, 'exception')) {

@@ -1,6 +1,9 @@
 <template>
   <div class="fb-routines-desktop-detail__container">
-    <routine-detail :routine="routine" />
+    <routine-detail
+      :routine="routine"
+      @view="openView"
+    />
 
     <fb-button
       variant="outline-primary"
@@ -56,7 +59,7 @@
               <font-awesome-icon :icon="$thingIcon(view.items.condition.thing)" />
 
               <h4>
-                {{ $tThing(view.items.condition.thing) }}
+                {{ $tThingChannel(view.items.condition.thing) }}
               </h4>
 
               <small>Facilis blanditiis, quibusdam corporis porro natus neque soluta nihil hic aliquam, suscipit, consectetur omnis placeat architecto quae laboriosam. Id porro adipisci, alias.</small>
@@ -66,7 +69,7 @@
               <font-awesome-icon :icon="$thingIcon(view.items.action.thing)" />
 
               <h4>
-                {{ $tThing(view.items.action.thing) }}
+                {{ $tThingChannel(view.items.action.thing) }}
               </h4>
 
               <small>Facilis blanditiis, quibusdam corporis porro natus neque soluta nihil hic aliquam, suscipit, consectetur omnis placeat architecto quae laboriosam. Id porro adipisci, alias.</small>
@@ -120,8 +123,7 @@
           <select-thing
             v-if="view.opened === view.items.conditionThing.name || view.opened === view.items.conditionSensor.name || view.opened === view.items.actionThing.name"
             :items="view.items[view.opened].items"
-            :only-settable="view.opened === view.items.actionThing.name"
-            :type-thing="view.opened === view.items.conditionThing.name"
+            :type-actor="view.opened === view.items.actionThing.name || (view.opened === view.items.conditionThing.name)"
             :type-sensor="view.opened === view.items.conditionSensor.name"
             @select="thingSelected"
           />
@@ -218,10 +220,10 @@
 </template>
 
 <script>
-import routineUpdateMixin from '@/mixins/routineUpdate'
-
 import FbComponentLoading from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoading'
 import FbComponentLoadingError from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoadingError'
+
+import routineUpdateMixin from '@/mixins/routineUpdate'
 
 import RoutineDetail from '@/components/routines/Detail'
 
@@ -314,7 +316,7 @@ export default {
      * @returns {(Condition|null)}
      */
     schedule() {
-      const condition = this._.get(this.routine, 'conditions', []).find(item => item.isTime)
+      const condition = this.routine.conditions.find(item => item.isTime)
 
       if (typeof condition === 'undefined') {
         return null
@@ -356,11 +358,12 @@ export default {
           case this.view.items.conditionSensor.name:
             const conditionThings = []
 
-            this._.get(this.routine, 'conditions', [])
+            this.routine.conditions
               .forEach((condition) => {
-                if (typeof conditionThings.find(({ thing }) => thing === condition.channel_id) === 'undefined') {
+                if (typeof conditionThings.find(item => (item.device === condition.device && item.channel === condition.channel)) === 'undefined') {
                   conditionThings.push({
-                    thing: condition.channel_id,
+                    device: condition.device,
+                    channel: condition.channel,
                   })
                 }
               })
@@ -370,20 +373,21 @@ export default {
 
           // Show condition configuration
           case this.view.items.condition.name:
-            const storedCondition = this._.get(this.routine, 'conditions', [])
-              .find(({ channel_id }) => channel_id === this.view.items.condition.thing.id)
+            const storedCondition = this.routine.conditions
+              .find(item => (item.device === this.view.items.condition.thing.device.identifier && item.channel === this.view.items.condition.thing.channel.channel))
 
             if (typeof storedCondition !== 'undefined') {
               const condition = {
-                thing: storedCondition.channel_id,
+                device: storedCondition.device,
+                channel: storedCondition.channel,
                 enabled: storedCondition.enabled,
                 rows: [],
               }
 
-              this._.filter(this._.get(this.routine, 'conditions', []), { channel_id: storedCondition.channel_id })
+              this._.filter(this.routine.conditions, { device: storedCondition.device, channel: storedCondition.channel })
                 .forEach((item) => {
                   condition.rows.push({
-                    property_id: item.property_id,
+                    property: item.property,
                     operand: item.operand,
                     operator: item.operator,
                   })
@@ -399,11 +403,12 @@ export default {
           case this.view.items.actionThing.name:
             const actionThings = []
 
-            this._.get(this.routine, 'actions', [])
+            this.routine.actions
               .forEach((action) => {
-                if (typeof actionThings.find(({ thing }) => thing === action.channel_id) === 'undefined') {
+                if (typeof actionThings.find(item => (item.device === action.device && item.channel === action.channel)) === 'undefined') {
                   actionThings.push({
-                    thing: action.channel_id,
+                    device: action.device,
+                    channel: action.channel,
                   })
                 }
               })
@@ -413,20 +418,21 @@ export default {
 
           // Show action configuration
           case this.view.items.action.name:
-            const storedAction = this._.get(this.routine, 'actions', [])
-              .find(({ channel_id }) => channel_id === this.view.items.action.thing.id)
+            const storedAction = this.routine.actions
+              .find(item => (item.device === this.view.items.action.thing.device.identifier && item.channel === this.view.items.action.thing.channel.channel))
 
             if (typeof storedAction !== 'undefined') {
               const action = {
-                thing: storedAction.channel_id,
+                device: storedAction.device,
+                channel: storedAction.channel,
                 enabled: storedAction.enabled,
                 rows: [],
               }
 
-              this._.filter(this._.get(this.routine, 'actions', []), { channel_id: storedAction.channel_id })
+              this._.filter(this.routine.actions, { device: storedAction.device, channel: storedAction.channel })
                 .forEach((item) => {
                   action.rows.push({
-                    property_id: item.property_id,
+                    property: item.property,
                     operation: item.value,
                   })
                 })

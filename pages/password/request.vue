@@ -13,8 +13,6 @@ export default {
     RequestPassword,
   },
 
-  layout: 'sign',
-
   middleware: 'anonymous',
 
   transition: 'fade',

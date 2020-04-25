@@ -1,35 +1,35 @@
 <template>
   <div
-    :data-state="_.get(thing, 'device.socket') !== null && thing.state ? 'on' : 'off'"
+    :data-state="thing.state ? 'on' : 'off'"
     class="fb-iot-things-switch__container"
     role="button"
   >
     <fb-switch-element
-      v-if="propertyCommand === null"
+      v-if="property.command === null"
       :status="propertyValue"
-      :disabled="!thing.state || _.get(thing, 'device.socket') === null"
+      :disabled="!thing.state"
       variant="primary"
       @change="toggleChannelState"
     />
 
     <div
-      v-show="propertyCommand === 'ok' || propertyCommand === 'err'"
+      v-show="property.command === 'ok' || property.command === 'err'"
       class="fb-iot-things-switch__result"
     >
       <font-awesome-icon
-        v-show="propertyCommand === 'err'"
+        v-show="property.command === 'err'"
         icon="ban"
         class="pos-r fb-iot-things-switch__result-err"
       />
       <font-awesome-icon
-        v-show="propertyCommand === 'ok'"
+        v-show="property.command === 'ok'"
         icon="check"
         class="pos-r fb-iot-things-switch__result-ok"
       />
     </div>
 
     <div
-      v-show="propertyCommand !== null && propertyCommand !== 'ok' && propertyCommand !== 'err'"
+      v-show="property.command !== null && property.command !== 'ok' && property.command !== 'err'"
       class="fb-iot-things-switch__loading"
     >
       <fb-spinner
@@ -62,45 +62,18 @@ export default {
   computed: {
 
     /**
-     * Get property socket data
-     *
-     * @returns {(ChannelPropertyValue|null)}
-     */
-    propertySocket() {
-      if (!this.property) {
-        return null
-      }
-
-      return this.$store.getters['entities/channel_property_value/query']()
-        .where('channel_id', this.thing.channel_id)
-        .where('property_id', this.property.id)
-        .first()
-    },
-
-    /**
      * Get channel state property value
      *
      * @returns {Boolean}
      */
     propertyValue() {
-      if (this.propertySocket) {
-        if (this.property.isBoolean) {
-          return !!this.propertySocket.value
-        } else if (this.property.isEnum) {
-          return this.propertySocket.value === 'on'
-        }
+      if (this.property.isBoolean) {
+        return !!this.property.value
+      } else if (this.property.isEnum) {
+        return this.property.value === 'on'
       }
 
       return false
-    },
-
-    /**
-     * Channel command status
-     *
-     * @returns {(String|null)}
-     */
-    propertyCommand() {
-      return this.propertySocket ? this.propertySocket.command : null
     },
 
   },
@@ -112,33 +85,39 @@ export default {
      */
     toggleChannelState() {
       // Check if some command on channel is in progress
-      if (this.propertyCommand !== null) {
+      if (this.property.command !== null) {
         return
       }
 
-      // Check if thing is connected to cloud
-      if (this.thing.state !== true) {
+      // Check if thing is connected to server
+      if (this.thing.state === false) {
         this.$flashMessage(this.$t('things.messages.notOnline', {
-          thing: this.$tThing(this.thing),
+          thing: this.$tThingChannel(this.thing),
         }), 'error')
 
         return
       }
 
-      if (!this.property) {
-        return
+      let actualValue = false
+
+      if (this.property.isBoolean) {
+        actualValue = !!this.property.value
+      } else if (this.property.isEnum) {
+        actualValue = this.property.value === 'on'
       }
 
-      this.$store.dispatch('entities/channel_property_value/togglePayload', {
-        device_id: this.thing.device_id,
-        channel_id: this.thing.channel_id,
-        property_id: this.property.id,
-      }, {
-        root: true,
-      })
+      let newValue = ''
+
+      if (this.property.isBoolean) {
+        newValue = !actualValue
+      } else if (this.property.isEnum) {
+        newValue = actualValue ? 'off' : 'on'
+      }
+
+      this.$controlChannel(this.property, `${newValue}`)
         .catch(() => {
           this.$flashMessage(this.$t('things.messages.commandNotAccepted', {
-            thing: this.$tThing(this.thing),
+            thing: this.$tThingChannel(this.thing),
           }), 'error')
         })
     },

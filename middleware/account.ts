@@ -1,22 +1,25 @@
 import { Middleware } from '@nuxt/types'
-// @ts-ignore
-import * as types from '@/node_modules/@fastybird-com/theme/store/types.js'
+import { Scope } from '@sentry/types/dist/scope'
+
+import Session from '~/models/accounts-node/Session'
+import Account from '~/models/accounts-node/Account'
 
 const accountMiddleware: Middleware = ({ app, store }) => {
-  const profile = store.getters['entities/profile/query']().first();
+  const session = Session.query().first()
 
-  if (profile !== null) {
-    store.commit(`theme/${types.ACCOUNT_USERNAME}`, profile.name);
-    store.commit(`theme/${types.ACCOUNT_EMAIL}`, profile.email);
+  if (session !== null) {
+    const account = Account.query().where('session_id', session.id).first()
 
-    if (Object.prototype.hasOwnProperty.call(app, '$sentry')) {
-      app.$sentry.configureScope((scope:any) => {
-        scope.setUser({
-          email: profile.email,
+    if (account !== null) {
+      if (!app.context.isDev && Object.prototype.hasOwnProperty.call(app, '$sentry')) {
+        app.$sentry.configureScope((scope: Scope) => {
+          scope.setUser({
+            email: account.email,
+          })
         })
-      });
+      }
     }
   }
-};
+}
 
 export default accountMiddleware

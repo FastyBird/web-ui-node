@@ -61,13 +61,15 @@
 </template>
 
 <script>
+import FbComponentLoading from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoading'
+import FbComponentLoadingError from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoadingError'
+
 import {
   ROUTINES_HASH_DETAIL,
   ROUTINES_HASH_SETTINGS,
 } from '@/configuration/routes'
 
-import FbComponentLoading from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoading'
-import FbComponentLoadingError from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoadingError'
+import Trigger from '~/models/triggers-node/Trigger'
 
 const RoutineDetail = () => ({
   component: import('./Routine'),
@@ -150,7 +152,8 @@ export default {
      * @returns {Trigger}
      */
     routine() {
-      return this.$store.getters['entities/trigger/query']()
+      return Trigger
+        .query()
         .with('actions')
         .with('conditions')
         .with('notifications')
@@ -164,7 +167,7 @@ export default {
      * @returns {(Condition|null)}
      */
     schedule() {
-      const condition = this._.get(this.routine, 'conditions', []).find(item => item.isTime)
+      const condition = this.routine.conditions.find(item => item.isTime)
 
       if (typeof condition === 'undefined') {
         return null

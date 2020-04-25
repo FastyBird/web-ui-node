@@ -1,15 +1,15 @@
 <template>
   <div class="fb-home-view__container">
-    <template v-if="profile !== null">
+    <template v-if="account !== null">
       <gravatar
-        :email="profile.email"
+        :email="account.email"
         :size="250"
         :default-img="'mm'"
-        :alt="profile.name"
+        :alt="account.name"
       />
 
       <h4>
-        Welcome back <strong>{{ profile.firstName }}</strong>
+        Welcome back <strong>{{ account.firstName }}</strong>
       </h4>
     </template>
   </div>
@@ -32,18 +32,18 @@ export default {
 
   computed: {
 
-    profile() {
-      return this.$store.getters['entities/profile/query']().first()
+    account() {
+      return this.$store.getters['entities/account/query']().first()
     },
 
   },
 
   created() {
-    this.$store.dispatch('header/resetStore', null, {
+    this.$store.dispatch('template/resetStore', null, {
       root: true,
     })
 
-    this.$store.dispatch('bottomNavigation/resetStore', null, {
+    this.$store.dispatch('app/bottomMenuExpand', null, {
       root: true,
     })
   },

@@ -91,6 +91,9 @@
 </template>
 
 <script>
+import Hardware from '~/models/devices-node/Hardware'
+import DeviceConfiguration from '~/models/devices-node/DeviceConfiguration'
+
 export default {
 
   name: 'ThingsSettingsDeviceParameterEdit',
@@ -126,8 +129,14 @@ export default {
 
   computed: {
 
+    /**
+     * Get device hardware info
+     *
+     * @returns {(Hardware|null)}
+     */
     hardware() {
-      return this.$store.getters['entities/hardware/query']()
+      return Hardware
+        .query()
         .where('device_id', this.thing.device_id)
         .first()
     },
@@ -138,7 +147,7 @@ export default {
      * @returns {String}
      */
     translatedHeading() {
-      if (this._.get(this.hardware, 'isCustom', true)) {
+      if (this.hardware && this.hardware.isCustom) {
         if (this.parameter.title !== null) {
           return this.parameter.title
         }
@@ -159,7 +168,7 @@ export default {
      * @returns {String}
      */
     translatedLabel() {
-      if (this._.get(this.hardware, 'isCustom', true)) {
+      if (this.hardware && this.hardware.isCustom) {
         if (this.parameter.title !== null) {
           return this.parameter.title
         }
@@ -180,7 +189,7 @@ export default {
      * @returns {(String|null)}
      */
     translatedDescription() {
-      if (this._.get(this.hardware, 'isCustom', true)) {
+      if (this.hardware && this.hardware.isCustom) {
         if (this.parameter.description !== null) {
           return this.parameter.description
         }
@@ -248,7 +257,7 @@ export default {
       // Check if thing is connected to cloud
       if (!this.thing.state) {
         this.$flashMessage(this.$t('things.messages.notOnline', {
-          thing: this.$tThing(this.thing),
+          thing: this.$tThingChannel(this.thing),
         }), 'error')
 
         return
@@ -257,12 +266,10 @@ export default {
       this.$validator.validateAll(this.form.scope)
         .then((result) => {
           if (result) {
-            this.$store.dispatch('entities/device_configuration/edit', {
+            DeviceConfiguration.dispatch('edit', {
               device_id: this.thing.device_id,
               parameter_id: this.parameter.id,
               data: this.form.model,
-            }, {
-              root: true,
             })
 
             this.form.result = true
@@ -271,7 +278,7 @@ export default {
           }
         })
         .catch((e) => {
-          if (Object.prototype.hasOwnProperty.call(this, '$sentry')) {
+          if (!this.isDev && Object.prototype.hasOwnProperty.call(this, '$sentry')) {
             this.$sentry.captureException(e)
           }
         })

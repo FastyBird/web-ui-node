@@ -26,7 +26,7 @@
       </template>
 
       <template slot="heading">
-        {{ $tThing(thing) }}
+        {{ $tThingChannel(thing) }}
       </template>
 
       <template slot="sub-heading">
@@ -51,6 +51,9 @@
 <script>
 import { orderBy } from 'natural-orderby'
 
+import ChannelProperty from '~/models/devices-node/ChannelProperty'
+import Thing from '~/models/Thing'
+
 export default {
 
   name: 'RoutinesEditSelectThing',
@@ -73,12 +76,7 @@ export default {
       },
     },
 
-    onlySettable: {
-      type: Boolean,
-      default: false,
-    },
-
-    typeThing: {
+    typeActor: {
       type: Boolean,
       default: false,
     },
@@ -98,53 +96,56 @@ export default {
      * @returns {Array}
      */
     things() {
-      let things = this.$store.getters['entities/thing/query']()
-        .with('device')
-        .with('channel')
-        .with('channel.properties')
-        .all()
+      const things = []
 
-      if (this.typeThing) {
-        things = this._.filter(things, (thing) => {
-          const properties = this._.get(thing, 'channel.properties', [])
-            .filter((property) => {
-              return property.isAnalogActor || property.isBinaryActor || property.isSwitch
-            })
+      if (this.typeActor) {
+        const properties = ChannelProperty
+          .query()
+          .where('isSettable', true)
+          .get()
 
-          return typeof properties !== 'undefined' && properties.length
+        properties.forEach((property) => {
+          const thing = Thing
+            .query()
+            .with('device')
+            .with('channel')
+            .where('channel_id', property.channel_id)
+            .first()
+
+          if (thing) {
+            things.push(thing)
+          }
         })
       }
 
       if (this.typeSensor) {
-        things = this._.filter(things, (thing) => {
-          const properties = this._.get(thing, 'channel.properties', [])
-            .filter((property) => {
-              return property.isAnalogSensor || property.isBinarySensor || property.isEnergy || property.isEnvironment
-            })
+        const properties = ChannelProperty
+          .query()
+          .where('isSettable', false)
+          .get()
 
-          return typeof properties !== 'undefined' && properties.length
+        properties.forEach((property) => {
+          const thing = Thing
+            .query()
+            .with('device')
+            .with('channel')
+            .where('channel_id', property.channel_id)
+            .first()
+
+          if (thing) {
+            things.push(thing)
+          }
         })
       }
 
-      if (this.onlySettable) {
-        things = this._.filter(things, (thing) => {
-          const properties = this._.get(thing, 'channel.properties', [])
-            .filter((property) => {
-              return property.is_settable
-            })
-
-          return typeof properties !== 'undefined' && properties.length
-        })
-      }
-
-      return orderBy(
+      return this._.uniqBy(orderBy(
         things,
         [
-          v => this.$tThing(v),
+          v => this.$tThingChannel(v),
           v => this.$tThingDevice(v),
         ],
         ['asc'],
-      )
+      ), 'id')
     },
 
     /**
@@ -153,20 +154,18 @@ export default {
      * @returns {Boolean}
      */
     fetchingThings() {
-      return this.$store.getters['entities/thing/fetching']()
+      return Thing.getters('fetching')()
     },
 
   },
 
   beforeMount() {
     if (
-      this.$store.getters['entities/thing/query']().count() === 0 &&
+      Thing.query().count() === 0 &&
       !this.fetchingThings &&
-      !this.$store.getters['entities/thing/firstLoadFinished']()
+      !Thing.getters('firstLoadFinished')()
     ) {
-      this.$store.dispatch('entities/thing/fetch', {}, {
-        root: true,
-      })
+      Thing.dispatch('fetch')
         .catch(() => {
           this.$nuxt.error({ statusCode: 503, message: 'Something went wrong' })
         })
@@ -186,7 +185,7 @@ export default {
      */
     isSelected(thing) {
       return typeof this.items.find((item) => {
-        return item.thing === thing.id
+        return item.device === thing.device.identifier && item.channel === thing.channel.channel
       }) !== 'undefined'
     },
 

@@ -8,4 +8,10 @@
     margin-left: 0;
     margin-right: 0;
   }
+
+  &__new-condition,
+  &__new-action {
+    text-align: center;
+    margin: 10px 0;
+  }
 }

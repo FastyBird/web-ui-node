@@ -38,6 +38,11 @@ export default {
     this._configureNavigation()
   },
 
+  beforeDestroy() {
+    this.$bus.$off('heading_left_button-clicked')
+    this.$bus.$off('heading_right_button-clicked')
+  },
+
   methods: {
 
     /**
@@ -46,72 +51,73 @@ export default {
      * @private
      */
     _configureNavigation() {
-      this.$store.dispatch('header/resetStore', null, {
+      this.$store.dispatch('template/resetStore', null, {
         root: true,
       })
 
-      this.$store.dispatch('header/setLeftButton', {
+      this.$store.dispatch('template/setLeftButton', {
         name: this.$t('application.buttons.back.title'),
-        link: this.localePath(this.$routes.things.list),
         icon: 'arrow-left',
       }, {
         root: true,
       })
 
       if (this.$route.hash.includes(THINGS_HASH_SETTINGS)) {
-        this.$store.dispatch('header/setRightButton', {
+        this.$store.dispatch('template/setRightButton', {
           name: this.$t('application.buttons.close.title'),
-          callback: () => {
-            this.$router.push(this.localePath({
-              name: this.$routes.things.detail,
-              params: {
-                id: this.thing.id,
-              },
-            }))
-          },
         }, {
           root: true,
         })
       } else {
-        this.$store.dispatch('header/setRightButton', {
+        this.$store.dispatch('template/setRightButton', {
           name: this.$t('application.buttons.edit.title'),
-          callback: () => {
-            this.$router.push(this.localePath({
-              name: this.$routes.things.detail,
-              params: {
-                id: this.thing.id,
-              },
-              hash: THINGS_HASH_SETTINGS,
-            }))
-          },
         }, {
           root: true,
         })
       }
 
-      this.$store.dispatch('header/setFullRowHeading', null, {
+      this.$store.dispatch('template/setFullRowHeading', null, {
         root: true,
       })
 
-      this.$store.dispatch('header/setHeading', {
-        heading: this.$tThing(this.thing),
+      this.$store.dispatch('template/setHeading', {
+        heading: this.$tThingChannel(this.thing),
         subHeading: this.$tThingDevice(this.thing),
       }, {
         root: true,
       })
 
-      this.$store.dispatch('header/setHeadingIcon', {
+      this.$store.dispatch('template/setHeadingIcon', {
         icon: this.$thingIcon(this.thing),
       }, {
         root: true,
       })
 
-      this.$store.dispatch('bottomNavigation/resetStore', null, {
+      this.$store.dispatch('app/bottomMenuCollapse', null, {
         root: true,
       })
 
-      this.$store.dispatch('bottomNavigation/hideNavigation', null, {
-        root: true,
+      this.$bus.$on('heading_left_button-clicked', () => {
+        this.$router.push(this.localePath(this.$routes.things.list))
+      })
+
+      this.$bus.$on('heading_right_button-clicked', () => {
+        if (this.$route.hash.includes(THINGS_HASH_SETTINGS)) {
+          this.$router.push(this.localePath({
+            name: this.$routes.things.detail,
+            params: {
+              id: this.thing.id,
+            },
+          }))
+        } else {
+          this.$router.push(this.localePath({
+            name: this.$routes.things.detail,
+            params: {
+              id: this.thing.id,
+            },
+            hash: THINGS_HASH_SETTINGS,
+          }))
+        }
       })
     },
 

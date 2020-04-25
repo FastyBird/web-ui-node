@@ -28,7 +28,7 @@ export default createComponent({
     type: {
       type: String,
       default: 'div',
-      validator: (value) => {
+      validator: (value: string): boolean => {
         // The value must match one of these strings
         return [
           'div', 'button',

@@ -2,25 +2,58 @@ import { Plugin } from '@nuxt/types'
 
 import * as routes from '@/configuration/routes'
 
+interface AccountRoutesInterface {
+  signIn: string;
+  signUp: string;
+  resetPassword: string;
+}
+
+interface ThingsRoutesInterface {
+  list: string;
+  detail: string;
+  routines: string;
+  connect: string;
+}
+
+interface GroupsRoutesInterface {
+  list: string;
+  detail: string;
+  create: string;
+}
+
+interface RoutinesRoutesInterface {
+  list: string;
+  detail: string;
+  create: string;
+}
+
+interface RoutesInterface {
+  home: string;
+  account: AccountRoutesInterface;
+  things: ThingsRoutesInterface;
+  groups: GroupsRoutesInterface;
+  routines: RoutinesRoutesInterface;
+}
+
 declare module 'vue/types/vue' {
   interface Vue {
-    $routes(): void
+    $routes: RoutesInterface
   }
 }
 
 declare module '@nuxt/types' {
   interface NuxtAppOptions {
-    $routes(): void
+    $routes: RoutesInterface
   }
 }
 
 declare module 'vuex/types/index' {
   interface Store<S> {
-    $routes(): void
+    $routes: RoutesInterface
   }
 }
 
-const routesPlugin: Plugin = (context, inject) => {
+const routesPlugin: Plugin = (context, inject): void => {
   inject('routes', {
     home: routes.HOME_LINK,
     account: {
@@ -45,6 +78,6 @@ const routesPlugin: Plugin = (context, inject) => {
       create: routes.ROUTINES_CREATE_LINK,
     },
   })
-};
+}
 
 export default routesPlugin

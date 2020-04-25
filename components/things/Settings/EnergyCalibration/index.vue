@@ -90,6 +90,9 @@
 </template>
 
 <script>
+import Hardware from '~/models/devices-node/Hardware'
+import DeviceConfiguration from '~/models/devices-node/DeviceConfiguration'
+
 export default {
 
   name: 'ThingsSettingsEnergyCalibration',
@@ -126,7 +129,8 @@ export default {
      * @returns {Hardware}
      */
     hardware() {
-      return this.$store.getters['entities/hardware/query']()
+      return Hardware
+        .query()
         .where('device_id', this.thing.device_id)
         .first()
     },
@@ -137,10 +141,11 @@ export default {
      * @returns {Array}
      */
     parameters() {
-      const parameters = this.$store.getters['entities/device_configuration/query']()
+      const parameters = DeviceConfiguration
+        .query()
         .where('device_id', this.thing.device_id)
         .orderBy('name')
-        .all()
+        .get()
 
       const filtered = []
 
@@ -184,7 +189,7 @@ export default {
      * @returns {String}
      */
     translateLabel(parameter) {
-      if (this._.get(this.hardware, 'isCustom', true)) {
+      if (this.hardware && this.hardware.isCustom) {
         if (parameter.title !== null) {
           return parameter.title
         }
@@ -205,7 +210,7 @@ export default {
      * @returns {(String|null)}
      */
     translateDescription(parameter) {
-      if (this._.get(this.hardware, 'isCustom', true)) {
+      if (this.hardware && this.hardware.isCustom) {
         if (parameter.description !== null) {
           return parameter.description
         }
@@ -254,7 +259,7 @@ export default {
             this.parameters
               .forEach((parameter) => {
                 if (Object.prototype.hasOwnProperty.call(this.form.model, parameter.name)) {
-                  this.$store.dispatch('entities/device_configuration/edit', {
+                  DeviceConfiguration.dispatch('edit', {
                     device_id: this.thing.device_id,
                     parameter_id: parameter.id,
                     data: this._.get(this.form.model, parameter.name),
@@ -270,7 +275,7 @@ export default {
           }
         })
         .catch((e) => {
-          if (Object.prototype.hasOwnProperty.call(this, '$sentry')) {
+          if (!this.isDev && Object.prototype.hasOwnProperty.call(this, '$sentry')) {
             this.$sentry.captureException(e)
           }
         })

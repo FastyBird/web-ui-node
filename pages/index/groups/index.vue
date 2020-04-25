@@ -11,6 +11,7 @@
 
     <!-- DEVICE DETAIL FOR LARGE DEVICES //-->
     <off-canvas
+      v-if="windowSize !== 'xs' && isMounted"
       :show="(view.opened.type === view.detail.name || view.opened.type === view.settings.name) && windowSize !== 'xs'"
       @close="closeView(view.opened.type)"
     >
@@ -101,8 +102,6 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
-
 import {
   GROUPS_GROUP_SETTINGS_LINK,
 
@@ -199,14 +198,18 @@ export default {
         timer: null,
       },
       offCanvasHeight: null,
+      isMounted: false,
     }
   },
 
   computed: {
 
-    ...mapState('theme', {
-      windowSize: state => state.windowSize,
-    }),
+    /**
+     * @returns {String}
+     */
+    windowSize() {
+      return this.$store.state.template.windowSize
+    },
 
     /**
      * Get all registered & loaded groups
@@ -218,7 +221,7 @@ export default {
         .with('properties')
         .with('socket')
         .orderBy('label')
-        .all()
+        .get()
     },
 
     /**
@@ -312,7 +315,10 @@ export default {
     windowSize(val) {
       if (val === 'xs') {
         if (this.view.opened.type === this.view.settings.name) {
-          this.$router.push(this.localePath({ name: GROUPS_GROUP_SETTINGS_LINK, params: { id: this.view.settings.id } }))
+          this.$router.push(this.localePath({
+            name: GROUPS_GROUP_SETTINGS_LINK,
+            params: { id: this.view.settings.id },
+          }))
 
           return
         } else if (this.view.opened.type === this.view.detail.name) {
@@ -341,84 +347,72 @@ export default {
         .then(() => {
           const groupsCount = store.getters['entities/group/query']().count()
 
-          store.dispatch('header/resetStore', null, {
+          store.dispatch('template/resetStore', null, {
             root: true,
           })
 
-          store.dispatch('header/hideHamburger', null, {
-            root: true,
-          })
-
-          store.dispatch('header/setHeading', {
+          store.dispatch('template/setHeading', {
             heading: app.i18n.t('application.headings.groups.list'),
             subHeading: app.i18n.tc('application.subHeadings.groups.list', groupsCount, { count: groupsCount }),
           }, {
             root: true,
           })
 
-          store.dispatch('header/setAddButton', {
+          store.dispatch('template/setActionButton', {
             name: app.i18n.t('application.buttons.add.title'),
-            callback: null, // Null is set because of SSR and serialization
           }, {
             root: true,
           })
 
-          store.dispatch('header/addTab', {
+          store.dispatch('template/addHeadingTab', {
             name: app.i18n.t('application.buttons.things.title'),
-            link: app.localePath(app.$routes.things.list),
           }, {
             root: true,
           })
 
-          store.dispatch('header/addTab', {
+          store.dispatch('template/addHeadingTab', {
             name: app.i18n.t('application.buttons.groups.title'),
-            link: app.localePath(app.$routes.groups.list),
           }, {
             root: true,
           })
 
-          store.dispatch('bottomNavigation/resetStore', null, {
+          store.dispatch('app/bottomMenuExpand', null, {
             root: true,
           })
         })
         .catch(() => {
-          store.dispatch('header/resetStore', null, {
+          store.dispatch('template/resetStore', null, {
             root: true,
           })
 
-          store.dispatch('header/hideHamburger', null, {
-            root: true,
-          })
-
-          store.dispatch('header/setHeading', {
+          store.dispatch('template/setHeading', {
             heading: app.i18n.t('application.headings.groups.list'),
             subHeading: app.i18n.tc('application.subHeadings.groups.list', 0, { count: 0 }),
           }, {
             root: true,
           })
 
-          store.dispatch('header/setAddButton', {
+          store.dispatch('template/setActionButton', {
             name: app.i18n.t('application.buttons.add.title'),
-            callback: null, // Null is set because of SSR and serialization
           }, {
             root: true,
           })
 
-          store.dispatch('header/addTab', {
+          store.dispatch('template/addHeadingTab', {
             name: app.i18n.t('application.buttons.things.title'),
             link: app.localePath(app.$routes.things.list),
           }, {
             root: true,
           })
 
-          store.dispatch('header/addTab', {
+          store.dispatch('template/addHeadingTab', {
             name: app.i18n.t('application.buttons.groups.title'),
             link: app.localePath(app.$routes.groups.list),
           }, {
             root: true,
           })
 
-          store.dispatch('bottomNavigation/resetStore', null, {
+          store.dispatch('app/bottomMenuExpand', null, {
             root: true,
           })
         })
@@ -441,6 +435,10 @@ export default {
     }
 
     this._configureNavigation()
+
+    this.$bus.$on('heading_left_button-clicked', () => {
+      this.openGroupCreate()
+    })
   },
 
   mounted() {
@@ -449,6 +447,12 @@ export default {
     if (!this.fetchingGroups) {
       this._checkRoute()
     }
+
+    this.isMounted = true
+  },
+
+  beforeDestroy() {
+    this.$bus.$off('heading_left_button-clicked')
   },
 
   methods: {
@@ -656,15 +660,11 @@ export default {
      * @private
      */
     _configureNavigation() {
-      this.$store.dispatch('header/resetStore', null, {
+      this.$store.dispatch('template/resetStore', null, {
         root: true,
       })
 
-      this.$store.dispatch('header/hideHamburger', null, {
-        root: true,
-      })
-
-      this.$store.dispatch('header/setHeading', {
+      this.$store.dispatch('template/setHeading', {
         heading: this.$t('application.headings.groups.list'),
         subHeading: this.$tc('application.subHeadings.groups.list', this.groups.length, { count: this.groups.length }),
       }, {
@@ -672,31 +672,28 @@ export default {
       })
 
       if (this.groups.length) {
-        this.$store.dispatch('header/setAddButton', {
+        this.$store.dispatch('template/setAddButton', {
           name: this.$t('application.buttons.add.title'),
-          callback: () => {
-            this.openGroupCreate()
-          },
         }, {
           root: true,
         })
       }
 
-      this.$store.dispatch('header/addTab', {
+      this.$store.dispatch('template/addHeadingTab', {
         name: this.$t('application.buttons.things.title'),
         link: this.localePath(this.$routes.things.list),
       }, {
         root: true,
       })
 
-      this.$store.dispatch('header/addTab', {
+      this.$store.dispatch('template/addHeadingTab', {
         name: this.$t('application.buttons.groups.title'),
         link: this.localePath(this.$routes.groups.list),
       }, {
         root: true,
       })
 
-      this.$store.dispatch('bottomNavigation/resetStore', null, {
+      this.$store.dispatch('app/bottomMenuExpand', null, {
         root: true,
       })
     },

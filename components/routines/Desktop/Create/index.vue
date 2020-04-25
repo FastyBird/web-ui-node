@@ -42,7 +42,7 @@
             <font-awesome-icon :icon="$thingIcon(view.items.conditionThing.thing)" />
 
             <h4>
-              {{ $tThing(view.items.conditionThing.thing) }}
+              {{ $tThingChannel(view.items.conditionThing.thing) }}
             </h4>
 
             <small>Facilis blanditiis, quibusdam corporis porro natus neque soluta nihil hic aliquam, suscipit, consectetur omnis placeat architecto quae laboriosam. Id porro adipisci, alias.</small>
@@ -52,7 +52,7 @@
             <font-awesome-icon :icon="$thingIcon(view.items.conditionThingEdit.thing)" />
 
             <h4>
-              {{ $tThing(view.items.conditionThingEdit.thing) }}
+              {{ $tThingChannel(view.items.conditionThingEdit.thing) }}
             </h4>
 
             <small>Facilis blanditiis, quibusdam corporis porro natus neque soluta nihil hic aliquam, suscipit, consectetur omnis placeat architecto quae laboriosam. Id porro adipisci, alias.</small>
@@ -62,7 +62,7 @@
             <font-awesome-icon :icon="$thingIcon(view.items.actionThing.thing)" />
 
             <h4>
-              {{ $tThing(view.items.actionThing.thing) }}
+              {{ $tThingChannel(view.items.actionThing.thing) }}
             </h4>
 
             <small>Facilis blanditiis, quibusdam corporis porro natus neque soluta nihil hic aliquam, suscipit, consectetur omnis placeat architecto quae laboriosam. Id porro adipisci, alias.</small>
@@ -72,7 +72,7 @@
             <font-awesome-icon :icon="$thingIcon(view.items.actionThingEdit.thing)" />
 
             <h4>
-              {{ $tThing(view.items.actionThingEdit.thing) }}
+              {{ $tThingChannel(view.items.actionThingEdit.thing) }}
             </h4>
 
             <small>Facilis blanditiis, quibusdam corporis porro natus neque soluta nihil hic aliquam, suscipit, consectetur omnis placeat architecto quae laboriosam. Id porro adipisci, alias.</small>
@@ -174,8 +174,7 @@
         <select-thing
           v-if="view.opened === view.items.action.name || view.opened === view.items.condition.name"
           :items="view.items[view.opened].items"
-          :only-settable="view.opened === view.items.action.name"
-          :type-thing="view.opened === view.items.condition.name && isThingCondition"
+          :type-actor="view.opened === view.items.action.name || (view.opened === view.items.condition.name && isThingCondition)"
           :type-sensor="view.opened === view.items.condition.name && isSensorCondition"
           :remote-submit.sync="submitSelect"
           @select="thingSelected"
@@ -358,6 +357,9 @@
 </template>
 
 <script>
+import FbComponentLoading from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoading'
+import FbComponentLoadingError from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoadingError'
+
 import {
   ROUTINES_QUERY_TYPE_SCHEDULED,
   ROUTINES_QUERY_TYPE_THING,
@@ -365,8 +367,9 @@ import {
   ROUTINES_QUERY_TYPE_MANUAL,
 } from '@/configuration/routes'
 
-import FbComponentLoading from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoading'
-import FbComponentLoadingError from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoadingError'
+import Device from '~/models/devices-node/Device'
+import Channel from '~/models/devices-node/Channel'
+import Thing from '~/models/Thing'
 
 const CreateRoutine = () => ({
   component: import('@/components/routines/Create'),
@@ -570,11 +573,31 @@ export default {
      */
     editCondition(condition) {
       this.view.items.conditionThingEdit.item = condition
-      this.view.items.conditionThingEdit.thing = this.$store.getters['entities/thing/query']()
+
+      const device = Device
+        .query()
+        .where('identifier', condition.device)
+        .first()
+
+      if (device === null) {
+        return
+      }
+
+      const channel = Channel
+        .query()
+        .where('device_id', device.id)
+        .where('channel', condition.channel)
+        .first()
+
+      if (channel === null) {
+        return
+      }
+
+      this.view.items.conditionThingEdit.thing = Thing
+        .query()
         .with('device')
         .with('channel')
-        .with('channel.properties')
-        .where('id', condition.thing)
+        .where('channel_id', channel.id)
         .first()
 
       this.openView(this.view.items.conditionThingEdit.name)
@@ -587,7 +610,8 @@ export default {
      */
     removeCondition(thing) {
       this.$store.dispatch('routineCreate/removeCondition', {
-        thing,
+        device: thing.device.identifier,
+        channel: thing.channel.channel,
       }, {
         root: true,
       })
@@ -655,11 +679,31 @@ export default {
      */
     editAction(action) {
       this.view.items.actionThingEdit.item = action
-      this.view.items.actionThingEdit.thing = this.$store.getters['entities/thing/query']()
+
+      const device = Device
+        .query()
+        .where('identifier', action.device)
+        .first()
+
+      if (device === null) {
+        return
+      }
+
+      const channel = Channel
+        .query()
+        .where('device_id', device.id)
+        .where('channel', action.channel)
+        .first()
+
+      if (channel === null) {
+        return
+      }
+
+      this.view.items.actionThingEdit.thing = Thing
+        .query()
         .with('device')
         .with('channel')
-        .with('channel.properties')
-        .where('id', action.thing)
+        .where('channel_id', channel.id)
         .first()
 
       this.openView(this.view.items.actionThingEdit.name)
@@ -672,7 +716,8 @@ export default {
      */
     removeAction(thing) {
       this.$store.dispatch('routineCreate/removeAction', {
-        thing,
+        device: thing.device.identifier,
+        channel: thing.channel.channel,
       }, {
         root: true,
       })

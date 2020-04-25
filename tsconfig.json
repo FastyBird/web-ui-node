@@ -25,7 +25,8 @@
     "types": [
       "@types/node",
       "@nuxt/types",
-      "@nuxtjs/date-fns"
+      "@nuxtjs/date-fns",
+      "nuxt-i18n"
     ]
   },
   "exclude": [

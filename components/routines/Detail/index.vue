@@ -12,6 +12,24 @@
         @toggle="toggleConditionState(index)"
         @remove="confirmRemoveCondition(index)"
       />
+
+      <template v-if="conditions.length === 0">
+        <no-results
+          :message="$t('routines.texts.noConditions')"
+          icon="project-diagram"
+          second-icon="plus"
+        />
+
+        <div class="fb-routines-detail__new-condition">
+          <fb-button
+            variant="outline-primary"
+            name="press"
+            @click.prevent="$emit('view', 'conditionThing')"
+          >
+            {{ $t('routines.buttons.addCondition.title') }}
+          </fb-button>
+        </div>
+      </template>
     </list-items-container>
 
     <list-items-container :heading="$t('routines.headings.actions')">
@@ -23,6 +41,24 @@
         @toggle="toggleActionState(index)"
         @remove="confirmRemoveAction(index)"
       />
+
+      <template v-if="actions.length === 0">
+        <no-results
+          :message="$t('routines.texts.noActions')"
+          icon="project-diagram"
+          second-icon="plus"
+        />
+
+        <div class="fb-routines-detail__new-action">
+          <fb-button
+            variant="outline-primary"
+            name="press"
+            @click.prevent="$emit('view', 'actionThing')"
+          >
+            {{ $t('routines.buttons.addAction.title') }}
+          </fb-button>
+        </div>
+      </template>
     </list-items-container>
 
     <fb-confirmation-window
@@ -42,7 +78,7 @@
             path="routines.messages.confirmRemoveCondition"
             tag="p"
           >
-            <strong slot="thing">{{ $tThing(remove.thing) }}</strong>
+            <strong slot="thing">{{ $tThingChannel(remove.thing) }}</strong>
           </i18n>
         </template>
       </template>
@@ -57,7 +93,7 @@
             path="routines.messages.confirmRemoveAction"
             tag="p"
           >
-            <strong slot="thing">{{ $tThing(remove.thing) }}</strong>
+            <strong slot="thing">{{ $tThingChannel(remove.thing) }}</strong>
           </i18n>
         </template>
       </template>
@@ -67,6 +103,10 @@
 
 <script>
 import routineDetailMixin from '@/mixins/routineDetail'
+
+import Device from '~/models/devices-node/Device'
+import Channel from '~/models/devices-node/Channel'
+import Thing from '~/models/Thing'
 
 const ListAction = () => import('./ListAction')
 const ListCondition = () => import('./ListCondition')
@@ -139,22 +179,13 @@ export default {
      * @returns {(Condition|null)}
      */
     schedule() {
-      const condition = this._.get(this.routine, 'conditions', []).find(item => item.isTime)
+      const condition = this.routine.conditions.find(item => item.isTime)
 
       if (typeof condition === 'undefined') {
         return null
       }
 
       return condition
-    },
-
-    /**
-     * Flag signalizing that action or notification could be removed
-     *
-     * @returns {Boolean}
-     */
-    enabledRemovingActionNotification() {
-      return this.actions.length > 1
     },
 
   },
@@ -164,10 +195,8 @@ export default {
   },
 
   beforeMount() {
-    if (!this.$store.getters['entities/thing/firstLoadFinished']()) {
-      this.$store.dispatch('entities/thing/fetch', null, {
-        root: true,
-      })
+    if (!Thing.getters('firstLoadFinished')()) {
+      Thing.dispatch('fetch')
         .catch(() => {
           this.$nuxt.error({ statusCode: 503, message: 'Something went wrong' })
         })
@@ -204,10 +233,36 @@ export default {
      * @param {Number} index
      */
     confirmRemoveCondition(index) {
+      const device = Device
+        .query()
+        .where('identifier', this.conditions[index].device)
+        .first()
+
+      if (device === null) {
+        return
+      }
+
+      const channel = Channel
+        .query()
+        .where('device_id', device.id)
+        .where('channel', this.conditions[index].channel)
+        .first()
+
+      if (channel === null) {
+        return
+      }
+
+      const thing = Thing
+        .query()
+        .with('device')
+        .with('channel')
+        .where('channel_id', channel.id)
+        .first()
+
       this.remove.show = true
       this.remove.type = 'condition'
       this.remove.index = index
-      this.remove.thing = this._findThing(this.conditions[index].thing)
+      this.remove.thing = thing
     },
 
     /**
@@ -216,10 +271,36 @@ export default {
      * @param {Number} index
      */
     confirmRemoveAction(index) {
+      const device = Device
+        .query()
+        .where('identifier', this.actions[index].device)
+        .first()
+
+      if (device === null) {
+        return
+      }
+
+      const channel = Channel
+        .query()
+        .where('device_id', device.id)
+        .where('channel', this.actions[index].channel)
+        .first()
+
+      if (channel === null) {
+        return
+      }
+
+      const thing = Thing
+        .query()
+        .with('device')
+        .with('channel')
+        .where('channel_id', channel.id)
+        .first()
+
       this.remove.show = true
       this.remove.type = 'action'
       this.remove.index = index
-      this.remove.thing = this._findThing(this.actions[index].thing)
+      this.remove.thing = thing
     },
 
     /**
@@ -249,12 +330,6 @@ export default {
           this.resetRemoveConfirmation()
         }
       } else if (this.remove.type === 'action') {
-        if (!this.enabledRemovingActionNotification) {
-          this.$flashMessage(this.$t('routines.messages.minimumActionsNotification'), 'error')
-
-          return
-        }
-
         if (Object.prototype.hasOwnProperty.call(this.actions, this.remove.index)) {
           this.removeTriggerAction(this.actions[this.remove.index])
 

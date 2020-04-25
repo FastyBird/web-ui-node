@@ -94,7 +94,10 @@ export default {
         days = days.join(', ')
       }
 
-      return this.$t('routines.headings.scheduledRoutine', { days, time: this.$dateFns.format(this.schedule.time, this._.get(this.account, 'timeFormat', 'HH:mm')) })
+      return this.$t('routines.headings.scheduledRoutine', {
+        days,
+        time: this.$dateFns.format(this.schedule.time, this._.get(this.account, 'timeFormat', 'HH:mm')),
+      })
     },
 
     /**
@@ -103,7 +106,7 @@ export default {
      * @returns {(Condition|null)}
      */
     schedule() {
-      return this._.get(this.routine, 'conditions', []).find(item => item.isTime)
+      return this.routine.conditions.find(item => item.isTime)
     },
 
   },

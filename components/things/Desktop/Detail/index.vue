@@ -1,7 +1,7 @@
 <template>
   <off-canvas-body
     v-if="thing"
-    :heading="$tThing(thing)"
+    :heading="$tThingChannel(thing)"
     :sub-heading="$tThingDevice(thing)"
   >
     <template slot="left-button">
@@ -70,13 +70,16 @@
 </template>
 
 <script>
+import FbComponentLoading from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoading'
+import FbComponentLoadingError from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoadingError'
+
 import {
   THINGS_HASH_DETAIL,
   THINGS_HASH_SETTINGS,
 } from '@/configuration/routes'
 
-import FbComponentLoading from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoading'
-import FbComponentLoadingError from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoadingError'
+import Hardware from '~/models/devices-node/Hardware'
+import Thing from '~/models/Thing'
 
 const ThingDetailDefault = () => ({
   component: import('@/components/things/Detail/Things/Default'),
@@ -143,55 +146,31 @@ export default {
 
   data() {
     return {
+      thing: null,
+      hardware: null,
+      isButtonThing: false,
       view: Object.assign({}, viewSettings),
       offCanvasHeight: null,
     }
   },
 
-  computed: {
-
-    /**
-     * View thing data
-     *
-     * @returns {Thing}
-     */
-    thing() {
-      return this.$store.getters['entities/thing/query']()
-        .with('device')
-        .with('device.properties')
-        .with('device.socket')
-        .with('channel')
-        .with('channel.properties')
-        .where('channel_id', this.id)
-        .first()
-    },
-
-    /**
-     * Get thing hardware info
-     *
-     * @returns {(Hardware|null)}
-     */
-    hardware() {
-      return this.$store.getters['entities/hardware/query']()
-        .where('device_id', this.thing.device_id)
-        .first()
-    },
-
-    /**
-     * Check if thing is button type
-     *
-     * @returns {Boolean}
-     */
-    isButtonThing() {
-      return !!(this._.get(this.hardware, 'isManufacturerFastyBird', false) &&
-        (
-          this._.get(this.hardware, 'model') === '8ch_buttons' || this._.get(this.hardware, 'model') === '16ch_buttons'
-        ))
-    },
-
-  },
-
   created() {
+    this.thing = Thing
+      .query()
+      .with('device')
+      .with('channel')
+      .where('channel_id', this.id)
+      .first()
+
+    this.hardware = Hardware
+      .query()
+      .where('device_id', this.thing.device_id)
+      .first()
+
+    this.isButtonThing = this.hardware !== null &&
+      this.hardware.isManufacturerFastyBird &&
+      (this.hardware.model === '8ch_buttons' || this.hardware.model === '16ch_buttons')
+
     this.view.opened = this.settings ? 'settings' : 'detail'
   },
 

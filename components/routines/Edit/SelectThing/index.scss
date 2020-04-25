@@ -3,6 +3,11 @@
 
 .fb-routines-select-thing {
   &__container {
+    @media (min-width: $screen-sm-min) {
+      max-height: 50vh;
+      overflow-y: scroll;
+    }
+
     @media (max-width: $screen-xs-max) {
       margin-left: 10px;
       margin-right: 10px;

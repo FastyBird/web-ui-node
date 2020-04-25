@@ -50,7 +50,7 @@ export default createComponent({
 
     return {
       root,
-      close: () => {
+      close: (): void => {
         context.emit('close')
       },
     }

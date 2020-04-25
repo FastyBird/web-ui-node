@@ -23,6 +23,8 @@
 </template>
 
 <script>
+import Trigger from '~/models/triggers-node/Trigger'
+
 export default {
 
   name: 'RoutinesDetailRefreshConfirm',
@@ -50,11 +52,9 @@ export default {
         routine: this.routine.name,
       })
 
-      this.$store.dispatch('entities/trigger/refreshFromQueue', {
+      Trigger.dispatch('refreshFromQueue', {
         id: this.routine.id,
         queue: 'update',
-      }, {
-        root: true,
       })
         .catch((e) => {
           if (Object.prototype.hasOwnProperty.call(e, 'exception')) {

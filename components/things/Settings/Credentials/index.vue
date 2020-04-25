@@ -74,6 +74,9 @@ import {
   MQTT_SERVER_PORT,
 } from '@/configuration'
 
+import Device from '~/models/devices-node/Device'
+import Credentials from '~/models/devices-node/Credentials'
+
 export default {
 
   name: 'ThingsSettingsThingCredentials',
@@ -109,7 +112,8 @@ export default {
   },
 
   created() {
-    this.credentials = this.$store.getters['entities/credentials/query']()
+    this.credentials = Credentials
+      .query()
       .where('device_id', this.thing.device_id)
       .first()
 
@@ -147,16 +151,14 @@ export default {
         .then((result) => {
           if (result) {
             const errorMessage = this.$t('things.messages.notEdited', {
-              thing: this.$tThing(this.thing),
+              thing: this.$tThingChannel(this.thing),
             })
 
-            this.$store.dispatch('entities/device/edit', {
+            Device.dispatch('edit', {
               id: this.thing.device_id,
               data: {
                 credentials: this.form.model,
               },
-            }, {
-              root: true,
             })
               .catch((e) => {
                 if (this._.get(e, 'exception', null) !== null) {
@@ -172,7 +174,7 @@ export default {
           }
         })
         .catch((e) => {
-          if (Object.prototype.hasOwnProperty.call(this, '$sentry')) {
+          if (!this.isDev && Object.prototype.hasOwnProperty.call(this, '$sentry')) {
             this.$sentry.captureException(e)
           }
         })

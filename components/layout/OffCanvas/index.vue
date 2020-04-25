@@ -42,21 +42,16 @@ export default createComponent({
   setup(props, context) {
     const root = ref(null);
 
-    watch(() => props.show, (val: Boolean) => {
+    watch(() => props.show, (val: Boolean): void => {
       if (val && root.value) {
         // @ts-ignore: Object is possibly 'null'.
         root.value.tabIndex = 1;
-
-        context.root.$nextTick(() => {
-          // @ts-ignore: Object is possibly 'null'.
-          root.value.focus();
-        })
       }
     });
 
     return {
       root,
-      close: () => {
+      close: (): void => {
         context.emit('close')
       },
     }

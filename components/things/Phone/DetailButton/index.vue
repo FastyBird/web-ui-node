@@ -9,7 +9,7 @@
     <select-thing
       v-if="view.opened === view.items.selectThing.name"
       :items="view.items[view.opened].items"
-      :only-settable="true"
+      :type-actor="true"
       @select="thingSelected"
       @close="closeView"
     />
@@ -24,7 +24,7 @@
       @close="closeView"
     />
 
-    <mobile-bottom-menu
+    <phone-bottom-menu
       :show-header="true"
       :show="view.opened === view.items.type.name"
       :heading="$t('things.headings.newAction')"
@@ -68,21 +68,24 @@
           {{ $t('things.buttons.dblClick.title') }}
         </fb-button>
       </template>
-    </mobile-bottom-menu>
+    </phone-bottom-menu>
   </div>
 </template>
 
 <script>
+import FbComponentLoading from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoading'
+import FbComponentLoadingError from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoadingError'
+
 import {
   THINGS_HASH_SETTINGS,
 } from '@/configuration/routes'
 
 import buttonThingTriggerMixin from '@/mixins/buttonThingTrigger'
 
-import FbComponentLoading from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoading'
-import FbComponentLoadingError from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoadingError'
-
 import ButtonThing from '@/components/things/Detail/Things/Button'
+
+import ChannelProperty from '~/models/devices-node/ChannelProperty'
+import Trigger from '~/models/triggers-node/Trigger'
 
 const SelectThing = () => ({
   component: import('@/components/routines/Phone/SelectThing'),
@@ -152,17 +155,24 @@ export default {
      * @returns {Array}
      */
     triggers() {
-      if (typeof this._.first(this.thing.channel.properties) === 'undefined') {
+      const property = ChannelProperty
+        .query()
+        .where('channel_id', this.thing.channel_id)
+        .first()
+
+      if (property === null) {
         return []
       }
 
-      return this.$store.getters['entities/trigger/query']()
+      return Trigger
+        .query()
         .with('condition')
         .with('actions')
-        .where('channel_id', this.thing.channel_id)
-        .where('property_id', this._.first(this.thing.channel.properties).id)
+        .where('device', this.thing.device.identifier)
+        .where('channel', this.thing.channel.channel)
+        .where('property', property.property)
         .orderBy('operand', 'asc')
-        .all()
+        .get()
     },
 
   },
@@ -181,6 +191,12 @@ export default {
 
   created() {
     this._configureNavigation()
+  },
+
+  beforeDestroy() {
+    this.$bus.$off('heading_left_button-clicked')
+    this.$bus.$off('heading_right_button-clicked')
+    this.$bus.$off('heading_action_button-clicked')
   },
 
   methods: {
@@ -272,83 +288,85 @@ export default {
      * @private
      */
     _configureNavigation() {
-      this.$store.dispatch('header/resetStore', null, {
+      this.$store.dispatch('template/resetStore', null, {
         root: true,
       })
 
-      this.$store.dispatch('header/setLeftButton', {
+      this.$store.dispatch('template/setLeftButton', {
         name: this.$t('application.buttons.back.title'),
-        link: this.localePath(this.$routes.things.list),
         icon: 'arrow-left',
       }, {
         root: true,
       })
 
       if (this.$route.hash.includes(THINGS_HASH_SETTINGS)) {
-        this.$store.dispatch('header/setRightButton', {
+        this.$store.dispatch('template/setRightButton', {
           name: this.$t('application.buttons.close.title'),
-          callback: () => {
-            this.$router.push(this.localePath({
-              name: this.$routes.things.detail,
-              params: {
-                id: this.thing.id,
-              },
-            }))
-          },
         }, {
           root: true,
         })
       } else {
-        this.$store.dispatch('header/setRightButton', {
+        this.$store.dispatch('template/setRightButton', {
           name: this.$t('application.buttons.edit.title'),
-          callback: () => {
-            this.$router.push(this.localePath({
-              name: this.$routes.things.detail,
-              params: {
-                id: this.thing.id,
-              },
-              hash: THINGS_HASH_SETTINGS,
-            }))
-          },
         }, {
           root: true,
         })
       }
 
-      this.$store.dispatch('header/setFullRowHeading', null, {
+      this.$store.dispatch('template/setFullRowHeading', null, {
         root: true,
       })
 
-      this.$store.dispatch('header/setHeading', {
-        heading: this.$tThing(this.thing),
+      this.$store.dispatch('template/setHeading', {
+        heading: this.$tThingChannel(this.thing),
         subHeading: this.$tThingDevice(this.thing),
       }, {
         root: true,
       })
 
-      this.$store.dispatch('header/setHeadingIcon', {
+      this.$store.dispatch('template/setHeadingIcon', {
         icon: this.$thingIcon(this.thing),
       }, {
         root: true,
       })
 
       if (this.triggers.length) {
-        this.$store.dispatch('header/setAddButton', {
+        this.$store.dispatch('template/setActionButton', {
           name: this.$t('application.buttons.add.title'),
-          callback: () => {
-            this.openView(this.view.items.type.name)
-          },
         }, {
           root: true,
         })
       }
 
-      this.$store.dispatch('bottomNavigation/resetStore', null, {
+      this.$store.dispatch('app/bottomMenuCollapse', null, {
         root: true,
       })
 
-      this.$store.dispatch('bottomNavigation/hideNavigation', null, {
-        root: true,
+      this.$bus.$on('heading_left_button-clicked', () => {
+        this.$router.push(this.localePath(this.$routes.things.list))
+      })
+
+      this.$bus.$on('heading_right_button-clicked', () => {
+        if (this.$route.hash.includes(THINGS_HASH_SETTINGS)) {
+          this.$router.push(this.localePath({
+            name: this.$routes.things.detail,
+            params: {
+              id: this.thing.id,
+            },
+          }))
+        } else {
+          this.$router.push(this.localePath({
+            name: this.$routes.things.detail,
+            params: {
+              id: this.thing.id,
+            },
+            hash: THINGS_HASH_SETTINGS,
+          }))
+        }
+      })
+
+      this.$bus.$on('heading_action_button-clicked', () => {
+        this.openView(this.view.items.type.name)
       })
     },
 

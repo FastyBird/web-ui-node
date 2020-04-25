@@ -3,10 +3,12 @@ import {
   HOME_LINK,
 } from '@/configuration/routes'
 
+import Session from '~/models/accounts-node/Session'
+
 const anonymousMiddleware: Middleware = ({ app, store, redirect }) => {
-  if (store.getters['entities/session/query']().where('id', process.env.NUXT_ENV_SESSION_KEY).count() !== 0) {
+  if (Session.query().count() !== 0) {
     return redirect(app.localePath({ name: HOME_LINK }))
   }
-};
+}
 
 export default anonymousMiddleware

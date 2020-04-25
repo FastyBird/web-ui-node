@@ -14,11 +14,7 @@ export default {
   transition: 'fade',
 
   created() {
-    this.$store.dispatch('header/resetStore', null, {
-      root: true,
-    })
-
-    this.$store.dispatch('bottomNavigation/resetStore', null, {
+    this.$store.dispatch('app/bottomMenuCollapse', null, {
       root: true,
     })
   },

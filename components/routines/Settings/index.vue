@@ -67,6 +67,8 @@
 </template>
 
 <script>
+import Trigger from '~/models/triggers-node/Trigger'
+
 const RoutineRename = () => import('./Rename')
 const RoutineRemove = () => import('./Remove')
 
@@ -164,11 +166,9 @@ export default {
               routine: this.form.model.name,
             })
 
-            this.$store.dispatch('entities/trigger/edit', {
+            Trigger.dispatch('edit', {
               id: this.routine.id,
               data: this.form.model,
-            }, {
-              root: true,
             })
               .catch((e) => {
                 if (Object.prototype.hasOwnProperty.call(e, 'exception')) {
@@ -180,7 +180,7 @@ export default {
           }
         })
         .catch((e) => {
-          if (Object.prototype.hasOwnProperty.call(this, '$sentry')) {
+          if (!this.isDev && Object.prototype.hasOwnProperty.call(this, '$sentry')) {
             this.$sentry.captureException(e)
           }
         })

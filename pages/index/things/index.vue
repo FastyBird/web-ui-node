@@ -5,13 +5,12 @@
         v-for="thing in things"
         :key="thing.id"
         :thing="thing"
-        :exchange-status="exchangeConnected"
         @click="oneClick"
       />
     </div>
 
     <off-canvas
-      v-if="windowSize !== 'xs'"
+      v-if="windowSize !== 'xs' && isMounted"
       :show="view.opened === view.items.detail.name || view.opened === view.items.settings.name"
       @close="closeView"
     >
@@ -54,9 +53,9 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
-
 import { orderBy } from 'natural-orderby'
+
+import Thing from '@/models/Thing'
 
 import {
   THINGS_HASH_DETAIL,
@@ -127,37 +126,35 @@ export default {
         clicks: 0,
         timer: null,
       },
+      isMounted: false,
     }
   },
 
   computed: {
 
-    ...mapState('theme', {
-      windowSize: state => state.windowSize,
-    }),
-
-    ...mapState('wamp', {
-      exchangeConnected: state => state.isConnected,
-    }),
+    /**
+     * @returns {String}
+     */
+    windowSize() {
+      return this.$store.state.template.windowSize
+    },
 
     /**
      * Get all registered & loaded things
      *
-     * @returns {Array}
+     * @returns {Array<Thing>}
      */
     things() {
-      const items = this.$store.getters['entities/thing/query']()
+      const items = Thing
+        .query()
         .with('device')
-        .with('device.properties')
-        .with('device.socket')
         .with('channel')
-        .with('channel.properties')
-        .all()
+        .get()
 
       return orderBy(
         items,
         [
-          v => this.$tThing(v),
+          v => this.$tThingChannel(v),
           v => this.$tThingDevice(v),
         ],
         ['asc'],
@@ -170,7 +167,7 @@ export default {
      * @returns {Boolean}
      */
     fetchingThings() {
-      return this.$store.getters['entities/thing/fetching']()
+      return Thing.getters('fetching')()
     },
 
   },
@@ -239,41 +236,42 @@ export default {
         root: true,
       })
         .then(() => {
-          const thingsCount = store.getters['entities/thing/query']().count()
+          const thingsCount = Thing
+            .query()
+            .count()
 
-          store.dispatch('header/resetStore', null, {
+          store.dispatch('template/resetStore', null, {
             root: true,
           })
 
-          store.dispatch('header/setHeading', {
+          store.dispatch('template/setHeading', {
             heading: app.i18n.t('things.headings.allThings'),
             subHeading: app.i18n.tc('things.subHeadings.allThings', thingsCount, { count: thingsCount }),
           }, {
             root: true,
           })
 
-          store.dispatch('header/setAddButton', {
+          store.dispatch('template/setActionButton', {
             name: app.i18n.t('application.buttons.add.title'),
-            callback: null, // Null is set because of SSR and serialization
           }, {
             root: true,
           })
 
-          store.dispatch('header/addTab', {
+          store.dispatch('template/addHeadingTab', {
             name: app.i18n.t('application.buttons.things.title'),
             link: app.localePath(app.$routes.things.list),
           }, {
             root: true,
           })
 
-          store.dispatch('header/addTab', {
+          store.dispatch('template/addHeadingTab', {
             name: app.i18n.t('application.buttons.groups.title'),
             link: app.localePath(app.$routes.groups.list),
           }, {
             root: true,
           })
 
-          store.dispatch('bottomNavigation/resetStore', null, {
+          store.dispatch('app/bottomMenuExpand', null, {
             root: true,
           })
         })
@@ -285,25 +283,31 @@ export default {
 
   beforeMount() {
     if (
-      this.$store.getters['entities/thing/query']().count() === 0 &&
+      Thing.query().count() === 0 &&
       !this.fetchingThings &&
-      !this.$store.getters['entities/thing/firstLoadFinished']()
+      !Thing.getters('firstLoadFinished')()
     ) {
-      this.$store.dispatch('entities/thing/fetch', {}, {
-        root: true,
-      })
+      Thing.dispatch('fetch')
         .catch(() => {
           this.$nuxt.error({ statusCode: 503, message: 'Something went wrong' })
         })
     }
 
     this._configureNavigation()
+
+    this.$bus.$on('heading_action_button-clicked', this.openThingConnect)
   },
 
   mounted() {
     if (!this.fetchingThings) {
       this._checkRoute()
     }
+
+    this.isMounted = true
+  },
+
+  beforeDestroy() {
+    this.$bus.$off('heading_action_button-clicked', this.openThingConnect)
   },
 
   methods: {
@@ -382,9 +386,7 @@ export default {
         if (Object.prototype.hasOwnProperty.call(this.view.items[view], 'id') && typeof id !== 'undefined') {
           this.view.items[view].id = id
 
-          const thing = this.$store.getters['entities/thing/query']()
-            .where('channel_id', id)
-            .first()
+          const thing = Thing.find(id)
 
           if (thing === null) {
             this.closeView()
@@ -469,11 +471,11 @@ export default {
      * @private
      */
     _configureNavigation() {
-      this.$store.dispatch('header/resetStore', null, {
+      this.$store.dispatch('template/resetStore', null, {
         root: true,
       })
 
-      this.$store.dispatch('header/setHeading', {
+      this.$store.dispatch('template/setHeading', {
         heading: this.$t('things.headings.allThings'),
         subHeading: this.$tc('things.subHeadings.allThings', this.things.length, { count: this.things.length }),
       }, {
@@ -481,31 +483,28 @@ export default {
       })
 
       if (this.things.length) {
-        this.$store.dispatch('header/setAddButton', {
+        this.$store.dispatch('template/setActionButton', {
           name: this.$t('application.buttons.add.title'),
-          callback: () => {
-            this.openThingConnect()
-          },
         }, {
           root: true,
         })
       }
 
-      this.$store.dispatch('header/addTab', {
+      this.$store.dispatch('template/addHeadingTab', {
         name: this.$t('application.buttons.things.title'),
         link: this.localePath(this.$routes.things.list),
       }, {
         root: true,
       })
 
-      this.$store.dispatch('header/addTab', {
+      this.$store.dispatch('template/addHeadingTab', {
         name: this.$t('application.buttons.groups.title'),
         link: this.localePath(this.$routes.groups.list),
       }, {
         root: true,
       })
 
-      this.$store.dispatch('bottomNavigation/resetStore', null, {
+      this.$store.dispatch('app/bottomMenuExpand', null, {
         root: true,
       })
     },

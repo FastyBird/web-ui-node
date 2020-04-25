@@ -9,7 +9,7 @@
     >
       <fb-form-checkbox
         v-model="stateModel"
-        :name="`property_${property.id}`"
+        :name="`property_${property.property}`"
       />
     </template>
 
@@ -98,7 +98,7 @@ export default {
 
     stateModel: {
       get() {
-        const row = this._.get(this.value, 'rows', []).find(({ property_id }) => property_id === this.property.id)
+        const row = this.value.rows.find(({ property }) => property === this.property.property)
 
         if (typeof row !== 'undefined') {
           return !!row.selected
@@ -113,7 +113,7 @@ export default {
           for (const j in this.value.rows) {
             if (
               Object.prototype.hasOwnProperty.call(this.value.rows, j) &&
-              this.value.rows[j].property_id === this.property.id
+              this.value.rows[j].property === this.property.property
             ) {
               this.value.rows[j].selected = val
             }
@@ -126,7 +126,7 @@ export default {
 
     operandModel: {
       get() {
-        const row = this._.get(this.value, 'rows', []).find(({ property_id }) => property_id === this.property.id)
+        const row = this.value.rows.find(({ property }) => property === this.property.property)
 
         if (typeof row !== 'undefined') {
           return row.operand
@@ -141,7 +141,7 @@ export default {
           for (const j in this.value.rows) {
             if (
               Object.prototype.hasOwnProperty.call(this.value.rows, j) &&
-              this.value.rows[j].property_id === this.property.id
+              this.value.rows[j].property === this.property.property
             ) {
               this.value.rows[j].operand = val
             }
@@ -154,7 +154,7 @@ export default {
 
     operatorModel: {
       get() {
-        const row = this._.get(this.value, 'rows', []).find(({ property_id }) => property_id === this.property.id)
+        const row = this.value.rows.find(({ property }) => property === this.property.property)
 
         if (typeof row !== 'undefined') {
           return row.operator
@@ -169,7 +169,7 @@ export default {
           for (const j in this.value.rows) {
             if (
               Object.prototype.hasOwnProperty.call(this.value.rows, j) &&
-              this.value.rows[j].property_id === this.property.id
+              this.value.rows[j].property === this.property.property
             ) {
               this.value.rows[j].operator = val
             }

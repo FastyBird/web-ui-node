@@ -397,12 +397,8 @@ export default {
   things: {
     headings: {
       allThings: 'All things',
-      analogSensors: 'Analog sensor|Analog sensors',
-      analogActors: 'Analog actor|Analog actors',
-      binaryActors: 'Digital actor|Digital actors',
-      binarySensors: 'Digital sensor|Digital sensors',
-      energy: 'Energy',
-      environment: 'Environment',
+      sensors: 'Sensor|Sensors',
+      actors: 'Actor|Actors',
       lights: 'Light|Lights',
       switches: 'Switch|Switches',
       calibrate: 'Calibrate energy sensors',
@@ -876,6 +872,8 @@ export default {
       routineThings: 'no things | {count} thing | {count} things',
       everyday: 'Everyday',
       scheduled: 'Scheduled: {time}',
+      noConditions: 'You don\'t have assigned any condition to this routine',
+      noActions: 'You don\'t have assigned any action to this routine',
     },
     fields: {
       name: {
@@ -983,21 +981,16 @@ export default {
       addTypeManual: {
         title: 'Custom manual scene',
       },
+      addCondition: {
+        title: 'Add condition',
+      },
+      addAction: {
+        title: 'Add action',
+      },
     },
     groups: {
-      actors: {
-        analog: 'Analog actors',
-        binary: 'Binary actors',
-        lights: 'Lights',
-        switches: 'Switches',
-      },
-      sensors: {
-        analog: 'Analog sensors',
-        binary: 'Binary sensors',
-        energy: 'Energy meters',
-        environment: 'Environment meters',
-        events: 'Events',
-      },
+      actors: 'Actors',
+      sensors: 'Sensors',
     },
     variations: {
       on: 'On',

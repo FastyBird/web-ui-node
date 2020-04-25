@@ -1,6 +1,8 @@
+import Session from '~/models/accounts-node/Session'
+
 export default {
 
-  methods: {
+  computed: {
 
     /**
      * Check if user is signed in or not
@@ -8,8 +10,12 @@ export default {
      * @returns {Boolean}
      */
     isSignedIn() {
-      return this.$store.getters['entities/session/query']().where('id', process.env.NUXT_ENV_SESSION_KEY).count() !== 0
+      return Session.query().exists()
     },
+
+  },
+
+  methods: {
 
     handleFormError(exception, errorMessage) {
       let errorShown = false

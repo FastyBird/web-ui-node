@@ -50,17 +50,10 @@ export default {
      * @returns {Boolean}
      */
     propertyValue() {
-      const propertyValue = this.$store.getters['entities/channel_property_value/query']()
-        .where('channel_id', this.thing.channel_id)
-        .where('property_id', this.property.id)
-        .first()
-
-      if (propertyValue) {
-        if (this.property.isBoolean) {
-          return !!propertyValue.value
-        } else if (this.property.isEnum) {
-          return propertyValue.value === 'on'
-        }
+      if (this.property.isBoolean) {
+        return !!this.property.value
+      } else if (this.property.isEnum) {
+        return this.property.value === 'on'
       }
 
       return false

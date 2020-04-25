@@ -2,6 +2,8 @@ import { mapState } from 'vuex'
 
 import axios from 'axios'
 
+import Thing from '@/models/Thing'
+
 const deviceApi = {
   getDeviceStatus: () => {
     return new Promise(resolve => setTimeout(resolve, 2000))
@@ -122,7 +124,7 @@ export default {
           }
         })
         .catch((e) => {
-          if (Object.prototype.hasOwnProperty.call(this, '$sentry')) {
+          if (!this.isDev && Object.prototype.hasOwnProperty.call(this, '$sentry')) {
             this.$sentry.captureException(e)
           }
         })
@@ -146,7 +148,8 @@ export default {
           this.search.status = 'configuring'
           this.search.device.id = data.data.cloud.thing
 
-          const thing = this.$store.getters['entities/thing/query']()
+          const thing = Thing
+            .query()
             .with('device')
             .with('channel')
             .where('device_id', this.search.device.id)
@@ -210,9 +213,7 @@ export default {
       this.search.status = 'synchronizing'
 
       if (this.search.device.reinitialize) {
-        this.$store.dispatch('entities/thing/fetch', {}, {
-          root: true,
-        })
+        Thing.dispatch('fetch')
           .then(() => {
             this.step = 4
           })

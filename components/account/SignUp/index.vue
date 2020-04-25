@@ -163,10 +163,8 @@ export default {
      * @returns {Object}
      */
     checkEmail(value) {
-      return this.$store.dispatch('entities/email/validate', {
+      return this.$backendApi.validateEmail({
         address: value,
-      }, {
-        root: true,
       })
         .then(() => {
           return {
@@ -216,7 +214,7 @@ export default {
           }
         })
         .catch((e) => {
-          if (Object.prototype.hasOwnProperty.call(this, '$sentry')) {
+          if (!this.isDev && Object.prototype.hasOwnProperty.call(this, '$sentry')) {
             this.$sentry.captureException(e)
           }
         })

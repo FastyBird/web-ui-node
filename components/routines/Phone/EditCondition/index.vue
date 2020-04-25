@@ -78,64 +78,68 @@ export default {
   },
 
   created() {
-    this.$store.dispatch('header/resetStore', null, {
+    this.$store.dispatch('template/resetStore', null, {
       root: true,
     })
 
-    this.$store.dispatch('header/setLeftButton', {
+    this.$store.dispatch('template/setLeftButton', {
       name: this.$t('application.buttons.back.title'),
-      callback: () => {
-        this.$emit('back')
-      },
       icon: 'arrow-left',
     }, {
       root: true,
     })
 
     if (this.condition !== null) {
-      this.$store.dispatch('header/setRightButton', {
+      this.$store.dispatch('template/setRightButton', {
         name: this.$t('application.buttons.remove.title'),
-        callback: () => {
-          this.$emit('remove', this.thing)
-        },
       }, {
         root: true,
       })
     } else {
-      this.$store.dispatch('header/setRightButton', {
+      this.$store.dispatch('template/setRightButton', {
         name: this.$t('application.buttons.close.title'),
-        callback: () => {
-          this.$emit('close')
-        },
       }, {
         root: true,
       })
     }
 
-    this.$store.dispatch('header/setFullRowHeading', null, {
+    this.$store.dispatch('template/setFullRowHeading', null, {
       root: true,
     })
 
-    this.$store.dispatch('header/setHeading', {
-      heading: this.$tThing(this.thing),
+    this.$store.dispatch('template/setHeading', {
+      heading: this.$tThingChannel(this.thing),
       subHeading: this.$tThingDevice(this.thing),
     }, {
       root: true,
     })
 
-    this.$store.dispatch('header/setHeadingIcon', {
+    this.$store.dispatch('template/setHeadingIcon', {
       icon: 'project-diagram',
     }, {
       root: true,
     })
 
-    this.$store.dispatch('bottomNavigation/resetStore', null, {
+    this.$store.dispatch('app/bottomMenuCollapse', null, {
       root: true,
     })
 
-    this.$store.dispatch('bottomNavigation/hideNavigation', null, {
-      root: true,
+    this.$bus.$on('heading_left_button-clicked', () => {
+      this.$emit('back')
     })
+
+    this.$bus.$on('heading_right_button-clicked', () => {
+      if (this.action !== null) {
+        this.$emit('remove', this.thing)
+      } else {
+        this.$emit('close')
+      }
+    })
+  },
+
+  beforeDestroy() {
+    this.$bus.$off('heading_left_button-clicked')
+    this.$bus.$off('heading_right_button-clicked')
   },
 
   methods: {

@@ -1,10 +1,17 @@
-import routinesMixin from './routines'
-
 import {
   DEVICE_FASTYBIRD_BUTTON_PRESS,
   DEVICE_FASTYBIRD_BUTTON_CLICK,
   DEVICE_FASTYBIRD_BUTTON_DBL_CLICK,
 } from '@/configuration/devices'
+
+import routinesMixin from './routines'
+
+import Trigger from '~/models/triggers-node/Trigger'
+import Action from '~/models/triggers-node/Action'
+
+import {
+  TRIGGERS_ACTION_CHANNEL_PROPERTY,
+} from '~/models/triggers-node/types'
 
 export default {
 
@@ -44,7 +51,7 @@ export default {
                 .find(({ property_id }) => property_id === row.property_id)
 
               // Update existing trigger action
-              this.$store.dispatch('entities/action/edit', {
+              Action.dispatch('edit', {
                 id: triggerActionProperty.action_id,
                 data: {
                   enabled: data.enabled,
@@ -62,7 +69,7 @@ export default {
                 })
             } else {
               // Create existing trigger action
-              this.$store.dispatch('entities/action/add', {
+              Trigger.dispatch('add', {
                 trigger,
                 data: {
                   type: 'channel_property',
@@ -71,8 +78,6 @@ export default {
                   property: row.property_id,
                   value: row.operation,
                 },
-              }, {
-                root: true,
               })
                 .catch((e) => {
                   if (Object.prototype.hasOwnProperty.call(e, 'exception')) {
@@ -89,7 +94,7 @@ export default {
         this._.get(data, 'rows', [])
           .forEach((row) => {
             mappedActions.push({
-              type: 'channel_property',
+              type: TRIGGERS_ACTION_CHANNEL_PROPERTY,
               enabled: data.enabled,
               channel: data.thing,
               property: row.property_id,
@@ -98,7 +103,7 @@ export default {
           })
 
         // Create new trigger with remapped actions
-        this.$store.dispatch('entities/trigger/add', {
+        Trigger.dispatch('add', {
           channelProperty: true,
           data: {
             name: this.thing.device_id,
@@ -110,8 +115,6 @@ export default {
             operand: this._mapActionToCode(this.actionType),
             actions: mappedActions,
           },
-        }, {
-          root: true,
         })
           .catch((e) => {
             if (Object.prototype.hasOwnProperty.call(e, 'exception')) {
@@ -140,10 +143,8 @@ export default {
           this.removeTriggerAction(action)
         })
       } else {
-        this.$store.dispatch('entities/trigger/remove', {
+        Trigger.dispatch('remove', {
           id: trigger.id,
-        }, {
-          root: true,
         })
           .catch((e) => {
             const errorMessage = this.$t('things.messages.actionNotRemoved')

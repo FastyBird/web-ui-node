@@ -58,6 +58,10 @@
 </template>
 
 <script>
+import jwtDecode from 'jwt-decode'
+
+import Session from '~/models/accounts-node/Session'
+
 const SignHeader = () => import('@/components/account/SignHeader')
 
 export default {
@@ -84,7 +88,7 @@ export default {
   },
 
   created() {
-    this.$bus.$emit('wait-sign_in', false)
+    this.$bus.$emit('wait-page_reloading', false)
 
     this.errors.clear(this.form.scope)
 
@@ -119,10 +123,8 @@ export default {
      * @returns {Object}
      */
     checkUid(value) {
-      return this.$store.dispatch('entities/session/validateUid', {
+      return this.$backendApi.validateSession({
         uid: value,
-      }, {
-        root: true,
       })
         .then(() => {
           return {
@@ -157,41 +159,41 @@ export default {
      * Submit form values
      */
     submit() {
-      this.$bus.$emit('wait-sign_in', true)
+      this.$bus.$emit('wait-page_reloading', true)
 
       this.$validator.validateAll(this.form.scope)
         .then((result) => {
           if (result) {
             const errorMessage = this.$t('application.messages.requestError')
 
-            this.$store.dispatch('entities/session/create', {
-              id: process.env.NUXT_ENV_SESSION_KEY,
+            Session.dispatch('create', {
               uid: this.form.model.credentials.uid,
               password: this.form.model.credentials.password,
-            }, {
-              root: true,
             })
-              .then((tokens) => {
+              .then((session) => {
                 if (this.form.model.persistent) {
-                  this.$cookies.set('token', tokens.token, {
+                  const decodedAccessToken = jwtDecode(session.token)
+
+                  this.$cookies.set('token', session.token, {
                     path: '/',
-                    maxAge: 60 * 60 * 24 * 30,
+                    maxAge: (((new Date(decodedAccessToken.exp * 1000)).getTime() / 1000) - ((new Date()).getTime() / 1000)),
                   })
-                  this.$cookies.set('refresh_token', tokens.refresh, {
+
+                  const decodedRefreshToken = jwtDecode(session.refresh)
+
+                  this.$cookies.set('refresh_token', session.refresh, {
                     path: '/',
-                    maxAge: 60 * 60 * 24 * 30,
+                    maxAge: (((new Date(decodedRefreshToken.exp * 1000)).getTime() / 1000) - ((new Date()).getTime() / 1000)),
                   })
                 } else {
-                  this.$cookies.set('token', tokens.token)
-                  this.$cookies.set('refresh_token', tokens.refresh)
+                  this.$cookies.set('token', session.token)
+                  this.$cookies.set('refresh_token', session.refresh)
                 }
 
-                this.$bus.$emit('signIn', true)
-
-                this.$router.push(this.localePath({ name: this.$routes.home }))
+                this.$bus.$emit('signIn', false)
               })
               .catch((e) => {
-                this.$bus.$emit('wait-sign_in', false)
+                this.$bus.$emit('wait-page_reloading', false)
 
                 if (this._.get(e, 'exception', null) !== null) {
                   this.handleFormError(e.exception, errorMessage)
@@ -200,17 +202,15 @@ export default {
                 } else {
                   this.$flashMessage(errorMessage, 'error')
                 }
-
-                this.$router.push(this.localePath({ name: this.$routes.account.signIn }))
               })
           } else {
-            this.$bus.$emit('wait-sign_in', false)
+            this.$bus.$emit('wait-page_reloading', false)
           }
         })
         .catch((e) => {
-          this.$bus.$emit('wait-sign_in', false)
+          this.$bus.$emit('wait-page_reloading', false)
 
-          if (Object.prototype.hasOwnProperty.call(this, '$sentry')) {
+          if (!this.isDev && Object.prototype.hasOwnProperty.call(this, '$sentry')) {
             this.$sentry.captureException(e)
           }
         })

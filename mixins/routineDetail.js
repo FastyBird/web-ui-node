@@ -1,8 +1,11 @@
-import routinesMixin from './routines'
+import routines from './routines'
+
+import Action from '~/models/triggers-node/Action'
+import Condition from '~/models/triggers-node/Condition'
 
 export default {
 
-  mixins: [routinesMixin],
+  mixins: [routines],
 
   methods: {
 
@@ -15,13 +18,11 @@ export default {
     changeConditionState(condition, state) {
       this._.get(condition, 'rows', [])
         .forEach((row) => {
-          this.$store.dispatch('entities/condition/edit', {
+          Condition.dispatch('edit', {
             id: row.condition_id,
             data: {
               enabled: state,
             },
-          }, {
-            root: true,
           })
             .catch((e) => {
               const errorMessage = this.$t('triggers.messages.conditionNotUpdated')
@@ -44,13 +45,11 @@ export default {
     changeActionState(action, state) {
       this._.get(action, 'rows', [])
         .forEach((row) => {
-          this.$store.dispatch('entities/action/edit', {
+          Action.dispatch('edit', {
             id: row.action_id,
             data: {
               enabled: state,
             },
-          }, {
-            root: true,
           })
             .catch((e) => {
               const errorMessage = this.$t('triggers.messages.actionNotUpdated')
@@ -62,22 +61,6 @@ export default {
               }
             })
         })
-    },
-
-    /**
-     * Find thing object by identifier
-     *
-     * @param {String} id
-     *
-     * @returns {Thing}
-     */
-    _findThing(id) {
-      return this.$store.getters['entities/thing/query']()
-        .with('device')
-        .with('channel')
-        .with('channel.properties')
-        .where('id', id)
-        .first()
     },
 
   },

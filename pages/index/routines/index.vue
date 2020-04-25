@@ -12,7 +12,7 @@
     </div>
 
     <off-canvas
-      v-if="windowSize !== 'xs'"
+      v-if="windowSize !== 'xs' && isMounted"
       :show="view.opened === view.items.detail.name || view.opened === view.items.settings.name"
       @close="closeView"
     >
@@ -30,15 +30,15 @@
       @close="closeView"
     />
 
-    <mobile-bottom-menu
-      v-if="windowSize === 'xs'"
+    <phone-bottom-menu
+      v-if="windowSize === 'xs' && isMounted"
       :show-header="true"
       :show="view.opened === view.items.type.name"
       :heading="$t('routines.headings.addNew')"
       @close="closeView"
     >
       <select-routine-type-phone slot="items" />
-    </mobile-bottom-menu>
+    </phone-bottom-menu>
 
     <fb-loading-box
       v-if="fetchingRoutines && routines.length === 0"
@@ -65,7 +65,8 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import FbComponentLoading from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoading'
+import FbComponentLoadingError from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoadingError'
 
 import {
   ROUTINES_HASH_DETAIL,
@@ -73,11 +74,10 @@ import {
   ROUTINES_HASH_CREATE,
 } from '@/configuration/routes'
 
-import FbComponentLoading from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoading'
-import FbComponentLoadingError from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoadingError'
-
 import RoutineListItem from '@/components/routines/ListItem'
 import RoutineListCarousel from '@/components/routines/ListCarousel'
+
+import Trigger from '~/models/triggers-node/Trigger'
 
 const RoutineDetail = () => ({
   component: import('@/components/routines/Desktop/Detail'),
@@ -146,14 +146,18 @@ export default {
         clicks: 0,
         timer: null,
       },
+      isMounted: false,
     }
   },
 
   computed: {
 
-    ...mapState('theme', {
-      windowSize: state => state.windowSize,
-    }),
+    /**
+     * @returns {String}
+     */
+    windowSize() {
+      return this.$store.state.template.windowSize
+    },
 
     /**
      * Get all created & loaded routines
@@ -161,13 +165,14 @@ export default {
      * @returns {Array}
      */
     routines() {
-      return this.$store.getters['entities/trigger/query']()
+      return Trigger
+        .query()
         .with('actions')
         .with('conditions')
         .with('notifications')
         .where('isForChannel', false)
         .orderBy('name')
-        .all()
+        .get()
     },
 
     /**
@@ -176,7 +181,7 @@ export default {
      * @returns {Boolean}
      */
     fetchingRoutines() {
-      return this.$store.getters['entities/trigger/fetching']()
+      return Trigger.getters('fetching')()
     },
 
   },
@@ -247,29 +252,29 @@ export default {
         root: true,
       })
         .then(() => {
-          const routinesCount = store.getters['entities/trigger/query']()
+          const routinesCount = Trigger
+            .query()
             .where('isForChannel', false)
             .count()
 
-          store.dispatch('header/resetStore', null, {
+          store.dispatch('template/resetStore', null, {
             root: true,
           })
 
-          store.dispatch('header/setHeading', {
+          store.dispatch('template/setHeading', {
             heading: app.i18n.t('routines.headings.allRoutines'),
             subHeading: app.i18n.tc('routines.subHeadings.allRoutines', routinesCount, { count: routinesCount }),
           }, {
             root: true,
           })
 
-          store.dispatch('header/setAddButton', {
+          store.dispatch('template/setActionButton', {
             name: app.i18n.t('application.buttons.add.title'),
-            callback: null, // Null is set because of SSR and serialization
           }, {
             root: true,
           })
 
-          store.dispatch('bottomNavigation/resetStore', null, {
+          store.dispatch('app/bottomMenuExpand', null, {
             root: true,
           })
         })
@@ -281,25 +286,37 @@ export default {
 
   beforeMount() {
     if (
-      this.$store.getters['entities/trigger/query']().count() === 0 &&
+      Trigger.query().count() === 0 &&
       !this.fetchingRoutines &&
-      !this.$store.getters['entities/trigger/firstLoadFinished']()
+      !Trigger.getters('firstLoadFinished')()
     ) {
-      this.$store.dispatch('entities/trigger/fetch', null, {
-        root: true,
-      })
+      Trigger.dispatch('fetch')
         .catch(() => {
           this.$nuxt.error({ statusCode: 503, message: 'Something went wrong' })
         })
     }
 
     this._configureNavigation()
+
+    this.$bus.$on('heading_action_button-clicked', () => {
+      if (this.windowSize === 'xs') {
+        this.openView(this.view.items.type.name)
+      } else {
+        this.openView(this.view.items.create.name)
+      }
+    })
   },
 
   mounted() {
     if (!this.fetchingRoutines) {
       this._checkRoute()
     }
+
+    this.isMounted = true
+  },
+
+  beforeDestroy() {
+    this.$bus.$off('heading_action_button-clicked')
   },
 
   methods: {
@@ -378,9 +395,7 @@ export default {
         if (Object.prototype.hasOwnProperty.call(this.view.items[view], 'id') && typeof id !== 'undefined') {
           this.view.items[view].id = id
 
-          const routine = this.$store.getters['entities/trigger/query']()
-            .where('id', id)
-            .first()
+          const routine = Trigger.find(id)
 
           if (routine === null) {
             this.closeView()
@@ -463,11 +478,11 @@ export default {
      * @private
      */
     _configureNavigation() {
-      this.$store.dispatch('header/resetStore', null, {
+      this.$store.dispatch('template/resetStore', null, {
         root: true,
       })
 
-      this.$store.dispatch('header/setHeading', {
+      this.$store.dispatch('template/setHeading', {
         heading: this.$t('routines.headings.allRoutines'),
         subHeading: this.$tc('routines.subHeadings.allRoutines', this.routines.length, { count: this.routines.length }),
       }, {
@@ -475,21 +490,14 @@ export default {
       })
 
       if (this.routines.length) {
-        this.$store.dispatch('header/setAddButton', {
+        this.$store.dispatch('template/setActionButton', {
           name: this.$t('application.buttons.add.title'),
-          callback: () => {
-            if (this.windowSize === 'xs') {
-              this.openView(this.view.items.type.name)
-            } else {
-              this.openView(this.view.items.create.name)
-            }
-          },
         }, {
           root: true,
         })
       }
 
-      this.$store.dispatch('bottomNavigation/resetStore', null, {
+      this.$store.dispatch('app/bottomMenuExpand', null, {
         root: true,
       })
     },

@@ -37,6 +37,10 @@
 </template>
 
 <script>
+import ChannelProperty from '~/models/devices-node/ChannelProperty'
+import Trigger from '~/models/triggers-node/Trigger'
+import Thing from '~/models/Thing'
+
 const ButtonTrigger = () => import('./Trigger')
 
 export default {
@@ -64,17 +68,24 @@ export default {
      * @returns {Array}
      */
     triggers() {
-      if (typeof this._.first(this.thing.channel.properties) === 'undefined') {
+      const property = ChannelProperty
+        .query()
+        .where('channel_id', this.thing.channel_id)
+        .first()
+
+      if (property === null) {
         return []
       }
 
-      return this.$store.getters['entities/trigger/query']()
+      return Trigger
+        .query()
         .with('condition')
         .with('actions')
-        .where('channel_id', this.thing.channel_id)
-        .where('property_id', this._.first(this.thing.channel.properties).id)
+        .where('device', this.thing.device.identifier)
+        .where('channel', this.thing.channel.channel)
+        .where('property', property.property)
         .orderBy('operand', 'asc')
-        .all()
+        .get()
     },
 
     /**
@@ -83,7 +94,7 @@ export default {
      * @returns {Boolean}
      */
     fetchingThings() {
-      return this.$store.getters['entities/thing/fetching']()
+      return Thing.getters('fetching')()
     },
 
     /**
@@ -92,7 +103,7 @@ export default {
      * @returns {Boolean}
      */
     thingsLoaded() {
-      return this.$store.getters['entities/thing/firstLoadFinished']()
+      return Thing.getters('firstLoadFinished')()
     },
 
     /**
@@ -101,7 +112,7 @@ export default {
      * @returns {Boolean}
      */
     fetchingTriggers() {
-      return this.$store.getters['entities/trigger/fetching']()
+      return Trigger.getters('fetching')()
     },
 
     /**
@@ -110,20 +121,18 @@ export default {
      * @returns {Boolean}
      */
     triggersLoaded() {
-      return this.$store.getters['entities/trigger/firstLoadFinished']()
+      return Trigger.getters('firstLoadFinished')()
     },
 
   },
 
   beforeMount() {
     if (
-      this.$store.getters['entities/trigger/query']().count() === 0 &&
+      Trigger.query().count() === 0 &&
       !this.fetchingTriggers &&
       !this.triggersLoaded
     ) {
-      this.$store.dispatch('entities/trigger/fetch', null, {
-        root: true,
-      })
+      Trigger.dispatch('fetch')
         .catch(() => {
           this.$nuxt.error({ statusCode: 503, message: 'Something went wrong' })
         })
@@ -133,9 +142,7 @@ export default {
       !this.fetchingThings &&
       !this.thingsLoaded
     ) {
-      this.$store.dispatch('entities/thing/fetch', null, {
-        root: true,
-      })
+      Trigger.dispatch('fetch')
         .catch(() => {
           this.$nuxt.error({ statusCode: 503, message: 'Something went wrong' })
         })

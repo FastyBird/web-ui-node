@@ -1,4 +1,5 @@
-import { orderBy } from 'natural-orderby'
+import Action from '~/models/triggers-node/Action'
+import Condition from '~/models/triggers-node/Condition'
 
 export default {
 
@@ -14,14 +15,13 @@ export default {
     mapConditions(trigger) {
       const conditions = []
 
-      this._.get(trigger, 'conditions', [])
+      trigger.conditions
         .forEach((condition) => {
-          if (typeof conditions.find(({ channel_id }) => channel_id === condition.channel_id) === 'undefined') {
+          if (typeof conditions.find(storedCondition => (storedCondition.device === condition.device && storedCondition.channel === condition.channel)) === 'undefined') {
             conditions.push({
-              thing: condition.channel_id,
               enabled: condition.enabled,
-              device_id: condition.device_id,
-              channel_id: condition.channel_id,
+              device: condition.device,
+              channel: condition.channel,
               rows: [],
             })
           }
@@ -29,11 +29,11 @@ export default {
 
       for (const i in conditions) {
         if (Object.prototype.hasOwnProperty.call(conditions, i)) {
-          this._.filter(this._.get(trigger, 'conditions', []), { channel_id: conditions[i].channel_id })
+          this._.filter(trigger.conditions, { device: conditions[i].device, channel: conditions[i].channel })
             .forEach((condition) => {
               conditions[i].rows.push({
                 condition_id: condition.id,
-                property_id: condition.property_id,
+                property: condition.property,
                 operand: condition.operand,
                 operator: condition.operator,
               })
@@ -41,13 +41,7 @@ export default {
         }
       }
 
-      return orderBy(
-        conditions,
-        [
-          v => v.thing_id,
-        ],
-        ['asc'],
-      )
+      return conditions
     },
 
     /**
@@ -60,14 +54,13 @@ export default {
     mapActions(trigger) {
       const actions = []
 
-      this._.get(trigger, 'actions', [])
+      trigger.actions
         .forEach((action) => {
-          if (typeof actions.find(({ channel_id }) => channel_id === action.channel_id) === 'undefined') {
+          if (typeof actions.find(storedAction => (storedAction.device === action.device && storedAction.channel === action.channel)) === 'undefined') {
             actions.push({
-              thing: action.channel_id,
               enabled: action.enabled,
-              device_id: action.device_id,
-              channel_id: action.channel_id,
+              device: action.device,
+              channel: action.channel,
               rows: [],
             })
           }
@@ -75,24 +68,18 @@ export default {
 
       for (const i in actions) {
         if (Object.prototype.hasOwnProperty.call(actions, i)) {
-          this._.filter(this._.get(trigger, 'actions', []), { channel_id: actions[i].channel_id })
+          this._.filter(trigger.actions, { device: actions[i].device, channel: actions[i].channel })
             .forEach((action) => {
               actions[i].rows.push({
                 action_id: action.id,
-                property_id: action.property_id,
+                property: action.property,
                 operation: action.value,
               })
             })
         }
       }
 
-      return orderBy(
-        actions,
-        [
-          v => v.thing_id,
-        ],
-        ['asc'],
-      )
+      return actions
     },
 
     /**
@@ -101,12 +88,10 @@ export default {
      * @param {Object} condition
      */
     removeTriggerCondition(condition) {
-      this._.get(condition, 'rows', [])
+      condition.rows
         .forEach((row) => {
-          this.$store.dispatch('entities/condition/remove', {
+          Condition.dispatch('remove', {
             id: row.condition_id,
-          }, {
-            root: true,
           })
             .catch((e) => {
               const errorMessage = this.$t('triggers.messages.conditionNotRemoved')
@@ -126,12 +111,10 @@ export default {
      * @param {Object} action
      */
     removeTriggerAction(action) {
-      this._.get(action, 'rows', [])
+      action.rows
         .forEach((row) => {
-          this.$store.dispatch('entities/action/remove', {
+          Action.dispatch('remove', {
             id: row.action_id,
-          }, {
-            root: true,
           })
             .catch((e) => {
               const errorMessage = this.$t('triggers.messages.actionNotRemoved')

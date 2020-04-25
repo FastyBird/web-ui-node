@@ -62,9 +62,9 @@ export default {
      * @returns {Number}
      */
     thingsCount() {
-      return this._.uniq(this._.get(this.routine, 'actions', [])
+      return this._.uniq(this.routine.actions
         .map((item) => {
-          return item.channel_id
+          return `${item.device}-${item.channel}`
         }))
         .length
     },
@@ -118,7 +118,10 @@ export default {
           days = days.join(', ')
         }
 
-        return this.$t('routines.headings.scheduledRoutine', { days, time: this.$dateFns.format(this.schedule.time, this._.get(this.account, 'timeFormat', 'HH:mm')) })
+        return this.$t('routines.headings.scheduledRoutine', {
+          days,
+          time: this.$dateFns.format(this.schedule.time, this._.get(this.account, 'timeFormat', 'HH:mm')),
+        })
       }
 
       if (this.routine.hasComment) {
@@ -134,7 +137,7 @@ export default {
      * @returns {(Condition|null)}
      */
     schedule() {
-      const condition = this._.get(this.routine, 'conditions', []).find(item => item.isTime)
+      const condition = this.routine.conditions.find(item => item.isTime)
 
       if (typeof condition === 'undefined') {
         return null

@@ -74,7 +74,7 @@
       </settings-list-item>
 
       <settings-list-item
-        v-if="hasEnergyCalibration"
+        v-if="hasSensorsCalibration"
         type="button"
         class="fb-iot-things-settings-thing__item fb-iot-things-settings-thing__item-property"
         @click="openForm('energyCalibration')"
@@ -148,7 +148,8 @@
             <h5>
               <strong>{{ $t('things.texts.hardware.manufacturer') }}:</strong> {{ hardwareManufacturer }}
             </h5>
-            <small><strong>{{ $t('things.texts.hardware.model') }}:</strong> {{ hardwareModel }} - ver. {{ firmwareVersion }}</small>
+            <small><strong>{{ $t('things.texts.hardware.model') }}:</strong> {{ hardwareModel }} - ver. {{
+              firmwareVersion }}</small>
           </div>
         </li>
 
@@ -160,7 +161,7 @@
             <h5>
               <strong>{{ $t('things.texts.wifi.name') }}:</strong> {{ wifiSSID }}
             </h5>
-            <small><strong>{{ $t('things.texts.wifi.ip') }}:</strong> {{ wifiIPAddress }}</small>
+            <small><strong>{{ $t('things.texts.wifi.ip') }}:</strong> {{ ipAddress }}</small>
           </div>
         </li>
       </ul>
@@ -185,7 +186,7 @@
     />
 
     <thing-energy-calibration
-      v-if="hasEnergyCalibration && energyCalibration.show"
+      v-if="hasSensorsCalibration && energyCalibration.show"
       :thing="thing"
       :transparent-bg="transparentModal"
       @loaded="loading.energyCalibration = false"
@@ -231,6 +232,12 @@
 <script>
 import DeviceParameter from './DeviceParameter'
 import ChannelParameter from './ChannelParameter'
+
+import DeviceProperty from '~/models/devices-node/DeviceProperty'
+import DeviceConfiguration from '~/models/devices-node/DeviceConfiguration'
+import ChannelConfiguration from '~/models/devices-node/ChannelConfiguration'
+import Hardware from '~/models/devices-node/Hardware'
+import Firmware from '~/models/devices-node/Firmware'
 
 const ThingCredentials = () => import('./Credentials')
 const ThingRename = () => import('./Rename')
@@ -328,14 +335,15 @@ export default {
      * @returns {Array}
      */
     deviceParameters() {
-      return this.$store.getters['entities/device_configuration/query']()
+      return DeviceConfiguration
+        .query()
         .where('device_id', this.thing.device_id)
         .where((item) => {
           return this._.get(item, 'name').indexOf('ntp_') !== 0 &&
             this._.get(item, 'name').indexOf('sensor_') !== 0
         })
         .orderBy('name')
-        .all()
+        .get()
     },
 
     /**
@@ -344,9 +352,10 @@ export default {
      * @returns {Array}
      */
     channelParameters() {
-      return this.$store.getters['entities/channel_configuration/query']()
+      return ChannelConfiguration
+        .query()
         .where('id', this.thing.channel.configuration_ids)
-        .all()
+        .get()
     },
 
     /**
@@ -355,7 +364,8 @@ export default {
      * @returns {(Hardware|null)}
      */
     hardware() {
-      return this.$store.getters['entities/hardware/query']()
+      return Hardware
+        .query()
         .where('device_id', this.thing.device_id)
         .first()
     },
@@ -366,7 +376,7 @@ export default {
      * @returns {String}
      */
     hardwareModel() {
-      if (!this._.get(this.hardware, 'isCustom', true)) {
+      if (this.hardware !== null && this.hardware.isCustom === false) {
         return this.hardware.model
       }
 
@@ -379,7 +389,7 @@ export default {
      * @returns {String}
      */
     hardwareManufacturer() {
-      if (this.hardware !== null && this._.get(this.hardware, 'manufacturer', null) !== null) {
+      if (this.hardware !== null && this.hardware.manufacturer !== null) {
         return this.hardware.manufacturer
       }
 
@@ -392,7 +402,8 @@ export default {
      * @returns {(Firmware|null)}
      */
     firmware() {
-      return this.$store.getters['entities/firmware/query']()
+      return Firmware
+        .query()
         .where('device_id', this.thing.device_id)
         .first()
     },
@@ -403,7 +414,7 @@ export default {
      * @returns {String}
      */
     firmwareVersion() {
-      if (this.firmware !== null && this._.get(this.firmware, 'version', null) !== null) {
+      if (this.firmware !== null && this.firmware.version !== null) {
         return this.firmware.version
       }
 
@@ -416,7 +427,8 @@ export default {
      * @returns {String}
      */
     wifiSSID() {
-      const property = this.$store.getters['entities/device_property/query']()
+      const property = DeviceProperty
+        .query()
         .where('device_id', this.thing.device_id)
         .where('property', 'ssid')
         .first()
@@ -429,8 +441,9 @@ export default {
      *
      * @returns {String}
      */
-    wifiIPAddress() {
-      const property = this.$store.getters['entities/device_property/query']()
+    ipAddress() {
+      const property = DeviceProperty
+        .query()
         .where('device_id', this.thing.device_id)
         .where('property', 'ip-address')
         .first()
@@ -444,11 +457,12 @@ export default {
      * @returns {Boolean}
      */
     hasTimeSettings() {
-      if (!this._.get(this.hardware, 'isManufacturerItead')) {
+      if (this.hardware === null || this.hardware.isManufacturerItead === false) {
         return false
       }
 
-      return this.$store.getters['entities/device_configuration/query']()
+      return DeviceConfiguration
+        .query()
         .where('device_id', this.thing.device_id)
         .where((item) => {
           return this._.get(item, 'name').indexOf('ntp_') === 0
@@ -462,11 +476,12 @@ export default {
      * @returns {Boolean}
      */
     hasSensorsSettings() {
-      if (!this._.get(this.hardware, 'isManufacturerItead')) {
+      if (this.hardware === null || this.hardware.isManufacturerItead === false) {
         return false
       }
 
-      return this.$store.getters['entities/device_configuration/query']()
+      return DeviceConfiguration
+        .query()
         .where('device_id', this.thing.device_id)
         .where((item) => {
           return this._.get(item, 'name').indexOf('sensor_') === 0 &&
@@ -480,12 +495,13 @@ export default {
      *
      * @returns {Boolean}
      */
-    hasEnergyCalibration() {
-      if (!this._.get(this.hardware, 'isManufacturerItead')) {
+    hasSensorsCalibration() {
+      if (this.hardware === null || this.hardware.isManufacturerItead === false) {
         return false
       }
 
-      return this.$store.getters['entities/device_configuration/query']()
+      return DeviceConfiguration
+        .query()
         .where('device_id', this.thing.device_id)
         .where((item) => {
           return this._.get(item, 'name').indexOf('sensor_expected_') === 0
@@ -503,7 +519,7 @@ export default {
         this.channelParameters.length ||
         this.hasTimeSettings ||
         this.hasSensorsSettings ||
-        this.hasEnergyCalibration)
+        this.hasSensorsCalibration)
     },
 
   },
@@ -557,7 +573,7 @@ export default {
         }
       })
 
-    this.isCustom = this.hardware === null || this._.get(this.hardware, 'isCustom', true)
+    this.isCustom = this.hardware === null || this.hardware.isCustom
   },
 
   methods: {
@@ -592,12 +608,12 @@ export default {
      * Open thing edit form
      *
      * @param {String} type
-     * @param {(ThingConfiguration|ChannelConfiguration)} [parameter]
+     * @param {(DeviceConfiguration|ChannelConfiguration)} [parameter]
      */
     openForm(type, parameter) {
       if ((type === 'deviceParameterForm' || type === 'channelParameterForm') && !this.thing.state) {
         this.$flashMessage(this.$t('things.messages.notOnline', {
-          thing: this.$tThing(this.thing),
+          thing: this.$tThingChannel(this.thing),
         }), 'error')
 
         return
@@ -631,7 +647,7 @@ export default {
     openModuleForm(prefix, title) {
       if (!this.thing.state) {
         this.$flashMessage(this.$t('things.messages.notOnline', {
-          thing: this.$tThing(this.thing),
+          thing: this.$tThingChannel(this.thing),
         }), 'error')
 
         return
@@ -675,34 +691,30 @@ export default {
     /**
      * Submit thing edit parameter
      *
-     * @param {(ThingConfiguration|ChannelConfiguration)} parameter
+     * @param {(DeviceConfiguration|ChannelConfiguration)} parameter
      * @param {String} type
      */
     submit(parameter, type) {
       if (!this.thing.state) {
         this.$flashMessage(this.$t('things.messages.notOnline', {
-          thing: this.$tThing(this.thing),
+          thing: this.$tThingChannel(this.thing),
         }), 'error')
 
         return
       }
 
       if (type === 'device') {
-        this.$store.dispatch('entities/device_configuration/edit', {
+        DeviceConfiguration.dispatch('edit', {
           device_id: this.thing.device_id,
           parameter_id: parameter.id,
           data: this.form.parameter[parameter.name],
-        }, {
-          root: true,
         })
       } else if (type === 'channel') {
-        this.$store.dispatch('entities/channel_configuration_value/edit', {
+        ChannelConfiguration.dispatch('edit', {
           device_id: this.thing.device_id,
           channel_id: this.thing.channel_id,
           parameter_id: parameter.id,
           data: this.form.parameter[parameter.name],
-        }, {
-          root: true,
         })
       }
     },

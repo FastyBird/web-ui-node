@@ -12,9 +12,6 @@ require('dotenv').config({
   path: fs.existsSync(confEnvPath) ? confEnvPath : defaultEnvPath,
 })
 
-// Generated session key
-process.env.NUXT_ENV_SESSION_KEY = '93b448d8-8b48-4606-9d99-96c4007b856d'
-
 const proxy = {}
 
 if (
@@ -67,18 +64,21 @@ module.exports = {
 
   css: [
     '@/node_modules/@fastybird-com/theme/assets/theme',
+    '@/assets/scss/toaster',
   ],
 
   plugins: [
     '@/plugins/app',
     '@/plugins/app.client',
-    '@/plugins/template',
     '@/plugins/routes',
     '@/plugins/flash-messages',
     '@/plugins/lodash',
     '@/plugins/event.bus',
-    '@/plugins/io-server',
-    '@/plugins/translate',
+    '@/plugins/backend',
+    '@/plugins/translate.device',
+    '@/plugins/translate.channel',
+    '@/plugins/translate.device.property',
+    '@/plugins/translate.channel.property',
     '@/plugins/icons.channel',
     '@/plugins/icons.group',
     '@/plugins/icons.routine',
@@ -102,9 +102,7 @@ module.exports = {
     '@nuxtjs/date-fns',
     'cookie-universal-nuxt',
     'nuxt-validate',
-    ['nuxt-i18n', {
-      seo: false,
-    }],
+    'nuxt-i18n',
     'nuxt-fontawesome',
     'vue-scrollto/nuxt',
   ],

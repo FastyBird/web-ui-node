@@ -29,6 +29,8 @@ import 'hooper/dist/hooper.css'
 
 import CarouselSlide from './Slide'
 
+import Trigger from '~/models/triggers-node/Trigger'
+
 export default {
 
   name: 'RoutinesListCarousel',
@@ -62,14 +64,15 @@ export default {
   computed: {
 
     routines() {
-      let routines = this.$store.getters['entities/trigger/query']()
+      let routines = Trigger
+        .query()
         .with('conditions')
         .where('isAutomatic', true)
         .orderBy('name')
-        .all()
+        .get()
 
       routines = this._.filter(routines, (routine) => {
-        const condition = this._.get(routine, 'conditions', []).find(item => item.isTime)
+        const condition = routine.conditions.find(item => item.isTime)
 
         if (typeof condition === 'undefined') {
           return false
@@ -78,7 +81,7 @@ export default {
         const now = new Date()
         const time = new Date(condition.time)
 
-        return this._.get(condition, 'days', []).includes(parseInt(this.$dateFns.format(now, 'i'), 10)) &&
+        return condition.days.includes(parseInt(this.$dateFns.format(now, 'i'), 10)) &&
           this.$dateFns.compareDesc(now, new Date(`${this.$dateFns.format(now, 'Y-M-d')} ${this.$dateFns.format(time, 'H:m:s XXXX')}`)) === 1
       })
 

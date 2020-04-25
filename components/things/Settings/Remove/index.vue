@@ -14,13 +14,15 @@
         path="things.messages.confirmRemove"
         tag="p"
       >
-        <strong slot="thing">{{ $tThing(thing) }}</strong>
+        <strong slot="thing">{{ $tThingChannel(thing) }}</strong>
       </i18n>
     </template>
   </fb-confirmation-window>
 </template>
 
 <script>
+import Device from '~/models/devices-node/Device'
+
 export default {
 
   name: 'ThingsSettingsRemove',
@@ -54,13 +56,11 @@ export default {
       event && event.preventDefault()
 
       const errorMessage = this.$t('things.messages.notRemoved', {
-        thing: this.$tThing(this.thing),
+        thing: this.$tThingChannel(this.thing),
       })
 
-      this.$store.dispatch('entities/thing/remove', {
+      Device.dispatch('remove', {
         id: this.thing.id,
-      }, {
-        root: true,
       })
         .catch((e) => {
           if (this._.get(e, 'exception', null) !== null) {

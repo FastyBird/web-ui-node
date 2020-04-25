@@ -269,12 +269,7 @@ export default {
      */
     switchState() {
       if (this.channel.stateProperty !== undefined) {
-        const propertyValue = this.$store.getters['entities/channel_property_value/query']()
-          .where('channel_id', this.channel.id)
-          .where('property_id', this.channel.stateProperty.id)
-          .first()
-
-        return propertyValue !== null ? !!propertyValue.value : false
+        return this.channel.stateProperty !== null ? !!this.channel.stateProperty.value : false
       }
 
       return false
@@ -369,14 +364,7 @@ export default {
       const payload = Object.assign({}, this.channelData)
       payload.rgb = setColor.toRgb()
 
-      this.$store.dispatch('entities/channel_property_value/setPayload', {
-        value: payload,
-        device_id: this.thing.device_id,
-        channel_id: this.thing.channel_id,
-        property_id: this.clearTotal.property.id,
-      }, {
-        root: true,
-      })
+      this.$controlChannel(this.clearTotal.property, payload)
         .then(() => {
           this.disableUpdate = false
         })
@@ -384,7 +372,7 @@ export default {
           this.disableUpdate = false
 
           this.$flashMessage(this.$t('things.messages.commandNotAccepted', {
-            thing: this.$tThing(this.thing),
+            thing: this.$tThingChannel(this.thing),
           }), 'error')
         })
     },

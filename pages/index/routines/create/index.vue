@@ -85,7 +85,8 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import FbComponentLoading from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoading'
+import FbComponentLoadingError from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoadingError'
 
 import {
   ROUTINES_HASH_CREATE,
@@ -96,10 +97,11 @@ import {
   ROUTINES_QUERY_TYPE_MANUAL,
 } from '@/configuration/routes'
 
-import FbComponentLoading from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoading'
-import FbComponentLoadingError from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoadingError'
-
 import CreateRoutine from '@/components/routines/Create'
+
+import Device from '~/models/devices-node/Device'
+import Channel from '~/models/devices-node/Channel'
+import Thing from '~/models/Thing'
 
 const SelectThing = () => ({
   component: import('@/components/routines/Phone/SelectThing'),
@@ -196,9 +198,12 @@ export default {
 
   computed: {
 
-    ...mapState('theme', {
-      windowSize: state => state.windowSize,
-    }),
+    /**
+     * @returns {String}
+     */
+    windowSize() {
+      return this.$store.state.template.windowSize
+    },
 
   },
 
@@ -216,43 +221,34 @@ export default {
   },
 
   fetch({ app, store }) {
-    store.dispatch('header/resetStore', null, {
+    store.dispatch('template/resetStore', null, {
       root: true,
     })
 
-    store.dispatch('header/setLeftButton', {
+    store.dispatch('template/setLeftButton', {
       name: app.i18n.t('application.buttons.back.title'),
-      link: app.localePath(app.$routes.routines.list),
       icon: 'arrow-left',
     }, {
       root: true,
     })
 
-    store.dispatch('header/hideRightButton', null, {
+    store.dispatch('template/setFullRowHeading', null, {
       root: true,
     })
 
-    store.dispatch('header/setFullRowHeading', null, {
-      root: true,
-    })
-
-    store.dispatch('header/setHeading', {
+    store.dispatch('template/setHeading', {
       heading: app.i18n.t('routines.headings.createRoutine'),
     }, {
       root: true,
     })
 
-    store.dispatch('header/setHeadingIcon', {
+    store.dispatch('template/setHeadingIcon', {
       icon: 'project-diagram',
     }, {
       root: true,
     })
 
-    store.dispatch('bottomNavigation/resetStore', null, {
-      root: true,
-    })
-
-    store.dispatch('bottomNavigation/hideNavigation', null, {
+    store.dispatch('app/bottomMenuCollapse', null, {
       root: true,
     })
   },
@@ -279,6 +275,20 @@ export default {
     }
 
     this._configureNavigation()
+
+    if (this.windowSize === 'xs') {
+      this.$store.dispatch('template/setBodyMargin', {
+        key: 'custom',
+        position: 'bottom',
+        margin: 58,
+      }, {
+        root: true,
+      })
+    }
+
+    this.$bus.$on('heading_left_button-clicked', () => {
+      this.$router.push(this.localePath(this.$routes.routines.list))
+    })
   },
 
   mounted() {
@@ -291,6 +301,16 @@ export default {
     this.$store.dispatch('routineCreate/clear', {}, {
       root: true,
     })
+
+    this.$store.dispatch('template/setBodyMargin', {
+      key: 'custom',
+      position: 'bottom',
+      margin: 0,
+    }, {
+      root: true,
+    })
+
+    this.$bus.$off('heading_left_button-clicked')
   },
 
   methods: {
@@ -364,11 +384,31 @@ export default {
      */
     editCondition(condition) {
       this.view.items.conditionThingEdit.item = condition
-      this.view.items.conditionThingEdit.thing = this.$store.getters['entities/thing/query']()
+
+      const device = Device
+        .query()
+        .where('identifier', condition.device)
+        .first()
+
+      if (device === null) {
+        return
+      }
+
+      const channel = Channel
+        .query()
+        .where('device_id', device.id)
+        .where('channel', condition.channel)
+        .first()
+
+      if (channel === null) {
+        return
+      }
+
+      this.view.items.conditionThingEdit.thing = Thing
+        .query()
         .with('device')
         .with('channel')
-        .with('channel.properties')
-        .where('id', condition.thing)
+        .where('channel_id', channel.id)
         .first()
 
       this.openView(this.view.items.conditionThingEdit.name)
@@ -381,7 +421,8 @@ export default {
      */
     removeCondition(thing) {
       this.$store.dispatch('routineCreate/removeCondition', {
-        thing,
+        device: thing.device.identifier,
+        channel: thing.channel.channel,
       }, {
         root: true,
       })
@@ -449,11 +490,31 @@ export default {
      */
     editAction(action) {
       this.view.items.actionThingEdit.item = action
-      this.view.items.actionThingEdit.thing = this.$store.getters['entities/thing/query']()
+
+      const device = Device
+        .query()
+        .where('identifier', action.device)
+        .first()
+
+      if (device === null) {
+        return
+      }
+
+      const channel = Channel
+        .query()
+        .where('device_id', device.id)
+        .where('channel', action.channel)
+        .first()
+
+      if (channel === null) {
+        return
+      }
+
+      this.view.items.actionThingEdit.thing = Thing
+        .query()
         .with('device')
         .with('channel')
-        .with('channel.properties')
-        .where('id', action.thing)
+        .where('channel_id', channel.id)
         .first()
 
       this.openView(this.view.items.actionThingEdit.name)
@@ -466,7 +527,8 @@ export default {
      */
     removeAction(thing) {
       this.$store.dispatch('routineCreate/removeAction', {
-        thing,
+        device: thing.device.identifier,
+        channel: thing.channel.channel,
       }, {
         root: true,
       })
@@ -516,43 +578,34 @@ export default {
      * @private
      */
     _configureNavigation() {
-      this.$store.dispatch('header/resetStore', null, {
+      this.$store.dispatch('template/resetStore', null, {
         root: true,
       })
 
-      this.$store.dispatch('header/setLeftButton', {
+      this.$store.dispatch('template/setLeftButton', {
         name: this.$t('application.buttons.back.title'),
-        link: this.localePath(this.$routes.routines.list),
         icon: 'arrow-left',
       }, {
         root: true,
       })
 
-      this.$store.dispatch('header/hideRightButton', null, {
+      this.$store.dispatch('template/setFullRowHeading', null, {
         root: true,
       })
 
-      this.$store.dispatch('header/setFullRowHeading', null, {
-        root: true,
-      })
-
-      this.$store.dispatch('header/setHeading', {
+      this.$store.dispatch('template/setHeading', {
         heading: this.$t('routines.headings.createRoutine'),
       }, {
         root: true,
       })
 
-      this.$store.dispatch('header/setHeadingIcon', {
+      this.$store.dispatch('template/setHeadingIcon', {
         icon: 'project-diagram',
       }, {
         root: true,
       })
 
-      this.$store.dispatch('bottomNavigation/resetStore', null, {
-        root: true,
-      })
-
-      this.$store.dispatch('bottomNavigation/hideNavigation', null, {
+      this.$store.dispatch('app/bottomMenuCollapse', null, {
         root: true,
       })
     },

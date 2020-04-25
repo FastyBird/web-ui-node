@@ -8,7 +8,7 @@
     </template>
 
     <template slot="heading">
-      {{ $tThing(thing) }}
+      {{ $tThingChannel(thing) }}
     </template>
 
     <template slot="sub-heading">
@@ -36,6 +36,11 @@
 </template>
 
 <script>
+import Device from '~/models/devices-node/Device'
+import Channel from '~/models/devices-node/Channel'
+import ChannelProperty from '~/models/devices-node/ChannelProperty'
+import Thing from '~/models/Thing'
+
 export default {
 
   name: 'RoutinesEditListCondition',
@@ -47,8 +52,9 @@ export default {
       required: true,
       validator: (value) => {
         return !(
+          !Object.prototype.hasOwnProperty.call(value, 'device') ||
+          !Object.prototype.hasOwnProperty.call(value, 'channel') ||
           !Object.prototype.hasOwnProperty.call(value, 'enabled') ||
-          !Object.prototype.hasOwnProperty.call(value, 'thing') ||
           !Object.prototype.hasOwnProperty.call(value, 'rows') ||
           !Array.isArray(value.rows) ||
           !value.rows.length
@@ -67,16 +73,35 @@ export default {
   computed: {
 
     /**
-     * Condition thing
+     * Action thing
      *
-     * @returns {Thing}
+     * @returns {(Thing|null)}
      */
     thing() {
-      return this.$store.getters['entities/thing/query']()
+      const device = Device
+        .query()
+        .where('identifier', this.condition.device)
+        .first()
+
+      if (device === null) {
+        return null
+      }
+
+      const channel = Channel
+        .query()
+        .where('device_id', device.id)
+        .where('channel', this.condition.channel)
+        .first()
+
+      if (channel === null) {
+        return null
+      }
+
+      return Thing
+        .query()
         .with('device')
         .with('channel')
-        .with('channel.properties')
-        .where('id', this.condition.thing)
+        .where('channel_id', channel.id)
         .first()
     },
 
@@ -86,15 +111,27 @@ export default {
      * @returns {Array}
      */
     properties() {
+      if (this.thing === null) {
+        return []
+      }
+
       const mapped = []
 
       this.condition.rows
         .forEach((row) => {
-          mapped.push({
-            operand: row.operand,
-            operator: row.operator,
-            property: this.$store.getters['entities/channel_property/find'](row.property_id),
-          })
+          const property = ChannelProperty
+            .query()
+            .where('channel_id', this.thing.channel_id)
+            .where('property', row.property)
+            .first()
+
+          if (property !== null) {
+            mapped.push({
+              operator: row.operator,
+              operand: row.operand,
+              property,
+            })
+          }
         })
 
       return mapped

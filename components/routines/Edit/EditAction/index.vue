@@ -1,25 +1,24 @@
 <template>
   <div class="fb-routines-edit-action-thing__container">
-    <template v-for="(groupProperties, group) in groupedProperties">
-      <list-items-container
-        v-if="groupProperties.length"
-        :key="group"
-        :heading="$t(`routines.groups.actors.${group}`)"
-      >
-        <property
-          v-for="property in groupProperties"
-          :key="property.id"
-          v-model="model"
-          :thing="thing"
-          :property="property"
-        />
-      </list-items-container>
-    </template>
+    <list-items-container
+      v-if="actors.length"
+      :heading="$t('routines.groups.actors')"
+    >
+      <property
+        v-for="property in actors"
+        :key="property.id"
+        v-model="model"
+        :thing="thing"
+        :property="property"
+      />
+    </list-items-container>
   </div>
 </template>
 
 <script>
 import Property from './Property'
+
+import ChannelProperty from '~/models/devices-node/ChannelProperty'
 
 export default {
 
@@ -41,7 +40,8 @@ export default {
       default: null,
       validator: (value) => {
         return !(
-          !Object.prototype.hasOwnProperty.call(value, 'thing') ||
+          !Object.prototype.hasOwnProperty.call(value, 'device') ||
+          !Object.prototype.hasOwnProperty.call(value, 'channel') ||
           !Object.prototype.hasOwnProperty.call(value, 'enabled') ||
           !Object.prototype.hasOwnProperty.call(value, 'rows') ||
           !Array.isArray(value.rows) ||
@@ -60,12 +60,7 @@ export default {
   data() {
     return {
       model: {},
-      groupedProperties: {
-        analog: [],
-        binary: [],
-        lights: [],
-        switches: [],
-      },
+      actors: [],
     }
   },
 
@@ -80,12 +75,13 @@ export default {
   },
 
   created() {
-    this._initModel()
+    this.actors = ChannelProperty
+      .query()
+      .where('channel_id', this.thing.channel_id)
+      .where('isSettable', true)
+      .get()
 
-    this.groupedProperties.analog = this._.filter(this._.get(this.thing, 'channel.properties', []), 'isAnalogActor')
-    this.groupedProperties.binary = this._.filter(this._.get(this.thing, 'channel.properties', []), 'isBinaryActor')
-    this.groupedProperties.lights = this._.filter(this._.get(this.thing, 'channel.properties', []), 'isLight')
-    this.groupedProperties.switches = this._.filter(this._.get(this.thing, 'channel.properties', []), 'isSwitch')
+    this._initModel()
   },
 
   mounted() {
@@ -101,12 +97,13 @@ export default {
       this.$emit('update:remoteSubmit', false)
 
       const action = {
-        thing: this.action ? this.action.thing : this.thing.id,
+        device: this.action ? this.action.device : this.thing.device.identifier,
+        channel: this.action ? this.action.channel : this.thing.channel.channel,
         enabled: this.action ? this.action.enabled : true,
-        rows: this._.filter(this._.get(this.model, 'rows', []), 'selected')
+        rows: this._.filter(this.model.rows, 'selected')
           .map((row) => {
             return {
-              property_id: row.property_id,
+              property: row.property,
               operation: row.operation,
             }
           }),
@@ -131,7 +128,7 @@ export default {
       }
 
       // Iterate over all thing[device channel] properties
-      this._.get(this.thing, 'channel.properties', [])
+      this.actors
         .forEach((property) => {
           let defaultValue = null
 
@@ -142,24 +139,24 @@ export default {
           }
 
           if (this.action) {
-            const storedProperty = this.action.rows.find(row => row.property_id === property.id)
+            const storedProperty = this.action.rows.find(row => row.property === property.property)
 
             if (typeof storedProperty !== 'undefined') {
               this.model.rows.push({
-                property_id: property.id,
+                property: property.property,
                 selected: true,
                 operation: storedProperty.operation,
               })
             } else {
               this.model.rows.push({
-                property_id: property.id,
+                property: property.property,
                 selected: false,
                 operation: defaultValue,
               })
             }
           } else {
             this.model.rows.push({
-              property_id: property.id,
+              property: property.property,
               selected: false,
               operation: defaultValue,
             })

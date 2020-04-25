@@ -43,7 +43,8 @@
                 {{ $t('things.headings.newAction') }}
               </h4>
 
-              <small>Facilis blanditiis, quibusdam corporis porro natus neque soluta nihil hic aliquam, suscipit, consectetur omnis placeat architecto quae laboriosam. Id porro adipisci, alias.</small>
+              <small>Facilis blanditiis, quibusdam corporis porro natus neque soluta nihil hic aliquam, suscipit,
+                consectetur omnis placeat architecto quae laboriosam. Id porro adipisci, alias.</small>
             </template>
 
             <template v-else-if="view.opened === view.items.selectThing.name">
@@ -53,17 +54,19 @@
                 {{ $t('routines.headings.selectThing') }}
               </h4>
 
-              <small>Facilis blanditiis, quibusdam corporis porro natus neque soluta nihil hic aliquam, suscipit, consectetur omnis placeat architecto quae laboriosam. Id porro adipisci, alias.</small>
+              <small>Facilis blanditiis, quibusdam corporis porro natus neque soluta nihil hic aliquam, suscipit,
+                consectetur omnis placeat architecto quae laboriosam. Id porro adipisci, alias.</small>
             </template>
 
             <template v-else-if="view.opened === view.items.actionThing.name">
               <font-awesome-icon :icon="$thingIcon(view.items.actionThing.thing)" />
 
               <h4>
-                {{ $tThing(view.items.actionThing.thing) }}
+                {{ $tThingChannel(view.items.actionThing.thing) }}
               </h4>
 
-              <small>Facilis blanditiis, quibusdam corporis porro natus neque soluta nihil hic aliquam, suscipit, consectetur omnis placeat architecto quae laboriosam. Id porro adipisci, alias.</small>
+              <small>Facilis blanditiis, quibusdam corporis porro natus neque soluta nihil hic aliquam, suscipit,
+                consectetur omnis placeat architecto quae laboriosam. Id porro adipisci, alias.</small>
             </template>
           </div>
         </div>
@@ -111,7 +114,7 @@
           <select-thing
             v-if="view.opened === view.items.selectThing.name"
             :items="view.items[view.opened].items"
-            :only-settable="true"
+            :type-actor="true"
             @select="thingSelected"
             @close="closeView"
           />
@@ -174,12 +177,15 @@
 </template>
 
 <script>
-import buttonThingTriggerMixin from '@/mixins/buttonThingTrigger'
-
 import FbComponentLoading from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoading'
 import FbComponentLoadingError from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoadingError'
 
+import buttonThingTriggerMixin from '@/mixins/buttonThingTrigger'
+
 import ButtonThing from '@/components/things/Detail/Things/Button'
+
+import ChannelProperty from '~/models/devices-node/ChannelProperty'
+import Trigger from '~/models/triggers-node/Trigger'
 
 const SelectThing = () => ({
   component: import('@/components/routines/Edit/SelectThing'),
@@ -250,17 +256,24 @@ export default {
      * @returns {Array}
      */
     triggers() {
-      if (typeof this._.first(this.thing.channel.properties) === 'undefined') {
+      const property = ChannelProperty
+        .query()
+        .where('channel_id', this.thing.channel_id)
+        .first()
+
+      if (property === null) {
         return []
       }
 
-      return this.$store.getters['entities/trigger/query']()
+      return Trigger
+        .query()
         .with('condition')
         .with('actions')
-        .where('channel_id', this.thing.channel_id)
-        .where('property_id', this._.first(this.thing.channel.properties).id)
+        .where('device', this.thing.device.identifier)
+        .where('channel', this.thing.channel.channel)
+        .where('property', property.property)
         .orderBy('operand', 'asc')
-        .all()
+        .get()
     },
 
   },

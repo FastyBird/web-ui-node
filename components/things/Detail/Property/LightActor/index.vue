@@ -38,7 +38,7 @@
         <h5 class="fw-b m-y-0">
           {{ $t('channels.light.title') }}
         </h5>
-        <small>{{ $tThing(thing) }}</small>
+        <small>{{ $tThingChannel(thing) }}</small>
       </div>
 
       <div
@@ -92,10 +92,10 @@
 <script>
 import VueSlider from 'vue-slider-component'
 
-import PropertyContainer from '../../PropertyContainer'
-
 import SwitchActor from '@/components/things/Actors/Switch'
 import LightActor from '@/components/things/Actors/Light'
+
+import PropertyContainer from '../../PropertyContainer'
 
 export default {
 

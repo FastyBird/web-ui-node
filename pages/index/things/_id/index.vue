@@ -31,8 +31,6 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
-
 import get from 'lodash/get'
 
 import {
@@ -42,6 +40,9 @@ import {
 
 import FbComponentLoading from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoading'
 import FbComponentLoadingError from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoadingError'
+
+import Hardware from '~/models/devices-node/Hardware'
+import Thing from '~/models/Thing'
 
 const ThingDetailDefault = () => ({
   component: import('@/components/things/Phone/DetailDefault'),
@@ -102,13 +103,12 @@ export default {
 
   computed: {
 
-    ...mapState('theme', {
-      windowSize: state => state.windowSize,
-    }),
-
-    ...mapState('wamp', {
-      exchangeConnected: state => state.isConnected,
-    }),
+    /**
+     * @returns {String}
+     */
+    windowSize() {
+      return this.$store.state.template.windowSize
+    },
 
     /**
      * View thing data
@@ -116,12 +116,10 @@ export default {
      * @returns {Thing}
      */
     thing() {
-      return this.$store.getters['entities/thing/query']()
+      return Thing
+        .query()
         .with('device')
-        .with('device.properties')
-        .with('device.socket')
         .with('channel')
-        .with('channel.properties')
         .where('channel_id', this.id)
         .first()
     },
@@ -132,7 +130,8 @@ export default {
      * @returns {(Hardware|null)}
      */
     hardware() {
-      return this.$store.getters['entities/hardware/query']()
+      return Hardware
+        .query()
         .where('device_id', this.thing.device_id)
         .first()
     },
@@ -143,10 +142,9 @@ export default {
      * @returns {Boolean}
      */
     isButtonThing() {
-      return !!(this._.get(this.hardware, 'isManufacturerFastyBird', false) &&
-        (
-          this._.get(this.hardware, 'model') === '8ch_buttons' || this._.get(this.hardware, 'model') === '16ch_buttons'
-        ))
+      return this.hardware !== null &&
+        this.hardware.isManufacturerFastyBird &&
+        (this.hardware.model === '8ch_buttons' || this.hardware.model === '16ch_buttons')
     },
 
     /**
@@ -155,7 +153,7 @@ export default {
      * @returns {Boolean}
      */
     fetchingThings() {
-      return this.$store.getters['entities/thing/fetching']()
+      return Thing.getters('fetching')()
     },
 
     /**
@@ -164,7 +162,7 @@ export default {
      * @returns {Boolean}
      */
     fetchingThing() {
-      return this.$store.getters['entities/thing/getting'](this.id)
+      return Thing.getters('getting')(this.id)
     },
 
   },
@@ -218,16 +216,8 @@ export default {
       if (!val) {
         if (this.thing === null) {
           this.$nuxt.error({ statusCode: 404, message: 'Thing Not Found' })
-
-          return
         }
-
-        this._subscribeSockets()
       }
-    },
-
-    exchangeConnected() {
-      this._subscribeSockets()
     },
 
   },
@@ -247,47 +237,41 @@ export default {
             .first()
 
           if (thing) {
-            store.dispatch('header/resetStore', null, {
+            store.dispatch('template/resetStore', null, {
               root: true,
             })
 
-            store.dispatch('header/setLeftButton', {
+            store.dispatch('template/setLeftButton', {
               name: app.i18n.t('application.buttons.back.title'),
-              link: app.localePath(app.$routes.things.list),
               icon: 'arrow-left',
             }, {
               root: true,
             })
 
-            store.dispatch('header/setRightButton', {
+            store.dispatch('template/setRightButton', {
               name: app.i18n.t('application.buttons.edit.title'),
-              callback: null, // Null is set because of SSR and serialization
             }, {
               root: true,
             })
 
-            store.dispatch('header/setFullRowHeading', null, {
+            store.dispatch('template/setFullRowHeading', null, {
               root: true,
             })
 
-            store.dispatch('header/setHeading', {
-              heading: app.$tThing(thing),
+            store.dispatch('template/setHeading', {
+              heading: app.$tThingChannel(thing),
               subHeading: app.$tThingDevice(thing),
             }, {
               root: true,
             })
 
-            store.dispatch('header/setHeadingIcon', {
+            store.dispatch('template/setHeadingIcon', {
               icon: app.$thingIcon(thing),
             }, {
               root: true,
             })
 
-            store.dispatch('bottomNavigation/resetStore', null, {
-              root: true,
-            })
-
-            store.dispatch('bottomNavigation/hideNavigation', null, {
+            store.dispatch('app/bottomMenuCollapse', null, {
               root: true,
             })
           } else {
@@ -315,15 +299,13 @@ export default {
     }
 
     if (
-      this.$store.getters['entities/thing/query']().count() === 0 &&
+      Thing.query().count() === 0 &&
       !this.fetchingThings &&
       !this.fetchingThing &&
-      !this.$store.getters['entities/thing/firstLoadFinished']()
+      !Thing.getters('firstLoadFinished')()
     ) {
-      this.$store.dispatch('entities/thing/get', {
+      Thing.dispatch('get', {
         id: this.id,
-      }, {
-        root: true,
       })
         .catch((e) => {
           if (this._.get(e, 'exception.response.status', 0) === 404) {
@@ -336,12 +318,6 @@ export default {
 
     if (!this.fetchingThing && !this.fetchingThings && this.thing === null) {
       this.$nuxt.error({ statusCode: 404, message: 'Thing Not Found' })
-
-      return
-    }
-
-    if (this.thing) {
-      this._subscribeSockets()
     }
   },
 
@@ -431,21 +407,6 @@ export default {
     },
 
     /**
-     * If it is possible and necessary, connect thing to sockets
-     *
-     * @private
-     */
-    _subscribeSockets() {
-      if (this.exchangeConnected) {
-        this.$store.dispatch('entities/device_socket/subscribe', {
-          device_id: this.thing.device_id,
-        }, {
-          root: true,
-        })
-      }
-    },
-
-    /**
      * Update blocks height according to resized window
      *
      * @private
@@ -487,7 +448,7 @@ export default {
 
   head() {
     return {
-      title: this.$t('meta.things.detail.title', { thing: this.$tThing(this.thing) }),
+      title: this.$t('meta.things.detail.title', { thing: this.$tThingChannel(this.thing) }),
     }
   },
 

@@ -4,23 +4,18 @@
     class="fb-iot-things-detail-default__container"
   >
     <list-items-container
-      v-if="analogSensorsProperties.length"
-      :heading="$tc('things.headings.analogSensors', analogSensorsProperties.length)"
+      v-if="analogSensors.length || binarySensors.length"
+      :heading="$tc('things.headings.sensors', (analogSensors.length + binarySensors.length))"
     >
       <analog-sensor
-        v-for="property in analogSensorsProperties"
+        v-for="property in analogSensors"
         :key="property.id"
         :thing="thing"
         :property="property"
       />
-    </list-items-container>
 
-    <list-items-container
-      v-if="binarySensorsProperties.length"
-      :heading="$tc('things.headings.binarySensors', binarySensorsProperties.length)"
-    >
       <binary-sensor
-        v-for="property in binarySensorsProperties"
+        v-for="property in binarySensors"
         :key="property.id"
         :thing="thing"
         :property="property"
@@ -28,11 +23,11 @@
     </list-items-container>
 
     <list-items-container
-      v-if="binaryActorsProperties.length"
-      :heading="$tc('things.headings.binaryActors', binaryActorsProperties.length)"
+      v-if="binaryActors.length"
+      :heading="$tc('things.headings.actors', binaryActors.length)"
     >
       <binary-actor
-        v-for="property in binaryActorsProperties"
+        v-for="property in binaryActors"
         :key="property.id"
         :thing="thing"
         :property="property"
@@ -40,35 +35,11 @@
     </list-items-container>
 
     <list-items-container
-      v-if="energyProperties.length"
-      :heading="$tc('things.headings.energy', energyProperties.length)"
-    >
-      <energy-meter
-        v-for="property in energyProperties"
-        :key="property.id"
-        :thing="thing"
-        :property="property"
-      />
-    </list-items-container>
-
-    <list-items-container
-      v-if="environmentProperties.length"
-      :heading="$tc('things.headings.environment', environmentProperties.length)"
-    >
-      <environment-meter
-        v-for="property in environmentProperties"
-        :key="property.id"
-        :thing="thing"
-        :property="property"
-      />
-    </list-items-container>
-
-    <list-items-container
-      v-if="switchProperties.length"
-      :heading="$tc('things.headings.switches', switchProperties.length)"
+      v-if="switches.length"
+      :heading="$tc('things.headings.switches', switches.length)"
     >
       <switch-actor
-        v-for="property in switchProperties"
+        v-for="property in switches"
         :key="property.id"
         :thing="thing"
         :property="property"
@@ -76,7 +47,7 @@
     </list-items-container>
 
     <no-results
-      v-if="!switchProperties.length && !analogSensorsProperties.length && !analogActorsProperties.length && !binarySensorsProperties.length && !binaryActorsProperties.length && !lightProperties.length && !energyProperties.length && !environmentProperties.length"
+      v-if="!switches.length && !analogSensors.length && !analogActors.length && !binarySensors.length && !binaryActors.length"
       :message="$t('things.texts.noProperties')"
       icon="cube"
       second-icon="plug"
@@ -85,11 +56,11 @@
 </template>
 
 <script>
+import ChannelProperty from '~/models/devices-node/ChannelProperty'
+
 const AnalogSensor = () => import('./../../Property/AnalogSensor')
 const BinaryActor = () => import('./../../Property/BinaryActor')
 const BinarySensor = () => import('./../../Property/BinarySensor')
-const EnergyMeter = () => import('./../../Property/EnergyMeter')
-const EnvironmentMeter = () => import('./../../Property/EnvironmentMeter')
 const SwitchActor = () => import('./../../Property/SwitchActor')
 
 export default {
@@ -100,8 +71,6 @@ export default {
     AnalogSensor,
     BinaryActor,
     BinarySensor,
-    EnergyMeter,
-    EnvironmentMeter,
     SwitchActor,
   },
 
@@ -114,28 +83,52 @@ export default {
 
   },
 
-  data() {
-    return {
-      analogSensorsProperties: [],
-      analogActorsProperties: [],
-      binarySensorsProperties: [],
-      binaryActorsProperties: [],
-      lightProperties: [],
-      energyProperties: [],
-      environmentProperties: [],
-      switchProperties: [],
-    }
-  },
+  computed: {
 
-  created() {
-    this.analogSensorsProperties = this._.filter(this._.get(this.thing, 'channel.properties', []), 'isAnalogSensor')
-    this.analogActorsProperties = this._.filter(this._.get(this.thing, 'channel.properties', []), 'isAnalogActor')
-    this.binarySensorsProperties = this._.filter(this._.get(this.thing, 'channel.properties', []), 'isBinarySensor')
-    this.binaryActorsProperties = this._.filter(this._.get(this.thing, 'channel.properties', []), 'isBinaryActor')
-    this.lightProperties = this._.filter(this._.get(this.thing, 'channel.properties', []), 'isLight')
-    this.energyProperties = this._.filter(this._.get(this.thing, 'channel.properties', []), 'isEnergy')
-    this.environmentProperties = this._.filter(this._.get(this.thing, 'channel.properties', []), 'isEnvironment')
-    this.switchProperties = this._.filter(this._.get(this.thing, 'channel.properties', []), 'isSwitch')
+    analogSensors() {
+      return ChannelProperty
+        .query()
+        .where('channel_id', this.thing.channel_id)
+        .where('datatype', ['integer', 'float'])
+        .where('is_settable', false)
+        .get()
+    },
+
+    analogActors() {
+      return ChannelProperty
+        .query()
+        .where('channel_id', this.thing.channel_id)
+        .where('datatype', ['integer', 'float'])
+        .where('is_settable', true)
+        .get()
+    },
+
+    binarySensors() {
+      return ChannelProperty
+        .query()
+        .where('channel_id', this.thing.channel_id)
+        .where('datatype', 'boolean')
+        .where('is_settable', false)
+        .get()
+    },
+
+    binaryActors() {
+      return ChannelProperty
+        .query()
+        .where('channel_id', this.thing.channel_id)
+        .where('datatype', 'boolean')
+        .where('is_settable', true)
+        .get()
+    },
+
+    switches() {
+      return ChannelProperty
+        .query()
+        .where('channel_id', this.thing.channel_id)
+        .where('property', 'switch')
+        .get()
+    },
+
   },
 
 }

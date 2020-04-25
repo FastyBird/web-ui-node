@@ -4,57 +4,57 @@ import ThingInterface from '~/models/Thing'
 
 import {
   ChannelPropertyInterface,
-} from '@/node_modules/@fastybird-com/io-logic/types'
+} from '~/models/devices-node/ChannelProperty'
 
 declare module 'vue/types/vue' {
   interface Vue {
-    $channelPropertyIcon(thing:ThingInterface, property:ChannelPropertyInterface, def:string): string
+    $channelPropertyIcon(thing: ThingInterface, property: ChannelPropertyInterface, def: string): string
   }
 }
 
 declare module '@nuxt/types' {
   interface NuxtAppOptions {
-    $channelPropertyIcon(thing:ThingInterface, property:ChannelPropertyInterface, def:string): string
+    $channelPropertyIcon(thing: ThingInterface, property: ChannelPropertyInterface, def: string): string
   }
 }
 
 declare module 'vuex/types/index' {
   interface Store<S> {
-    $channelPropertyIcon(thing:ThingInterface, property:ChannelPropertyInterface, def:string): string
+    $channelPropertyIcon(thing: ThingInterface, property: ChannelPropertyInterface, def: string): string
   }
 }
 
-const channelPropertyIconPlugin: Plugin = ({ store }, inject) => {
-  inject('channelPropertyIcon', (thing:ThingInterface, property:ChannelPropertyInterface, def:string = 'chart-bar') => {
+const channelPropertyIconPlugin: Plugin = ({ store }, inject): void => {
+  inject('channelPropertyIcon', (thing: ThingInterface, property: ChannelPropertyInterface, def: string = 'chart-bar'): string => {
     switch (property.property) {
       case 'temperature':
-        return 'thermometer-half';
+        return 'thermometer-half'
 
       case 'humidity':
-        return 'tint';
+        return 'tint'
 
       case 'air_quality':
-        return 'fan';
+        return 'fan'
 
       case 'light_level':
-        return 'sun';
+        return 'sun'
 
       case 'noise_level':
-        return 'microphone-alt';
+        return 'microphone-alt'
 
       case 'power':
-        return 'plug';
+        return 'plug'
 
       case 'current':
       case 'voltage':
-        return 'bolt';
+        return 'bolt'
 
       case 'energy':
-        return 'calculator';
+        return 'calculator'
     }
 
     return def
   })
-};
+}
 
 export default channelPropertyIconPlugin

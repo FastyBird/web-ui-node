@@ -10,8 +10,13 @@ export const AUTHOR_NAME = 'FastyBird s.r.o.'
 export const AUTHOR_WEBSITE = 'https://www.fastybird.com'
 
 export const MQTT_SERVER_ADDRESS = process.env.NUXT_ENV_MQTT_SERVER_ADDRESS
-export const MQTT_SERVER_PORT = '1883'
-export const MQTT_SERVER_SECURED_PORT = '8883'
+export const MQTT_SERVER_PORT = process.env.NUXT_ENV_MQTT_SERVER_PORT
+export const MQTT_SERVER_SECURED_PORT = process.env.NUXT_ENV_MQTT_SERVER_SECURED_PORT
+
+// WS topics
+export const IO_SOCKET_TOPIC_DEVICE = '/io/device/{device_id}'
+export const IO_SOCKET_TOPIC_DEVICE_CHANNEL = '/io/device/{device_id}/channel/{channel_id}'
+export const IO_SOCKET_TOPIC_DEVICE_CHANNEL_PROPERTY = '/io/device/{device_id}/channel/{channel_id}/property/{property_id}'
 
 export const groupIcons = [
   'blender',
@@ -119,7 +124,7 @@ export const USER_MENU_ITEMS = [
   {
     name: 'Account settings',
     callback: (context) => {
-      context.$store.dispatch('theme/menuCollapse', null, {
+      context.$store.dispatch('app/mainMenuCollapse', null, {
         root: true,
       })
 
@@ -131,23 +136,9 @@ export const USER_MENU_ITEMS = [
       type: 'account',
     },
   }, {
-    name: 'Profile settings',
-    callback: (context) => {
-      context.$store.dispatch('theme/menuCollapse', null, {
-        root: true,
-      })
-
-      context.$bus.$emit('openProfileSettings', true)
-    },
-    meta: {
-      icon: 'address-card',
-      label: 'application.userMenu.accountProfile',
-      type: 'account',
-    },
-  }, {
     name: 'Password change',
     callback: (context) => {
-      context.$store.dispatch('theme/menuCollapse', null, {
+      context.$store.dispatch('app/mainMenuCollapse', null, {
         root: true,
       })
 
@@ -161,7 +152,7 @@ export const USER_MENU_ITEMS = [
   }, {
     name: 'Security settings',
     callback: (context) => {
-      context.$store.dispatch('theme/menuCollapse', null, {
+      context.$store.dispatch('app/mainMenuCollapse', null, {
         root: true,
       })
 
@@ -177,7 +168,7 @@ export const USER_MENU_ITEMS = [
   }, {
     name: 'Sign out',
     callback: (context) => {
-      context.$store.dispatch('theme/menuCollapse', null, {
+      context.$store.dispatch('app/mainMenuCollapse', null, {
         root: true,
       })
 

@@ -1,6 +1,6 @@
 <template>
   <content-loading
-    v-if="fetchingThings || fetchingThing || !thing"
+    v-if="fetchingThings || !thing"
     :height="53"
     class="fb-iot-things-trigger-action__preloading"
   >
@@ -45,7 +45,7 @@
     </template>
 
     <template slot="heading">
-      {{ $tThing(thing) }}
+      {{ $tThingChannel(thing) }}
     </template>
 
     <template slot="sub-heading">
@@ -74,6 +74,12 @@
 </template>
 
 <script>
+import Hardware from '~/models/devices-node/Hardware'
+import Device from '~/models/devices-node/Device'
+import Channel from '~/models/devices-node/Channel'
+import ChannelProperty from '~/models/devices-node/ChannelProperty'
+import Thing from '~/models/Thing'
+
 export default {
 
   name: 'ThingsDetailButtonTriggerAction',
@@ -85,7 +91,8 @@ export default {
       required: true,
       validator: (value) => {
         return !(
-          !Object.prototype.hasOwnProperty.call(value, 'thing') ||
+          !Object.prototype.hasOwnProperty.call(value, 'channel') ||
+          !Object.prototype.hasOwnProperty.call(value, 'device') ||
           !Object.prototype.hasOwnProperty.call(value, 'enabled') ||
           !Object.prototype.hasOwnProperty.call(value, 'rows') ||
           !Array.isArray(value.rows) ||
@@ -107,24 +114,48 @@ export default {
     /**
      * Action thing
      *
-     * @returns {Thing}
+     * @returns {(Thing|null)}
      */
     thing() {
-      return this.$store.getters['entities/thing/query']()
+      const device = Device
+        .query()
+        .where('identifier', this.action.device)
+        .first()
+
+      if (device === null) {
+        return null
+      }
+
+      const channel = Channel
+        .query()
+        .where('device_id', device.id)
+        .where('channel', this.action.channel)
+        .first()
+
+      if (channel === null) {
+        return null
+      }
+
+      return Thing
+        .query()
         .with('device')
         .with('channel')
-        .with('channel.properties')
-        .where('id', this.action.thing)
+        .where('channel_id', channel.id)
         .first()
     },
 
     /**
      * Get thing hardware info
      *
-     * @returns {Hardware}
+     * @returns {(Hardware|null)}
      */
     hardware() {
-      return this.$store.getters['entities/hardware/query']()
+      if (this.thing === null) {
+        return null
+      }
+
+      return Hardware
+        .query()
         .where('device_id', this.thing.device_id)
         .first()
     },
@@ -135,14 +166,26 @@ export default {
      * @returns {Array}
      */
     properties() {
+      if (this.thing === null) {
+        return []
+      }
+
       const mapped = []
 
       this.action.rows
         .forEach((row) => {
-          mapped.push({
-            operation: row.operation,
-            property: this.$store.getters['entities/channel_property/find'](row.property_id),
-          })
+          const property = ChannelProperty
+            .query()
+            .where('channel_id', this.thing.channel_id)
+            .where('property', row.property)
+            .first()
+
+          if (property !== null) {
+            mapped.push({
+              operation: row.operation,
+              property,
+            })
+          }
         })
 
       return mapped
@@ -154,16 +197,7 @@ export default {
      * @returns {Boolean}
      */
     fetchingThings() {
-      return this.$store.getters['entities/thing/fetching']()
-    },
-
-    /**
-     * Flag signalizing that thing is loading from server
-     *
-     * @returns {Boolean}
-     */
-    fetchingThing() {
-      return this.$store.getters['entities/thing/getting'](this.action.thing)
+      return Thing.getters('fetching')()
     },
 
   },

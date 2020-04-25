@@ -22,7 +22,7 @@
           @removed="routineRemoved"
         />
 
-        <mobile-bottom-menu
+        <phone-bottom-menu
           :show-header="true"
           :show="view.opened === view.items.type.name"
           :heading="$t('routines.headings.addNew')"
@@ -68,7 +68,7 @@
               {{ $t('routines.buttons.thingToAction.title') }}
             </fb-button>
           </template>
-        </mobile-bottom-menu>
+        </phone-bottom-menu>
 
         <select-thing
           v-if="view.opened === view.items.conditionThing.name || view.opened === view.items.conditionSensor.name || view.opened === view.items.actionThing.name"
@@ -107,8 +107,6 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
-
 import get from 'lodash/get'
 
 import {
@@ -123,6 +121,8 @@ import FbComponentLoadingError from '@/node_modules/@fastybird-com/theme/compone
 
 import RoutineDetail from '@/components/routines/Detail'
 import RoutineSettings from '@/components/routines/Settings'
+
+import Trigger from '~/models/triggers-node/Trigger'
 
 const SelectThing = () => ({
   component: import('@/components/routines/Phone/SelectThing'),
@@ -214,9 +214,12 @@ export default {
 
   computed: {
 
-    ...mapState('theme', {
-      windowSize: state => state.windowSize,
-    }),
+    /**
+     * @returns {String}
+     */
+    windowSize() {
+      return this.$store.state.template.windowSize
+    },
 
     /**
      * User account details
@@ -234,7 +237,8 @@ export default {
      * @returns {Trigger}
      */
     routine() {
-      return this.$store.getters['entities/trigger/query']()
+      return Trigger
+        .query()
         .with('actions')
         .with('conditions')
         .with('notifications')
@@ -248,7 +252,7 @@ export default {
      * @returns {(Condition|null)}
      */
     schedule() {
-      const condition = this._.get(this.routine, 'conditions', []).find(item => item.isTime)
+      const condition = this.routine.conditions.find(item => item.isTime)
 
       if (typeof condition === 'undefined') {
         return null
@@ -263,7 +267,7 @@ export default {
      * @returns {Boolean}
      */
     fetchingRoutines() {
-      return this.$store.getters['entities/trigger/fetching']()
+      return Trigger.getters('fetching')()
     },
 
     /**
@@ -272,7 +276,7 @@ export default {
      * @returns {Boolean}
      */
     fetchingRoutine() {
-      return this.$store.getters['entities/trigger/getting'](this.id)
+      return Trigger.getters('getting')(this.id)
     },
 
     /**
@@ -281,9 +285,9 @@ export default {
      * @returns {Number}
      */
     thingsCount() {
-      return this._.uniq(this._.get(this.routine, 'actions', [])
+      return this._.uniq(this.routine.actions
         .map((item) => {
-          return item.channel_id
+          return `${item.device}-${item.channel}`
         }))
         .length
     },
@@ -332,64 +336,57 @@ export default {
         root: true,
       })
         .then(() => {
-          const routine = store.getters['entities/trigger/find'](params.id)
+          const routine = Trigger.find(params.id)
 
           if (routine) {
-            store.dispatch('header/resetStore', null, {
+            store.dispatch('template/resetStore', null, {
               root: true,
             })
 
-            store.dispatch('header/setLeftButton', {
+            store.dispatch('template/setLeftButton', {
               name: app.i18n.t('application.buttons.back.title'),
-              link: app.localePath(app.$routes.routines.list),
               icon: 'arrow-left',
             }, {
               root: true,
             })
 
-            store.dispatch('header/setRightButton', {
+            store.dispatch('template/setRightButton', {
               name: app.i18n.t('application.buttons.edit.title'),
-              callback: null, // Null is set because of SSR and serialization
             }, {
               root: true,
             })
 
-            store.dispatch('header/setFullRowHeading', null, {
+            store.dispatch('template/setFullRowHeading', null, {
               root: true,
             })
 
-            store.dispatch('header/setHeading', {
+            store.dispatch('template/setHeading', {
               heading: routine.name,
               subHeading: routine.isAutomatic ? app.i18n.t('routines.headings.automaticRoutine') : app.i18n.t('routines.headings.manualRoutine'),
             }, {
               root: true,
             })
 
-            store.dispatch('header/setHeadingIcon', {
+            store.dispatch('template/setHeadingIcon', {
               icon: app.$routineIcon(routine),
               callback: 'callback_here', // String is set because of SSR and serialization
             }, {
               root: true,
             })
 
-            store.dispatch('header/setAddButton', {
+            store.dispatch('template/setActionButton', {
               name: app.i18n.t('application.buttons.add.title'),
-              callback: null, // Null is set because of SSR and serialization
             }, {
               root: true,
             })
 
-            store.dispatch('header/setInfoText', {
+            store.dispatch('template/setHeadingInfoText', {
               text: '-',
             }, {
               root: true,
             })
 
-            store.dispatch('bottomNavigation/resetStore', null, {
-              root: true,
-            })
-
-            store.dispatch('bottomNavigation/hideNavigation', null, {
+            store.dispatch('app/bottomMenuCollapse', null, {
               root: true,
             })
           } else {
@@ -417,15 +414,13 @@ export default {
     }
 
     if (
-      this.$store.getters['entities/trigger/query']().count() === 0 &&
+      Trigger.query().count() === 0 &&
       !this.fetchingRoutines &&
       !this.fetchingRoutine &&
-      !this.$store.getters['entities/trigger/firstLoadFinished']()
+      !Trigger.getters('firstLoadFinished')()
     ) {
-      this.$store.dispatch('entities/trigger/get', {
+      Trigger.dispatch('get', {
         id: this.id,
-      }, {
-        root: true,
       })
         .catch((e) => {
           if (this._.get(e, 'exception.response.status', 0) === 404) {
@@ -445,6 +440,31 @@ export default {
     if (this.routine) {
       this._configureNavigation()
     }
+
+    this.$bus.$on('heading_left_button-clicked', () => {
+      this.$router.push(this.localePath({ name: this.$routes.routines.list }))
+    })
+
+    this.$bus.$on('heading_right_button-clicked', () => {
+      if (this.view.opened === this.view.items.settings.name) {
+        if (this._.get(this.$refs, 'detail')) {
+          const component = this._.get(this.$refs, 'detail')
+
+          this.$scrollTo(component.$el, 500, {
+            container: '.fb-default-layout__content',
+            onDone: () => {
+              this.openView(this.view.items.detail.name)
+            },
+          })
+        }
+      } else {
+        this.openView(this.view.items.settings.name)
+      }
+    })
+
+    this.$bus.$on('heading_action_button-clicked', () => {
+      this.openView(this.view.items.type.name)
+    })
   },
 
   mounted() {
@@ -462,6 +482,10 @@ export default {
   },
 
   beforeDestroy() {
+    this.$bus.$off('heading_left_button-clicked')
+    this.$bus.$off('heading_right_button-clicked')
+    this.$bus.$off('heading_action_button-clicked')
+
     window.removeEventListener('resize', this._windowResizeHandler)
   },
 
@@ -533,7 +557,7 @@ export default {
           case this.view.items.conditionSensor.name:
             const conditionThings = []
 
-            this._.get(this.routine, 'conditions', [])
+            this.routine.conditions
               .forEach((condition) => {
                 if (typeof conditionThings.find(({ thing }) => thing === condition.channel_id) === 'undefined') {
                   conditionThings.push({
@@ -547,7 +571,7 @@ export default {
 
           // Show window for configuring condition
           case this.view.items.condition.name:
-            const storedCondition = this._.get(this.routine, 'conditions', [])
+            const storedCondition = this.routine.conditions
               .find(({ channel_id }) => channel_id === this.view.items.condition.thing.id)
 
             if (typeof storedCondition !== 'undefined') {
@@ -557,7 +581,7 @@ export default {
                 rows: [],
               }
 
-              this._.filter(this._.get(this.routine, 'conditions', []), { channel_id: storedCondition.channel_id })
+              this._.filter(this.routine.conditions, { channel_id: storedCondition.channel_id })
                 .forEach((item) => {
                   condition.rows.push({
                     property_id: item.property_id,
@@ -576,7 +600,7 @@ export default {
           case this.view.items.actionThing.name:
             const actionThings = []
 
-            this._.get(this.routine, 'actions', [])
+            this.routine.actions
               .forEach((action) => {
                 if (typeof actionThings.find(({ thing }) => thing === action.channel_id) === 'undefined') {
                   actionThings.push({
@@ -590,7 +614,7 @@ export default {
 
           // Show window for configuring action
           case this.view.items.action.name:
-            const storedAction = this._.get(this.routine, 'actions', [])
+            const storedAction = this.routine.actions
               .find(({ channel_id }) => channel_id === this.view.items.action.thing.id)
 
             if (typeof storedAction !== 'undefined') {
@@ -600,7 +624,7 @@ export default {
                 rows: [],
               }
 
-              this._.filter(this._.get(this.routine, 'actions', []), { channel_id: storedAction.channel_id })
+              this._.filter(this.routine.actions, { channel_id: storedAction.channel_id })
                 .forEach((item) => {
                   action.rows.push({
                     property_id: item.property_id,
@@ -699,57 +723,38 @@ export default {
      * @private
      */
     _configureNavigation() {
-      this.$store.dispatch('header/resetStore', null, {
+      this.$store.dispatch('template/resetStore', null, {
         root: true,
       })
 
-      this.$store.dispatch('header/setLeftButton', {
+      this.$store.dispatch('template/setLeftButton', {
         name: this.$t('application.buttons.back.title'),
-        link: this.localePath({ name: this.$routes.routines.list }),
         icon: 'arrow-left',
       }, {
         root: true,
       })
 
       if (this.view.opened === this.view.items.settings.name) {
-        this.$store.dispatch('header/setRightButton', {
+        this.$store.dispatch('template/setRightButton', {
           name: this.$t('application.buttons.close.title'),
-          callback: () => {
-            if (this._.get(this.$refs, 'detail')) {
-              const component = this._.get(this.$refs, 'detail')
-
-              this.$scrollTo(component.$el, 500, {
-                container: '.fb-default-layout__content',
-                onDone: () => {
-                  this.openView(this.view.items.detail.name)
-                },
-              })
-            }
-          },
         }, {
           root: true,
         })
       } else if (this.view.opened === this.view.items.detail.name || this.view.opened === this.view.items.type.name) {
-        this.$store.dispatch('header/setRightButton', {
+        this.$store.dispatch('template/setRightButton', {
           name: this.$t('application.buttons.edit.title'),
-          callback: () => {
-            this.openView(this.view.items.settings.name)
-          },
         }, {
           root: true,
         })
       }
 
-      this.$store.dispatch('header/setAddButton', {
+      this.$store.dispatch('template/setActionButton', {
         name: this.$t('application.buttons.add.title'),
-        callback: () => {
-          this.openView(this.view.items.type.name)
-        },
       }, {
         root: true,
       })
 
-      this.$store.dispatch('header/setFullRowHeading', null, {
+      this.$store.dispatch('template/setFullRowHeading', null, {
         root: true,
       })
 
@@ -797,14 +802,17 @@ export default {
         }
       }
 
-      this.$store.dispatch('header/setHeading', {
+      this.$store.dispatch('template/setHeading', {
         heading: this.routine.name,
-        subHeading: this.routine.isAutomatic ? (this.schedule !== null ? this.$t('routines.headings.scheduledRoutine', { days, time: this.$dateFns.format(this.schedule.time, this.account.timeFormat) }) : this.$t('routines.headings.automaticRoutine')) : this.$t('routines.headings.manualRoutine'),
+        subHeading: this.routine.isAutomatic ? (this.schedule !== null ? this.$t('routines.headings.scheduledRoutine', {
+          days,
+          time: this.$dateFns.format(this.schedule.time, this.account.timeFormat),
+        }) : this.$t('routines.headings.automaticRoutine')) : this.$t('routines.headings.manualRoutine'),
       }, {
         root: true,
       })
 
-      this.$store.dispatch('header/setHeadingIcon', {
+      this.$store.dispatch('template/setHeadingIcon', {
         icon: this.$routineIcon(this.routine),
         callback: () => {
           this._openEditIcon()
@@ -813,17 +821,13 @@ export default {
         root: true,
       })
 
-      this.$store.dispatch('header/setInfoText', {
+      this.$store.dispatch('template/setHeadingInfoText', {
         text: this.$tc('routines.texts.routineThings', this.thingsCount, { count: this.thingsCount }),
       }, {
         root: true,
       })
 
-      this.$store.dispatch('bottomNavigation/resetStore', null, {
-        root: true,
-      })
-
-      this.$store.dispatch('bottomNavigation/hideNavigation', null, {
+      this.$store.dispatch('app/bottomMenuCollapse', null, {
         root: true,
       })
     },

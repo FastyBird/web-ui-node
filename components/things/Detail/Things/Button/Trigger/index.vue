@@ -27,7 +27,7 @@
           path="things.messages.confirmRemoveAction"
           tag="p"
         >
-          <strong slot="thing">{{ $tThing(remove.thing) }}</strong>
+          <strong slot="thing">{{ $tThingChannel(remove.thing) }}</strong>
         </i18n>
       </template>
     </fb-confirmation-window>
@@ -35,13 +35,15 @@
 </template>
 
 <script>
+import routineDetailMixin from '@/mixins/routineDetail'
+
 import {
   DEVICE_FASTYBIRD_BUTTON_PRESS,
   DEVICE_FASTYBIRD_BUTTON_CLICK,
   DEVICE_FASTYBIRD_BUTTON_DBL_CLICK,
 } from '@/configuration/devices'
 
-import routineDetailMixin from '@/mixins/routineDetail'
+import Trigger from '~/models/triggers-node/Trigger'
 
 const TriggerAction = () => import('./../Action')
 
@@ -92,17 +94,6 @@ export default {
       return this.mapActions(this.trigger)
     },
 
-    /**
-     * Get thing hardware info
-     *
-     * @returns {Hardware}
-     */
-    hardware() {
-      return this.$store.getters['entities/hardware/query']()
-        .where('device_id', this.thing.device_id)
-        .first()
-    },
-
   },
 
   created() {
@@ -146,7 +137,7 @@ export default {
     confirmRemoveAction(index) {
       this.remove.show = true
       this.remove.index = index
-      this.remove.thing = this._findThing(this.actions[index].thing)
+      this.remove.thing = this.actions[index].thing
     },
 
     /**
@@ -170,10 +161,8 @@ export default {
         if (this.actions.length > 1) {
           this.removeTriggerAction(this.actions[index])
         } else {
-          this.$store.dispatch('entities/trigger/remove', {
+          Trigger.dispatch('remove', {
             id: this.trigger.id,
-          }, {
-            root: true,
           })
             .catch((e) => {
               const errorMessage = this.$t('things.messages.actionNotRemoved')

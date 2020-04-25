@@ -45,7 +45,7 @@
       />
 
       <fb-form-input
-        v-show="form.model.question !== 'custom'"
+        v-show="form.model.question === 'custom'"
         v-model="form.model.otherQuestion"
         v-validate="form.model.question === 'custom' ? 'required':''"
         :data-vv-scope="form.scope"
@@ -99,6 +99,8 @@
 </template>
 
 <script>
+import SecurityQuestion from '~/models/accounts-node/SecurityQuestion'
+
 export default {
 
   name: 'SecurityEdit',
@@ -221,10 +223,9 @@ export default {
      * @returns {Object}
      */
     checkCurrentAnswer(value) {
-      return this.$store.dispatch('entities/security_question/validate', {
+      return this.$backendApi.validateSecurityQuestion({
+        id: this._.get(this.account, 'security_question.id'),
         answer: value,
-      }, {
-        root: true,
       })
         .then(() => {
           return {
@@ -269,15 +270,13 @@ export default {
             const errorMessage = this.$t('account.messages.questionNotSaved')
 
             if (this.account.security_question !== null) {
-              this.$store.dispatch('entities/security_question/edit', {
+              SecurityQuestion.dispatch('edit', {
                 id: this.account.security_question.id,
                 current_answer: this.form.model.currentAnswer,
                 question: this.form.model.question === 'custom' ? this.form.model.otherQuestion : this.form.model.question,
                 is_custom: this.form.model.question === 'custom',
                 answer: this.form.model.answer,
                 locking_notice: this.form.model.lockingNotice,
-              }, {
-                root: true,
               })
                 .catch((e) => {
                   if (this._.get(e, 'exception', null) !== null) {
@@ -287,13 +286,11 @@ export default {
                   }
                 })
             } else {
-              this.$store.dispatch('entities/security_question/add', {
+              SecurityQuestion.dispatch('add', {
                 question: this.form.model.question === 'custom' ? this.form.model.otherQuestion : this.form.model.question,
                 is_custom: this.form.model.question === 'custom',
                 answer: this.form.model.answer,
                 locking_notice: this.form.model.lockingNotice,
-              }, {
-                root: true,
               })
                 .catch((e) => {
                   if (this._.get(e, 'exception', null) !== null) {
@@ -310,7 +307,7 @@ export default {
           }
         })
         .catch((e) => {
-          if (Object.prototype.hasOwnProperty.call(this, '$sentry')) {
+          if (!this.isDev && Object.prototype.hasOwnProperty.call(this, '$sentry')) {
             this.$sentry.captureException(e)
           }
         })
