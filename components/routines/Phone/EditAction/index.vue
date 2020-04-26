@@ -22,6 +22,7 @@
 
     <fb-button
       v-else
+      ref="submit-button"
       variant="primary"
       size="lg"
       block
@@ -31,11 +32,32 @@
       {{ $t('routines.buttons.addThing.title') }}
       <font-awesome-icon icon="plus" />
     </fb-button>
+
+    <fb-confirmation-window
+      v-if="action !== null && confirmRemove"
+      :transparent-bg="transparentModal"
+      icon="trash"
+      @confirmed="$emit('remove', thing)"
+      @close="confirmRemove = false"
+    >
+      <template slot="header">
+        {{ $t('routines.headings.removeAction') }}
+      </template>
+
+      <template slot="question">
+        <i18n
+          path="routines.messages.confirmRemoveAction"
+          tag="p"
+        >
+          <strong slot="thing">{{ $tThingChannel(thing) }}</strong>
+        </i18n>
+      </template>
+    </fb-confirmation-window>
   </div>
 </template>
 
 <script>
-const EditAction = () => import('@/components/routines/Edit/EditAction')
+import EditAction from '@/components/routines/Edit/EditAction'
 
 export default {
 
@@ -62,11 +84,17 @@ export default {
   data() {
     return {
       submitSelect: false,
+      confirmRemove: false,
+      transparentModal: false,
     }
   },
 
   created() {
-    this.$store.dispatch('template/resetStore', null, {
+    this.$store.dispatch('template/resetHeadings', null, {
+      root: true,
+    })
+
+    this.$store.dispatch('template/resetButtons', null, {
       root: true,
     })
 
@@ -103,7 +131,13 @@ export default {
     })
 
     this.$store.dispatch('template/setHeadingIcon', {
-      icon: 'project-diagram',
+      icon: this.$thingIcon(this.thing),
+    }, {
+      root: true,
+    })
+
+    this.$store.dispatch('template/setHeadingInfoText', {
+      text: this.$t('routines.texts.actionThingProperties'),
     }, {
       root: true,
     })
@@ -112,22 +146,34 @@ export default {
       root: true,
     })
 
-    this.$bus.$on('heading_left_button-clicked', () => {
-      this.$emit('back')
-    })
+    this.$bus.$off('heading_left_button-clicked')
+    this.$bus.$off('heading_right_button-clicked')
 
-    this.$bus.$on('heading_right_button-clicked', () => {
-      if (this.action !== null) {
-        this.$emit('remove', this.thing)
-      } else {
-        this.$emit('close')
-      }
-    })
+    this.$bus.$on('heading_left_button-clicked', this.leftButtonAction)
+    this.$bus.$on('heading_right_button-clicked', this.rightButtonAction)
+
+    this.transparentModal = this.$parent.$options.name !== 'Layout'
+  },
+
+  mounted() {
+    this._adjustBodyMargins()
+  },
+
+  updated() {
+    this._adjustBodyMargins()
   },
 
   beforeDestroy() {
-    this.$bus.$off('heading_left_button-clicked')
-    this.$bus.$off('heading_right_button-clicked')
+    this.$bus.$off('heading_left_button-clicked', this.leftButtonAction)
+    this.$bus.$off('heading_right_button-clicked', this.rightButtonAction)
+
+    this.$store.dispatch('template/setBodyMargin', {
+      key: 'custom',
+      position: 'bottom',
+      margin: 0,
+    }, {
+      root: true,
+    })
   },
 
   methods: {
@@ -140,6 +186,45 @@ export default {
 
     add(action) {
       this.$emit('add', action)
+    },
+
+    /**
+     * Header left button action event
+     */
+    leftButtonAction() {
+      this.$emit('back')
+    },
+
+    /**
+     * Header right button action event
+     */
+    rightButtonAction() {
+      if (this.action !== null) {
+        this.confirmRemove = true
+      } else {
+        this.$emit('close')
+      }
+    },
+
+    /**
+     * Calculate body margins adjust
+     *
+     * @private
+     */
+    _adjustBodyMargins() {
+      const submitButton = this._.get(this.$refs, 'submit-button')
+
+      if (submitButton) {
+        const elementHeight = this._.get(submitButton, '$el.clientHeight')
+
+        this.$store.dispatch('template/setBodyMargin', {
+          key: 'custom',
+          position: 'bottom',
+          margin: elementHeight,
+        }, {
+          root: true,
+        })
+      }
     },
 
   },

@@ -35,7 +35,7 @@
 </template>
 
 <script>
-import routineDetailMixin from '@/mixins/routineDetail'
+import routineUpdateMixin from '@/mixins/routineUpdate'
 
 import {
   DEVICE_FASTYBIRD_BUTTON_PRESS,
@@ -55,7 +55,7 @@ export default {
     TriggerAction,
   },
 
-  mixins: [routineDetailMixin],
+  mixins: [routineUpdateMixin],
 
   props: {
 

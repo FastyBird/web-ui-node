@@ -9,6 +9,7 @@
 
     <fb-button
       v-if="schedule !== null"
+      ref="submit-button"
       variant="primary"
       size="lg"
       block
@@ -21,6 +22,7 @@
 
     <fb-button
       v-else
+      ref="submit-button"
       variant="primary"
       size="lg"
       block
@@ -34,7 +36,7 @@
 </template>
 
 <script>
-const EditSchedule = () => import('@/components/routines/Edit/EditSchedule')
+import EditSchedule from '@/components/routines/Edit/EditSchedule'
 
 export default {
 
@@ -60,7 +62,11 @@ export default {
   },
 
   created() {
-    this.$store.dispatch('template/resetStore', null, {
+    this.$store.dispatch('template/resetHeadings', null, {
+      root: true,
+    })
+
+    this.$store.dispatch('template/resetButtons', null, {
       root: true,
     })
 
@@ -96,7 +102,13 @@ export default {
     }
 
     this.$store.dispatch('template/setHeadingIcon', {
-      icon: 'project-diagram',
+      icon: 'clock',
+    }, {
+      root: true,
+    })
+
+    this.$store.dispatch('template/setHeadingInfoText', {
+      text: this.$t('routines.texts.scheduledTime'),
     }, {
       root: true,
     })
@@ -105,18 +117,32 @@ export default {
       root: true,
     })
 
-    this.$bus.$on('heading_left_button-clicked', () => {
-      this.$emit('back')
-    })
+    this.$bus.$off('heading_left_button-clicked')
+    this.$bus.$off('heading_right_button-clicked')
 
-    this.$bus.$on('heading_right_button-clicked', () => {
-      this.$emit('close')
-    })
+    this.$bus.$on('heading_left_button-clicked', this.leftButtonAction)
+    this.$bus.$on('heading_right_button-clicked', this.rightButtonAction)
+  },
+
+  mounted() {
+    this._adjustBodyMargins()
+  },
+
+  updated() {
+    this._adjustBodyMargins()
   },
 
   beforeDestroy() {
-    this.$bus.$off('heading_left_button-clicked')
-    this.$bus.$off('heading_right_button-clicked')
+    this.$bus.$off('heading_left_button-clicked', this.leftButtonAction)
+    this.$bus.$off('heading_right_button-clicked', this.rightButtonAction)
+
+    this.$store.dispatch('template/setBodyMargin', {
+      key: 'custom',
+      position: 'bottom',
+      margin: 0,
+    }, {
+      root: true,
+    })
   },
 
   methods: {
@@ -129,6 +155,41 @@ export default {
 
     add(schedule) {
       this.$emit('add', schedule)
+    },
+
+    /**
+     * Header left button action event
+     */
+    leftButtonAction() {
+      this.$emit('back')
+    },
+
+    /**
+     * Header right button action event
+     */
+    rightButtonAction() {
+      this.$emit('close')
+    },
+
+    /**
+     * Calculate body margins adjust
+     *
+     * @private
+     */
+    _adjustBodyMargins() {
+      const submitButton = this._.get(this.$refs, 'submit-button')
+
+      if (submitButton) {
+        const elementHeight = this._.get(submitButton, '$el.clientHeight')
+
+        this.$store.dispatch('template/setBodyMargin', {
+          key: 'custom',
+          position: 'bottom',
+          margin: elementHeight,
+        }, {
+          root: true,
+        })
+      }
     },
 
   },

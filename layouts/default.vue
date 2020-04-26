@@ -178,35 +178,27 @@ export default {
     },
 
     heading() {
-      return this.$store.state.template.heading
+      return this.$store.state.template.heading.heading
     },
 
     subHeading() {
-      return this.$store.state.template.subHeading
+      return this.$store.state.template.heading.subHeading
     },
 
     headingInfoText() {
-      return this.$store.state.template.headingInfoText
+      return this.$store.state.template.heading.infoText
     },
 
     headingStyle() {
-      if (this.$store.state.template.fullRowHeading) {
-        return 'row'
-      }
-
-      if (this.$store.state.template.hiddenHeading) {
-        return 'hidden'
-      }
-
-      return 'normal'
+      return this.$store.state.template.heading.style
     },
 
     headingIcon() {
-      return this.$store.state.template.headingIcon
+      return this.$store.state.template.heading.icon
     },
 
     headingTabs() {
-      return this.$store.state.template.headingTabs
+      return this.$store.state.template.heading.tabs
     },
 
     headingLeftButton() {
@@ -393,7 +385,17 @@ export default {
     })
 
     this.$bus.$on('wait-page_reloading', (status) => {
-      this.loadingOverlay = status
+      if (typeof status === 'number') {
+        this.timers.hideOverlay.time = status * 1000
+        this.$timer.start('hideOverlay')
+
+        this.loadingOverlay = true
+      } else if (status === false && this.timers.hideOverlay.isRunning) {
+        this.timers.hideOverlay.time = 500
+        this.$timer.restart('hideOverlay')
+      } else {
+        this.loadingOverlay = status
+      }
     })
 
     this.$bus.$on('signIn', () => {
@@ -731,6 +733,12 @@ export default {
       }
     },
 
+    hideOverlay() {
+      this.loadingOverlay = false
+
+      this.$timer.stop('hideOverlay')
+    },
+
   },
 
   head() {
@@ -740,6 +748,12 @@ export default {
         style: `padding-top: ${this.$store.getters['template/bodyTopMargin']()}px`,
       },
     }
+  },
+
+  timers: {
+    hideOverlay: {
+      time: 2000,
+    },
   },
 
 }

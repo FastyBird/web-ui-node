@@ -54,20 +54,6 @@ export default {
 
   },
 
-  computed: {
-
-    /**
-     * User account details
-     *
-     * @returns {(Account|null)}
-     */
-    account() {
-      return this.$store.getters['entities/account/query']()
-        .first()
-    },
-
-  },
-
   methods: {
 
     edit() {

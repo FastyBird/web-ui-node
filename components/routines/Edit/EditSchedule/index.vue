@@ -105,16 +105,6 @@ export default {
 
   computed: {
 
-    /**
-     * User account details
-     *
-     * @returns {(Account|null)}
-     */
-    account() {
-      return this.$store.getters['entities/account/query']()
-        .first()
-    },
-
     show24hours() {
       return this._.get(this.account, 'timeFormat', 'HH:mm') === 'HH:mm'
     },

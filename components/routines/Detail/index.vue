@@ -102,7 +102,7 @@
 </template>
 
 <script>
-import routineDetailMixin from '@/mixins/routineDetail'
+import routineUpdateMixin from '@/mixins/routineUpdate'
 
 import Device from '~/models/devices-node/Device'
 import Channel from '~/models/devices-node/Channel'
@@ -120,7 +120,7 @@ export default {
     ListCondition,
   },
 
-  mixins: [routineDetailMixin],
+  mixins: [routineUpdateMixin],
 
   props: {
 
@@ -144,16 +144,6 @@ export default {
   },
 
   computed: {
-
-    /**
-     * User account details
-     *
-     * @returns {(Account|null)}
-     */
-    account() {
-      return this.$store.getters['entities/account/query']()
-        .first()
-    },
 
     /**
      * Remap trigger conditions to routine conditions
@@ -318,26 +308,16 @@ export default {
      */
     removeItem() {
       if (this.remove.type === 'condition') {
-        if (this.routine.conditions.length <= 1) {
-          this.$flashMessage(this.$t('routines.messages.minimumConditions'), 'error')
-
-          return
-        }
-
         if (Object.prototype.hasOwnProperty.call(this.conditions, this.remove.index)) {
-          this.removeTriggerCondition(this.conditions[this.remove.index])
-
-          this.resetRemoveConfirmation()
+          this.removeRoutineCondition(this.routine, this.remove.thing)
         }
       } else if (this.remove.type === 'action') {
         if (Object.prototype.hasOwnProperty.call(this.actions, this.remove.index)) {
-          this.removeTriggerAction(this.actions[this.remove.index])
-
-          this.resetRemoveConfirmation()
+          this.removeRoutineAction(this.routine, this.remove.thing)
         }
-      } else {
-        this.resetRemoveConfirmation()
       }
+
+      this.resetRemoveConfirmation()
     },
 
   },

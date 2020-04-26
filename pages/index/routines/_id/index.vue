@@ -222,16 +222,6 @@ export default {
     },
 
     /**
-     * User account details
-     *
-     * @returns {(Account|null)}
-     */
-    account() {
-      return this.$store.getters['entities/account/query']()
-        .first()
-    },
-
-    /**
      * View routine data
      *
      * @returns {Trigger}
@@ -338,11 +328,15 @@ export default {
         .then(() => {
           const routine = Trigger.find(params.id)
 
-          if (routine) {
-            store.dispatch('template/resetStore', null, {
-              root: true,
-            })
+          store.dispatch('template/resetHeadings', null, {
+            root: true,
+          })
 
+          store.dispatch('template/resetButtons', null, {
+            root: true,
+          })
+
+          if (routine) {
             store.dispatch('template/setLeftButton', {
               name: app.i18n.t('application.buttons.back.title'),
               icon: 'arrow-left',
@@ -369,7 +363,6 @@ export default {
 
             store.dispatch('template/setHeadingIcon', {
               icon: app.$routineIcon(routine),
-              callback: 'callback_here', // String is set because of SSR and serialization
             }, {
               root: true,
             })
@@ -440,31 +433,6 @@ export default {
     if (this.routine) {
       this._configureNavigation()
     }
-
-    this.$bus.$on('heading_left_button-clicked', () => {
-      this.$router.push(this.localePath({ name: this.$routes.routines.list }))
-    })
-
-    this.$bus.$on('heading_right_button-clicked', () => {
-      if (this.view.opened === this.view.items.settings.name) {
-        if (this._.get(this.$refs, 'detail')) {
-          const component = this._.get(this.$refs, 'detail')
-
-          this.$scrollTo(component.$el, 500, {
-            container: '.fb-default-layout__content',
-            onDone: () => {
-              this.openView(this.view.items.detail.name)
-            },
-          })
-        }
-      } else {
-        this.openView(this.view.items.settings.name)
-      }
-    })
-
-    this.$bus.$on('heading_action_button-clicked', () => {
-      this.openView(this.view.items.type.name)
-    })
   },
 
   mounted() {
@@ -474,7 +442,20 @@ export default {
       this._setBlocksHeight('detail')
     })
 
+    this.$bus.$emit('wait-page_reloading', false)
+
     window.addEventListener('resize', this._windowResizeHandler)
+
+    if (this._.get(this.$refs, 'settings')) {
+      const component = this._.get(this.$refs, 'settings')
+
+      this._setBlocksHeight('settings')
+
+      // Scroll view to setting part
+      this.$scrollTo(component.$el, 500, {
+        container: '.fb-default-layout__content',
+      })
+    }
   },
 
   updated() {
@@ -482,9 +463,9 @@ export default {
   },
 
   beforeDestroy() {
-    this.$bus.$off('heading_left_button-clicked')
-    this.$bus.$off('heading_right_button-clicked')
-    this.$bus.$off('heading_action_button-clicked')
+    this.$bus.$off('heading_left_button-clicked', this.leftButtonAction)
+    this.$bus.$off('heading_right_button-clicked', this.rightButtonAction)
+    this.$bus.$off('heading_action_button-clicked', this.actionButtonAction)
 
     window.removeEventListener('resize', this._windowResizeHandler)
   },
@@ -515,19 +496,19 @@ export default {
                 id: this.id,
               },
               hash: this.view.items.settings.route.hash,
-            }))
+            }), () => {
+              this.$nextTick(() => {
+                if (this._.get(this.$refs, 'settings')) {
+                  const component = this._.get(this.$refs, 'settings')
 
-            this.$nextTick(() => {
-              if (this._.get(this.$refs, 'settings')) {
-                const component = this._.get(this.$refs, 'settings')
+                  this._setBlocksHeight('settings')
 
-                this._setBlocksHeight('settings', 'height')
-
-                // Scroll view to setting part
-                this.$scrollTo(component.$el, 500, {
-                  container: '.fb-default-layout__content',
-                })
-              }
+                  // Scroll view to setting part
+                  this.$scrollTo(component.$el, 500, {
+                    container: '.fb-default-layout__content',
+                  })
+                }
+              })
             })
             break
 
@@ -559,9 +540,10 @@ export default {
 
             this.routine.conditions
               .forEach((condition) => {
-                if (typeof conditionThings.find(({ thing }) => thing === condition.channel_id) === 'undefined') {
+                if (typeof conditionThings.find(item => (item.device === condition.device && item.channel === condition.channel)) === 'undefined') {
                   conditionThings.push({
-                    thing: condition.channel_id,
+                    device: condition.device,
+                    channel: condition.channel,
                   })
                 }
               })
@@ -572,19 +554,23 @@ export default {
           // Show window for configuring condition
           case this.view.items.condition.name:
             const storedCondition = this.routine.conditions
-              .find(({ channel_id }) => channel_id === this.view.items.condition.thing.id)
+              .find(item => (item.device === this.view.items.condition.thing.device.identifier && item.channel === this.view.items.condition.thing.channel.channel))
 
             if (typeof storedCondition !== 'undefined') {
               const condition = {
-                thing: storedCondition.channel_id,
+                device: storedCondition.device,
+                channel: storedCondition.channel,
                 enabled: storedCondition.enabled,
                 rows: [],
               }
 
-              this._.filter(this.routine.conditions, { channel_id: storedCondition.channel_id })
+              this._.filter(this.routine.conditions, {
+                device: storedCondition.device,
+                channel: storedCondition.channel,
+              })
                 .forEach((item) => {
                   condition.rows.push({
-                    property_id: item.property_id,
+                    property: item.property,
                     operand: item.operand,
                     operator: item.operator,
                   })
@@ -602,9 +588,10 @@ export default {
 
             this.routine.actions
               .forEach((action) => {
-                if (typeof actionThings.find(({ thing }) => thing === action.channel_id) === 'undefined') {
+                if (typeof actionThings.find(item => (item.device === action.device && item.channel === action.channel)) === 'undefined') {
                   actionThings.push({
-                    thing: action.channel_id,
+                    device: action.device,
+                    channel: action.channel,
                   })
                 }
               })
@@ -615,19 +602,20 @@ export default {
           // Show window for configuring action
           case this.view.items.action.name:
             const storedAction = this.routine.actions
-              .find(({ channel_id }) => channel_id === this.view.items.action.thing.id)
+              .find(item => (item.device === this.view.items.action.thing.device.identifier && item.channel === this.view.items.action.thing.channel.channel))
 
             if (typeof storedAction !== 'undefined') {
               const action = {
-                thing: storedAction.channel_id,
+                device: storedAction.device,
+                channel: storedAction.channel,
                 enabled: storedAction.enabled,
                 rows: [],
               }
 
-              this._.filter(this.routine.actions, { channel_id: storedAction.channel_id })
+              this._.filter(this.routine.actions, { device: storedAction.device, channel: storedAction.channel })
                 .forEach((item) => {
                   action.rows.push({
-                    property_id: item.property_id,
+                    property: item.property,
                     operation: item.value,
                   })
                 })
@@ -713,8 +701,42 @@ export default {
       this.removeRoutineAction(this.routine, thing)
     },
 
-    _openEditIcon() {
-      // TODO: Edit icon action...
+    /**
+     * Header left button action event
+     */
+    leftButtonAction() {
+      if (this.windowSize === 'xs') {
+        this.$bus.$emit('wait-page_reloading', 10)
+      }
+
+      this.$router.push(this.localePath({ name: this.$routes.routines.list }))
+    },
+
+    /**
+     * Header right button action event
+     */
+    rightButtonAction() {
+      if (this.view.opened === this.view.items.settings.name) {
+        if (this._.get(this.$refs, 'detail')) {
+          const component = this._.get(this.$refs, 'detail')
+
+          this.$scrollTo(component.$el, 500, {
+            container: '.fb-default-layout__content',
+            onDone: () => {
+              this.openView(this.view.items.detail.name)
+            },
+          })
+        }
+      } else {
+        this.openView(this.view.items.settings.name)
+      }
+    },
+
+    /**
+     * Header action button action event
+     */
+    actionButtonAction() {
+      this.openView(this.view.items.type.name)
     },
 
     /**
@@ -723,7 +745,11 @@ export default {
      * @private
      */
     _configureNavigation() {
-      this.$store.dispatch('template/resetStore', null, {
+      this.$store.dispatch('template/resetHeadings', null, {
+        root: true,
+      })
+
+      this.$store.dispatch('template/resetButtons', null, {
         root: true,
       })
 
@@ -814,9 +840,6 @@ export default {
 
       this.$store.dispatch('template/setHeadingIcon', {
         icon: this.$routineIcon(this.routine),
-        callback: () => {
-          this._openEditIcon()
-        },
       }, {
         root: true,
       })
@@ -830,6 +853,16 @@ export default {
       this.$store.dispatch('app/bottomMenuCollapse', null, {
         root: true,
       })
+
+      // Clear actions
+      this.$bus.$off('heading_left_button-clicked')
+      this.$bus.$off('heading_right_button-clicked')
+      this.$bus.$off('heading_action_button-clicked')
+
+      // Reassign actions
+      this.$bus.$on('heading_left_button-clicked', this.leftButtonAction)
+      this.$bus.$on('heading_right_button-clicked', this.rightButtonAction)
+      this.$bus.$on('heading_action_button-clicked', this.actionButtonAction)
     },
 
     /**
@@ -840,7 +873,9 @@ export default {
     _checkRoute() {
       if (this.$route.hash !== '') {
         if (this.$route.hash.includes(ROUTINES_HASH_SETTINGS)) {
-          this.openView(this.view.items.settings.name)
+          this.$nextTick(() => {
+            this.openView(this.view.items.settings.name)
+          })
         }
       }
     },
@@ -852,7 +887,7 @@ export default {
      */
     _windowResizeHandler() {
       this._setBlocksHeight('detail')
-      this._setBlocksHeight('settings', 'height')
+      this._setBlocksHeight('settings')
 
       if (this._.get(this.$refs, this.view.opened)) {
         const component = this._.get(this.$refs, this.view.opened)
@@ -875,7 +910,9 @@ export default {
       if (this._.get(this.$refs, block)) {
         const component = this._.get(this.$refs, block)
 
-        component.$el.style[attribute] = `${document.getElementsByClassName('fb-default-layout__content')[0].clientHeight}px`
+        const viewportHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
+
+        component.$el.style[attribute] = `${viewportHeight - this.$store.getters['template/bodyTopBottomMargin']()}px`
       }
     },
 

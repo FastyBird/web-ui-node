@@ -10,7 +10,7 @@
         @click.prevent="handleLeftButton"
       >
         <font-awesome-icon
-          v-if="view.opened === view.items.detail.name"
+          v-if="view.opened !== view.items.settings.name"
           icon="times"
         />
         <font-awesome-icon
@@ -22,7 +22,7 @@
 
     <template slot="right-button">
       <button
-        v-if="view.opened === view.items.detail.name"
+        v-if="view.opened !== view.items.settings.name"
         class="button"
         @click.prevent="openView(view.items.settings.name)"
       >
@@ -42,15 +42,248 @@
       name="fade"
       mode="out-in"
     >
-      <routine-detail
-        v-if="view.opened === view.items.detail.name"
-        :routine="routine"
+      <div
+        v-if="view.opened !== view.items.settings.name"
         :style="`height: ${offCanvasHeight}px`"
         class="fb-routines-list-view__off-canvas-body"
-      />
+      >
+        <routine-detail
+          :routine="routine"
+          @view="openView"
+        />
+
+        <fb-button
+          variant="outline-primary"
+          uppercase
+          pill
+          class="fb-routines-desktop-detail__add-button"
+          @click.prevent="openView('type')"
+        >
+          <font-awesome-icon icon="plus" />
+        </fb-button>
+
+        <fb-modal-window
+          v-if="view.opened !== view.items.detail.name && view.opened !== view.items.settings.name"
+          :transparent-bg="true"
+          @close="closeView"
+        >
+          <div
+            slot="modal-content"
+            class="fb-modal-window__content fb-routines-desktop-detail__create"
+          >
+            <div class="fb-modal-window__header">
+              <button
+                type="button"
+                class="fb-modal-window__close"
+                @click.prevent="closeView"
+              >
+                <span aria-hidden="true">×</span>
+                <span class="sr-only">{{ $t('application.buttons.close.title') }}</span>
+              </button>
+
+              <div>
+                <template v-if="view.opened === view.items.type.name">
+                  <font-awesome-icon icon="project-diagram" />
+
+                  <h4>
+                    {{ $t('routines.headings.addNew') }}
+                  </h4>
+
+                  <small>Facilis blanditiis, quibusdam corporis porro natus neque soluta nihil hic aliquam, suscipit, consectetur omnis placeat architecto quae laboriosam. Id porro adipisci, alias.</small>
+                </template>
+
+                <template v-else-if="view.opened === view.items.conditionThing.name || view.opened === view.items.conditionSensor.name || view.opened === view.items.actionThing.name">
+                  <font-awesome-icon icon="plug" />
+
+                  <h4 v-if="view.opened === view.items.conditionThing.name">
+                    {{ $t('routines.headings.typeThing') }}
+                  </h4>
+
+                  <h4 v-if="view.opened === view.items.conditionSensor.name">
+                    {{ $t('routines.headings.typeSensor') }}
+                  </h4>
+
+                  <h4 v-if="view.opened === view.items.actionThing.name">
+                    {{ $t('routines.headings.typeActor') }}
+                  </h4>
+
+                  <small>Facilis blanditiis, quibusdam corporis porro natus neque soluta nihil hic aliquam, suscipit, consectetur omnis placeat architecto quae laboriosam. Id porro adipisci, alias.</small>
+                </template>
+
+                <template v-else-if="view.opened === view.items.condition.name">
+                  <font-awesome-icon :icon="$thingIcon(view.items.condition.thing)" />
+
+                  <h4>
+                    {{ $tThingChannel(view.items.condition.thing) }}
+                  </h4>
+
+                  <small>Facilis blanditiis, quibusdam corporis porro natus neque soluta nihil hic aliquam, suscipit, consectetur omnis placeat architecto quae laboriosam. Id porro adipisci, alias.</small>
+                </template>
+
+                <template v-else-if="view.opened === view.items.action.name">
+                  <font-awesome-icon :icon="$thingIcon(view.items.action.thing)" />
+
+                  <h4>
+                    {{ $tThingChannel(view.items.action.thing) }}
+                  </h4>
+
+                  <small>Facilis blanditiis, quibusdam corporis porro natus neque soluta nihil hic aliquam, suscipit, consectetur omnis placeat architecto quae laboriosam. Id porro adipisci, alias.</small>
+                </template>
+              </div>
+            </div>
+
+            <div class="fb-modal-window__body">
+              <div
+                v-if="view.opened === view.items.type.name"
+                class="fb-routines-desktop-detail__type"
+              >
+                <template v-if="routine.isAutomatic && schedule === null">
+                  <div class="fb-routines-desktop-detail__type-row">
+                    <div>
+                      <fb-button
+                        block
+                        variant="outline-primary"
+                        size="lg"
+                        name="condition"
+                        @click.prevent="openView(view.items.conditionThing.name)"
+                      >
+                        {{ $t('routines.buttons.thingToCondition.title') }}
+                      </fb-button>
+                    </div>
+                    <div>
+                      <fb-button
+                        block
+                        variant="outline-primary"
+                        size="lg"
+                        name="condition"
+                        @click.prevent="openView(view.items.conditionSensor.name)"
+                      >
+                        {{ $t('routines.buttons.sensorToCondition.title') }}
+                      </fb-button>
+                    </div>
+                  </div>
+
+                  <fb-divider
+                    :text="$t('application.misc.or')"
+                    type="horizontal"
+                  />
+                </template>
+
+                <div class="fb-routines-desktop-detail__type-row">
+                  <div>
+                    <fb-button
+                      block
+                      variant="outline-primary"
+                      size="lg"
+                      name="action"
+                      @click.prevent="openView(view.items.actionThing.name)"
+                    >
+                      {{ $t('routines.buttons.thingToAction.title') }}
+                    </fb-button>
+                  </div>
+                </div>
+              </div>
+
+              <select-thing
+                v-if="view.opened === view.items.conditionThing.name || view.opened === view.items.conditionSensor.name || view.opened === view.items.actionThing.name"
+                :items="view.items[view.opened].items"
+                :type-actor="view.opened === view.items.actionThing.name || (view.opened === view.items.conditionThing.name)"
+                :type-sensor="view.opened === view.items.conditionSensor.name"
+                @select="thingSelected"
+              />
+
+              <edit-condition
+                v-if="view.opened === view.items.condition.name"
+                :thing="view.items.condition.thing"
+                :condition="view.items.condition.item"
+                :type-thing="view.items.condition.type === 'thing'"
+                :type-sensor="view.items.condition.type === 'sensor'"
+                :remote-submit.sync="submitSelect"
+                @add="addCondition"
+              />
+
+              <edit-action
+                v-if="view.opened === view.items.action.name"
+                :thing="view.items.action.thing"
+                :action="view.items.action.item"
+                :remote-submit.sync="submitSelect"
+                @add="addAction"
+              />
+            </div>
+
+            <div class="fb-modal-window__footer">
+              <template v-if="view.opened === view.items.type.name || view.opened === view.items.conditionThing.name || view.opened === view.items.conditionSensor.name || view.opened === view.items.actionThing.name">
+                <fb-button
+                  uppercase
+                  variant="link"
+                  size="lg"
+                  name="close"
+                  @click.prevent="closeView"
+                >
+                  {{ $t('application.buttons.close.title') }}
+                </fb-button>
+              </template>
+
+              <template v-else-if="view.opened === view.items.condition.name">
+                <fb-button
+                  uppercase
+                  variant="link"
+                  size="lg"
+                  name="close"
+                  @click.prevent="openView(view.items.condition.type === 'thing' ? view.items.conditionThing.name : view.items.conditionSensor.name)"
+                >
+                  {{ $t('application.buttons.back.title') }}
+                </fb-button>
+
+                <fb-button
+                  uppercase
+                  variant="outline-primary"
+                  size="lg"
+                  name="save"
+                  @click.prevent="submitSelection"
+                >
+                  <template v-if="view.items.condition.item">
+                    {{ $t('routines.buttons.updateThing.title') }}
+                  </template>
+                  <template v-else>
+                    {{ $t('routines.buttons.addThing.title') }}
+                  </template>
+                </fb-button>
+              </template>
+
+              <template v-else-if="view.opened === view.items.action.name">
+                <fb-button
+                  uppercase
+                  variant="link"
+                  size="lg"
+                  name="close"
+                  @click.prevent="openView(view.items.actionThing.name)"
+                >
+                  {{ $t('application.buttons.back.title') }}
+                </fb-button>
+
+                <fb-button
+                  uppercase
+                  variant="outline-primary"
+                  size="lg"
+                  name="save"
+                  @click.prevent="submitSelection"
+                >
+                  <template v-if="view.items.action.item">
+                    {{ $t('routines.buttons.updateThing.title') }}
+                  </template>
+                  <template v-else>
+                    {{ $t('routines.buttons.addThing.title') }}
+                  </template>
+                </fb-button>
+              </template>
+            </div>
+          </div>
+        </fb-modal-window>
+      </div>
 
       <routine-settings
-        v-if="view.opened === view.items.settings.name"
+        v-else
         :routine="routine"
         :style="`height: ${offCanvasHeight}px`"
         class="fb-routines-list-view__off-canvas-body"
@@ -69,14 +302,16 @@ import {
   ROUTINES_HASH_SETTINGS,
 } from '@/configuration/routes'
 
+import routineUpdateMixin from '@/mixins/routineUpdate'
+
+import RoutineDetail from '@/components/routines/Detail'
+
+import SelectThing from '@/components/routines/Edit/SelectThing'
+import EditCondition from '@/components/routines/Edit/EditCondition'
+import EditAction from '@/components/routines/Edit/EditAction'
+
 import Trigger from '~/models/triggers-node/Trigger'
 
-const RoutineDetail = () => ({
-  component: import('./Routine'),
-  loading: FbComponentLoading,
-  error: FbComponentLoadingError,
-  timeout: 5000,
-})
 const RoutineSettings = () => ({
   component: import('@/components/routines/Settings'),
   loading: FbComponentLoading,
@@ -101,6 +336,32 @@ const viewSettings = {
         length: 10,
       },
     },
+    type: {
+      name: 'type',
+    },
+    conditionThing: {
+      name: 'conditionThing',
+      items: [],
+    },
+    conditionSensor: {
+      name: 'conditionSensor',
+      items: [],
+    },
+    condition: {
+      name: 'condition',
+      thing: null,
+      item: null,
+      type: null,
+    },
+    actionThing: {
+      name: 'actionThing',
+      items: [],
+    },
+    action: {
+      name: 'action',
+      thing: null,
+      item: null,
+    },
   },
 }
 
@@ -111,7 +372,13 @@ export default {
   components: {
     RoutineDetail,
     RoutineSettings,
+
+    SelectThing,
+    EditCondition,
+    EditAction,
   },
+
+  mixins: [routineUpdateMixin],
 
   props: {
 
@@ -131,20 +398,11 @@ export default {
     return {
       view: Object.assign({}, viewSettings),
       offCanvasHeight: null,
+      submitSelect: false,
     }
   },
 
   computed: {
-
-    /**
-     * User account details
-     *
-     * @returns {(Account|null)}
-     */
-    account() {
-      return this.$store.getters['entities/account/query']()
-        .first()
-    },
 
     /**
      * View routine data
@@ -226,13 +484,16 @@ export default {
         }
       }
 
-      return this.routine.isAutomatic ? (this.schedule !== null ? this.$t('routines.headings.scheduledRoutine', { days, time: this.$dateFns.format(this.schedule.time, this._.get(this.account, 'timeFormat', 'HH:mm')) }) : this.$t('routines.headings.automaticRoutine')) : this.$t('routines.headings.manualRoutine')
+      return this.routine.isAutomatic ? (this.schedule !== null ? this.$t('routines.headings.scheduledRoutine', {
+        days,
+        time: this.$dateFns.format(this.schedule.time, this._.get(this.account, 'timeFormat', 'HH:mm')),
+      }) : this.$t('routines.headings.automaticRoutine')) : this.$t('routines.headings.manualRoutine')
     },
 
   },
 
   created() {
-    this.view.opened = this.settings ? 'settings' : 'detail'
+    this.view.opened = this.settings ? this.view.items.settings.name : this.view.items.detail.name
   },
 
   mounted() {
@@ -300,10 +561,172 @@ export default {
               }))
             }
             break
+
+          // Select add item type
+          case this.view.items.type.name:
+            if (this.schedule !== null || this.routine.isManual) {
+              this.openView(this.view.items.actionThing.name)
+
+              return
+            }
+            break
+
+          // Show things list for condition select
+          case this.view.items.conditionThing.name:
+          case this.view.items.conditionSensor.name:
+            const conditionThings = []
+
+            this.routine.conditions
+              .forEach((condition) => {
+                if (typeof conditionThings.find(item => (item.device === condition.device && item.channel === condition.channel)) === 'undefined') {
+                  conditionThings.push({
+                    device: condition.device,
+                    channel: condition.channel,
+                  })
+                }
+              })
+
+            this.view.items[view].items = conditionThings
+            break
+
+          // Show condition configuration
+          case this.view.items.condition.name:
+            const storedCondition = this.routine.conditions
+              .find(item => (item.device === this.view.items.condition.thing.device.identifier && item.channel === this.view.items.condition.thing.channel.channel))
+
+            if (typeof storedCondition !== 'undefined') {
+              const condition = {
+                device: storedCondition.device,
+                channel: storedCondition.channel,
+                enabled: storedCondition.enabled,
+                rows: [],
+              }
+
+              this._.filter(this.routine.conditions, {
+                device: storedCondition.device,
+                channel: storedCondition.channel,
+              })
+                .forEach((item) => {
+                  condition.rows.push({
+                    property: item.property,
+                    operand: item.operand,
+                    operator: item.operator,
+                  })
+                })
+
+              this.view.items[view].item = condition
+            } else {
+              this.view.items[view].item = null
+            }
+            break
+
+          // Show things list for action select
+          case this.view.items.actionThing.name:
+            const actionThings = []
+
+            this.routine.actions
+              .forEach((action) => {
+                if (typeof actionThings.find(item => (item.device === action.device && item.channel === action.channel)) === 'undefined') {
+                  actionThings.push({
+                    device: action.device,
+                    channel: action.channel,
+                  })
+                }
+              })
+
+            this.view.items[view].items = actionThings
+            break
+
+          // Show action configuration
+          case this.view.items.action.name:
+            const storedAction = this.routine.actions
+              .find(item => (item.device === this.view.items.action.thing.device.identifier && item.channel === this.view.items.action.thing.channel.channel))
+
+            if (typeof storedAction !== 'undefined') {
+              const action = {
+                device: storedAction.device,
+                channel: storedAction.channel,
+                enabled: storedAction.enabled,
+                rows: [],
+              }
+
+              this._.filter(this.routine.actions, { device: storedAction.device, channel: storedAction.channel })
+                .forEach((item) => {
+                  action.rows.push({
+                    property: item.property,
+                    operation: item.value,
+                  })
+                })
+
+              this.view.items[view].item = action
+            } else {
+              this.view.items[view].item = null
+            }
+            break
         }
 
         this.view.opened = view
       }
+    },
+
+    /**
+     * Close opened view
+     */
+    closeView() {
+      // Reset to default values
+      Object.assign(this.view, viewSettings)
+    },
+
+    /**
+     * Pass submit call to child component
+     */
+    submitSelection() {
+      this.submitSelect = true
+    },
+
+    /**
+     * Condition or action thing is selected, opening properties select
+     *
+     * @param {Thing} thing
+     */
+    thingSelected(thing) {
+      if (this.view.opened === this.view.items.actionThing.name) {
+        this.view.items.action.thing = thing
+
+        this.openView(this.view.items.action.name)
+      } else if (
+        this.view.opened === this.view.items.conditionThing.name ||
+        this.view.opened === this.view.items.conditionSensor.name
+      ) {
+        this.view.items.condition.thing = thing
+        this.view.items.condition.type = this.view.opened === this.view.items.conditionThing.name ? 'thing' : (this.view.opened === this.view.items.conditionSensor.name ? 'sensor' : null)
+
+        this.openView(this.view.items.condition.name)
+      } else {
+        this.closeView()
+      }
+    },
+
+    /**
+     * Condition was selected
+     *
+     * @param {Object} data
+     */
+    addCondition(data) {
+      this.closeView()
+
+      this.addRoutineCondition(this.routine, data)
+    },
+
+    /**
+     * Action was selected
+     *
+     * @param {Object} data
+     */
+    addAction(data) {
+      this.closeView()
+
+      this.addRoutineAction(this.routine, data)
     },
 
     /**
@@ -319,3 +742,7 @@ export default {
 
 }
 </script>
+
+<style rel="stylesheet/scss" lang="scss">
+  @import 'index';
+</style>

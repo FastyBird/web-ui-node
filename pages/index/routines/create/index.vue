@@ -11,6 +11,7 @@
       />
 
       <fb-button
+        ref="submit-button"
         variant="primary"
         size="lg"
         block
@@ -221,7 +222,11 @@ export default {
   },
 
   fetch({ app, store }) {
-    store.dispatch('template/resetStore', null, {
+    store.dispatch('template/resetHeadings', null, {
+      root: true,
+    })
+
+    store.dispatch('template/resetButtons', null, {
       root: true,
     })
 
@@ -232,18 +237,31 @@ export default {
       root: true,
     })
 
+    store.dispatch('template/setRightButton', {
+      name: app.i18n.t('application.buttons.cancel.title'),
+    }, {
+      root: true,
+    })
+
     store.dispatch('template/setFullRowHeading', null, {
       root: true,
     })
 
     store.dispatch('template/setHeading', {
       heading: app.i18n.t('routines.headings.createRoutine'),
+      subHeading: '',
     }, {
       root: true,
     })
 
     store.dispatch('template/setHeadingIcon', {
       icon: 'project-diagram',
+    }, {
+      root: true,
+    })
+
+    store.dispatch('template/setHeadingInfoText', {
+      text: '',
     }, {
       root: true,
     })
@@ -275,25 +293,19 @@ export default {
     }
 
     this._configureNavigation()
-
-    if (this.windowSize === 'xs') {
-      this.$store.dispatch('template/setBodyMargin', {
-        key: 'custom',
-        position: 'bottom',
-        margin: 58,
-      }, {
-        root: true,
-      })
-    }
-
-    this.$bus.$on('heading_left_button-clicked', () => {
-      this.$router.push(this.localePath(this.$routes.routines.list))
-    })
   },
 
   mounted() {
     if (this.isScheduled && this.$store.state.routineCreate.conditions.schedules.length === 0) {
       this.openView(this.view.items.schedule.name)
+    }
+
+    this._adjustBodyMargins()
+  },
+
+  updated() {
+    if (this.view.opened === null) {
+      this._adjustBodyMargins()
     }
   },
 
@@ -310,7 +322,8 @@ export default {
       root: true,
     })
 
-    this.$bus.$off('heading_left_button-clicked')
+    this.$bus.$off('heading_left_button-clicked', this.leftButtonAction)
+    this.$bus.$off('heading_right_button-clicked', this.rightButtonAction)
   },
 
   methods: {
@@ -573,12 +586,30 @@ export default {
     },
 
     /**
+     * Header left button action event
+     */
+    leftButtonAction() {
+      this.$router.push(this.localePath(this.$routes.routines.list))
+    },
+
+    /**
+     * Header right button action event
+     */
+    rightButtonAction() {
+      this.$router.push(this.localePath(this.$routes.routines.list))
+    },
+
+    /**
      * Configure page header for small devices
      *
      * @private
      */
     _configureNavigation() {
-      this.$store.dispatch('template/resetStore', null, {
+      this.$store.dispatch('template/resetHeadings', null, {
+        root: true,
+      })
+
+      this.$store.dispatch('template/resetButtons', null, {
         root: true,
       })
 
@@ -589,12 +620,31 @@ export default {
         root: true,
       })
 
+      this.$store.dispatch('template/setRightButton', {
+        name: this.$t('application.buttons.cancel.title'),
+      }, {
+        root: true,
+      })
+
       this.$store.dispatch('template/setFullRowHeading', null, {
         root: true,
       })
 
+      let subHeading = ''
+
+      if (this.isScheduled) {
+        subHeading = this.$t('routines.subHeadings.createScheduledRoutine')
+      } else if (this.isThingCondition) {
+        subHeading = this.$t('routines.subHeadings.createThingControlRoutine')
+      } else if (this.isSensorCondition) {
+        subHeading = this.$t('routines.subHeadings.createSensorRoutine')
+      } else if (this.isManual) {
+        subHeading = this.$t('routines.subHeadings.createManualRoutine')
+      }
+
       this.$store.dispatch('template/setHeading', {
         heading: this.$t('routines.headings.createRoutine'),
+        subHeading,
       }, {
         root: true,
       })
@@ -605,9 +655,54 @@ export default {
         root: true,
       })
 
+      let infoText = ''
+
+      if (this.isScheduled) {
+        infoText = this.$t('routines.texts.createScheduledRoutine')
+      } else if (this.isThingCondition) {
+        infoText = this.$t('routines.texts.createThingControlRoutine')
+      } else if (this.isSensorCondition) {
+        infoText = this.$t('routines.texts.createSensorRoutine')
+      } else if (this.isManual) {
+        infoText = this.$t('routines.texts.createManualRoutine')
+      }
+
+      this.$store.dispatch('template/setHeadingInfoText', {
+        text: infoText,
+      }, {
+        root: true,
+      })
+
       this.$store.dispatch('app/bottomMenuCollapse', null, {
         root: true,
       })
+
+      this.$bus.$off('heading_left_button-clicked')
+      this.$bus.$off('heading_right_button-clicked')
+
+      this.$bus.$on('heading_left_button-clicked', this.leftButtonAction)
+      this.$bus.$on('heading_right_button-clicked', this.rightButtonAction)
+    },
+
+    /**
+     * Calculate body margins adjust
+     *
+     * @private
+     */
+    _adjustBodyMargins() {
+      const submitButton = this._.get(this.$refs, 'submit-button')
+
+      if (submitButton) {
+        const elementHeight = this._.get(submitButton, '$el.clientHeight')
+
+        this.$store.dispatch('template/setBodyMargin', {
+          key: 'custom',
+          position: 'bottom',
+          margin: elementHeight,
+        }, {
+          root: true,
+        })
+      }
     },
 
   },

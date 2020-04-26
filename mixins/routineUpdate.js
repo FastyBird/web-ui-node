@@ -15,6 +15,33 @@ export default {
   methods: {
 
     /**
+     * Change condition state
+     *
+     * @param {Object} condition
+     * @param {Boolean} state
+     */
+    changeConditionState(condition, state) {
+      this._.get(condition, 'rows', [])
+        .forEach((row) => {
+          Condition.dispatch('edit', {
+            id: row.condition_id,
+            data: {
+              enabled: state,
+            },
+          })
+            .catch((e) => {
+              const errorMessage = this.$t('triggers.messages.conditionNotUpdated')
+
+              if (Object.prototype.hasOwnProperty.call(e, 'exception')) {
+                this.handleFormError(e.exception, errorMessage)
+              } else {
+                this.$flashMessage(errorMessage, 'error')
+              }
+            })
+        })
+    },
+
+    /**
      * Condition was selected
      *
      * @param {Trigger} routine
@@ -128,11 +155,38 @@ export default {
      * @param {Object} thing
      */
     removeRoutineCondition(routine, thing) {
-      const thingConditions = this._.filter(this.mapConditions(routine), condition => condition.thing === thing.id)
+      const thingConditions = this._.filter(this.mapConditions(routine), condition => (condition.device === thing.device.identifier && condition.channel === thing.channel.channel))
 
       thingConditions.forEach((condition) => {
         this.removeTriggerCondition(condition)
       })
+    },
+
+    /**
+     * Change action state
+     *
+     * @param {Object} action
+     * @param {Boolean} state
+     */
+    changeActionState(action, state) {
+      this._.get(action, 'rows', [])
+        .forEach((row) => {
+          Action.dispatch('edit', {
+            id: row.action_id,
+            data: {
+              enabled: state,
+            },
+          })
+            .catch((e) => {
+              const errorMessage = this.$t('triggers.messages.actionNotUpdated')
+
+              if (Object.prototype.hasOwnProperty.call(e, 'exception')) {
+                this.handleFormError(e.exception, errorMessage)
+              } else {
+                this.$flashMessage(errorMessage, 'error')
+              }
+            })
+        })
     },
 
     /**
@@ -247,7 +301,7 @@ export default {
      * @param {Object} thing
      */
     removeRoutineAction(routine, thing) {
-      const thingActions = this._.filter(this.mapActions(routine), action => action.thing === thing.id)
+      const thingActions = this._.filter(this.mapActions(routine), action => (action.device === thing.device.identifier && action.channel === thing.channel.channel))
 
       thingActions.forEach((action) => {
         this.removeTriggerAction(action)

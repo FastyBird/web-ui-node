@@ -37,16 +37,6 @@ export default {
   computed: {
 
     /**
-     * User account details
-     *
-     * @returns {(Account|null)}
-     */
-    account() {
-      return this.$store.getters['entities/account/query']()
-        .first()
-    },
-
-    /**
      * Get list sub-heading
      *
      * @returns {String}

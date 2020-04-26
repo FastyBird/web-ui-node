@@ -167,6 +167,9 @@ export default {
         long: 'Sunday',
       },
     },
+    misc: {
+      or: 'or',
+    },
   },
   account: {
     headings: {
@@ -807,7 +810,7 @@ export default {
   routines: {
     headings: {
       allRoutines: 'All routines',
-      addNew: 'Add new',
+      addNew: 'Choose new routine type',
       createRoutine: 'New routine',
       routineType: 'Routine type',
       selectThing: 'Things',
@@ -830,9 +833,16 @@ export default {
       scheduledTime: 'Routine scheduled for time',
       selectSchedule: 'Select schedule time',
       editSchedule: 'Update schedule time',
+      typeActor: 'Available actor things',
+      typeSensor: 'Available sensor things',
+      typeThing: 'Available universal things',
     },
     subHeadings: {
       allRoutines: 'no routines | one routine | {count} routines',
+      createScheduledRoutine: 'Scheduled routine',
+      createThingControlRoutine: 'Things watchdog',
+      createSensorRoutine: 'Sensors watchdog',
+      createManualRoutine: 'Manually controlled',
     },
     messages: {
       notFound: 'Routine was not found, please try reload page.',
@@ -874,6 +884,16 @@ export default {
       scheduled: 'Scheduled: {time}',
       noConditions: 'You don\'t have assigned any condition to this routine',
       noActions: 'You don\'t have assigned any action to this routine',
+      selectActorThing: 'Select one thing to be used as routine actor',
+      selectThing: 'Select one thing to be used as routine condition',
+      selectSensorThing: 'Select one thing to be used as routine condition',
+      actionThingProperties: 'Choose thing property and action to perform',
+      conditionThingProperties: 'Choose thing property which should be watched',
+      createScheduledRoutine: 'Actions will be executed at given time',
+      createThingControlRoutine: 'Actions will be executed when thing meet conditions',
+      createSensorRoutine: 'Actions will be executed when sensors meet conditions',
+      createManualRoutine: 'Actions will be executed on your order',
+      scheduledTime: 'Select time of the day & days of the week',
     },
     fields: {
       name: {

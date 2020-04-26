@@ -10,7 +10,7 @@
     </fb-button>
 
     <fb-divider
-      text="OR"
+      :text="$t('application.misc.or')"
       type="horizontal"
     />
 
@@ -24,7 +24,7 @@
     </fb-button>
 
     <fb-divider
-      text="OR"
+      :text="$t('application.misc.or')"
       type="horizontal"
     />
 
@@ -38,7 +38,7 @@
     </fb-button>
 
     <fb-divider
-      text="OR"
+      :text="$t('application.misc.or')"
       type="horizontal"
     />
 

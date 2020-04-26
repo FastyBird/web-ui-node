@@ -74,6 +74,8 @@ import {
   ROUTINES_HASH_CREATE,
 } from '@/configuration/routes'
 
+import SelectRoutineTypePhone from '@/components/routines/Phone/SelectType'
+
 import RoutineListItem from '@/components/routines/ListItem'
 import RoutineListCarousel from '@/components/routines/ListCarousel'
 
@@ -85,9 +87,13 @@ const RoutineDetail = () => ({
   error: FbComponentLoadingError,
   timeout: 5000,
 })
-const CreateRoutine = () => import('@/components/routines/Desktop/Create')
 
-const SelectRoutineTypePhone = () => import('@/components/routines/Phone/SelectType')
+const CreateRoutine = () => ({
+  component: import('@/components/routines/Desktop/Create'),
+  loading: FbComponentLoading,
+  error: FbComponentLoadingError,
+  timeout: 5000,
+})
 
 const viewSettings = {
   opened: null,
@@ -257,7 +263,11 @@ export default {
             .where('isForChannel', false)
             .count()
 
-          store.dispatch('template/resetStore', null, {
+          store.dispatch('template/resetHeadings', null, {
+            root: true,
+          })
+
+          store.dispatch('template/resetButtons', null, {
             root: true,
           })
 
@@ -296,15 +306,9 @@ export default {
         })
     }
 
-    this._configureNavigation()
+    this.$bus.$on('heading_action_button-clicked', this.actionButtonAction)
 
-    this.$bus.$on('heading_action_button-clicked', () => {
-      if (this.windowSize === 'xs') {
-        this.openView(this.view.items.type.name)
-      } else {
-        this.openView(this.view.items.create.name)
-      }
-    })
+    this._configureNavigation()
   },
 
   mounted() {
@@ -312,11 +316,13 @@ export default {
       this._checkRoute()
     }
 
+    this.$bus.$emit('wait-page_reloading', false)
+
     this.isMounted = true
   },
 
   beforeDestroy() {
-    this.$bus.$off('heading_action_button-clicked')
+    this.$bus.$off('heading_action_button-clicked', this.actionButtonAction)
   },
 
   methods: {
@@ -340,6 +346,8 @@ export default {
         switch (view) {
           case this.view.items.detail.name:
             if (this.windowSize === 'xs') {
+              this.$bus.$emit('wait-page_reloading', 10)
+
               this.$router.push(this.localePath({
                 name: this.$routes.routines.detail,
                 params: {
@@ -456,6 +464,17 @@ export default {
     },
 
     /**
+     * Header action button action event
+     */
+    actionButtonAction() {
+      if (this.windowSize === 'xs') {
+        this.openView(this.view.items.type.name)
+      } else {
+        this.openView(this.view.items.create.name)
+      }
+    },
+
+    /**
      * Check route and if is needed open detail window
      *
      * @private
@@ -478,7 +497,11 @@ export default {
      * @private
      */
     _configureNavigation() {
-      this.$store.dispatch('template/resetStore', null, {
+      this.$store.dispatch('template/resetHeadings', null, {
+        root: true,
+      })
+
+      this.$store.dispatch('template/resetButtons', null, {
         root: true,
       })
 

@@ -17,20 +17,23 @@ interface TemplateMarginsInterface {
   margin: number;
 }
 
+interface TemplateHeadingInterface {
+  heading: string | null;
+  subHeading: string | null;
+  infoText: string | null;
+  icon: string | null;
+
+  style: string;
+
+  tabs: Array<TemplateTabStateInterface>;
+}
+
 interface TemplateState {
   leftButton: TemplateButtonInterface | null;
   rightButton: TemplateButtonInterface | null;
   actionButton: TemplateButtonInterface | null;
 
-  heading: string | null;
-  subHeading: string | null;
-  headingInfoText: string | null;
-  headingIcon: string | null;
-
-  hiddenHeading: boolean;
-  fullRowHeading: boolean;
-
-  headingTabs: Array<TemplateTabStateInterface>;
+  heading: TemplateHeadingInterface;
 
   windowSize: string;
 
@@ -44,15 +47,14 @@ const moduleState: TemplateState = {
   rightButton: null,
   actionButton: null,
 
-  heading: null,
-  subHeading: null,
-  headingInfoText: null,
-  headingIcon: null,
-
-  hiddenHeading: false,
-  fullRowHeading: false,
-
-  headingTabs: [],
+  heading: {
+    heading: null,
+    subHeading: null,
+    infoText: null,
+    icon: null,
+    style: 'normal',
+    tabs: [],
+  },
 
   windowSize: 'md',
 
@@ -79,23 +81,23 @@ const moduleGetters: GetterTree<TemplateState, any> = {
   },
 
   hasInfoText: state => (): boolean => {
-    return state.headingInfoText !== null
+    return state.heading.infoText !== null
   },
 
   isHiddenHeading: state => (): boolean => {
-    return state.hiddenHeading
+    return state.heading.style === 'hidden'
   },
 
   hasHeadingIcon: state => (): boolean => {
-    return state.headingIcon !== null
+    return state.heading.icon !== null
   },
 
   hasFullRowHeading: state => (): boolean => {
-    return state.fullRowHeading
+    return state.heading.style === 'row'
   },
 
   hasTabs: state => (): boolean => {
-    return state.headingTabs.length > 0
+    return state.heading.tabs.length > 0
   },
 
   bodyTopBottomMargin: state => (): number => {
@@ -165,18 +167,28 @@ const moduleActions: ActionTree<TemplateState, any> = {
     commit('TEMPLATE_RESET_HEADING')
   },
 
-  hideHeading({ commit }): void {
-    commit('TEMPLATE_HIDE_HEADING')
+  setHeadingIcon({ commit }, payload: { icon: string | null }): void {
+    commit('TEMPLATE_SET_HEADING_ICON', {
+      icon: typeof payload.icon === 'undefined' ? null : payload.icon,
+    })
   },
 
-  setHeadingIcon({ commit }, payload: { icon: string }): void {
-    commit('TEMPLATE_SET_HEADING_ICON', {
-      icon: payload.icon,
+  setNormalHeading({ commit }): void {
+    commit('TEMPLATE_SET_HEADING_STYLE', {
+      style: 'normal',
+    })
+  },
+
+  setHiddenHeading({ commit }): void {
+    commit('TEMPLATE_SET_HEADING_STYLE', {
+      style: 'hidden',
     })
   },
 
   setFullRowHeading({ commit }): void {
-    commit('TEMPLATE_HEADING_FULL_ROW')
+    commit('TEMPLATE_SET_HEADING_STYLE', {
+      style: 'row',
+    })
   },
 
   setHeadingInfoText({ commit }, payload: { text: string }): void {
@@ -215,9 +227,16 @@ const moduleActions: ActionTree<TemplateState, any> = {
     })
   },
 
+  resetHeadings({ commit }): void {
+    commit('TEMPLATE_RESET_HEADINGS')
+  },
+
+  resetButtons({ commit }): void {
+    commit('TEMPLATE_RESET_BUTTONS')
+  },
+
   resetStore({ commit }): void {
     commit('TEMPLATE_RESET_STATE')
-    commit('TEMPLATE_HEADING_CLEAR_TABS')
   },
 
 }
@@ -253,41 +272,41 @@ const moduleMutations: MutationTree<TemplateState> = {
   },
 
   ['TEMPLATE_SET_HEADING'](state: TemplateState, action: { heading: string, subHeading: string | null }): void {
-    state.heading = action.heading
-    state.subHeading = action.subHeading
+    state.heading.heading = action.heading
+    state.heading.subHeading = action.subHeading
   },
 
   ['TEMPLATE_RESET_HEADING'](state: TemplateState): void {
-    state.heading = null
-    state.subHeading = null
+    state.heading.heading = null
+    state.heading.subHeading = null
   },
 
-  ['TEMPLATE_HIDE_HEADING'](state: TemplateState): void {
-    state.hiddenHeading = true
+  ['TEMPLATE_SET_HEADING_ICON'](state: TemplateState, action: { icon: string | null }): void {
+    state.heading.icon = action.icon
   },
 
-  ['TEMPLATE_SET_HEADING_ICON'](state: TemplateState, action: { icon: string }): void {
-    state.headingIcon = action.icon
-  },
-
-  ['TEMPLATE_HEADING_FULL_ROW'](state: TemplateState): void {
-    state.fullRowHeading = true
+  ['TEMPLATE_SET_HEADING_STYLE'](state: TemplateState, action: { style: string }): void {
+    state.heading.style = action.style
   },
 
   ['TEMPLATE_HEADING_SET_INFO_TEXT'](state: TemplateState, action: { text: string }): void {
-    state.headingInfoText = action.text
+    state.heading.infoText = action.text
   },
 
   ['TEMPLATE_HEADING_RESET_INFO_TEXT'](state: TemplateState): void {
-    state.headingInfoText = null
+    state.heading.infoText = null
   },
 
   ['TEMPLATE_HEADING_ADD_TAB'](state: TemplateState, action: { name: string, link: string, icon: string | null }): void {
-    state.headingTabs.push({
+    state.heading.tabs.push({
       name: action.name,
       link: action.link,
       icon: action.icon,
     })
+  },
+
+  ['TEMPLATE_HEADING_CLEAR_TABS'](state: TemplateState): void {
+    state.heading.tabs = []
   },
 
   ['TEMPLATE_SET_WINDOW_SIZE'](state: TemplateState, action: { size: string }): void {
@@ -327,8 +346,16 @@ const moduleMutations: MutationTree<TemplateState> = {
     state.marginBottom = marginBottom
   },
 
-  ['TEMPLATE_HEADING_CLEAR_TABS'](state: TemplateState): void {
-    state.headingTabs = []
+  ['TEMPLATE_RESET_HEADINGS'](state: TemplateState): void {
+    Object.assign(state.heading, moduleState.heading)
+
+    state.heading.tabs = []
+  },
+
+  ['TEMPLATE_RESET_BUTTONS'](state: TemplateState): void {
+    state.leftButton = null
+    state.rightButton = null
+    state.actionButton = null
   },
 
   ['TEMPLATE_RESET_STATE'](state: TemplateState): void {

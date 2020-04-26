@@ -1,5 +1,5 @@
-@import "~@fastybird-com/theme/assets/variables/colors";
-@import "~@fastybird-com/theme/assets/mixins/utilities";
+@import "../../../../node_modules/@fastybird-com/theme/assets/variables/colors";
+@import "../../../../node_modules/@fastybird-com/theme/assets/mixins/utilities";
 
 .fb-routines-desktop-detail {
   &__add-button {
@@ -84,17 +84,24 @@
   }
 
   &__type {
-    @include gridRow;
+    &-row {
+      @include gridRow;
 
-    > div {
-      @include gridCel;
+      > div {
+        @include gridCel;
 
-      -webkit-box-flex: 0;
-      -ms-flex: 0 0 50%;
-      flex: 0 0 50%;
-      max-width: 50%;
+        -webkit-box-flex: 0;
+        -ms-flex: 0 0 50%;
+        flex: 0 0 50%;
+        max-width: 50%;
 
-      margin-bottom: 10px;
+        margin-bottom: 10px;
+      }
+    }
+
+    .fb-divider__container {
+      margin-top: 15px;
+      margin-bottom: 15px;
     }
   }
 }

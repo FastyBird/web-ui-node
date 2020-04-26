@@ -1,4 +1,5 @@
 import Session from '~/models/accounts-node/Session'
+import Account from '~/models/accounts-node/Account'
 
 export default {
 
@@ -11,6 +12,24 @@ export default {
      */
     isSignedIn() {
       return Session.query().exists()
+    },
+
+    /**
+     * User account details
+     *
+     * @returns {(Account|null)}
+     */
+    account() {
+      const session = Session.query().first()
+
+      if (session === null) {
+        return null
+      }
+
+      return Account
+        .query()
+        .where('session_id', session.id)
+        .first()
     },
 
   },
