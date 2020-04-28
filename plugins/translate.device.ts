@@ -2,7 +2,7 @@ import { Plugin } from '@nuxt/types'
 import get from 'lodash/get'
 import capitalize from 'lodash/capitalize'
 
-import ThingInterface from '~/models/Thing'
+import ThingInterface from '~/models/things/Thing'
 import Hardware from '~/models/devices-node/Hardware'
 
 declare module 'vue/types/vue' {

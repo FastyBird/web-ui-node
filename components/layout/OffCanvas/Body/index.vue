@@ -18,11 +18,11 @@
 </template>
 
 <script lang="ts">
-import { createComponent, ref } from '@vue/composition-api'
+import { defineComponent, ref } from '@vue/composition-api'
 
 import OffCanvasHeading from './../Heading/index.vue'
 
-export default createComponent({
+export default defineComponent({
 
   name: 'OffCanvasBody',
 

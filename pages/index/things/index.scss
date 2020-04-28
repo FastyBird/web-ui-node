@@ -2,6 +2,10 @@
 @import "~@fastybird-com/theme/assets/mixins/utilities";
 
 .fb-iot-things-list-view {
+  &__container {
+
+  }
+
   &__items-container {
     @include gridRow(0, 0);
 

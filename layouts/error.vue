@@ -18,7 +18,7 @@
 </template>
 
 <script>
-import * as config from '@/configuration'
+import * as config from '~/configuration'
 
 const FbErrorLayout = () => import('@/node_modules/@fastybird-com/theme/layouts/error')
 

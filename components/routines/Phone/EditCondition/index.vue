@@ -60,7 +60,7 @@
 </template>
 
 <script>
-import EditCondition from '@/components/routines/Edit/EditCondition'
+import EditCondition from '~/components/routines/Edit/EditCondition'
 
 export default {
 

@@ -500,6 +500,9 @@ export default {
       addTriggerAction: {
         title: 'Add action',
       },
+      addNew: {
+        title: 'Connect new thing',
+      },
       search: {
         title: 'Start searching',
       },
@@ -884,9 +887,9 @@ export default {
       scheduled: 'Scheduled: {time}',
       noConditions: 'You don\'t have assigned any condition to this routine',
       noActions: 'You don\'t have assigned any action to this routine',
-      selectActorThing: 'Select one thing to be used as routine actor',
-      selectThing: 'Select one thing to be used as routine condition',
-      selectSensorThing: 'Select one thing to be used as routine condition',
+      selectActorThing: 'Select one thing to be used as actor',
+      selectThing: 'Select one thing to be used as condition',
+      selectSensorThing: 'Select one thing to be used as condition',
       actionThingProperties: 'Choose thing property and action to perform',
       conditionThingProperties: 'Choose thing property which should be watched',
       createScheduledRoutine: 'Actions will be executed at given time',

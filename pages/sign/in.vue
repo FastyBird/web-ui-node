@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import SignIn from '@/components/account/SignIn'
+import SignIn from '~/components/account/SignIn'
 
 export default {
 

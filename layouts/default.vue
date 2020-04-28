@@ -97,9 +97,9 @@
 </template>
 
 <script>
-import * as config from '@/configuration'
-
 import { version } from './../package.json'
+
+import * as config from '~/configuration'
 
 import Identity from '~/models/accounts-node/Identity'
 import Account from '~/models/accounts-node/Account'
@@ -110,14 +110,14 @@ import DeviceProperty from '~/models/devices-node/DeviceProperty'
 import DeviceConfiguration from '~/models/devices-node/DeviceConfiguration'
 import ChannelProperty from '~/models/devices-node/ChannelProperty'
 import ChannelConfiguration from '~/models/devices-node/ChannelConfiguration'
-import Thing from '~/models/Thing'
+import Thing from '~/models/things/Thing'
 
 const FbDefaultLayout = () => import('@/node_modules/@fastybird-com/theme/layouts/default')
 const FbSignLayout = () => import('@/node_modules/@fastybird-com/theme/layouts/sign')
 
-const AccountEdit = () => import('@/components/account/AccountEdit')
-const PasswordEdit = () => import('@/components/account/PasswordEdit')
-const SecurityEdit = () => import('@/components/account/SecurityEdit')
+const AccountEdit = () => import('~/components/account/AccountEdit')
+const PasswordEdit = () => import('~/components/account/PasswordEdit')
+const SecurityEdit = () => import('~/components/account/SecurityEdit')
 
 export default {
 
@@ -661,7 +661,7 @@ export default {
      */
     _touchDetectHandler() {
       this.$store.dispatch('app/setTouchDeviceState', {
-        enabled: true,
+        state: true,
       }, {
         root: true,
       })

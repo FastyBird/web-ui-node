@@ -58,10 +58,10 @@
 <script>
 import ChannelProperty from '~/models/devices-node/ChannelProperty'
 
-const AnalogSensor = () => import('./../../Property/AnalogSensor')
-const BinaryActor = () => import('./../../Property/BinaryActor')
-const BinarySensor = () => import('./../../Property/BinarySensor')
-const SwitchActor = () => import('./../../Property/SwitchActor')
+const AnalogSensor = () => import('./Property/AnalogSensor')
+const BinaryActor = () => import('./Property/BinaryActor')
+const BinarySensor = () => import('./Property/BinarySensor')
+const SwitchActor = () => import('./Property/SwitchActor')
 
 export default {
 

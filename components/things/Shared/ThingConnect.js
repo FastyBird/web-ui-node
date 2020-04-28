@@ -2,7 +2,7 @@ import { mapState } from 'vuex'
 
 import axios from 'axios'
 
-import Thing from '@/models/Thing'
+import Thing from '~/models/things/Thing'
 
 const deviceApi = {
   getDeviceStatus: () => {

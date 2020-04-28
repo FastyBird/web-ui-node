@@ -10,23 +10,23 @@ import FastyBirdTheme from '@/node_modules/@fastybird-com/theme'
 
 // Layout components
 // @ts-ignore
-import IconWithChild from '@/components/layout/IconWithChild'
+import IconWithChild from '~/components/layout/IconWithChild'
 // @ts-ignore
-import ListItem from '@/components/layout/ListItem'
+import ListItem from '~/components/layout/ListItem'
 // @ts-ignore
-import ListItemsContainer from '@/components/layout/ListItemsContainer'
+import ListItemsContainer from '~/components/layout/ListItemsContainer'
 // @ts-ignore
-import PhoneBottomMenu from '@/components/layout/PhoneBottomMenu'
+import PhoneBottomMenu from '~/components/layout/PhoneBottomMenu'
 // @ts-ignore
-import NoResults from '@/components/layout/NoResults'
+import NoResults from '~/components/layout/NoResults'
 // @ts-ignore
-import OffCanvas from '@/components/layout/OffCanvas'
+import OffCanvas from '~/components/layout/OffCanvas'
 // @ts-ignore
-import OffCanvasBody from '@/components/layout/OffCanvas/Body'
+import OffCanvasBody from '~/components/layout/OffCanvas/Body'
 // @ts-ignore
-import SettingsListItem from '@/components/layout/SettingsListItem'
+import SettingsListItem from '~/components/layout/SettingsListItem'
 
-import HelpersMixin from '@/mixins/helpers'
+import HelpersMixin from '~/mixins/helpers'
 
 Vue.use(FastyBirdTheme)
 

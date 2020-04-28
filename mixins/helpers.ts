@@ -1,3 +1,6 @@
+import { AxiosResponse } from 'axios'
+import get from 'lodash/get'
+
 import Session from '~/models/accounts-node/Session'
 import Account from '~/models/accounts-node/Account'
 
@@ -10,7 +13,7 @@ export default {
      *
      * @returns {Boolean}
      */
-    isSignedIn() {
+    isSignedIn(): boolean {
       return Session.query().exists()
     },
 
@@ -19,7 +22,7 @@ export default {
      *
      * @returns {(Account|null)}
      */
-    account() {
+    account(): Account | null {
       const session = Session.query().first()
 
       if (session === null) {
@@ -36,30 +39,32 @@ export default {
 
   methods: {
 
-    handleFormError(exception, errorMessage) {
+    handleFormError(exception: Error, errorMessage: string): void {
       let errorShown = false
 
-      if (exception.response && Object.prototype.hasOwnProperty.call(exception.response, 'data') && Object.prototype.hasOwnProperty.call(exception.response.data, 'errors')) {
-        for (const key in exception.response.data.errors) {
-          if (Object.prototype.hasOwnProperty.call(exception.response.data.errors, key) && parseInt(exception.response.data.errors[key].code, 10) === 422) {
-            this.$toasted.error(exception.response.data.errors[key].detail)
+      get(exception, 'response.data.errors', [])
+        .forEach((error: any): void => {
+          if (parseInt(get(error, 'code', 200), 10) === 422) {
+            // @ts-ignore
+            this.$toasted.error(get(error, 'detail', ''))
 
             errorShown = true
           }
-        }
-      }
+        })
 
       if (!errorShown && errorMessage !== null) {
+        // @ts-ignore
         this.$toasted.error(errorMessage)
       }
     },
 
-    handleRequestError(response, errorMessage) {
+    handleRequestError(response: AxiosResponse, errorMessage: string): void {
       let errorShown = false
 
       if (response && Object.prototype.hasOwnProperty.call(response, 'data') && Object.prototype.hasOwnProperty.call(response.data, 'errors')) {
         for (const key in response.data.errors) {
           if (Object.prototype.hasOwnProperty.call(response.data.errors, key) && parseInt(response.data.errors[key].code, 10) === 422) {
+            // @ts-ignore
             this.$toasted.error(response.data.errors[key].detail)
 
             errorShown = true
@@ -68,6 +73,7 @@ export default {
       }
 
       if (!errorShown && errorMessage !== null) {
+        // @ts-ignore
         this.$toasted.error(errorMessage)
       }
     },

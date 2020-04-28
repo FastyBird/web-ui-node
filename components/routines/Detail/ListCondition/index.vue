@@ -56,7 +56,7 @@
 import Device from '~/models/devices-node/Device'
 import Channel from '~/models/devices-node/Channel'
 import ChannelProperty from '~/models/devices-node/ChannelProperty'
-import Thing from '~/models/Thing'
+import Thing from '~/models/things/Thing'
 
 export default {
 

@@ -1,7 +1,7 @@
 import { Middleware } from '@nuxt/types'
 import {
   ACCOUNT_SIGN_IN_LINK,
-} from '@/configuration/routes'
+} from '~/configuration/routes'
 
 import Session from '~/models/accounts-node/Session'
 

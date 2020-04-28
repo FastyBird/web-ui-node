@@ -102,11 +102,13 @@
 </template>
 
 <script>
-import routineUpdateMixin from '@/mixins/routineUpdate'
+import { orderBy } from 'natural-orderby'
+
+import routinesMixin from '~/mixins/routines'
 
 import Device from '~/models/devices-node/Device'
 import Channel from '~/models/devices-node/Channel'
-import Thing from '~/models/Thing'
+import Thing from '~/models/things/Thing'
 
 const ListAction = () => import('./ListAction')
 const ListCondition = () => import('./ListCondition')
@@ -120,7 +122,7 @@ export default {
     ListCondition,
   },
 
-  mixins: [routineUpdateMixin],
+  mixins: [routinesMixin],
 
   props: {
 
@@ -151,7 +153,14 @@ export default {
      * @returns {Array}
      */
     conditions() {
-      return this.mapConditions(this.routine)
+      return orderBy(
+        this.mapConditions(this.routine),
+        [
+          v => v.device,
+          v => v.channel,
+        ],
+        ['asc'],
+      )
     },
 
     /**
@@ -160,7 +169,14 @@ export default {
      * @returns {Array}
      */
     actions() {
-      return this.mapActions(this.routine)
+      return orderBy(
+        this.mapActions(this.routine),
+        [
+          v => v.device,
+          v => v.channel,
+        ],
+        ['asc'],
+      )
     },
 
     /**

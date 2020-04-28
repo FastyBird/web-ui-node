@@ -1,8 +1,8 @@
 import VuexORM, { Database } from '@vuex-orm/core'
 import VuexORMAxios from '@vuex-orm/plugin-axios'
 
-import Thing from '~/models/Thing'
-import things from '~/models/things'
+import Thing from '~/models/things/Thing'
+import things from '~/models/things/things'
 
 // Accounts node
 import Session from '~/models/accounts-node/Session'

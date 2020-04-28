@@ -300,20 +300,20 @@ import FbComponentLoadingError from '@/node_modules/@fastybird-com/theme/compone
 import {
   ROUTINES_HASH_DETAIL,
   ROUTINES_HASH_SETTINGS,
-} from '@/configuration/routes'
+} from '~/configuration/routes'
 
-import routineUpdateMixin from '@/mixins/routineUpdate'
-
-import RoutineDetail from '@/components/routines/Detail'
-
-import SelectThing from '@/components/routines/Edit/SelectThing'
-import EditCondition from '@/components/routines/Edit/EditCondition'
-import EditAction from '@/components/routines/Edit/EditAction'
+import routinesMixin from '~/mixins/routines'
 
 import Trigger from '~/models/triggers-node/Trigger'
 
+import RoutineDetail from '~/components/routines/Detail'
+
+import SelectThing from '~/components/routines/Edit/SelectThing'
+import EditCondition from '~/components/routines/Edit/EditCondition'
+import EditAction from '~/components/routines/Edit/EditAction'
+
 const RoutineSettings = () => ({
-  component: import('@/components/routines/Settings'),
+  component: import('~/components/routines/Settings'),
   loading: FbComponentLoading,
   error: FbComponentLoadingError,
   timeout: 5000,
@@ -378,7 +378,7 @@ export default {
     EditAction,
   },
 
-  mixins: [routineUpdateMixin],
+  mixins: [routinesMixin],
 
   props: {
 

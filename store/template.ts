@@ -347,8 +347,11 @@ const moduleMutations: MutationTree<TemplateState> = {
   },
 
   ['TEMPLATE_RESET_HEADINGS'](state: TemplateState): void {
-    Object.assign(state.heading, moduleState.heading)
-
+    state.heading.heading = null
+    state.heading.subHeading = null
+    state.heading.icon = null
+    state.heading.infoText = null
+    state.heading.style = 'normal'
     state.heading.tabs = []
   },
 

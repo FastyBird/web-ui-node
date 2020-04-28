@@ -1,7 +1,7 @@
 import { Plugin } from '@nuxt/types'
 import capitalize from 'lodash/capitalize'
 
-import ThingInterface from '~/models/Thing'
+import ThingInterface from '~/models/things/Thing'
 import Hardware from '~/models/devices-node/Hardware'
 import { DevicePropertyInterface } from '~/models/devices-node/DeviceProperty'
 

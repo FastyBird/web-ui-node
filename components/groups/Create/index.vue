@@ -42,7 +42,7 @@
 </template>
 
 <script>
-import { groupIcons } from '@/configuration'
+import { groupIcons } from '~/configuration'
 
 export default {
 

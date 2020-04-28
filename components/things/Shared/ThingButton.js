@@ -1,13 +1,14 @@
+import routinesMixin from '~/mixins/routines'
+
 import {
   DEVICE_FASTYBIRD_BUTTON_PRESS,
   DEVICE_FASTYBIRD_BUTTON_CLICK,
   DEVICE_FASTYBIRD_BUTTON_DBL_CLICK,
-} from '@/configuration/devices'
-
-import routinesMixin from './routines'
+} from '~/configuration/devices'
 
 import Trigger from '~/models/triggers-node/Trigger'
 import Action from '~/models/triggers-node/Action'
+import ChannelProperty from '~/models/devices-node/ChannelProperty'
 
 import {
   TRIGGERS_ACTION_CHANNEL_PROPERTY,
@@ -15,12 +16,51 @@ import {
 
 export default {
 
+  props: {
+
+    thing: {
+      type: Object,
+      required: true,
+    },
+
+  },
+
   mixins: [routinesMixin],
 
   data() {
     return {
       actionType: null,
     }
+  },
+
+  computed: {
+
+    /**
+     * Thing direct triggers
+     *
+     * @returns {Array}
+     */
+    triggers() {
+      const property = ChannelProperty
+        .query()
+        .where('channel_id', this.thing.channel_id)
+        .first()
+
+      if (property === null) {
+        return []
+      }
+
+      return Trigger
+        .query()
+        .with('condition')
+        .with('actions')
+        .where('device', this.thing.device.identifier)
+        .where('channel', this.thing.channel.channel)
+        .where('property', property.property)
+        .orderBy('operand', 'asc')
+        .get()
+    },
+
   },
 
   methods: {
@@ -38,17 +78,17 @@ export default {
       if (trigger) {
         const triggerAction = this.mapActions(trigger)
           .find((item) => {
-            return item.thing === data.thing
+            return (item.device === data.device && item.channel === data.channel)
           })
 
         this._.get(data, 'rows', [])
           .forEach((row) => {
             if (
               typeof triggerAction !== 'undefined' &&
-              typeof this._.get(triggerAction, 'rows', []).find(({ property_id }) => property_id === row.property_id) !== 'undefined'
+              typeof this._.get(triggerAction, 'rows', []).find(({ property }) => property === row.property) !== 'undefined'
             ) {
               const triggerActionProperty = this._.get(triggerAction, 'rows', [])
-                .find(({ property_id }) => property_id === row.property_id)
+                .find(({ property }) => property === row.property)
 
               // Update existing trigger action
               Action.dispatch('edit', {
@@ -69,13 +109,15 @@ export default {
                 })
             } else {
               // Create existing trigger action
-              Trigger.dispatch('add', {
+              Action.dispatch('add', {
                 trigger,
                 data: {
-                  type: 'channel_property',
+                  id: null,
+                  type: TRIGGERS_ACTION_CHANNEL_PROPERTY,
                   enabled: data.enabled,
-                  channel: data.thing,
-                  property: row.property_id,
+                  device: data.device,
+                  channel: data.channel,
+                  property: row.property,
                   value: row.operation,
                 },
               })
@@ -95,12 +137,18 @@ export default {
           .forEach((row) => {
             mappedActions.push({
               type: TRIGGERS_ACTION_CHANNEL_PROPERTY,
-              enabled: data.enabled,
-              channel: data.thing,
-              property: row.property_id,
+              enabled: !!data.enabled,
+              device: data.device,
+              channel: data.channel,
+              property: row.property,
               value: row.operation,
             })
           })
+
+        const property = ChannelProperty
+          .query()
+          .where('channel_id', this.thing.channel_id)
+          .first()
 
         // Create new trigger with remapped actions
         Trigger.dispatch('add', {
@@ -108,9 +156,10 @@ export default {
           data: {
             name: this.thing.device_id,
             comment: this.thing.channel_id,
-            channel: this.thing.channel_id,
+            device: this.thing.device.identifier,
+            channel: this.thing.channel.channel,
             enabled: true,
-            property: this._.first(this.thing.channel.properties).id,
+            property: property.property,
             operator: 'eq',
             operand: this._mapActionToCode(this.actionType),
             actions: mappedActions,
@@ -136,11 +185,25 @@ export default {
 
       const mappedActions = this.mapActions(trigger)
 
-      const thingActions = this._.filter(mappedActions, action => action.thing === thing.id)
+      const thingActions = this._.filter(mappedActions, action => (action.device === thing.device.identifier && action.channel === thing.channel.channel))
 
       if (mappedActions.length > 1) {
         thingActions.forEach((action) => {
-          this.removeTriggerAction(action)
+          action.rows
+            .forEach((row) => {
+              Action.dispatch('remove', {
+                id: row.action_id,
+              })
+                .catch((e) => {
+                  const errorMessage = this.$t('triggers.messages.actionNotRemoved')
+
+                  if (Object.prototype.hasOwnProperty.call(e, 'exception')) {
+                    this.handleFormError(e.exception, errorMessage)
+                  } else {
+                    this.$flashMessage(errorMessage, 'error')
+                  }
+                })
+            })
         })
       } else {
         Trigger.dispatch('remove', {

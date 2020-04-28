@@ -92,10 +92,10 @@
 <script>
 import VueSlider from 'vue-slider-component'
 
-import SwitchActor from '@/components/things/Actors/Switch'
-import LightActor from '@/components/things/Actors/Light'
-
 import PropertyContainer from '../../PropertyContainer'
+
+import SwitchActor from '~/components/things/Actors/Switch'
+import LightActor from '~/components/things/Actors/Light'
 
 export default {
 

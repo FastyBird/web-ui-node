@@ -7,9 +7,9 @@
 <script>
 import {
   GROUPS_HASH_CREATE,
-} from '@/configuration/routes'
+} from '~/configuration/routes'
 
-import GroupsCreateGroup from '@/components/groups/Create'
+import GroupsCreateGroup from '~/components/groups/Create'
 
 export default {
 

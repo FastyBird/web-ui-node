@@ -52,7 +52,7 @@
 import { orderBy } from 'natural-orderby'
 
 import ChannelProperty from '~/models/devices-node/ChannelProperty'
-import Thing from '~/models/Thing'
+import Thing from '~/models/things/Thing'
 
 export default {
 

@@ -180,21 +180,18 @@
 import FbComponentLoading from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoading'
 import FbComponentLoadingError from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoadingError'
 
-import buttonThingTriggerMixin from '@/mixins/buttonThingTrigger'
+import SharedButtonThing from '~/components/things/Shared/ThingButton'
 
-import ButtonThing from '@/components/things/Detail/Things/Button'
-
-import ChannelProperty from '~/models/devices-node/ChannelProperty'
-import Trigger from '~/models/triggers-node/Trigger'
+import ButtonThing from '~/components/things/Detail/Button'
 
 const SelectThing = () => ({
-  component: import('@/components/routines/Edit/SelectThing'),
+  component: import('~/components/routines/Edit/SelectThing'),
   loading: FbComponentLoading,
   error: FbComponentLoadingError,
   timeout: 5000,
 })
 const EditAction = () => ({
-  component: import('@/components/routines/Edit/EditAction'),
+  component: import('~/components/routines/Edit/EditAction'),
   loading: FbComponentLoading,
   error: FbComponentLoadingError,
   timeout: 5000,
@@ -230,52 +227,13 @@ export default {
     EditAction,
   },
 
-  mixins: [buttonThingTriggerMixin],
-
-  props: {
-
-    thing: {
-      type: Object,
-      required: true,
-    },
-
-  },
+  extends: SharedButtonThing,
 
   data() {
     return {
       view: Object.assign({}, viewSettings),
       submitSelect: false,
     }
-  },
-
-  computed: {
-
-    /**
-     * Thing direct triggers
-     *
-     * @returns {Array}
-     */
-    triggers() {
-      const property = ChannelProperty
-        .query()
-        .where('channel_id', this.thing.channel_id)
-        .first()
-
-      if (property === null) {
-        return []
-      }
-
-      return Trigger
-        .query()
-        .with('condition')
-        .with('actions')
-        .where('device', this.thing.device.identifier)
-        .where('channel', this.thing.channel.channel)
-        .where('property', property.property)
-        .orderBy('operand', 'asc')
-        .get()
-    },
-
   },
 
   methods: {
@@ -342,12 +300,16 @@ export default {
         if (view === this.view.items.actionThing.name) {
           this.view.items[view].item = null
 
-          // Try to find existing action via thing identifier
-          const existingAction = this.mapActions(this._getButtonActionTrigger(this.actionType))
-            .find(({ channel_id }) => channel_id === this.view.items.actionThing.thing.id)
+          const trigger = this._getButtonActionTrigger(this.actionType)
 
-          if (typeof existingAction !== 'undefined') {
-            this.view.items[view].item = existingAction
+          if (trigger) {
+            // Try to find existing action via thing identifier
+            const storedAction = this.mapActions(trigger)
+              .find(action => (action.device === this.view.items.actionThing.thing.device.identifier && action.channel === this.view.items.actionThing.thing.channel.channel))
+
+            if (typeof storedAction !== 'undefined') {
+              this.view.items[view].item = storedAction
+            }
           }
         }
 

@@ -298,13 +298,13 @@
 </template>
 
 <script>
-import connectMixin from '@/mixins/connectDevice'
+import SharedConnectThing from '~/components/things/Shared/ThingConnect'
 
 export default {
 
   name: 'ThingsDesktopConnect',
 
-  mixins: [connectMixin],
+  extends: SharedConnectThing,
 
 }
 </script>

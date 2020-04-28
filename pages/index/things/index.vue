@@ -43,7 +43,7 @@
         <fb-button
           variant="outline-primary"
           name="press"
-          @click.prevent="openThingConnect"
+          @click.prevent="openView(view.items.connect.name)"
         >
           {{ $t('things.buttons.addNew.title') }}
         </fb-button>
@@ -55,26 +55,26 @@
 <script>
 import { orderBy } from 'natural-orderby'
 
-import Thing from '@/models/Thing'
+import FbComponentLoading from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoading'
+import FbComponentLoadingError from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoadingError'
 
 import {
   THINGS_HASH_DETAIL,
   THINGS_HASH_SETTINGS,
   THINGS_HASH_CONNECT,
-} from '@/configuration/routes'
+} from '~/configuration/routes'
 
-import FbComponentLoading from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoading'
-import FbComponentLoadingError from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoadingError'
+import Thing from '~/models/things/Thing'
 
-import ThingListItem from '@/components/things/ListItem'
+import ThingListItem from '~/components/things/ListItem'
 
 const ThingDetail = () => ({
-  component: import('@/components/things/Desktop/Detail'),
+  component: import('~/components/things/Desktop/Detail'),
   loading: FbComponentLoading,
   error: FbComponentLoadingError,
   timeout: 5000,
 })
-const ConnectThing = () => import('@/components/things/Desktop/Connect')
+const ConnectThing = () => import('~/components/things/Desktop/Connect')
 
 const viewSettings = {
   opened: null,
@@ -174,23 +174,6 @@ export default {
 
   watch: {
 
-    '$route'(val) {
-      if (this._.get(val, 'hash', '') === '') {
-        this.closeView()
-      } else if (this._.get(val, 'hash', '') !== '') {
-        for (const viewName in this.view.items) {
-          if (
-            Object.prototype.hasOwnProperty.call(this.view.items, viewName) &&
-            val.hash.includes(this._.get(this.view.items[viewName], 'route.hash', ''))
-          ) {
-            this.openView(viewName, val.hash.substring(this._.get(this.view.items[viewName], 'route.length', 0)))
-
-            return
-          }
-        }
-      }
-    },
-
     windowSize(val) {
       if (val === 'xs') {
         if (this.view.opened === this.view.items.detail.name) {
@@ -240,7 +223,11 @@ export default {
             .query()
             .count()
 
-          store.dispatch('template/resetStore', null, {
+          store.dispatch('template/resetHeadings', null, {
+            root: true,
+          })
+
+          store.dispatch('template/resetButtons', null, {
             root: true,
           })
 
@@ -293,9 +280,9 @@ export default {
         })
     }
 
-    this._configureNavigation()
+    this.$bus.$on('heading_action_button-clicked', this.actionButtonAction)
 
-    this.$bus.$on('heading_action_button-clicked', this.openThingConnect)
+    this._configureNavigation()
   },
 
   mounted() {
@@ -303,28 +290,16 @@ export default {
       this._checkRoute()
     }
 
+    this.$bus.$emit('wait-page_reloading', false)
+
     this.isMounted = true
   },
 
   beforeDestroy() {
-    this.$bus.$off('heading_action_button-clicked', this.openThingConnect)
+    this.$bus.$off('heading_action_button-clicked', this.actionButtonAction)
   },
 
   methods: {
-
-    /**
-     * Open connect new thing window
-     */
-    openThingConnect() {
-      if (this.windowSize === 'xs') {
-        this.$router.push(this.localePath(this.$routes.things.connect))
-      } else {
-        this.$router.push(this.localePath({
-          name: this.$routes.things.list,
-          hash: this.view.items.connect.route.hash,
-        }))
-      }
-    },
 
     /**
      * Open selected view
@@ -345,6 +320,8 @@ export default {
         switch (view) {
           case this.view.items.detail.name:
             if (this.windowSize === 'xs') {
+              this.$bus.$emit('wait-page_reloading', 10)
+
               this.$router.push(this.localePath({
                 name: this.$routes.things.detail,
                 params: {
@@ -363,6 +340,8 @@ export default {
 
           case this.view.items.settings.name:
             if (this.windowSize === 'xs') {
+              this.$bus.$emit('wait-page_reloading', 10)
+
               this.$router.push(this.localePath({
                 name: this.$routes.things.detail,
                 params: {
@@ -376,6 +355,21 @@ export default {
               this.$router.push(this.localePath({
                 name: this.$routes.things.list,
                 hash: `${this.view.items.settings.route.hash}-${id}`,
+              }))
+            }
+            break
+
+          case this.view.items.connect.name:
+            if (this.windowSize === 'xs') {
+              this.$bus.$emit('wait-page_reloading', 10)
+
+              this.$router.push(this.localePath(this.$routes.things.connect))
+
+              return
+            } else {
+              this.$router.push(this.localePath({
+                name: this.$routes.things.list,
+                hash: this.view.items.connect.route.hash,
               }))
             }
             break
@@ -449,6 +443,13 @@ export default {
     },
 
     /**
+     * Header action button action event
+     */
+    actionButtonAction() {
+      this.openView(this.view.items.connect.name)
+    },
+
+    /**
      * Check route and if is needed open detail window
      *
      * @private
@@ -471,7 +472,11 @@ export default {
      * @private
      */
     _configureNavigation() {
-      this.$store.dispatch('template/resetStore', null, {
+      this.$store.dispatch('template/resetHeadings', null, {
+        root: true,
+      })
+
+      this.$store.dispatch('template/resetButtons', null, {
         root: true,
       })
 

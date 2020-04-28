@@ -41,7 +41,7 @@
 </template>
 
 <script>
-import SwitchActor from '@/components/things/Actors/Switch'
+import SwitchActor from '~/components/things/Actors/Switch'
 
 import ChannelProperty from '~/models/devices-node/ChannelProperty'
 import Hardware from '~/models/devices-node/Hardware'

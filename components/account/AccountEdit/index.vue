@@ -155,7 +155,8 @@
 </template>
 
 <script>
-import timezones from '@/helpers/timezones'
+import timezones from '~/helpers/timezones'
+
 import Account from '~/models/accounts-node/Account'
 import Email from '~/models/accounts-node/Email'
 

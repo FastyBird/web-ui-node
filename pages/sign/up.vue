@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import SignUp from '@/components/account/SignUp'
+import SignUp from '~/components/account/SignUp'
 
 export default {
 

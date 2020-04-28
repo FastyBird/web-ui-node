@@ -32,10 +32,10 @@ import get from 'lodash/get'
 import {
   GROUPS_HASH_DETAIL,
   GROUPS_HASH_SETTINGS,
-} from '@/configuration/routes'
+} from '~/configuration/routes'
 
-import GroupDetail from '@/components/groups/Detail'
-import GroupSettings from '@/components/groups/Settings'
+import GroupDetail from '~/components/groups/Detail'
+import GroupSettings from '~/components/groups/Settings'
 
 export default {
 

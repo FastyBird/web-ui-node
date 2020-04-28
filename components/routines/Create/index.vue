@@ -104,7 +104,7 @@ import {
   ROUTINES_QUERY_TYPE_THING,
   ROUTINES_QUERY_TYPE_SENSOR,
   ROUTINES_QUERY_TYPE_MANUAL,
-} from '@/configuration/routes'
+} from '~/configuration/routes'
 
 import Trigger from '~/models/triggers-node/Trigger'
 
@@ -114,9 +114,9 @@ import {
   TRIGGERS_CONDITION_TIME,
 } from '~/models/triggers-node/types'
 
-const ListCondition = () => import('@/components/routines/Edit/ListCondition')
-const ListAction = () => import('@/components/routines/Edit/ListAction')
-const ListSchedule = () => import('@/components/routines/Edit/ListSchedule')
+const ListCondition = () => import('~/components/routines/Edit/ListCondition')
+const ListAction = () => import('~/components/routines/Edit/ListAction')
+const ListSchedule = () => import('~/components/routines/Edit/ListSchedule')
 
 export default {
 

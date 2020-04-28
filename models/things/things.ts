@@ -1,9 +1,9 @@
 import { GetterTree, ActionTree, MutationTree } from 'vuex'
 import uniq from 'lodash/uniq'
 
-import Thing from './Thing'
+import { ModelError } from '../errors'
 
-import { ModelError } from './errors'
+import Thing from './Thing'
 
 import Device from '~/models/devices-node/Device'
 import Channel from '~/models/devices-node/Channel'

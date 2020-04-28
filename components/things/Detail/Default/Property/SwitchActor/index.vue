@@ -12,9 +12,9 @@
 </template>
 
 <script>
-import SwitchActor from '@/components/things/Actors/Switch'
-
 import PropertyContainer from '../../PropertyContainer'
+
+import SwitchActor from '~/components/things/Actors/Switch'
 
 export default {
 

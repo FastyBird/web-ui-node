@@ -72,24 +72,23 @@ import {
   ROUTINES_HASH_DETAIL,
   ROUTINES_HASH_SETTINGS,
   ROUTINES_HASH_CREATE,
-} from '@/configuration/routes'
-
-import SelectRoutineTypePhone from '@/components/routines/Phone/SelectType'
-
-import RoutineListItem from '@/components/routines/ListItem'
-import RoutineListCarousel from '@/components/routines/ListCarousel'
+} from '~/configuration/routes'
 
 import Trigger from '~/models/triggers-node/Trigger'
 
+import SelectRoutineTypePhone from '~/components/routines/Phone/SelectType'
+
+import RoutineListItem from '~/components/routines/ListItem'
+import RoutineListCarousel from '~/components/routines/ListCarousel'
+
 const RoutineDetail = () => ({
-  component: import('@/components/routines/Desktop/Detail'),
+  component: import('~/components/routines/Desktop/Detail'),
   loading: FbComponentLoading,
   error: FbComponentLoadingError,
   timeout: 5000,
 })
-
 const CreateRoutine = () => ({
-  component: import('@/components/routines/Desktop/Create'),
+  component: import('~/components/routines/Desktop/Create'),
   loading: FbComponentLoading,
   error: FbComponentLoadingError,
   timeout: 5000,
@@ -193,24 +192,6 @@ export default {
   },
 
   watch: {
-
-    '$route'(val) {
-      if (this._.get(val, 'hash', '') === '') {
-        this.closeView()
-      } else if (this._.get(val, 'hash', '') !== '') {
-        for (const viewName in this.view.items) {
-          if (
-            Object.prototype.hasOwnProperty.call(this.view.items, viewName) &&
-            this._.get(this.view.items[viewName], 'route.hash', '') !== '' &&
-            val.hash.includes(this._.get(this.view.items[viewName], 'route.hash', ''))
-          ) {
-            this.openView(viewName, val.hash.substring(this._.get(this.view.items[viewName], 'route.length', 0)))
-
-            return
-          }
-        }
-      }
-    },
 
     windowSize(val) {
       if (val === 'xs') {
@@ -364,6 +345,8 @@ export default {
 
           case this.view.items.settings.name:
             if (this.windowSize === 'xs') {
+              this.$bus.$emit('wait-page_reloading', 10)
+
               this.$router.push(this.localePath({
                 name: this.$routes.routines.detail,
                 params: {

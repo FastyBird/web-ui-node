@@ -1,17 +1,39 @@
 <template>
-  <list-item v-if="fetchingThings || !thing">
-    <template slot="icon">
-      <fb-spinner size="sm" />
-    </template>
-
-    <template slot="heading">
-      {{ $t('routines.texts.loadingThing') }}
-    </template>
-
-    <template slot="detail">
-      &nbsp;
-    </template>
-  </list-item>
+  <content-loading
+    v-if="fetchingThings || !thing"
+    :height="53"
+    class="fb-routines-action__preloading"
+  >
+    <circle
+      cx="25"
+      cy="50%"
+      r="20"
+    />
+    <rect
+      x="75"
+      y="10"
+      rx="4"
+      ry="4"
+      width="100"
+      height="15"
+    />
+    <rect
+      x="75"
+      y="35"
+      rx="4"
+      ry="4"
+      width="50"
+      height="10"
+    />
+    <rect
+      x="320"
+      y="20"
+      rx="4"
+      ry="4"
+      width="50"
+      height="10"
+    />
+  </content-loading>
 
   <list-item
     v-else-if="thing"
@@ -56,7 +78,7 @@
 import Device from '~/models/devices-node/Device'
 import Channel from '~/models/devices-node/Channel'
 import ChannelProperty from '~/models/devices-node/ChannelProperty'
-import Thing from '~/models/Thing'
+import Thing from '~/models/things/Thing'
 
 export default {
 

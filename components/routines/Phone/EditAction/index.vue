@@ -57,7 +57,7 @@
 </template>
 
 <script>
-import EditAction from '@/components/routines/Edit/EditAction'
+import EditAction from '~/components/routines/Edit/EditAction'
 
 export default {
 

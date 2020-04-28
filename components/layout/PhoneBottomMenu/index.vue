@@ -41,9 +41,9 @@
 </template>
 
 <script lang="ts">
-import { createComponent, ref, watch } from '@vue/composition-api'
+import { defineComponent, ref, watch } from '@vue/composition-api'
 
-export default createComponent({
+export default defineComponent({
 
   name: 'PhoneBottomMenu',
 

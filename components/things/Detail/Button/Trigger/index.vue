@@ -35,17 +35,20 @@
 </template>
 
 <script>
-import routineUpdateMixin from '@/mixins/routineUpdate'
+import routinesMixin from '~/mixins/routines'
 
 import {
   DEVICE_FASTYBIRD_BUTTON_PRESS,
   DEVICE_FASTYBIRD_BUTTON_CLICK,
   DEVICE_FASTYBIRD_BUTTON_DBL_CLICK,
-} from '@/configuration/devices'
+} from '~/configuration/devices'
 
 import Trigger from '~/models/triggers-node/Trigger'
+import Device from '~/models/devices-node/Device'
+import Channel from '~/models/devices-node/Channel'
+import Thing from '~/models/things/Thing'
 
-const TriggerAction = () => import('./../Action')
+import TriggerAction from '~/components/routines/Detail/ListAction'
 
 export default {
 
@@ -55,7 +58,7 @@ export default {
     TriggerAction,
   },
 
-  mixins: [routineUpdateMixin],
+  mixins: [routinesMixin],
 
   props: {
 
@@ -135,9 +138,35 @@ export default {
      * @param {Number} index
      */
     confirmRemoveAction(index) {
+      const device = Device
+        .query()
+        .where('identifier', this.actions[index].device)
+        .first()
+
+      if (device === null) {
+        return
+      }
+
+      const channel = Channel
+        .query()
+        .where('device_id', device.id)
+        .where('channel', this.actions[index].channel)
+        .first()
+
+      if (channel === null) {
+        return
+      }
+
+      const thing = Thing
+        .query()
+        .with('device')
+        .with('channel')
+        .where('channel_id', channel.id)
+        .first()
+
       this.remove.show = true
       this.remove.index = index
-      this.remove.thing = this.actions[index].thing
+      this.remove.thing = thing
     },
 
     /**
@@ -153,13 +182,9 @@ export default {
      * Remove action from routine
      */
     removeAction() {
-      const index = this.remove.index
-
-      this.resetRemoveConfirmation()
-
-      if (Object.prototype.hasOwnProperty.call(this.actions, index)) {
+      if (Object.prototype.hasOwnProperty.call(this.actions, this.remove.index)) {
         if (this.actions.length > 1) {
-          this.removeTriggerAction(this.actions[index])
+          this.removeRoutineAction(this.trigger, this.remove.thing)
         } else {
           Trigger.dispatch('remove', {
             id: this.trigger.id,
@@ -175,6 +200,8 @@ export default {
             })
         }
       }
+
+      this.resetRemoveConfirmation()
     },
 
   },

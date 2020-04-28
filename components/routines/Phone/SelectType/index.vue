@@ -59,7 +59,7 @@ import {
   ROUTINES_QUERY_TYPE_THING,
   ROUTINES_QUERY_TYPE_SENSOR,
   ROUTINES_QUERY_TYPE_MANUAL,
-} from '@/configuration/routes'
+} from '~/configuration/routes'
 
 export default {
 

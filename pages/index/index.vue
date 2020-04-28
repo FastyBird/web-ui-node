@@ -39,7 +39,11 @@ export default {
   },
 
   created() {
-    this.$store.dispatch('template/resetStore', null, {
+    this.$store.dispatch('template/resetHeadings', null, {
+      root: true,
+    })
+
+    this.$store.dispatch('template/resetButtons', null, {
       root: true,
     })
 

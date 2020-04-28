@@ -1,7 +1,7 @@
 import { Middleware } from '@nuxt/types'
 import {
   HOME_LINK,
-} from '@/configuration/routes'
+} from '~/configuration/routes'
 
 import Session from '~/models/accounts-node/Session'
 

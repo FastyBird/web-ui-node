@@ -365,19 +365,19 @@ import {
   ROUTINES_QUERY_TYPE_THING,
   ROUTINES_QUERY_TYPE_SENSOR,
   ROUTINES_QUERY_TYPE_MANUAL,
-} from '@/configuration/routes'
-
-import CreateRoutine from '@/components/routines/Create'
-import SelectThing from '@/components/routines/Edit/SelectThing'
-import EditCondition from '@/components/routines/Edit/EditCondition'
-import EditAction from '@/components/routines/Edit/EditAction'
+} from '~/configuration/routes'
 
 import Device from '~/models/devices-node/Device'
 import Channel from '~/models/devices-node/Channel'
-import Thing from '~/models/Thing'
+import Thing from '~/models/things/Thing'
+
+import CreateRoutine from '~/components/routines/Create'
+import SelectThing from '~/components/routines/Edit/SelectThing'
+import EditCondition from '~/components/routines/Edit/EditCondition'
+import EditAction from '~/components/routines/Edit/EditAction'
 
 const EditSchedule = () => ({
-  component: import('@/components/routines/Edit/EditSchedule'),
+  component: import('~/components/routines/Edit/EditSchedule'),
   loading: FbComponentLoading,
   error: FbComponentLoadingError,
   timeout: 5000,

@@ -10,6 +10,8 @@
         v-if="isButtonThing && (view.opened === view.items.detail.name || view.opened === view.items.settings.name)"
         ref="detail"
         :thing="thing"
+        @leftButtonAction="leftButtonAction"
+        @rightButtonAction="rightButtonAction"
       />
 
       <thing-detail-default
@@ -36,32 +38,14 @@ import get from 'lodash/get'
 import {
   THINGS_HASH_DETAIL,
   THINGS_HASH_SETTINGS,
-} from '@/configuration/routes'
-
-import FbComponentLoading from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoading'
-import FbComponentLoadingError from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoadingError'
+} from '~/configuration/routes'
 
 import Hardware from '~/models/devices-node/Hardware'
-import Thing from '~/models/Thing'
+import Thing from '~/models/things/Thing'
 
-const ThingDetailDefault = () => ({
-  component: import('@/components/things/Phone/DetailDefault'),
-  loading: FbComponentLoading,
-  error: FbComponentLoadingError,
-  timeout: 5000,
-})
-const ThingDetailButton = () => ({
-  component: import('@/components/things/Phone/DetailButton'),
-  loading: FbComponentLoading,
-  error: FbComponentLoadingError,
-  timeout: 5000,
-})
-const ThingSettings = () => ({
-  component: import('@/components/things/Settings'),
-  loading: FbComponentLoading,
-  error: FbComponentLoadingError,
-  timeout: 5000,
-})
+import ThingDetailDefault from '~/components/things/Phone/DetailDefault'
+import ThingDetailButton from '~/components/things/Phone/DetailButton'
+import ThingSettings from '~/components/things/Settings'
 
 const viewSettings = {
   opened: 'detail', // Detail is by default
@@ -169,28 +153,9 @@ export default {
 
   watch: {
 
-    '$route'(val) {
-      if (this._.get(val, 'hash', '') !== '') {
-        for (const viewName in this.view.items) {
-          if (
-            Object.prototype.hasOwnProperty.call(this.view.items, viewName) &&
-            this.view.items[viewName].name !== this.view.opened &&
-            val.hash.includes(this._.get(this.view.items[viewName], 'route.hash', ''))
-          ) {
-            this.openView(this.view.items[viewName].name)
-
-            return
-          }
-        }
-      } else if (this.view.opened !== this.view.items.detail.name && this._.get(this.$refs, 'detail')) {
-        const component = this._.get(this.$refs, 'detail')
-
-        this.$scrollTo(component.$el, 500, {
-          container: '.fb-default-layout__content',
-          onDone: () => {
-            this.openView(this.view.items.detail.name)
-          },
-        })
+    thing(val) {
+      if (val) {
+        this._configureNavigation()
       }
     },
 
@@ -237,7 +202,11 @@ export default {
             .first()
 
           if (thing) {
-            store.dispatch('template/resetStore', null, {
+            store.dispatch('template/resetHeadings', null, {
+              root: true,
+            })
+
+            store.dispatch('template/resetButtons', null, {
               root: true,
             })
 
@@ -319,14 +288,20 @@ export default {
     if (!this.fetchingThing && !this.fetchingThings && this.thing === null) {
       this.$nuxt.error({ statusCode: 404, message: 'Thing Not Found' })
     }
+
+    if (this.thing) {
+      this._configureNavigation()
+    }
   },
 
   mounted() {
-    this._checkRoute()
-
     this.$nextTick(() => {
       this._setBlocksHeight('detail')
+
+      this._checkRoute()
     })
+
+    this.$bus.$emit('wait-page_reloading', false)
 
     window.addEventListener('resize', this._windowResizeHandler)
   },
@@ -336,6 +311,10 @@ export default {
   },
 
   beforeDestroy() {
+    this.$bus.$off('heading_left_button-clicked', this.leftButtonAction)
+    this.$bus.$off('heading_right_button-clicked', this.rightButtonAction)
+    this.$bus.$off('heading_action_button-clicked', this.actionButtonAction)
+
     window.removeEventListener('resize', this._windowResizeHandler)
   },
 
@@ -357,40 +336,157 @@ export default {
       if (Object.prototype.hasOwnProperty.call(this.view.items, view)) {
         switch (view) {
           case this.view.items.settings.name:
-            this.$router.push(this.localePath({
-              name: this.$routes.things.detail,
-              params: {
-                id: this.id,
-              },
-              hash: this.view.items.settings.route.hash,
-            }))
+            this.view.opened = view
 
             this.$nextTick(() => {
               if (this._.get(this.$refs, 'settings')) {
                 const component = this._.get(this.$refs, 'settings')
 
-                this._setBlocksHeight('settings', 'height')
+                this._setBlocksHeight('settings')
 
                 // Scroll view to setting part
                 this.$scrollTo(component.$el, 500, {
                   container: '.fb-default-layout__content',
+                  onDone: () => {
+                    this.$router.push(this.localePath({
+                      name: this.$routes.things.detail,
+                      params: {
+                        id: this.id,
+                      },
+                      hash: this.view.items.settings.route.hash,
+                    }), () => {
+                      // Reconfigure navigation after changes
+                      this._configureNavigation()
+                    })
+                  },
                 })
               }
             })
             break
 
-          default:
-            this.$router.push(this.localePath({
-              name: this.$routes.things.detail,
-              params: {
-                id: this.id,
-              },
-            }))
+          case this.view.items.detail.name:
+            if (this._.get(this.$refs, 'detail')) {
+              const component = this._.get(this.$refs, 'detail')
+
+              this.$scrollTo(component.$el, 500, {
+                container: '.fb-default-layout__content',
+                onDone: () => {
+                  this.$router.push(this.localePath({
+                    name: this.$routes.things.detail,
+                    params: {
+                      id: this.id,
+                    },
+                  }), () => {
+                    // Reconfigure navigation after changes
+                    this._configureNavigation()
+                  })
+
+                  this.view.opened = view
+                },
+              })
+            } else {
+              this.$router.push(this.localePath({
+                name: this.$routes.things.detail,
+                params: {
+                  id: this.id,
+                },
+              }))
+
+              this.view.opened = view
+
+              // Reconfigure navigation after changes
+              this._configureNavigation()
+            }
             break
         }
-
-        this.view.opened = view
       }
+    },
+
+    /**
+     * Header left button action event
+     */
+    leftButtonAction() {
+      if (this.windowSize === 'xs') {
+        this.$bus.$emit('wait-page_reloading', 10)
+      }
+
+      this.$router.push(this.localePath({ name: this.$routes.things.list }))
+    },
+
+    /**
+     * Header right button action event
+     */
+    rightButtonAction() {
+      if (this.view.opened === this.view.items.settings.name) {
+        this.openView(this.view.items.detail.name)
+      } else {
+        this.openView(this.view.items.settings.name)
+      }
+    },
+
+    /**
+     * Configure page header for small devices
+     *
+     * @private
+     */
+    _configureNavigation() {
+      this.$store.dispatch('template/resetHeadings', null, {
+        root: true,
+      })
+
+      this.$store.dispatch('template/resetButtons', null, {
+        root: true,
+      })
+
+      this.$store.dispatch('template/setLeftButton', {
+        name: this.$t('application.buttons.back.title'),
+        icon: 'arrow-left',
+      }, {
+        root: true,
+      })
+
+      if (this.view.opened === this.view.items.settings.name) {
+        this.$store.dispatch('template/setRightButton', {
+          name: this.$t('application.buttons.close.title'),
+        }, {
+          root: true,
+        })
+      } else if (this.view.opened === this.view.items.detail.name || this.view.opened === this.view.items.type.name) {
+        this.$store.dispatch('template/setRightButton', {
+          name: this.$t('application.buttons.edit.title'),
+        }, {
+          root: true,
+        })
+      }
+
+      this.$store.dispatch('template/setFullRowHeading', null, {
+        root: true,
+      })
+
+      this.$store.dispatch('template/setHeading', {
+        heading: this.$tThingChannel(this.thing),
+        subHeading: this.$tThingDevice(this.thing),
+      }, {
+        root: true,
+      })
+
+      this.$store.dispatch('template/setHeadingIcon', {
+        icon: this.$thingIcon(this.thing),
+      }, {
+        root: true,
+      })
+
+      this.$store.dispatch('app/bottomMenuCollapse', null, {
+        root: true,
+      })
+
+      // Clear actions
+      this.$bus.$off('heading_left_button-clicked')
+      this.$bus.$off('heading_right_button-clicked')
+
+      // Reassign actions
+      this.$bus.$on('heading_left_button-clicked', this.leftButtonAction)
+      this.$bus.$on('heading_right_button-clicked', this.rightButtonAction)
     },
 
     /**
@@ -413,7 +509,7 @@ export default {
      */
     _windowResizeHandler() {
       this._setBlocksHeight('detail')
-      this._setBlocksHeight('settings', 'height')
+      this._setBlocksHeight('settings')
 
       if (this._.get(this.$refs, this.view.opened)) {
         const component = this._.get(this.$refs, this.view.opened)
@@ -428,15 +524,16 @@ export default {
      * Set component height by reference
      *
      * @param {String} block
-     * @param {String} attribute
      *
      * @private
      */
-    _setBlocksHeight(block, attribute = 'minHeight') {
+    _setBlocksHeight(block) {
       if (this._.get(this.$refs, block)) {
         const component = this._.get(this.$refs, block)
 
-        component.$el.style[attribute] = `${document.getElementsByClassName('fb-default-layout__content')[0].clientHeight}px`
+        const viewportHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
+
+        component.$el.style.minHeight = `${viewportHeight - this.$store.getters['template/bodyTopBottomMargin']()}px`
       }
     },
 

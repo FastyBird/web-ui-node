@@ -1,6 +1,6 @@
 import { Plugin } from '@nuxt/types'
 
-import ThingInterface from '~/models/Thing'
+import ThingInterface from '~/models/things/Thing'
 
 import {
   ChannelPropertyInterface,

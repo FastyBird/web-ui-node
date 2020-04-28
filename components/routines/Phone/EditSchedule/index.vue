@@ -36,7 +36,7 @@
 </template>
 
 <script>
-import EditSchedule from '@/components/routines/Edit/EditSchedule'
+import EditSchedule from '~/components/routines/Edit/EditSchedule'
 
 export default {
 

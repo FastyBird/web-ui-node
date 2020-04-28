@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import RequestPassword from '@/components/account/RequestPassword'
+import RequestPassword from '~/components/account/RequestPassword'
 
 export default {
 

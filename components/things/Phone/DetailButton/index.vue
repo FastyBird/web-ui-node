@@ -9,7 +9,7 @@
     <select-thing
       v-if="view.opened === view.items.selectThing.name"
       :items="view.items[view.opened].items"
-      :type-actor="true"
+      :only-settable="true"
       @select="thingSelected"
       @close="closeView"
     />
@@ -41,7 +41,7 @@
         </fb-button>
 
         <fb-divider
-          text="OR"
+          :text="$t('application.misc.or')"
           type="horizontal"
         />
 
@@ -55,7 +55,7 @@
         </fb-button>
 
         <fb-divider
-          text="OR"
+          :text="$t('application.misc.or')"
           type="horizontal"
         />
 
@@ -78,23 +78,20 @@ import FbComponentLoadingError from '@/node_modules/@fastybird-com/theme/compone
 
 import {
   THINGS_HASH_SETTINGS,
-} from '@/configuration/routes'
+} from '~/configuration/routes'
 
-import buttonThingTriggerMixin from '@/mixins/buttonThingTrigger'
+import SharedButtonThing from '~/components/things/Shared/ThingButton'
 
-import ButtonThing from '@/components/things/Detail/Things/Button'
-
-import ChannelProperty from '~/models/devices-node/ChannelProperty'
-import Trigger from '~/models/triggers-node/Trigger'
+import ButtonThing from '~/components/things/Detail/Button'
 
 const SelectThing = () => ({
-  component: import('@/components/routines/Phone/SelectThing'),
+  component: import('~/components/routines/Phone/SelectThing'),
   loading: FbComponentLoading,
   error: FbComponentLoadingError,
   timeout: 5000,
 })
 const EditAction = () => ({
-  component: import('@/components/routines/Phone/EditAction'),
+  component: import('~/components/routines/Phone/EditAction'),
   loading: FbComponentLoading,
   error: FbComponentLoadingError,
   timeout: 5000,
@@ -130,16 +127,7 @@ export default {
     EditAction,
   },
 
-  mixins: [buttonThingTriggerMixin],
-
-  props: {
-
-    thing: {
-      type: Object,
-      required: true,
-    },
-
-  },
+  extends: SharedButtonThing,
 
   data() {
     return {
@@ -150,29 +138,10 @@ export default {
   computed: {
 
     /**
-     * Thing direct triggers
-     *
-     * @returns {Array}
+     * @returns {String}
      */
-    triggers() {
-      const property = ChannelProperty
-        .query()
-        .where('channel_id', this.thing.channel_id)
-        .first()
-
-      if (property === null) {
-        return []
-      }
-
-      return Trigger
-        .query()
-        .with('condition')
-        .with('actions')
-        .where('device', this.thing.device.identifier)
-        .where('channel', this.thing.channel.channel)
-        .where('property', property.property)
-        .orderBy('operand', 'asc')
-        .get()
+    windowSize() {
+      return this.$store.state.template.windowSize
     },
 
   },
@@ -189,14 +158,14 @@ export default {
 
   },
 
-  created() {
+  mounted() {
     this._configureNavigation()
   },
 
   beforeDestroy() {
-    this.$bus.$off('heading_left_button-clicked')
-    this.$bus.$off('heading_right_button-clicked')
-    this.$bus.$off('heading_action_button-clicked')
+    this.$bus.$on('heading_left_button-clicked', this.leftButtonAction)
+    this.$bus.$on('heading_right_button-clicked', this.rightButtonAction)
+    this.$bus.$on('heading_action_button-clicked', this.actionButtonAction)
   },
 
   methods: {
@@ -252,12 +221,16 @@ export default {
         if (view === this.view.items.actionThing.name) {
           this.view.items[view].item = null
 
-          // Try to find existing action via thing identifier
-          const storedAction = this.mapActions(this._getButtonActionTrigger(this.actionType))
-            .find(({ channel_id }) => channel_id === this.view.items.actionThing.thing.id)
+          const trigger = this._getButtonActionTrigger(this.actionType)
 
-          if (typeof storedAction !== 'undefined') {
-            this.view.items[view].item = storedAction
+          if (trigger) {
+            // Try to find existing action via thing identifier
+            const storedAction = this.mapActions(trigger)
+              .find(action => (action.device === this.view.items.actionThing.thing.device.identifier && action.channel === this.view.items.actionThing.thing.channel.channel))
+
+            if (typeof storedAction !== 'undefined') {
+              this.view.items[view].item = storedAction
+            }
           }
         }
 
@@ -283,12 +256,37 @@ export default {
     },
 
     /**
+     * Header left button action event
+     */
+    leftButtonAction() {
+      this.$emit('leftButtonAction')
+    },
+
+    /**
+     * Header right button action event
+     */
+    rightButtonAction() {
+      this.$emit('rightButtonAction')
+    },
+
+    /**
+     * Header action button action event
+     */
+    actionButtonAction() {
+      this.openView(this.view.items.type.name)
+    },
+
+    /**
      * Configure page header for small devices
      *
      * @private
      */
     _configureNavigation() {
-      this.$store.dispatch('template/resetStore', null, {
+      this.$store.dispatch('template/resetHeadings', null, {
+        root: true,
+      })
+
+      this.$store.dispatch('template/resetButtons', null, {
         root: true,
       })
 
@@ -330,7 +328,7 @@ export default {
         root: true,
       })
 
-      if (this.triggers.length) {
+      if (this.triggers.length && this.view.opened === null) {
         this.$store.dispatch('template/setActionButton', {
           name: this.$t('application.buttons.add.title'),
         }, {
@@ -342,32 +340,15 @@ export default {
         root: true,
       })
 
-      this.$bus.$on('heading_left_button-clicked', () => {
-        this.$router.push(this.localePath(this.$routes.things.list))
-      })
+      // Clear actions
+      this.$bus.$off('heading_left_button-clicked')
+      this.$bus.$off('heading_right_button-clicked')
+      this.$bus.$off('heading_action_button-clicked')
 
-      this.$bus.$on('heading_right_button-clicked', () => {
-        if (this.$route.hash.includes(THINGS_HASH_SETTINGS)) {
-          this.$router.push(this.localePath({
-            name: this.$routes.things.detail,
-            params: {
-              id: this.thing.id,
-            },
-          }))
-        } else {
-          this.$router.push(this.localePath({
-            name: this.$routes.things.detail,
-            params: {
-              id: this.thing.id,
-            },
-            hash: THINGS_HASH_SETTINGS,
-          }))
-        }
-      })
-
-      this.$bus.$on('heading_action_button-clicked', () => {
-        this.openView(this.view.items.type.name)
-      })
+      // Reassign actions
+      this.$bus.$on('heading_left_button-clicked', this.leftButtonAction)
+      this.$bus.$on('heading_right_button-clicked', this.rightButtonAction)
+      this.$bus.$on('heading_action_button-clicked', this.actionButtonAction)
     },
 
   },

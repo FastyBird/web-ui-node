@@ -1,6 +1,6 @@
 import { Plugin } from '@nuxt/types'
 
-import * as routes from '@/configuration/routes'
+import * as routes from '~/configuration/routes'
 
 interface AccountRoutesInterface {
   signIn: string;

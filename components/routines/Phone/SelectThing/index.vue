@@ -9,7 +9,7 @@
 </template>
 
 <script>
-import SelectThing from '@/components/routines/Edit/SelectThing'
+import SelectThing from '~/components/routines/Edit/SelectThing'
 
 export default {
 

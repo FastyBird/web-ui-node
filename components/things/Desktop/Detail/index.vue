@@ -22,18 +22,17 @@
 
     <template slot="right-button">
       <button
-        v-if="view.opened === view.items.detail.name"
         class="button"
-        @click.prevent="openView(view.items.settings.name)"
+        @click.prevent="handleRightButton"
       >
-        <font-awesome-icon icon="cogs" />
-      </button>
-      <button
-        v-if="view.opened === view.items.settings.name"
-        class="button"
-        @click.prevent="$emit('close')"
-      >
-        <font-awesome-icon icon="times" />
+        <font-awesome-icon
+          v-if="view.opened === view.items.detail.name"
+          icon="cogs"
+        />
+        <font-awesome-icon
+          v-else
+          icon="times"
+        />
       </button>
     </template>
 
@@ -76,25 +75,25 @@ import FbComponentLoadingError from '@/node_modules/@fastybird-com/theme/compone
 import {
   THINGS_HASH_DETAIL,
   THINGS_HASH_SETTINGS,
-} from '@/configuration/routes'
+} from '~/configuration/routes'
 
 import Hardware from '~/models/devices-node/Hardware'
-import Thing from '~/models/Thing'
+import Thing from '~/models/things/Thing'
 
 const ThingDetailDefault = () => ({
-  component: import('@/components/things/Detail/Things/Default'),
+  component: import('~/components/things/Desktop/DetailDefault'),
   loading: FbComponentLoading,
   error: FbComponentLoadingError,
   timeout: 5000,
 })
 const ThingDetailButton = () => ({
-  component: import('./Button'),
+  component: import('~/components/things/Desktop/DetailButton'),
   loading: FbComponentLoading,
   error: FbComponentLoadingError,
   timeout: 5000,
 })
 const ThingSettings = () => ({
-  component: import('@/components/things/Settings'),
+  component: import('~/components/things/Settings'),
   loading: FbComponentLoading,
   error: FbComponentLoadingError,
   timeout: 5000,
@@ -122,7 +121,7 @@ const viewSettings = {
 
 export default {
 
-  name: 'ThingsDesktopDetail',
+  name: 'ThingsDesktopDetailContainer',
 
   components: {
     ThingDetailDefault,
@@ -194,6 +193,14 @@ export default {
         this.$emit('close')
       } else if (this.view.opened === this.view.items.settings.name) {
         this.openView(this.view.items.detail.name)
+      }
+    },
+
+    handleRightButton() {
+      if (this.view.opened === this.view.items.detail.name) {
+        this.openView(this.view.items.settings.name)
+      } else if (this.view.opened === this.view.items.settings.name) {
+        this.$emit('close')
       }
     },
 

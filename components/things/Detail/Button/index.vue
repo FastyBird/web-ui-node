@@ -39,7 +39,7 @@
 <script>
 import ChannelProperty from '~/models/devices-node/ChannelProperty'
 import Trigger from '~/models/triggers-node/Trigger'
-import Thing from '~/models/Thing'
+import Thing from '~/models/things/Thing'
 
 const ButtonTrigger = () => import('./Trigger')
 
@@ -142,7 +142,7 @@ export default {
       !this.fetchingThings &&
       !this.thingsLoaded
     ) {
-      Trigger.dispatch('fetch')
+      Thing.dispatch('fetch')
         .catch(() => {
           this.$nuxt.error({ statusCode: 503, message: 'Something went wrong' })
         })

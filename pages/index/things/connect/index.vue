@@ -194,9 +194,9 @@
 <script>
 import {
   THINGS_HASH_CONNECT,
-} from '@/configuration/routes'
+} from '~/configuration/routes'
 
-import connectMixin from '@/mixins/connectDevice'
+import SharedConnectThing from '~/components/things/Shared/ThingConnect'
 
 export default {
 
@@ -204,7 +204,7 @@ export default {
 
   transition: 'fade',
 
-  mixins: [connectMixin],
+  extends: SharedConnectThing,
 
   computed: {
 
@@ -235,7 +235,11 @@ export default {
   },
 
   fetch({ app, store, params, error }) {
-    store.dispatch('template/resetStore', null, {
+    store.dispatch('template/resetHeadings', null, {
+      root: true,
+    })
+
+    store.dispatch('template/resetButtons', null, {
       root: true,
     })
 
@@ -279,24 +283,17 @@ export default {
 
     this._configureNavigation()
 
-    this.$bus.$on('heading_left_button-clicked', () => {
-      if (this.step === 1) {
-        this.$router.push(this.localePath(this.$routes.things.list))
-      } else {
-        this.previousStep()
-      }
-    })
+    this.$bus.$on('heading_left_button-clicked', this.leftButtonAction)
+    this.$bus.$on('heading_right_button-clicked', this.rightButtonAction)
+  },
 
-    this.$bus.$on('heading_right_button-clicked', () => {
-      if (this.step > 1) {
-        this.$router.push(this.localePath(this.$routes.things.list))
-      }
-    })
+  mounted() {
+    this.$bus.$emit('wait-page_reloading', false)
   },
 
   beforeDestroy() {
-    this.$bus.$off('heading_left_button-clicked')
-    this.$bus.$off('heading_right_button-clicked')
+    this.$bus.$off('heading_left_button-clicked', this.leftButtonAction)
+    this.$bus.$off('heading_right_button-clicked', this.rightButtonAction)
   },
 
   methods: {
@@ -308,12 +305,42 @@ export default {
     },
 
     /**
+     * Header left button action event
+     */
+    leftButtonAction() {
+      if (this.step === 1) {
+        if (this.windowSize === 'xs') {
+          this.$bus.$emit('wait-page_reloading', 10)
+        }
+
+        this.$router.push(this.localePath(this.$routes.things.list))
+      } else {
+        this.previousStep()
+      }
+    },
+
+    /**
+     * Header right button action event
+     */
+    rightButtonAction() {
+      if (this.windowSize === 'xs') {
+        this.$bus.$emit('wait-page_reloading', 10)
+      }
+
+      this.$router.push(this.localePath(this.$routes.things.list))
+    },
+
+    /**
      * Configure page header for small devices
      *
      * @private
      */
     _configureNavigation() {
-      this.$store.dispatch('template/resetStore', null, {
+      this.$store.dispatch('template/resetHeadings', null, {
+        root: true,
+      })
+
+      this.$store.dispatch('template/resetButtons', null, {
         root: true,
       })
 
@@ -333,13 +360,11 @@ export default {
         })
       }
 
-      if (this.step > 1) {
-        this.$store.dispatch('template/setRightButton', {
-          name: this.$t('application.buttons.close.title'),
-        }, {
-          root: true,
-        })
-      }
+      this.$store.dispatch('template/setRightButton', {
+        name: this.$t('application.buttons.cancel.title'),
+      }, {
+        root: true,
+      })
 
       this.$store.dispatch('template/setFullRowHeading', null, {
         root: true,

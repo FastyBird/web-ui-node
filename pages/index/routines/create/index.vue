@@ -96,35 +96,34 @@ import {
   ROUTINES_QUERY_TYPE_THING,
   ROUTINES_QUERY_TYPE_SENSOR,
   ROUTINES_QUERY_TYPE_MANUAL,
-} from '@/configuration/routes'
-
-import CreateRoutine from '@/components/routines/Create'
+} from '~/configuration/routes'
 
 import Device from '~/models/devices-node/Device'
 import Channel from '~/models/devices-node/Channel'
-import Thing from '~/models/Thing'
+import Thing from '~/models/things/Thing'
+
+import CreateRoutine from '~/components/routines/Create'
 
 const SelectThing = () => ({
-  component: import('@/components/routines/Phone/SelectThing'),
+  component: import('~/components/routines/Phone/SelectThing'),
   loading: FbComponentLoading,
   error: FbComponentLoadingError,
   timeout: 5000,
 })
-
 const EditCondition = () => ({
-  component: import('@/components/routines/Phone/EditCondition'),
+  component: import('~/components/routines/Phone/EditCondition'),
   loading: FbComponentLoading,
   error: FbComponentLoadingError,
   timeout: 5000,
 })
 const EditAction = () => ({
-  component: import('@/components/routines/Phone/EditAction'),
+  component: import('~/components/routines/Phone/EditAction'),
   loading: FbComponentLoading,
   error: FbComponentLoadingError,
   timeout: 5000,
 })
 const EditSchedule = () => ({
-  component: import('@/components/routines/Phone/EditSchedule'),
+  component: import('~/components/routines/Phone/EditSchedule'),
   loading: FbComponentLoading,
   error: FbComponentLoadingError,
   timeout: 5000,

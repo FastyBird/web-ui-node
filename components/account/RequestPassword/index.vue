@@ -59,7 +59,7 @@
 </template>
 
 <script>
-const SignHeader = () => import('@/components/account/SignHeader')
+const SignHeader = () => import('~/components/account/SignHeader')
 
 export default {
 

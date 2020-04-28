@@ -62,7 +62,7 @@ import jwtDecode from 'jwt-decode'
 
 import Session from '~/models/accounts-node/Session'
 
-const SignHeader = () => import('@/components/account/SignHeader')
+const SignHeader = () => import('~/components/account/SignHeader')
 
 export default {
 

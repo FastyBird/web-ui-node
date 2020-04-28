@@ -102,39 +102,38 @@
 </template>
 
 <script>
+import FbComponentLoading from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoading'
+import FbComponentLoadingError from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoadingError'
+
 import {
   GROUPS_GROUP_SETTINGS_LINK,
 
   GROUPS_HASH_DETAIL,
   GROUPS_HASH_SETTINGS,
   GROUPS_HASH_CREATE,
-} from '@/configuration/routes'
+} from '~/configuration/routes'
 
-import FbComponentLoading from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoading'
-import FbComponentLoadingError from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoadingError'
-
-import GroupListItem from '@/components/groups/ListItem'
+import GroupListItem from '~/components/groups/ListItem'
 
 // Off canvas details view
-import OffCanvas from '@/components/layout/OffCanvas'
+import OffCanvas from '~/components/layout/OffCanvas'
 
-import NoResults from '@/components/layout/NoResults'
+import NoResults from '~/components/layout/NoResults'
 
 const GroupDetail = () => ({
-  component: import('@/components/groups/Detail'),
+  component: import('~/components/groups/Detail'),
   loading: FbComponentLoading,
   error: FbComponentLoadingError,
   timeout: 5000,
 })
 const GroupSettings = () => ({
-  component: import('@/components/groups/Settings'),
+  component: import('~/components/groups/Settings'),
   loading: FbComponentLoading,
   error: FbComponentLoadingError,
   timeout: 5000,
 })
-
 const OffCanvasBody = () => ({
-  component: import('@/components/layout/OffCanvas/Body'),
+  component: import('~/components/layout/OffCanvas/Body'),
   loading: FbComponentLoading,
   error: FbComponentLoadingError,
   timeout: 5000,

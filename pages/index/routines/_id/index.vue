@@ -5,103 +5,101 @@
       :text="$t('texts.loading')"
     />
 
-    <template v-else>
-      <template v-if="routine !== null">
-        <routine-detail
-          v-if="view.opened === view.items.detail.name || view.opened === view.items.settings.name || view.opened === view.items.type.name"
-          ref="detail"
-          :routine="routine"
-        />
+    <template v-else-if="routine !== null">
+      <routine-detail
+        v-if="view.opened === view.items.detail.name || view.opened === view.items.settings.name || view.opened === view.items.type.name"
+        ref="detail"
+        :routine="routine"
+      />
 
-        <routine-settings
-          v-if="view.opened === view.items.settings.name"
-          ref="settings"
-          v-body-scroll-lock="true"
-          :routine="routine"
-          class="fb-routines-detail-view__container-settings"
-          @removed="routineRemoved"
-        />
+      <routine-settings
+        v-if="view.opened === view.items.settings.name"
+        ref="settings"
+        v-body-scroll-lock="true"
+        :routine="routine"
+        class="fb-routines-detail-view__container-settings"
+        @removed="routineRemoved"
+      />
 
-        <phone-bottom-menu
-          :show-header="true"
-          :show="view.opened === view.items.type.name"
-          :heading="$t('routines.headings.addNew')"
-          @close="openView(view.items.detail.name)"
-        >
-          <template slot="items">
-            <template v-if="routine.isAutomatic && schedule === null">
-              <fb-button
-                block
-                variant="link"
-                name="condition"
-                @click.prevent="openView(view.items.conditionThing.name)"
-              >
-                {{ $t('routines.buttons.thingToCondition.title') }}
-              </fb-button>
+      <phone-bottom-menu
+        :show-header="true"
+        :show="view.opened === view.items.type.name"
+        :heading="$t('routines.headings.addNew')"
+        @close="openView(view.items.detail.name)"
+      >
+        <template slot="items">
+          <template v-if="routine.isAutomatic && schedule === null">
+            <fb-button
+              block
+              variant="link"
+              name="condition"
+              @click.prevent="openView(view.items.conditionThing.name)"
+            >
+              {{ $t('routines.buttons.thingToCondition.title') }}
+            </fb-button>
 
-              <fb-divider
-                text="OR"
-                type="vertical"
-              />
-
-              <fb-button
-                block
-                variant="link"
-                name="condition"
-                @click.prevent="openView(view.items.conditionSensor.name)"
-              >
-                {{ $t('routines.buttons.sensorToCondition.title') }}
-              </fb-button>
-
-              <fb-divider
-                text="OR"
-                type="vertical"
-              />
-            </template>
+            <fb-divider
+              text="OR"
+              type="vertical"
+            />
 
             <fb-button
               block
               variant="link"
-              name="action"
-              @click.prevent="openView(view.items.actionThing.name)"
+              name="condition"
+              @click.prevent="openView(view.items.conditionSensor.name)"
             >
-              {{ $t('routines.buttons.thingToAction.title') }}
+              {{ $t('routines.buttons.sensorToCondition.title') }}
             </fb-button>
+
+            <fb-divider
+              text="OR"
+              type="vertical"
+            />
           </template>
-        </phone-bottom-menu>
 
-        <select-thing
-          v-if="view.opened === view.items.conditionThing.name || view.opened === view.items.conditionSensor.name || view.opened === view.items.actionThing.name"
-          :items="view.items[view.opened].items"
-          :only-settable="view.opened === view.items.actionThing.name"
-          :type-thing="view.opened === view.items.conditionThing.name"
-          :type-sensor="view.opened === view.items.conditionSensor.name"
-          @select="thingSelected"
-          @close="openView(view.items.detail.name)"
-        />
+          <fb-button
+            block
+            variant="link"
+            name="action"
+            @click.prevent="openView(view.items.actionThing.name)"
+          >
+            {{ $t('routines.buttons.thingToAction.title') }}
+          </fb-button>
+        </template>
+      </phone-bottom-menu>
 
-        <edit-condition
-          v-if="view.opened === view.items.condition.name"
-          :thing="view.items.condition.thing"
-          :condition="view.items.condition.item"
-          :type-thing="view.items.condition.type === 'thing'"
-          :type-sensor="view.items.condition.type === 'sensor'"
-          @add="addCondition"
-          @remove="removeCondition"
-          @back="openView(view.items.condition.type === 'thing' ? view.items.conditionThing.name : view.items.conditionSensor.name)"
-          @close="openView(view.items.detail.name)"
-        />
+      <select-thing
+        v-if="view.opened === view.items.conditionThing.name || view.opened === view.items.conditionSensor.name || view.opened === view.items.actionThing.name"
+        :items="view.items[view.opened].items"
+        :only-settable="view.opened === view.items.actionThing.name"
+        :type-thing="view.opened === view.items.conditionThing.name"
+        :type-sensor="view.opened === view.items.conditionSensor.name"
+        @select="thingSelected"
+        @close="openView(view.items.detail.name)"
+      />
 
-        <edit-action
-          v-if="view.opened === view.items.action.name"
-          :thing="view.items.action.thing"
-          :action="view.items.action.item"
-          @add="addAction"
-          @remove="removeAction"
-          @back="openView(view.items.actionThing.name)"
-          @close="openView(view.items.detail.name)"
-        />
-      </template>
+      <edit-condition
+        v-if="view.opened === view.items.condition.name"
+        :thing="view.items.condition.thing"
+        :condition="view.items.condition.item"
+        :type-thing="view.items.condition.type === 'thing'"
+        :type-sensor="view.items.condition.type === 'sensor'"
+        @add="addCondition"
+        @remove="removeCondition"
+        @back="openView(view.items.condition.type === 'thing' ? view.items.conditionThing.name : view.items.conditionSensor.name)"
+        @close="openView(view.items.detail.name)"
+      />
+
+      <edit-action
+        v-if="view.opened === view.items.action.name"
+        :thing="view.items.action.thing"
+        :action="view.items.action.item"
+        @add="addAction"
+        @remove="removeAction"
+        @back="openView(view.items.actionThing.name)"
+        @close="openView(view.items.detail.name)"
+      />
     </template>
   </div>
 </template>
@@ -109,36 +107,30 @@
 <script>
 import get from 'lodash/get'
 
-import {
-  ROUTINES_HASH_DETAIL,
-  ROUTINES_HASH_SETTINGS,
-} from '@/configuration/routes'
-
-import routineUpdateMixin from '@/mixins/routineUpdate'
-
 import FbComponentLoading from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoading'
 import FbComponentLoadingError from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoadingError'
 
-import RoutineDetail from '@/components/routines/Detail'
-import RoutineSettings from '@/components/routines/Settings'
+import {
+  ROUTINES_HASH_DETAIL,
+  ROUTINES_HASH_SETTINGS,
+} from '~/configuration/routes'
+
+import routinesMixin from '~/mixins/routines'
 
 import Trigger from '~/models/triggers-node/Trigger'
 
-const SelectThing = () => ({
-  component: import('@/components/routines/Phone/SelectThing'),
-  loading: FbComponentLoading,
-  error: FbComponentLoadingError,
-  timeout: 5000,
-})
+import RoutineDetail from '~/components/routines/Detail'
+import RoutineSettings from '~/components/routines/Settings'
+import SelectThing from '~/components/routines/Phone/SelectThing'
 
 const EditCondition = () => ({
-  component: import('@/components/routines/Phone/EditCondition'),
+  component: import('~/components/routines/Phone/EditCondition'),
   loading: FbComponentLoading,
   error: FbComponentLoadingError,
   timeout: 5000,
 })
 const EditAction = () => ({
-  component: import('@/components/routines/Phone/EditAction'),
+  component: import('~/components/routines/Phone/EditAction'),
   loading: FbComponentLoading,
   error: FbComponentLoadingError,
   timeout: 5000,
@@ -203,7 +195,7 @@ export default {
 
   transition: 'fade',
 
-  mixins: [routineUpdateMixin],
+  mixins: [routinesMixin],
 
   data() {
     return {
@@ -328,15 +320,15 @@ export default {
         .then(() => {
           const routine = Trigger.find(params.id)
 
-          store.dispatch('template/resetHeadings', null, {
-            root: true,
-          })
-
-          store.dispatch('template/resetButtons', null, {
-            root: true,
-          })
-
           if (routine) {
+            store.dispatch('template/resetHeadings', null, {
+              root: true,
+            })
+
+            store.dispatch('template/resetButtons', null, {
+              root: true,
+            })
+
             store.dispatch('template/setLeftButton', {
               name: app.i18n.t('application.buttons.back.title'),
               icon: 'arrow-left',
@@ -374,7 +366,7 @@ export default {
             })
 
             store.dispatch('template/setHeadingInfoText', {
-              text: '-',
+              text: '',
             }, {
               root: true,
             })
@@ -436,26 +428,15 @@ export default {
   },
 
   mounted() {
-    this._checkRoute()
-
     this.$nextTick(() => {
       this._setBlocksHeight('detail')
+
+      this._checkRoute()
     })
 
     this.$bus.$emit('wait-page_reloading', false)
 
     window.addEventListener('resize', this._windowResizeHandler)
-
-    if (this._.get(this.$refs, 'settings')) {
-      const component = this._.get(this.$refs, 'settings')
-
-      this._setBlocksHeight('settings')
-
-      // Scroll view to setting part
-      this.$scrollTo(component.$el, 500, {
-        container: '.fb-default-layout__content',
-      })
-    }
   },
 
   updated() {
@@ -490,36 +471,86 @@ export default {
         switch (view) {
           // Settings page
           case this.view.items.settings.name:
-            this.$router.push(this.localePath({
-              name: this.$routes.routines.detail,
-              params: {
-                id: this.id,
-              },
-              hash: this.view.items.settings.route.hash,
-            }), () => {
-              this.$nextTick(() => {
-                if (this._.get(this.$refs, 'settings')) {
-                  const component = this._.get(this.$refs, 'settings')
+            this.view.opened = view
 
-                  this._setBlocksHeight('settings')
+            this.$nextTick(() => {
+              if (this._.get(this.$refs, 'settings')) {
+                const component = this._.get(this.$refs, 'settings')
 
-                  // Scroll view to setting part
-                  this.$scrollTo(component.$el, 500, {
-                    container: '.fb-default-layout__content',
-                  })
-                }
-              })
+                this._setBlocksHeight('settings')
+
+                // Scroll view to setting part
+                this.$scrollTo(component.$el, 500, {
+                  container: '.fb-default-layout__content',
+                  onDone: () => {
+                    this.$router.push(this.localePath({
+                      name: this.$routes.routines.detail,
+                      params: {
+                        id: this.id,
+                      },
+                      hash: this.view.items.settings.route.hash,
+                    }), () => {
+                      // Reconfigure navigation after changes
+                      this._configureNavigation()
+                    })
+                  },
+                })
+              }
             })
+            break
+
+          // Details page
+          case this.view.items.detail.name:
+            if (
+              this._.get(this.$refs, 'detail') &&
+              this.view.opened === this.view.items.settings.name
+            ) {
+              const component = this._.get(this.$refs, 'detail')
+
+              this.$scrollTo(component.$el, 500, {
+                container: '.fb-default-layout__content',
+                onDone: () => {
+                  this.$router.push(this.localePath({
+                    name: this.$routes.routines.detail,
+                    params: {
+                      id: this.id,
+                    },
+                  }), () => {
+                    this.view.opened = view
+
+                    // Reconfigure navigation after changes
+                    this._configureNavigation()
+                  })
+                },
+              })
+            } else {
+              this.$router.push(this.localePath({
+                name: this.$routes.routines.detail,
+                params: {
+                  id: this.id,
+                },
+              }))
+
+              this.view.opened = view
+
+              // Reconfigure navigation after changes
+              this._configureNavigation()
+            }
             break
 
           // Other pages
           default:
+            this.view.opened = view
+
             this.$router.push(this.localePath({
               name: this.$routes.routines.detail,
               params: {
                 id: this.id,
               },
             }))
+
+            // Reconfigure navigation after changes
+            this._configureNavigation()
             break
         }
 
@@ -528,8 +559,6 @@ export default {
           case this.view.items.type.name:
             if (this.schedule !== null || this.routine.isManual) {
               this.openView(this.view.items.actionThing.name)
-
-              return
             }
             break
 
@@ -626,12 +655,7 @@ export default {
             }
             break
         }
-
-        this.view.opened = view
       }
-
-      // Reconfigure navigation after changes
-      this._configureNavigation()
     },
 
     /**
@@ -717,16 +741,7 @@ export default {
      */
     rightButtonAction() {
       if (this.view.opened === this.view.items.settings.name) {
-        if (this._.get(this.$refs, 'detail')) {
-          const component = this._.get(this.$refs, 'detail')
-
-          this.$scrollTo(component.$el, 500, {
-            container: '.fb-default-layout__content',
-            onDone: () => {
-              this.openView(this.view.items.detail.name)
-            },
-          })
-        }
+        this.openView(this.view.items.detail.name)
       } else {
         this.openView(this.view.items.settings.name)
       }
@@ -873,9 +888,7 @@ export default {
     _checkRoute() {
       if (this.$route.hash !== '') {
         if (this.$route.hash.includes(ROUTINES_HASH_SETTINGS)) {
-          this.$nextTick(() => {
-            this.openView(this.view.items.settings.name)
-          })
+          this.openView(this.view.items.settings.name)
         }
       }
     },
@@ -902,17 +915,16 @@ export default {
      * Set component height by reference
      *
      * @param {String} block
-     * @param {String} attribute
      *
      * @private
      */
-    _setBlocksHeight(block, attribute = 'minHeight') {
+    _setBlocksHeight(block) {
       if (this._.get(this.$refs, block)) {
         const component = this._.get(this.$refs, block)
 
         const viewportHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
 
-        component.$el.style[attribute] = `${viewportHeight - this.$store.getters['template/bodyTopBottomMargin']()}px`
+        component.$el.style.minHeight = `${viewportHeight - this.$store.getters['template/bodyTopBottomMargin']()}px`
       }
     },
 

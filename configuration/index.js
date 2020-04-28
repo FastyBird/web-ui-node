@@ -4,7 +4,7 @@ import {
   ROUTINES_LIST_LINK,
   USERS_LIST_LINK,
   ACCESS_RIGHTS_LIST_LINK,
-} from '@/configuration/routes'
+} from '~/configuration/routes'
 
 export const AUTHOR_NAME = 'FastyBird s.r.o.'
 export const AUTHOR_WEBSITE = 'https://www.fastybird.com'

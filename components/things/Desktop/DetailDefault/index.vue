@@ -7,7 +7,7 @@ import DefaultThing from '~/components/things/Detail/Default'
 
 export default {
 
-  name: 'ThingsPhoneDetailDefault',
+  name: 'ThingsDesktopDetailDefault',
 
   components: {
     DefaultThing,

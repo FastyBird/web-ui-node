@@ -72,7 +72,7 @@
 import {
   MQTT_SERVER_ADDRESS,
   MQTT_SERVER_PORT,
-} from '@/configuration'
+} from '~/configuration'
 
 import Device from '~/models/devices-node/Device'
 import Credentials from '~/models/devices-node/Credentials'
