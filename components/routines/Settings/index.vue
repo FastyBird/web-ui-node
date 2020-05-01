@@ -67,7 +67,7 @@
 </template>
 
 <script>
-import Trigger from '~/models/triggers-node/Trigger'
+import Routine from '~/models/routines/Routine'
 
 const RoutineRename = () => import('./Rename')
 const RoutineRemove = () => import('./Remove')
@@ -166,7 +166,7 @@ export default {
               routine: this.form.model.name,
             })
 
-            Trigger.dispatch('edit', {
+            Routine.dispatch('edit', {
               id: this.routine.id,
               data: this.form.model,
             })

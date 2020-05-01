@@ -65,6 +65,8 @@
 </template>
 
 <script>
+import { orderBy } from 'natural-orderby'
+
 import FbComponentLoading from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoading'
 import FbComponentLoadingError from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoadingError'
 
@@ -74,7 +76,7 @@ import {
   ROUTINES_HASH_CREATE,
 } from '~/configuration/routes'
 
-import Trigger from '~/models/triggers-node/Trigger'
+import Routine from '~/models/routines/Routine'
 
 import SelectRoutineTypePhone from '~/components/routines/Phone/SelectType'
 
@@ -170,14 +172,25 @@ export default {
      * @returns {Array}
      */
     routines() {
-      return Trigger
+      const routines = Routine
         .query()
+        .with('trigger')
         .with('actions')
-        .with('conditions')
-        .with('notifications')
-        .where('isForChannel', false)
-        .orderBy('name')
+        .with('schedule')
+        .with('schedule.condition')
+        .whereHas('trigger', (query) => {
+          query.where('isForChannel', false)
+        })
         .get()
+
+      return this._.uniqBy(orderBy(
+        routines,
+        [
+          v => v.name,
+          v => v.comment,
+        ],
+        ['asc'],
+      ), 'id')
     },
 
     /**
@@ -186,7 +199,7 @@ export default {
      * @returns {Boolean}
      */
     fetchingRoutines() {
-      return Trigger.getters('fetching')()
+      return Routine.getters('fetching')()
     },
 
   },
@@ -234,14 +247,16 @@ export default {
   },
 
   fetch({ app, store, error }) {
-    if (!store.getters['entities/trigger/firstLoadFinished']()) {
-      return store.dispatch('entities/trigger/fetch', null, {
+    if (!store.getters['entities/routine/firstLoadFinished']()) {
+      return store.dispatch('entities/routine/fetch', null, {
         root: true,
       })
         .then(() => {
-          const routinesCount = Trigger
+          const routinesCount = Routine
             .query()
-            .where('isForChannel', false)
+            .whereHas('trigger', (query) => {
+              query.where('isForChannel', false)
+            })
             .count()
 
           store.dispatch('template/resetHeadings', null, {
@@ -277,11 +292,11 @@ export default {
 
   beforeMount() {
     if (
-      Trigger.query().count() === 0 &&
+      Routine.query().count() === 0 &&
       !this.fetchingRoutines &&
-      !Trigger.getters('firstLoadFinished')()
+      !Routine.getters('firstLoadFinished')()
     ) {
-      Trigger.dispatch('fetch')
+      Routine.dispatch('fetch')
         .catch(() => {
           this.$nuxt.error({ statusCode: 503, message: 'Something went wrong' })
         })
@@ -386,7 +401,7 @@ export default {
         if (Object.prototype.hasOwnProperty.call(this.view.items[view], 'id') && typeof id !== 'undefined') {
           this.view.items[view].id = id
 
-          const routine = Trigger.find(id)
+          const routine = Routine.find(id)
 
           if (routine === null) {
             this.closeView()

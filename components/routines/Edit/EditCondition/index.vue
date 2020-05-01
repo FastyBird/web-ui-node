@@ -51,16 +51,6 @@ export default {
     condition: {
       type: Object,
       default: null,
-      validator: (value) => {
-        return !(
-          !Object.prototype.hasOwnProperty.call(value, 'device') ||
-          !Object.prototype.hasOwnProperty.call(value, 'channel') ||
-          !Object.prototype.hasOwnProperty.call(value, 'enabled') ||
-          !Object.prototype.hasOwnProperty.call(value, 'rows') ||
-          !Array.isArray(value.rows) ||
-          !value.rows.length
-        )
-      },
     },
 
     typeThing: {
@@ -151,7 +141,7 @@ export default {
         })
 
       if (condition.rows.length && missingOperand.length === 0) {
-        this.$emit('add', condition)
+        this.$emit('add', condition, this.condition)
       } else if (missingOperand.length === 0) {
         this.$flashMessage(this.$t('routines.messages.selectPropertyCondition'), 'info')
       }

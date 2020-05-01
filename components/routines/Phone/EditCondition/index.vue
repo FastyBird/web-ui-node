@@ -37,7 +37,7 @@
     </fb-button>
 
     <fb-confirmation-window
-      v-if="action !== null && confirmRemove"
+      v-if="condition !== null && confirmRemove"
       :transparent-bg="transparentModal"
       icon="trash"
       @confirmed="$emit('remove', thing)"
@@ -197,8 +197,8 @@ export default {
       this.submitSelect = true
     },
 
-    add(condition) {
-      this.$emit('add', condition)
+    add(data, condition) {
+      this.$emit('add', data, condition)
     },
 
     /**

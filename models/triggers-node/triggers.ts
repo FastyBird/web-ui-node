@@ -6,10 +6,10 @@ import get from 'lodash/get'
 import cloneDeep from 'lodash/cloneDeep'
 import uniq from 'lodash/uniq'
 
-import Trigger, { TriggerCreateInterface, TriggerInterface } from './Trigger'
+import Trigger, { TriggerCreateInterface } from './Trigger'
 
 import Action, {
-  ActionCreateInterface,
+  ActionCreateInterface, ActionInterface,
   CreateChannelPropertyActionInterface,
   CreateDevicePropertyActionInterface,
 } from './Action'
@@ -19,13 +19,13 @@ import Condition, {
   CreateDevicePropertyConditionInterface,
   CreateChannelPropertyConditionInterface,
   CreateDateConditionInterface,
-  CreateTimeConditionInterface,
+  CreateTimeConditionInterface, ConditionInterface,
 } from './Condition'
 
 import Notification, {
   CreateEmailNotificationInterface,
   CreateSmsNotificationInterface,
-  NotificationCreateInterface,
+  NotificationCreateInterface, NotificationInterface,
 } from './Notification'
 
 import { ApiError } from './errors'
@@ -57,24 +57,14 @@ interface TriggerSemaphoreState {
   viewing: Array<string>;
 }
 
-interface TriggerQueueState {
-  update: Array<string>;
-}
-
 interface TriggerState {
   semaphore: TriggerSemaphoreState;
   firstLoad: boolean;
-  queue: TriggerQueueState;
 }
 
 interface SemaphoreAction {
   id: string;
   type: string;
-}
-
-interface QueueAction {
-  id: string;
-  queue: string;
 }
 
 const moduleState: TriggerState = {
@@ -91,11 +81,6 @@ const moduleState: TriggerState = {
   },
 
   firstLoad: false,
-
-  queue: {
-    update: [],
-  },
-
 }
 
 function mapTriggerResponse(item: any): any {
@@ -231,40 +216,6 @@ function buildCreateEmailNotification(data: any): CreateEmailNotificationInterfa
 }
 
 const moduleGetters: GetterTree<TriggerState, any> = {
-  /**
-   * Check if trigger is locked for updating
-   *
-   * @param {Object} state
-   *
-   * @returns {Boolean}
-   */
-  isOpened: state => (id: string): boolean => {
-    if (state.semaphore.viewing.length) {
-      const result = state.semaphore.viewing.find(triggerId => triggerId === id)
-
-      return result !== null && typeof result !== 'undefined'
-    }
-
-    return false
-  },
-
-  /**
-   * Check if trigger is locked for updating
-   *
-   * @param {Object} state
-   *
-   * @returns {Boolean}
-   */
-  isInQueue: state => (id: string, queue: string): boolean => {
-    if (queue === 'update') {
-      const result = state.queue.update.find(triggerId => triggerId === id)
-
-      return result !== null && typeof result !== 'undefined'
-    }
-
-    return false
-  },
-
   firstLoadFinished: state => (): boolean => {
     return !!state.firstLoad
   },
@@ -296,20 +247,9 @@ const moduleActions: ActionTree<TriggerState, any> = {
               id: payload.id,
             })
 
-            if (getters.isOpened(payload.id)) {
-              if (!getters.isInQueue(payload.id, 'update')) {
-                commit('TRIGGERS_PUSH_INTO_QUEUE', {
-                  id: payload.id,
-                  queue: 'update',
-                })
-              }
+            const dataFormatter = new Jsona()
 
-              return null
-            } else {
-              const dataFormatter = new Jsona()
-
-              return mapTriggerResponse(dataFormatter.deserialize(result.data))
-            }
+            return mapTriggerResponse(dataFormatter.deserialize(result.data))
           },
         })
           .then((): void => {
@@ -332,7 +272,7 @@ const moduleActions: ActionTree<TriggerState, any> = {
     })
   },
 
-  fetch({ state, commit, getters }): Promise<any> {
+  fetch({ state, commit }): Promise<any> {
     return new Promise((resolve, reject): void => {
       if (state.semaphore.fetching.items) {
         resolve(true)
@@ -355,16 +295,7 @@ const moduleActions: ActionTree<TriggerState, any> = {
 
             // @ts-ignore
             for (const item of data) {
-              if (getters.isOpened(item.id)) {
-                if (!getters.isInQueue(item.id, 'update')) {
-                  commit('TRIGGERS_PUSH_INTO_QUEUE', {
-                    id: item.id,
-                    queue: 'update',
-                  })
-                }
-              } else {
-                insert.push(mapTriggerResponse(item))
-              }
+              insert.push(mapTriggerResponse(item))
             }
 
             return insert
@@ -667,7 +598,13 @@ const moduleActions: ActionTree<TriggerState, any> = {
         return
       }
 
-      const trigger = Trigger.find(payload.id)
+      const trigger = Trigger
+        .query()
+        .with('actions')
+        .with('conditions')
+        .with('notifications')
+        .where('id', payload.id)
+        .first()
 
       if (trigger === null) {
         reject(new Error('triggers.triggers.delete.failed'))
@@ -693,6 +630,21 @@ const moduleActions: ActionTree<TriggerState, any> = {
                 type: 'delete',
                 id: trigger.id,
               })
+
+              trigger.actions
+                .forEach((action: ActionInterface): void => {
+                  Action.delete(action.id)
+                })
+
+              trigger.conditions
+                .forEach((condition: ConditionInterface): void => {
+                  Condition.delete(condition.id)
+                })
+
+              trigger.notifications
+                .forEach((notification: NotificationInterface): void => {
+                  Notification.delete(notification.id)
+                })
 
               // Entity was successfully deleted from database
               resolve()
@@ -733,90 +685,6 @@ const moduleActions: ActionTree<TriggerState, any> = {
             'Delete trigger failed.',
           ))
         })
-    })
-  },
-
-  lockForEditing({ commit }, payload: { id: string }): void {
-    commit('TRIGGERS_SET_SEMAPHORE', {
-      type: 'viewing',
-      id: payload.id,
-    })
-  },
-
-  unlockForEditing({ commit }, payload: { id: string }): void {
-    commit('TRIGGERS_CLEAR_SEMAPHORE', {
-      type: 'viewing',
-      id: payload.id,
-    })
-  },
-
-  refreshFromQueue({ getters }, payload: { id: string, queue: string }): Promise<any> {
-    return new Promise((resolve, reject): void => {
-      if (getters.isInQueue(payload.id, payload.queue)) {
-        const backup = Trigger.find(payload.id)
-
-        if (backup === null) {
-          reject(new Error('triggers.triggers.delete.failed'))
-
-          return
-        }
-
-        Trigger.api().get(`/triggers-node/v1/triggers/${payload.id}?include=conditions,actions,notifications`, {
-          dataTransformer: (result: AxiosResponse): any | null => {
-            const dataFormatter = new Jsona()
-
-            return mapTriggerResponse(dataFormatter.deserialize(result.data))
-          },
-        })
-          .then((): void => {
-            Trigger.dispatch('removeFromQueue', {
-              id: payload.id,
-              queue: payload.queue,
-            })
-              .then((): void => {
-                // Entity was successfully refreshed from server
-                resolve()
-              })
-              .catch((e: Error): void => {
-                Trigger.insertOrUpdate({
-                  data: backup,
-                })
-                  .catch((): void => {
-                    // Could not be restored to backup
-                  })
-
-                reject(new ApiError(
-                  'triggers.triggers.refresh.failed',
-                  e,
-                  'Refreshing trigger failed.',
-                ))
-              })
-          })
-          .catch((e: Error): void => {
-            reject(new ApiError(
-              'triggers.triggers.refresh.failed',
-              e,
-              'Refreshing trigger failed.',
-            ))
-          })
-      } else {
-        reject(new Error('triggers.triggers.refresh.failed'))
-      }
-    })
-  },
-
-  removeFromQueue({ commit, getters }, payload: { id: string, queue: string }): Promise<any> {
-    return new Promise((resolve, reject): void => {
-      if (getters.isInQueue(payload.id, payload.queue)) {
-        commit('TRIGGERS_POP_FROM_QUEUE', {
-          id: payload.id,
-          queue: payload.queue,
-        })
-
-        resolve()
-      } else {
-        reject(new Error('triggers.triggers.refresh.failed'))
-      }
     })
   },
 
@@ -973,45 +841,6 @@ const moduleMutations: MutationTree<TriggerState> = {
             }
           })
         break
-    }
-  },
-
-  /**
-   * Push new item into store queue collection
-   *
-   * @param {Object} state
-   * @param {Object} state.queue
-   * @param {Object} action
-   * @param {String} action.queue
-   * @param {String} action.id
-   */
-  ['TRIGGERS_PUSH_INTO_QUEUE'](state: TriggerState, action: QueueAction): void {
-    if (action.queue === 'update') {
-      // Push identifier into queue
-      state.queue.update.push(action.id)
-    }
-  },
-
-  /**
-   * Pop out existing item from queue collection
-   *
-   * @param {Object} state
-   * @param {Object} state.queue
-   * @param {Object} action
-   * @param {String} action.queue
-   * @param {String} action.id
-   */
-  ['TRIGGERS_POP_FROM_QUEUE'](state: TriggerState, action: QueueAction): void {
-    if (action.queue === 'update') {
-      for (const key in state.queue.update) {
-        // Find deleted item in collection...
-        if (Object.prototype.hasOwnProperty.call(state.queue.update, key) && state.queue.update[key] === action.id) {
-          const position = parseInt(key, 10)
-
-          // ...and remove it from collection
-          state.queue.update.splice(position, 1)
-        }
-      }
     }
   },
 

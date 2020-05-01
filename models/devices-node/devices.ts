@@ -570,7 +570,7 @@ const moduleMutations: MutationTree<DeviceState> = {
    * @param {String} action.type
    * @param {String} action.id
    */
-  ['DEVICES_SET_SEMAPHORE'](state, action): void {
+  ['DEVICES_SET_SEMAPHORE'](state: DeviceState, action: SemaphoreAction): void {
     switch (action.type) {
       case 'fetch':
         state.semaphore.fetching.items = true

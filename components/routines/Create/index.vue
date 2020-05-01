@@ -113,6 +113,7 @@ import {
   TRIGGERS_CONDITION_CHANNEL_PROPERTY,
   TRIGGERS_CONDITION_TIME,
 } from '~/models/triggers-node/types'
+import Routine from '~/models/routines/Routine'
 
 const ListCondition = () => import('~/components/routines/Edit/ListCondition')
 const ListAction = () => import('~/components/routines/Edit/ListAction')
@@ -395,18 +396,17 @@ export default {
               },
             })
               .then((routine) => {
-                if (this.windowSize === 'xs') {
-                  this.$bus.$emit('wait-page_reloading', false)
-                } else {
-                  this.$bus.$emit('wait-modal_reloading', false)
-                }
-
-                this.$router.push(this.localePath({
-                  name: this.$routes.routines.detail,
-                  params: {
-                    id: routine.id,
-                  },
-                }))
+                Routine.dispatch('get', {
+                  id: routine.id,
+                })
+                  .then(() => {
+                    this.$router.push(this.localePath({
+                      name: this.$routes.routines.detail,
+                      params: {
+                        id: routine.id,
+                      },
+                    }))
+                  })
               })
               .catch((e) => {
                 if (this.windowSize === 'xs') {

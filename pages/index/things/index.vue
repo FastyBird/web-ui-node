@@ -39,7 +39,7 @@
         icon="plug"
       />
 
-      <div class="fb-routines-list-view__new-routine">
+      <div class="fb-iot-things-list-view__new-thing">
         <fb-button
           variant="outline-primary"
           name="press"

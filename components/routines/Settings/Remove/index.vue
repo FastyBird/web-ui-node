@@ -21,7 +21,7 @@
 </template>
 
 <script>
-import Trigger from '~/models/triggers-node/Trigger'
+import Routine from '~/models/routines/Routine'
 
 export default {
 
@@ -59,7 +59,7 @@ export default {
         routine: this.routine.name,
       })
 
-      Trigger.dispatch('remove', {
+      Routine.dispatch('remove', {
         id: this.routine.id,
       })
         .catch((e) => {

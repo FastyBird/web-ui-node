@@ -1,17 +1,39 @@
 <template>
-  <list-item v-if="fetchingThings || !thing">
-    <template slot="icon">
-      <fb-spinner size="sm" />
-    </template>
-
-    <template slot="heading">
-      {{ $t('routines.texts.loadingThing') }}
-    </template>
-
-    <template slot="detail">
-      &nbsp;
-    </template>
-  </list-item>
+  <content-loading
+    v-if="fetchingThings || !thing"
+    :height="53"
+    class="fb-routines-condition__preloading"
+  >
+    <circle
+      cx="25"
+      cy="50%"
+      r="20"
+    />
+    <rect
+      x="75"
+      y="10"
+      rx="4"
+      ry="4"
+      width="100"
+      height="15"
+    />
+    <rect
+      x="75"
+      y="35"
+      rx="4"
+      ry="4"
+      width="50"
+      height="10"
+    />
+    <rect
+      x="320"
+      y="20"
+      rx="4"
+      ry="4"
+      width="50"
+      height="10"
+    />
+  </content-loading>
 
   <list-item
     v-else-if="thing"
@@ -67,16 +89,6 @@ export default {
     condition: {
       type: Object,
       required: true,
-      validator: (value) => {
-        return !(
-          !Object.prototype.hasOwnProperty.call(value, 'channel') ||
-          !Object.prototype.hasOwnProperty.call(value, 'device') ||
-          !Object.prototype.hasOwnProperty.call(value, 'enabled') ||
-          !Object.prototype.hasOwnProperty.call(value, 'rows') ||
-          !Array.isArray(value.rows) ||
-          !value.rows.length
-        )
-      },
     },
 
   },

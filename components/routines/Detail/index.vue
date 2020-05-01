@@ -1,19 +1,21 @@
 <template>
   <div class="fb-routines-detail__container">
     <list-items-container
-      v-if="routine.isAutomatic && schedule === null"
+      v-if="routine.isAutomatic && routine.schedule === null"
       :heading="$t('routines.headings.conditions')"
     >
-      <list-condition
-        v-for="(condition, index) in conditions"
-        :key="`c-${index}`"
-        :condition="condition"
-        class="fb-routines-detail__conditions-container"
-        @toggle="toggleConditionState(index)"
-        @remove="confirmRemoveCondition(index)"
-      />
+      <template v-for="condition in routine.conditions">
+        <list-condition
+          v-if="!condition.deleted"
+          :key="condition.id"
+          :condition="condition"
+          class="fb-routines-detail__conditions-container"
+          @toggle="toggleConditionState(condition)"
+          @remove="confirmRemoveCondition(condition)"
+        />
+      </template>
 
-      <template v-if="conditions.length === 0">
+      <template v-if="routine.conditions.length === 0">
         <no-results
           :message="$t('routines.texts.noConditions')"
           icon="project-diagram"
@@ -33,16 +35,18 @@
     </list-items-container>
 
     <list-items-container :heading="$t('routines.headings.actions')">
-      <list-action
-        v-for="(action, index) in actions"
-        :key="`a-${index}`"
-        :action="action"
-        class="fb-routines-detail__actions-container"
-        @toggle="toggleActionState(index)"
-        @remove="confirmRemoveAction(index)"
-      />
+      <template v-for="action in routine.actions">
+        <list-action
+          v-if="!action.deleted"
+          :key="action.id"
+          :action="action"
+          class="fb-routines-detail__actions-container"
+          @toggle="toggleActionState(action)"
+          @remove="confirmRemoveAction(action)"
+        />
+      </template>
 
-      <template v-if="actions.length === 0">
+      <template v-if="routine.actions.length === 0">
         <no-results
           :message="$t('routines.texts.noActions')"
           icon="project-diagram"
@@ -102,13 +106,11 @@
 </template>
 
 <script>
-import { orderBy } from 'natural-orderby'
-
-import routinesMixin from '~/mixins/routines'
-
 import Device from '~/models/devices-node/Device'
 import Channel from '~/models/devices-node/Channel'
 import Thing from '~/models/things/Thing'
+import RoutineAction from '~/models/routines/RoutineAction'
+import RoutineCondition from '~/models/routines/RoutineCondition'
 
 const ListAction = () => import('./ListAction')
 const ListCondition = () => import('./ListCondition')
@@ -121,8 +123,6 @@ export default {
     ListAction,
     ListCondition,
   },
-
-  mixins: [routinesMixin],
 
   props: {
 
@@ -139,61 +139,10 @@ export default {
       remove: {
         show: false,
         type: null,
-        index: null,
+        item: null,
         thing: null,
       },
     }
-  },
-
-  computed: {
-
-    /**
-     * Remap trigger conditions to routine conditions
-     *
-     * @returns {Array}
-     */
-    conditions() {
-      return orderBy(
-        this.mapConditions(this.routine),
-        [
-          v => v.device,
-          v => v.channel,
-        ],
-        ['asc'],
-      )
-    },
-
-    /**
-     * Remap trigger actions to routine actions
-     *
-     * @returns {Array}
-     */
-    actions() {
-      return orderBy(
-        this.mapActions(this.routine),
-        [
-          v => v.device,
-          v => v.channel,
-        ],
-        ['asc'],
-      )
-    },
-
-    /**
-     * Routine schedule condition
-     *
-     * @returns {(Condition|null)}
-     */
-    schedule() {
-      const condition = this.routine.conditions.find(item => item.isTime)
-
-      if (typeof condition === 'undefined') {
-        return null
-      }
-
-      return condition
-    },
-
   },
 
   created() {
@@ -214,34 +163,34 @@ export default {
     /**
      * Change condition state
      *
-     * @param {Number} index
+     * @param {RoutineConditionInterface} condition
      */
-    toggleConditionState(index) {
-      if (Object.prototype.hasOwnProperty.call(this.conditions, index)) {
-        this.changeConditionState(this.conditions[index], !this.conditions[index].enabled)
-      }
+    toggleConditionState(condition) {
+      RoutineCondition.dispatch('toggleState', {
+        id: condition.id,
+      })
     },
 
     /**
      * Change action state
      *
-     * @param {Number} index
+     * @param {RoutineActionInterface} action
      */
-    toggleActionState(index) {
-      if (Object.prototype.hasOwnProperty.call(this.actions, index)) {
-        this.changeActionState(this.actions[index], !this.actions[index].enabled)
-      }
+    toggleActionState(action) {
+      RoutineAction.dispatch('toggleState', {
+        id: action.id,
+      })
     },
 
     /**
      * Show remove confirmation window for condition
      *
-     * @param {Number} index
+     * @param {RoutineConditionInterface} condition
      */
-    confirmRemoveCondition(index) {
+    confirmRemoveCondition(condition) {
       const device = Device
         .query()
-        .where('identifier', this.conditions[index].device)
+        .where('identifier', condition.device)
         .first()
 
       if (device === null) {
@@ -251,7 +200,7 @@ export default {
       const channel = Channel
         .query()
         .where('device_id', device.id)
-        .where('channel', this.conditions[index].channel)
+        .where('channel', condition.channel)
         .first()
 
       if (channel === null) {
@@ -267,19 +216,19 @@ export default {
 
       this.remove.show = true
       this.remove.type = 'condition'
-      this.remove.index = index
+      this.remove.item = condition
       this.remove.thing = thing
     },
 
     /**
      * Show remove confirmation window for action
      *
-     * @param {Number} index
+     * @param {RoutineActionInterface} action
      */
-    confirmRemoveAction(index) {
+    confirmRemoveAction(action) {
       const device = Device
         .query()
-        .where('identifier', this.actions[index].device)
+        .where('identifier', action.device)
         .first()
 
       if (device === null) {
@@ -289,7 +238,7 @@ export default {
       const channel = Channel
         .query()
         .where('device_id', device.id)
-        .where('channel', this.actions[index].channel)
+        .where('channel', action.channel)
         .first()
 
       if (channel === null) {
@@ -305,7 +254,7 @@ export default {
 
       this.remove.show = true
       this.remove.type = 'action'
-      this.remove.index = index
+      this.remove.item = action
       this.remove.thing = thing
     },
 
@@ -315,7 +264,7 @@ export default {
     resetRemoveConfirmation() {
       this.remove.show = false
       this.remove.type = null
-      this.remove.index = null
+      this.remove.item = null
       this.remove.thing = null
     },
 
@@ -324,13 +273,13 @@ export default {
      */
     removeItem() {
       if (this.remove.type === 'condition') {
-        if (Object.prototype.hasOwnProperty.call(this.conditions, this.remove.index)) {
-          this.removeRoutineCondition(this.routine, this.remove.thing)
-        }
+        RoutineCondition.dispatch('remove', {
+          id: this.remove.item.id,
+        })
       } else if (this.remove.type === 'action') {
-        if (Object.prototype.hasOwnProperty.call(this.actions, this.remove.index)) {
-          this.removeRoutineAction(this.routine, this.remove.thing)
-        }
+        RoutineAction.dispatch('remove', {
+          id: this.remove.item.id,
+        })
       }
 
       this.resetRemoveConfirmation()

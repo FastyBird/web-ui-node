@@ -89,7 +89,8 @@
                     {{ $t('routines.headings.addNew') }}
                   </h4>
 
-                  <small>Facilis blanditiis, quibusdam corporis porro natus neque soluta nihil hic aliquam, suscipit, consectetur omnis placeat architecto quae laboriosam. Id porro adipisci, alias.</small>
+                  <small>Facilis blanditiis, quibusdam corporis porro natus neque soluta nihil hic aliquam, suscipit,
+                    consectetur omnis placeat architecto quae laboriosam. Id porro adipisci, alias.</small>
                 </template>
 
                 <template v-else-if="view.opened === view.items.conditionThing.name || view.opened === view.items.conditionSensor.name || view.opened === view.items.actionThing.name">
@@ -107,7 +108,8 @@
                     {{ $t('routines.headings.typeActor') }}
                   </h4>
 
-                  <small>Facilis blanditiis, quibusdam corporis porro natus neque soluta nihil hic aliquam, suscipit, consectetur omnis placeat architecto quae laboriosam. Id porro adipisci, alias.</small>
+                  <small>Facilis blanditiis, quibusdam corporis porro natus neque soluta nihil hic aliquam, suscipit,
+                    consectetur omnis placeat architecto quae laboriosam. Id porro adipisci, alias.</small>
                 </template>
 
                 <template v-else-if="view.opened === view.items.condition.name">
@@ -117,7 +119,8 @@
                     {{ $tThingChannel(view.items.condition.thing) }}
                   </h4>
 
-                  <small>Facilis blanditiis, quibusdam corporis porro natus neque soluta nihil hic aliquam, suscipit, consectetur omnis placeat architecto quae laboriosam. Id porro adipisci, alias.</small>
+                  <small>Facilis blanditiis, quibusdam corporis porro natus neque soluta nihil hic aliquam, suscipit,
+                    consectetur omnis placeat architecto quae laboriosam. Id porro adipisci, alias.</small>
                 </template>
 
                 <template v-else-if="view.opened === view.items.action.name">
@@ -127,7 +130,8 @@
                     {{ $tThingChannel(view.items.action.thing) }}
                   </h4>
 
-                  <small>Facilis blanditiis, quibusdam corporis porro natus neque soluta nihil hic aliquam, suscipit, consectetur omnis placeat architecto quae laboriosam. Id porro adipisci, alias.</small>
+                  <small>Facilis blanditiis, quibusdam corporis porro natus neque soluta nihil hic aliquam, suscipit,
+                    consectetur omnis placeat architecto quae laboriosam. Id porro adipisci, alias.</small>
                 </template>
               </div>
             </div>
@@ -137,7 +141,7 @@
                 v-if="view.opened === view.items.type.name"
                 class="fb-routines-desktop-detail__type"
               >
-                <template v-if="routine.isAutomatic && schedule === null">
+                <template v-if="routine.isAutomatic && routine.schedule === null">
                   <div class="fb-routines-desktop-detail__type-row">
                     <div>
                       <fb-button
@@ -302,15 +306,16 @@ import {
   ROUTINES_HASH_SETTINGS,
 } from '~/configuration/routes'
 
-import routinesMixin from '~/mixins/routines'
-
-import Trigger from '~/models/triggers-node/Trigger'
+import Routine from '~/models/routines/Routine'
+import RoutineAction from '~/models/routines/RoutineAction'
+import RoutineCondition from '~/models/routines/RoutineCondition'
 
 import RoutineDetail from '~/components/routines/Detail'
 
 import SelectThing from '~/components/routines/Edit/SelectThing'
 import EditCondition from '~/components/routines/Edit/EditCondition'
 import EditAction from '~/components/routines/Edit/EditAction'
+import Thing from '~/models/things/Thing'
 
 const RoutineSettings = () => ({
   component: import('~/components/routines/Settings'),
@@ -378,8 +383,6 @@ export default {
     EditAction,
   },
 
-  mixins: [routinesMixin],
-
   props: {
 
     id: {
@@ -407,31 +410,22 @@ export default {
     /**
      * View routine data
      *
-     * @returns {Trigger}
+     * @returns {Routine}
      */
     routine() {
-      return Trigger
+      return Routine
         .query()
+        .with('trigger')
         .with('actions')
+        .with('actions.rows')
+        .with('actions.rows.action')
         .with('conditions')
-        .with('notifications')
+        .with('conditions.rows')
+        .with('conditions.rows.condition')
+        .with('schedule')
+        .with('schedule.condition')
         .where('id', this.id)
         .first()
-    },
-
-    /**
-     * Routine schedule condition
-     *
-     * @returns {(Condition|null)}
-     */
-    schedule() {
-      const condition = this.routine.conditions.find(item => item.isTime)
-
-      if (typeof condition === 'undefined') {
-        return null
-      }
-
-      return condition
     },
 
     /**
@@ -442,13 +436,13 @@ export default {
     subHeading() {
       let days = ''
 
-      if (this.schedule !== null) {
-        if (this.schedule.days.length === 7) {
+      if (this.routine.schedule !== null) {
+        if (this.routine.schedule.days.length === 7) {
           days = this.$t('routines.texts.everyday')
         } else {
           days = []
 
-          for (const day of this.schedule.days) {
+          for (const day of this.routine.schedule.days) {
             switch (day) {
               case 1:
                 days.push(this.$t('application.days.mon.short'))
@@ -484,9 +478,9 @@ export default {
         }
       }
 
-      return this.routine.isAutomatic ? (this.schedule !== null ? this.$t('routines.headings.scheduledRoutine', {
+      return this.routine.isAutomatic ? (this.routine.schedule !== null ? this.$t('routines.headings.scheduledRoutine', {
         days,
-        time: this.$dateFns.format(this.schedule.time, this._.get(this.account, 'timeFormat', 'HH:mm')),
+        time: this.$dateFns.format(this.routine.schedule.time, this._.get(this.account, 'timeFormat', 'HH:mm')),
       }) : this.$t('routines.headings.automaticRoutine')) : this.$t('routines.headings.manualRoutine')
     },
 
@@ -564,7 +558,7 @@ export default {
 
           // Select add item type
           case this.view.items.type.name:
-            if (this.schedule !== null || this.routine.isManual) {
+            if (this.routine.schedule !== null || this.routine.isManual) {
               this.openView(this.view.items.actionThing.name)
 
               return
@@ -579,10 +573,19 @@ export default {
             this.routine.conditions
               .forEach((condition) => {
                 if (typeof conditionThings.find(item => (item.device === condition.device && item.channel === condition.channel)) === 'undefined') {
-                  conditionThings.push({
-                    device: condition.device,
-                    channel: condition.channel,
-                  })
+                  conditionThings.push(
+                    Thing
+                      .query()
+                      .with('device')
+                      .whereHas('device', (query) => {
+                        query.where('identifier', condition.device)
+                      })
+                      .with('channel')
+                      .whereHas('channel', (query) => {
+                        query.where('channel', condition.channel)
+                      })
+                      .first(),
+                  )
                 }
               })
 
@@ -595,26 +598,7 @@ export default {
               .find(item => (item.device === this.view.items.condition.thing.device.identifier && item.channel === this.view.items.condition.thing.channel.channel))
 
             if (typeof storedCondition !== 'undefined') {
-              const condition = {
-                device: storedCondition.device,
-                channel: storedCondition.channel,
-                enabled: storedCondition.enabled,
-                rows: [],
-              }
-
-              this._.filter(this.routine.conditions, {
-                device: storedCondition.device,
-                channel: storedCondition.channel,
-              })
-                .forEach((item) => {
-                  condition.rows.push({
-                    property: item.property,
-                    operand: item.operand,
-                    operator: item.operator,
-                  })
-                })
-
-              this.view.items[view].item = condition
+              this.view.items[view].item = storedCondition
             } else {
               this.view.items[view].item = null
             }
@@ -627,10 +611,19 @@ export default {
             this.routine.actions
               .forEach((action) => {
                 if (typeof actionThings.find(item => (item.device === action.device && item.channel === action.channel)) === 'undefined') {
-                  actionThings.push({
-                    device: action.device,
-                    channel: action.channel,
-                  })
+                  actionThings.push(
+                    Thing
+                      .query()
+                      .with('device')
+                      .whereHas('device', (query) => {
+                        query.where('identifier', action.device)
+                      })
+                      .with('channel')
+                      .whereHas('channel', (query) => {
+                        query.where('channel', action.channel)
+                      })
+                      .first(),
+                  )
                 }
               })
 
@@ -643,22 +636,7 @@ export default {
               .find(item => (item.device === this.view.items.action.thing.device.identifier && item.channel === this.view.items.action.thing.channel.channel))
 
             if (typeof storedAction !== 'undefined') {
-              const action = {
-                device: storedAction.device,
-                channel: storedAction.channel,
-                enabled: storedAction.enabled,
-                rows: [],
-              }
-
-              this._.filter(this.routine.actions, { device: storedAction.device, channel: storedAction.channel })
-                .forEach((item) => {
-                  action.rows.push({
-                    property: item.property,
-                    operation: item.value,
-                  })
-                })
-
-              this.view.items[view].item = action
+              this.view.items[view].item = storedAction
             } else {
               this.view.items[view].item = null
             }
@@ -711,22 +689,55 @@ export default {
      * Condition was selected
      *
      * @param {Object} data
+     * @param {(RoutineCondition|null)} condition
      */
-    addCondition(data) {
-      this.closeView()
+    addCondition(data, condition) {
+      this.openView(this.view.items.detail.name)
 
-      this.addRoutineCondition(this.routine, data)
+      if (condition !== null) {
+        RoutineCondition.dispatch('edit', {
+          id: condition.id,
+          data,
+        })
+      } else {
+        RoutineCondition.dispatch('add', {
+          routine: this.routine,
+          data,
+        })
+      }
     },
 
     /**
      * Action was selected
      *
      * @param {Object} data
+     * @param {(RoutineAction|null)} action
      */
-    addAction(data) {
-      this.closeView()
+    addAction(data, action) {
+      this.openView(this.view.items.detail.name)
 
-      this.addRoutineAction(this.routine, data)
+      if (action !== null) {
+        RoutineAction.dispatch('edit', {
+          id: action.id,
+          data,
+        })
+      } else {
+        RoutineAction.dispatch('add', {
+          routine: this.routine,
+          data,
+        })
+          .catch((e) => {
+            const errorMessageNotCreated = this.$t('routines.messages.actionNotCreated', {
+              routine: this.routine.name,
+            })
+
+            if (Object.prototype.hasOwnProperty.call(e, 'exception')) {
+              this.handleFormError(e.exception, errorMessageNotCreated)
+            } else {
+              this.$flashMessage(errorMessageNotCreated, 'error')
+            }
+          })
+      }
     },
 
     /**

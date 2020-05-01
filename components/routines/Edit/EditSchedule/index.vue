@@ -61,13 +61,6 @@ export default {
     schedule: {
       type: Object,
       default: null,
-      validator: (value) => {
-        return !(
-          !Object.prototype.hasOwnProperty.call(value, 'enabled') ||
-          !Object.prototype.hasOwnProperty.call(value, 'days') ||
-          !Array.isArray(value.days)
-        )
-      },
     },
 
     remoteSubmit: {
@@ -166,7 +159,7 @@ export default {
         days: this.model.days,
       }
 
-      this.$emit('add', schedule)
+      this.$emit('add', schedule, this.schedule)
     },
 
     /**

@@ -1,8 +1,19 @@
 import VuexORM, { Database } from '@vuex-orm/core'
 import VuexORMAxios from '@vuex-orm/plugin-axios'
 
+// UI specific models
 import Thing from '~/models/things/Thing'
 import things from '~/models/things/things'
+
+import Routine from '~/models/routines/Routine'
+import routines from '~/models/routines/routines'
+import RoutineCondition from '~/models/routines/RoutineCondition'
+import routinesConditions from '~/models/routines/routines.conditions'
+import RoutineConditionProperty from '~/models/routines/RoutineConditionProperty'
+import RoutineAction from '~/models/routines/RoutineAction'
+import routinesActions from '~/models/routines/routines.actions'
+import RoutineActionProperty from '~/models/routines/RoutineActionProperty'
+import RoutineSchedule from '~/models/routines/RoutineSchedule'
 
 // Accounts node
 import Session from '~/models/accounts-node/Session'
@@ -45,6 +56,13 @@ import groups from '~/models/devices-node/groups'
 const database = new Database()
 
 database.register(Thing, things)
+
+database.register(Routine, routines)
+database.register(RoutineCondition, routinesConditions)
+database.register(RoutineConditionProperty)
+database.register(RoutineAction, routinesActions)
+database.register(RoutineActionProperty)
+database.register(RoutineSchedule)
 
 database.register(Session, sessions)
 database.register(Account, accounts)

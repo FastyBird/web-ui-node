@@ -184,8 +184,8 @@ export default {
       this.submitSelect = true
     },
 
-    add(action) {
-      this.$emit('add', action)
+    add(data, action) {
+      this.$emit('add', data, action)
     },
 
     /**

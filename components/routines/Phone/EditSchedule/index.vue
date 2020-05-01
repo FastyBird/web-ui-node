@@ -153,8 +153,8 @@ export default {
       this.submitSelect = true
     },
 
-    add(schedule) {
-      this.$emit('add', schedule)
+    add(data, schedule) {
+      this.$emit('add', data, schedule)
     },
 
     /**

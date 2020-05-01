@@ -82,7 +82,7 @@ const moduleState: AccountState = {
 
 const moduleActions: ActionTree<AccountState, any> = {
   get({ state, commit }, payload: { id: string }): Promise<any> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, reject): void => {
       if (state.semaphore.fetching.item.includes(payload.id)) {
         resolve(false)
 
@@ -126,7 +126,7 @@ const moduleActions: ActionTree<AccountState, any> = {
   },
 
   edit({ state, commit }, payload: { id: string, first_name: string, last_name: string, middle_name: string | null, language: string, week_start: number, time_zone: string, date_format: string, time_format: string }): Promise<any> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, reject): void => {
       if (state.semaphore.updating.includes(payload.id)) {
         reject(new Error('accounts.accounts.update.inProgress'))
 

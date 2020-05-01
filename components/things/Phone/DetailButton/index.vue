@@ -83,6 +83,7 @@ import {
 import SharedButtonThing from '~/components/things/Shared/ThingButton'
 
 import ButtonThing from '~/components/things/Detail/Button'
+import Thing from '~/models/things/Thing'
 
 const SelectThing = () => ({
   component: import('~/components/routines/Phone/SelectThing'),
@@ -221,16 +222,12 @@ export default {
         if (view === this.view.items.actionThing.name) {
           this.view.items[view].item = null
 
-          const trigger = this._getButtonActionTrigger(this.actionType)
+          // Try to find existing action via thing identifier
+          const storedAction = this.mapActions()
+            .find(action => (action.device === this.view.items.actionThing.thing.device.identifier && action.channel === this.view.items.actionThing.thing.channel.channel))
 
-          if (trigger) {
-            // Try to find existing action via thing identifier
-            const storedAction = this.mapActions(trigger)
-              .find(action => (action.device === this.view.items.actionThing.thing.device.identifier && action.channel === this.view.items.actionThing.thing.channel.channel))
-
-            if (typeof storedAction !== 'undefined') {
-              this.view.items[view].item = storedAction
-            }
+          if (typeof storedAction !== 'undefined') {
+            this.view.items[view].item = storedAction
           }
         }
 
@@ -238,7 +235,26 @@ export default {
         if (view === this.view.items.selectThing.name) {
           this.actionType = type
 
-          this.view.items[view].items = this._getButtonActionTrigger(type) ? this.mapActions(this._getButtonActionTrigger(type)) : []
+          const things = []
+
+          this.mapActions()
+            .forEach((action) => {
+              things.push(
+                Thing
+                  .query()
+                  .with('device')
+                  .whereHas('device', (query) => {
+                    query.where('identifier', action.device)
+                  })
+                  .with('channel')
+                  .whereHas('channel', (query) => {
+                    query.where('channel', action.channel)
+                  })
+                  .first(),
+              )
+            })
+
+          this.view.items[view].items = things
         }
 
         this._configureNavigation()

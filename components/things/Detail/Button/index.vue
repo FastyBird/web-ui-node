@@ -79,7 +79,6 @@ export default {
 
       return Trigger
         .query()
-        .with('condition')
         .with('actions')
         .where('device', this.thing.device.identifier)
         .where('channel', this.thing.channel.channel)

@@ -39,20 +39,6 @@ const moduleState: ThingState = {
 }
 
 const moduleGetters: GetterTree<ThingState, any> = {
-  isThingOnline: state => (id: string): boolean => {
-    const thing = Thing
-      .query()
-      .with('device')
-      .where('id', id)
-      .first()
-
-    if (thing === null) {
-      return false
-    }
-
-    return thing.device.state === 'ready'
-  },
-
   firstLoadFinished: state => (): boolean => {
     return state.firstLoad
   },
@@ -68,7 +54,7 @@ const moduleGetters: GetterTree<ThingState, any> = {
 
 const moduleActions: ActionTree<ThingState, any> = {
   get({ state, commit }, payload: { id: string }): Promise<any> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, reject): void => {
       if (state.semaphore.fetching.item.includes(payload.id)) {
         resolve(false)
       } else {
@@ -80,11 +66,11 @@ const moduleActions: ActionTree<ThingState, any> = {
         Device.dispatch('fetch', {
           include_channels: false,
         })
-          .then(() => {
+          .then((): void => {
             const device = Device
               .query()
-              .where('channel_ids', (value: Array<string>) => {
-                const items = value.find((item: string) => {
+              .where('channel_ids', (value: Array<string>): boolean => {
+                const items = value.find((item: string): boolean => {
                   return item === payload.id
                 })
 
@@ -96,7 +82,7 @@ const moduleActions: ActionTree<ThingState, any> = {
               Device.dispatch('get', {
                 id: device.id,
               })
-                .then(() => {
+                .then((): void => {
                   const insertData: any = []
 
                   const channels = Channel
@@ -104,7 +90,7 @@ const moduleActions: ActionTree<ThingState, any> = {
                     .where('device_id', device.id)
                     .get()
 
-                  channels.forEach((channel: Channel) => {
+                  channels.forEach((channel: Channel): void => {
                     insertData.push({
                       id: channel.id,
                       device_id: device.id,
@@ -115,14 +101,14 @@ const moduleActions: ActionTree<ThingState, any> = {
                   Thing.insertOrUpdate({
                     data: insertData,
                   })
-                    .then(() => {
+                    .then((): void => {
                       commit('THINGS_CLEAR_SEMAPHORE', {
                         type: 'get',
                       })
 
                       resolve(true)
                     })
-                    .catch((e) => {
+                    .catch((e): void => {
                       commit('THINGS_CLEAR_SEMAPHORE', {
                         type: 'get',
                       })
@@ -134,7 +120,7 @@ const moduleActions: ActionTree<ThingState, any> = {
                       ))
                     })
                 })
-                .catch((e) => {
+                .catch((e): void => {
                   commit('THINGS_CLEAR_SEMAPHORE', {
                     type: 'get',
                     id: payload.id,
@@ -150,7 +136,7 @@ const moduleActions: ActionTree<ThingState, any> = {
               resolve(true)
             }
           })
-          .catch((e) => {
+          .catch((e): void => {
             commit('THINGS_CLEAR_SEMAPHORE', {
               type: 'get',
               id: payload.id,
@@ -167,7 +153,7 @@ const moduleActions: ActionTree<ThingState, any> = {
   },
 
   fetch({ state, commit }): Promise<any> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, reject): void => {
       if (state.semaphore.fetching.items) {
         resolve(false)
       } else {
@@ -178,20 +164,20 @@ const moduleActions: ActionTree<ThingState, any> = {
         Device.dispatch('fetch', {
           include_channels: true,
         })
-          .then(() => {
+          .then((): void => {
             const devices = Device
               .query()
               .get()
 
             const insertData: any = []
 
-            devices.forEach((device: Device) => {
+            devices.forEach((device: Device): void => {
               const channels = Channel
                 .query()
                 .where('device_id', device.id)
                 .get()
 
-              channels.forEach((channel: Channel) => {
+              channels.forEach((channel: Channel): void => {
                 insertData.push({
                   id: channel.id,
                   device_id: device.id,
@@ -203,14 +189,14 @@ const moduleActions: ActionTree<ThingState, any> = {
             Thing.insertOrUpdate({
               data: insertData,
             })
-              .then(() => {
+              .then((): void => {
                 commit('THINGS_CLEAR_SEMAPHORE', {
                   type: 'fetch',
                 })
 
                 resolve(true)
               })
-              .catch((e) => {
+              .catch((e): void => {
                 commit('THINGS_CLEAR_SEMAPHORE', {
                   type: 'fetch',
                 })
@@ -222,7 +208,7 @@ const moduleActions: ActionTree<ThingState, any> = {
                 ))
               })
           })
-          .catch((e) => {
+          .catch((e): void => {
             commit('THINGS_CLEAR_SEMAPHORE', {
               type: 'fetch',
             })
@@ -333,13 +319,13 @@ const moduleMutations: MutationTree<ThingState> = {
    *
    * @param {Object} state
    */
-  ['THINGS_RESET_STATE'](state) {
+  ['THINGS_RESET_STATE'](state: ThingState) {
     Object.assign(state, moduleState)
   },
 }
 
 export default {
-  state: () => (moduleState),
+  state: (): ThingState => (moduleState),
   getters: moduleGetters,
   actions: moduleActions,
   mutations: moduleMutations,

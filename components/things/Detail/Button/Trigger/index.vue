@@ -2,12 +2,12 @@
   <div class="fb-iot-things-detail-button-trigger__container">
     <list-items-container :heading="heading">
       <trigger-action
-        v-for="(action, index) in actions"
+        v-for="action in trigger.actions"
         :key="action.id"
         :action="action"
         class="fb-iot-things-detail-button-trigger__actions"
-        @toggle="toggleActionState(index)"
-        @remove="confirmRemoveAction(index)"
+        @toggle="toggleActionState(action)"
+        @remove="confirmRemoveAction(action)"
       />
     </list-items-container>
 
@@ -35,7 +35,7 @@
 </template>
 
 <script>
-import routinesMixin from '~/mixins/routines'
+import TriggerAction from './Action'
 
 import {
   DEVICE_FASTYBIRD_BUTTON_PRESS,
@@ -44,11 +44,10 @@ import {
 } from '~/configuration/devices'
 
 import Trigger from '~/models/triggers-node/Trigger'
+import Action from '~/models/triggers-node/Action'
 import Device from '~/models/devices-node/Device'
 import Channel from '~/models/devices-node/Channel'
 import Thing from '~/models/things/Thing'
-
-import TriggerAction from '~/components/routines/Detail/ListAction'
 
 export default {
 
@@ -57,8 +56,6 @@ export default {
   components: {
     TriggerAction,
   },
-
-  mixins: [routinesMixin],
 
   props: {
 
@@ -80,23 +77,10 @@ export default {
       transparentModal: false,
       remove: {
         show: false,
-        index: null,
+        item: null,
         thing: null,
       },
     }
-  },
-
-  computed: {
-
-    /**
-     * Remap trigger actions for displaying
-     *
-     * @returns {Array}
-     */
-    actions() {
-      return this.mapActions(this.trigger)
-    },
-
   },
 
   created() {
@@ -122,25 +106,35 @@ export default {
     /**
      * Change action state
      *
-     * @param {Number} index
+     * @param {Action} action
      */
-    toggleActionState(index) {
-      if (Object.prototype.hasOwnProperty.call(this.actions, index)) {
-        if (Object.prototype.hasOwnProperty.call(this.actions, index)) {
-          this.changeActionState(this.actions[index], !this.actions[index].enabled)
-        }
-      }
+    toggleActionState(action) {
+      Action.dispatch('edit', {
+        id: action.id,
+        data: {
+          enabled: !action.enabled,
+        },
+      })
+        .catch((e) => {
+          const errorMessage = this.$t('triggers.messages.actionNotUpdated')
+
+          if (Object.prototype.hasOwnProperty.call(e, 'exception')) {
+            this.handleFormError(e.exception, errorMessage)
+          } else {
+            this.$flashMessage(errorMessage, 'error')
+          }
+        })
     },
 
     /**
      * Show remove confirmation window for action
      *
-     * @param {Number} index
+     * @param {Action} action
      */
-    confirmRemoveAction(index) {
+    confirmRemoveAction(action) {
       const device = Device
         .query()
-        .where('identifier', this.actions[index].device)
+        .where('identifier', action.device)
         .first()
 
       if (device === null) {
@@ -150,7 +144,7 @@ export default {
       const channel = Channel
         .query()
         .where('device_id', device.id)
-        .where('channel', this.actions[index].channel)
+        .where('channel', action.channel)
         .first()
 
       if (channel === null) {
@@ -165,7 +159,7 @@ export default {
         .first()
 
       this.remove.show = true
-      this.remove.index = index
+      this.remove.item = action
       this.remove.thing = thing
     },
 
@@ -174,31 +168,40 @@ export default {
      */
     resetRemoveConfirmation() {
       this.remove.show = false
-      this.remove.index = null
+      this.remove.item = null
       this.remove.thing = null
     },
 
     /**
-     * Remove action from routine
+     * Remove action from trigger
      */
     removeAction() {
-      if (Object.prototype.hasOwnProperty.call(this.actions, this.remove.index)) {
-        if (this.actions.length > 1) {
-          this.removeRoutineAction(this.trigger, this.remove.thing)
-        } else {
-          Trigger.dispatch('remove', {
-            id: this.trigger.id,
-          })
-            .catch((e) => {
-              const errorMessage = this.$t('things.messages.actionNotRemoved')
+      if (this.trigger.actions.length > 1) {
+        Action.dispatch('remove', {
+          id: this.remove.item.id,
+        })
+          .catch((e) => {
+            const errorMessage = this.$t('triggers.messages.actionNotRemoved')
 
-              if (Object.prototype.hasOwnProperty.call(e, 'exception')) {
-                this.handleFormError(e.exception, errorMessage)
-              } else {
-                this.$flashMessage(errorMessage, 'error')
-              }
-            })
-        }
+            if (Object.prototype.hasOwnProperty.call(e, 'exception')) {
+              this.handleFormError(e.exception, errorMessage)
+            } else {
+              this.$flashMessage(errorMessage, 'error')
+            }
+          })
+      } else {
+        Trigger.dispatch('remove', {
+          id: this.trigger.id,
+        })
+          .catch((e) => {
+            const errorMessage = this.$t('things.messages.actionNotRemoved')
+
+            if (Object.prototype.hasOwnProperty.call(e, 'exception')) {
+              this.handleFormError(e.exception, errorMessage)
+            } else {
+              this.$flashMessage(errorMessage, 'error')
+            }
+          })
       }
 
       this.resetRemoveConfirmation()

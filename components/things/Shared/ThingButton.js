@@ -1,4 +1,4 @@
-import routinesMixin from '~/mixins/routines'
+import filter from 'lodash/filter'
 
 import {
   DEVICE_FASTYBIRD_BUTTON_PRESS,
@@ -25,8 +25,6 @@ export default {
 
   },
 
-  mixins: [routinesMixin],
-
   data() {
     return {
       actionType: null,
@@ -52,7 +50,6 @@ export default {
 
       return Trigger
         .query()
-        .with('condition')
         .with('actions')
         .where('device', this.thing.device.identifier)
         .where('channel', this.thing.channel.channel)
@@ -65,6 +62,43 @@ export default {
 
   methods: {
 
+    mapActions() {
+      const trigger = this._getButtonActionTrigger(this.actionType)
+
+      const actions = []
+
+      if (trigger) {
+        trigger.actions
+          .forEach((action) => {
+            if (typeof actions.find(storedAction => (storedAction.device === action.device && storedAction.channel === action.channel)) === 'undefined') {
+              if (action.channel !== null) {
+                actions.push({
+                  enabled: action.enabled,
+                  device: action.device,
+                  channel: action.channel,
+                  rows: [],
+                })
+              }
+            }
+          })
+
+        for (const i in actions) {
+          if (Object.prototype.hasOwnProperty.call(actions, i)) {
+            filter(trigger.actions, { device: actions[i].device, channel: actions[i].channel })
+              .forEach((action) => {
+                actions[i].rows.push({
+                  action_id: action.id,
+                  property: action.property,
+                  operation: action.value,
+                })
+              })
+          }
+        }
+      }
+
+      return actions
+    },
+
     /**
      * Add action settings to collection
      *
@@ -76,7 +110,7 @@ export default {
       const trigger = this._getButtonActionTrigger(this.actionType)
 
       if (trigger) {
-        const triggerAction = this.mapActions(trigger)
+        const triggerAction = this.mapActions()
           .find((item) => {
             return (item.device === data.device && item.channel === data.channel)
           })
@@ -183,28 +217,29 @@ export default {
     removeAction(thing) {
       const trigger = this._getButtonActionTrigger(this.actionType)
 
-      const mappedActions = this.mapActions(trigger)
+      const actions = Action
+        .query()
+        .where('trigger_id', trigger.id)
+        .where('device', thing.device.identifier)
+        .where('channel', thing.channel.channel)
+        .get()
 
-      const thingActions = this._.filter(mappedActions, action => (action.device === thing.device.identifier && action.channel === thing.channel.channel))
-
-      if (mappedActions.length > 1) {
-        thingActions.forEach((action) => {
-          action.rows
-            .forEach((row) => {
-              Action.dispatch('remove', {
-                id: row.action_id,
-              })
-                .catch((e) => {
-                  const errorMessage = this.$t('triggers.messages.actionNotRemoved')
-
-                  if (Object.prototype.hasOwnProperty.call(e, 'exception')) {
-                    this.handleFormError(e.exception, errorMessage)
-                  } else {
-                    this.$flashMessage(errorMessage, 'error')
-                  }
-                })
+      if (actions.length > 1) {
+        actions
+          .forEach((action) => {
+            Action.dispatch('remove', {
+              id: action.id,
             })
-        })
+              .catch((e) => {
+                const errorMessage = this.$t('triggers.messages.actionNotRemoved')
+
+                if (Object.prototype.hasOwnProperty.call(e, 'exception')) {
+                  this.handleFormError(e.exception, errorMessage)
+                } else {
+                  this.$flashMessage(errorMessage, 'error')
+                }
+              })
+          })
       } else {
         Trigger.dispatch('remove', {
           id: trigger.id,

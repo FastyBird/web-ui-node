@@ -65,15 +65,6 @@ export default {
       default: () => {
         return []
       },
-      validator: (value) => {
-        value.forEach((item) => {
-          if (!Object.prototype.hasOwnProperty.call(item, 'thing')) {
-            return false
-          }
-        })
-
-        return true
-      },
     },
 
     typeActor: {
@@ -185,7 +176,7 @@ export default {
      */
     isSelected(thing) {
       return typeof this.items.find((item) => {
-        return item.device === thing.device.identifier && item.channel === thing.channel.channel
+        return item.id === thing.id
       }) !== 'undefined'
     },
 

@@ -69,7 +69,7 @@
           </div>
 
           <fb-divider
-            text="OR"
+            :text="$t('application.misc.or')"
             type="horizontal"
           />
 

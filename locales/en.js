@@ -414,6 +414,7 @@ export default {
       moduleSensorSettings: 'Thing sensor settings',
       moduleTimeSettings: 'Thing time settings',
       manufacturerAndNetwork: 'Manufacturer & Network info',
+      selectTriggerThing: 'Things',
       newAction: 'Add new action when...',
       removeAction: 'Remove action',
       buttonActionPressed: 'Button pressed',
@@ -506,6 +507,17 @@ export default {
       search: {
         title: 'Start searching',
       },
+      addThing: {
+        title: 'Add thing',
+      },
+      updateThing: {
+        title: 'Update thing',
+      },
+    },
+    triggers: {
+      toggle: 'Toggle {property} state',
+      on: 'Turn {property} on',
+      off: 'Turn {property} off',
     },
     vendors: {
       global: {

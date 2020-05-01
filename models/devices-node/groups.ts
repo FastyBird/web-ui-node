@@ -79,7 +79,7 @@ const moduleGetters: GetterTree<GroupState, any> = {
 
 const moduleActions: ActionTree<GroupState, any> = {
   get({ state, commit }, payload: { id: string }): Promise<any> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, reject): void => {
       if (state.semaphore.fetching.item.includes(payload.id)) {
         resolve(false)
       } else {
@@ -100,7 +100,7 @@ const moduleActions: ActionTree<GroupState, any> = {
             return mapGroupResponse(dataFormatter.deserialize(result.data))
           },
         })
-          .then(() => {
+          .then((): void => {
             // Entity was successfully fetched from server
             resolve(true)
           })
@@ -121,7 +121,7 @@ const moduleActions: ActionTree<GroupState, any> = {
   },
 
   fetch({ state, commit }): Promise<any> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, reject): void => {
       if (state.semaphore.fetching.items) {
         resolve(false)
       } else {

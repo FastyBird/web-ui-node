@@ -38,16 +38,6 @@ export default {
     action: {
       type: Object,
       default: null,
-      validator: (value) => {
-        return !(
-          !Object.prototype.hasOwnProperty.call(value, 'device') ||
-          !Object.prototype.hasOwnProperty.call(value, 'channel') ||
-          !Object.prototype.hasOwnProperty.call(value, 'enabled') ||
-          !Object.prototype.hasOwnProperty.call(value, 'rows') ||
-          !Array.isArray(value.rows) ||
-          !value.rows.length
-        )
-      },
     },
 
     remoteSubmit: {
@@ -110,7 +100,7 @@ export default {
       }
 
       if (action.rows.length) {
-        this.$emit('add', action)
+        this.$emit('add', action, this.action)
       } else {
         this.$flashMessage(this.$t('routines.messages.selectPropertyAction'), 'info')
       }

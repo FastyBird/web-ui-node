@@ -19,7 +19,7 @@
 
     <template slot="detail">
       <div class="fb-routines-list-item__info">
-        <small>{{ $tc('routines.texts.routineThings', thingsCount, { count: thingsCount }) }}</small>
+        <small>{{ $tc('routines.texts.routineThings', routine.actions.length, { count: routine.actions.length }) }}</small>
 
         <font-awesome-icon
           icon="chevron-right"
@@ -47,33 +47,20 @@ export default {
   computed: {
 
     /**
-     * Count total things count (actions)
-     *
-     * @returns {Number}
-     */
-    thingsCount() {
-      return this._.uniq(this.routine.actions
-        .map((item) => {
-          return `${item.device}-${item.channel}`
-        }))
-        .length
-    },
-
-    /**
      * Get list sub-heading
      *
      * @returns {String}
      */
     subHeading() {
-      if (this.schedule !== null) {
+      if (this.routine.schedule !== null) {
         let days = ''
 
-        if (this.schedule.days.length === 7) {
+        if (this.routine.schedule.days.length === 7) {
           days = this.$t('routines.texts.everyday')
         } else {
           days = []
 
-          for (const day of this.schedule.days) {
+          for (const day of this.routine.schedule.days) {
             switch (day) {
               case 1:
                 days.push(this.$t('application.days.mon.short'))
@@ -110,7 +97,7 @@ export default {
 
         return this.$t('routines.headings.scheduledRoutine', {
           days,
-          time: this.$dateFns.format(this.schedule.time, this._.get(this.account, 'timeFormat', 'HH:mm')),
+          time: this.$dateFns.format(this.routine.schedule.time, this._.get(this.account, 'timeFormat', 'HH:mm')),
         })
       }
 
@@ -119,21 +106,6 @@ export default {
       }
 
       return this.routine.isAutomatic ? this.$t('routines.headings.automaticRoutine') : this.$t('routines.headings.manualRoutine')
-    },
-
-    /**
-     * Routine schedule condition
-     *
-     * @returns {(Condition|null)}
-     */
-    schedule() {
-      const condition = this.routine.conditions.find(item => item.isTime)
-
-      if (typeof condition === 'undefined') {
-        return null
-      }
-
-      return condition
     },
 
   },

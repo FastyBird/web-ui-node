@@ -29,7 +29,8 @@ import 'hooper/dist/hooper.css'
 
 import CarouselSlide from './Slide'
 
-import Trigger from '~/models/triggers-node/Trigger'
+import Routine from '~/models/routines/Routine'
+import Condition from '~/models/triggers-node/Condition'
 
 export default {
 
@@ -64,28 +65,31 @@ export default {
   computed: {
 
     routines() {
-      let routines = Trigger
+      return Routine
         .query()
-        .with('conditions')
-        .where('isAutomatic', true)
-        .orderBy('name')
+        .with('trigger')
+        .with('actions')
+        .with('schedule')
+        .with('schedule.condition')
+        .whereHas('schedule', (query) => {
+          query.where((schedule) => {
+            const condition = Condition.find(schedule.id)
+
+            if (condition === null) {
+              return false
+            }
+
+            const now = new Date()
+            const time = new Date(condition.time)
+
+            return condition.days.includes(parseInt(this.$dateFns.format(now, 'i'), 10)) &&
+              this.$dateFns.compareDesc(now, new Date(`${this.$dateFns.format(now, 'Y-M-d')} ${this.$dateFns.format(time, 'H:m:s XXXX')}`)) === 1
+          })
+        })
+        .whereHas('trigger', (query) => {
+          query.where('isAutomatic', true)
+        })
         .get()
-
-      routines = this._.filter(routines, (routine) => {
-        const condition = routine.conditions.find(item => item.isTime)
-
-        if (typeof condition === 'undefined') {
-          return false
-        }
-
-        const now = new Date()
-        const time = new Date(condition.time)
-
-        return condition.days.includes(parseInt(this.$dateFns.format(now, 'i'), 10)) &&
-          this.$dateFns.compareDesc(now, new Date(`${this.$dateFns.format(now, 'Y-M-d')} ${this.$dateFns.format(time, 'H:m:s XXXX')}`)) === 1
-      })
-
-      return routines
     },
 
   },

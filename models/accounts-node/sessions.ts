@@ -93,7 +93,7 @@ const moduleState: SessionState = {
 
 const moduleActions: ActionTree<SessionState, any> = {
   get({ state, commit }, payload: { token: string, refresh: string }): Promise<any> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, reject): void => {
       if (state.semaphore.fetching) {
         resolve(false)
 
@@ -142,7 +142,7 @@ const moduleActions: ActionTree<SessionState, any> = {
   },
 
   create({ state, commit }, payload: { uid: string, password: string }): Promise<any> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, reject): void => {
       if (state.semaphore.creating) {
         reject(new Error('accounts.session.create.inProgress'))
 
@@ -196,7 +196,7 @@ const moduleActions: ActionTree<SessionState, any> = {
   },
 
   refresh({ state, commit }, payload: { refresh_token: string }): Promise<any> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, reject): void => {
       if (state.semaphore.updating) {
         reject(new Error('accounts.session.refresh.inProgress'))
 
@@ -242,7 +242,7 @@ const moduleActions: ActionTree<SessionState, any> = {
             .get()
 
           oldSessions
-            .forEach((row) => {
+            .forEach((row): void => {
               Session.delete(row.id)
             })
 

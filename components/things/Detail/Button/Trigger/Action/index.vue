@@ -2,7 +2,7 @@
   <content-loading
     v-if="fetchingThings || !thing"
     :height="53"
-    class="fb-routines-action__preloading"
+    class="fb-iot-things-detail-button-trigger-action__preloading"
   >
     <circle
       cx="25"
@@ -49,11 +49,7 @@
     </template>
 
     <template slot="sub-heading">
-      <span
-        v-for="(row, index) in properties"
-        :key="index"
-        class="fb-routines-action__action"
-      >{{ $t(`routines.actions.${row.operation}`, { property: $tChannelProperty(thing, row.property).toLowerCase() }) }}</span>
+      <span class="fb-iot-things-detail-button-trigger-action__action">{{ $t(`things.triggers.${action.value}`, { property: $tChannelProperty(thing, property).toLowerCase() }) }}</span>
     </template>
 
     <template slot="detail-large">
@@ -82,7 +78,7 @@ import Thing from '~/models/things/Thing'
 
 export default {
 
-  name: 'RoutinesDetailListAction',
+  name: 'ThingsDetailButtonTriggerAction',
 
   props: {
 
@@ -135,34 +131,20 @@ export default {
     },
 
     /**
-     * Mapped properties with values
+     * Action thing property
      *
-     * @returns {Array}
+     * @returns {(ChannelProperty|null)}
      */
-    properties() {
+    property() {
       if (this.thing === null) {
-        return []
+        return null
       }
 
-      const mapped = []
-
-      this.action.rows
-        .forEach((row) => {
-          const property = ChannelProperty
-            .query()
-            .where('channel_id', this.thing.channel_id)
-            .where('property', row.property)
-            .first()
-
-          if (property !== null) {
-            mapped.push({
-              operation: row.operation,
-              property,
-            })
-          }
-        })
-
-      return mapped
+      return ChannelProperty
+        .query()
+        .where('channel_id', this.thing.channel_id)
+        .where('property', this.action.property)
+        .first()
     },
 
     /**

@@ -44,12 +44,12 @@ export default {
     subHeading() {
       let days = ''
 
-      if (this.schedule.days.length === 7) {
+      if (this.routine.schedule.days.length === 7) {
         days = this.$t('routines.texts.everyday')
       } else {
         days = []
 
-        for (const day of this.schedule.days) {
+        for (const day of this.routine.schedule.days) {
           switch (day) {
             case 1:
               days.push(this.$t('application.days.mon.short'))
@@ -86,17 +86,8 @@ export default {
 
       return this.$t('routines.headings.scheduledRoutine', {
         days,
-        time: this.$dateFns.format(this.schedule.time, this._.get(this.account, 'timeFormat', 'HH:mm')),
+        time: this.$dateFns.format(this.routine.schedule.time, this._.get(this.account, 'timeFormat', 'HH:mm')),
       })
-    },
-
-    /**
-     * Routine schedule condition
-     *
-     * @returns {(Condition|null)}
-     */
-    schedule() {
-      return this.routine.conditions.find(item => item.isTime)
     },
 
   },
