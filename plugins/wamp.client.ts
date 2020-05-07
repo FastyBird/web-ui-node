@@ -376,7 +376,7 @@ class WampClient implements WampClientInterface {
     const index = this.rpcCalls.findIndex(({ id }): boolean => id === message[0])
 
     if (index !== -1) {
-      this.subscriptions.splice(index, 1)
+      this.rpcCalls.splice(index, 1)
     }
 
     if (code === 4) {
@@ -441,7 +441,13 @@ declare module 'vuex/types/index' {
 }
 
 const wampClientPlugin: Plugin = ({ app, store }, inject): void => {
-  const wamp = new WampClient(`${process.env.NUXT_ENV_WS_SERVER}`, store)
+  let wsHost = `wss://${window.location.host}/ws-exchange`
+
+  if (window.location.hostname === 'localhost') {
+    wsHost = `ws://${window.location.host}/ws-exchange`
+  }
+
+  const wamp = new WampClient(wsHost, store)
 
   inject('wamp', wamp)
 }

@@ -97,6 +97,11 @@
 </template>
 
 <script>
+import Ajv from 'ajv'
+import Jsona from 'jsona'
+import * as devicePropertySchema from '@/node_modules/@fastybird-com/json-schemas/resources/storage-node/entity.device.property.json'
+import * as channelPropertySchema from '@/node_modules/@fastybird-com/json-schemas/resources/storage-node/entity.channel.property.json'
+
 import { version } from './../package.json'
 
 import * as config from '~/configuration'
@@ -105,15 +110,14 @@ import Identity from '~/models/accounts-node/Identity'
 import Account from '~/models/accounts-node/Account'
 import Session from '~/models/accounts-node/Session'
 import Device from '~/models/devices-node/Device'
-import Trigger from '~/models/triggers-node/Trigger'
 import DeviceProperty from '~/models/devices-node/DeviceProperty'
-import DeviceConfiguration from '~/models/devices-node/DeviceConfiguration'
+import Channel from '~/models/devices-node/Channel'
 import ChannelProperty from '~/models/devices-node/ChannelProperty'
-import ChannelConfiguration from '~/models/devices-node/ChannelConfiguration'
+import Trigger from '~/models/triggers-node/Trigger'
 import Thing from '~/models/things/Thing'
 
-const FbDefaultLayout = () => import('@/node_modules/@fastybird-com/theme/layouts/default')
-const FbSignLayout = () => import('@/node_modules/@fastybird-com/theme/layouts/sign')
+const FbDefaultLayout = () => import('@/node_modules/@fastybird-com/ui-theme/layouts/default')
+const FbSignLayout = () => import('@/node_modules/@fastybird-com/ui-theme/layouts/sign')
 
 const AccountEdit = () => import('~/components/account/AccountEdit')
 const PasswordEdit = () => import('~/components/account/PasswordEdit')
@@ -302,22 +306,31 @@ export default {
 
     exchangeState(val) {
       if (val) {
-        const topic = '/io/devices'
-
         return this.$wamp
-          .subscribe(topic, (data) => {
+          .subscribe(config.IO_SOCKET_TOPIC_EXCHANGE, (data) => {
             const body = JSON.parse(data)
 
-            if (Object.prototype.hasOwnProperty.call(body, 'device')) {
-              this._parseDeviceExchangeData(
-                body.device,
-                Object.prototype.hasOwnProperty.call(body, 'channels') ? body.channels : [],
-              )
+            if (
+              Object.prototype.hasOwnProperty.call(body, 'routing_key') &&
+              Object.prototype.hasOwnProperty.call(body, 'origin') &&
+              Object.prototype.hasOwnProperty.call(body, 'data')
+            ) {
+              switch (this._.get(body, 'routing_key')) {
+                case 'fb.bus.node.entity.created.device.property':
+                case 'fb.bus.node.entity.updated.device.property':
+                  this._processDevicePropertyMessage(this._.get(body, 'data'), this._.get(body, 'origin'))
+                  break
+
+                case 'fb.bus.node.entity.created.channel.property':
+                case 'fb.bus.node.entity.updated.channel.property':
+                  this._processChannelPropertyMessage(this._.get(body, 'data'), this._.get(body, 'origin'))
+                  break
+              }
             }
           })
           .then(() => {
             // eslint-disable-next-line
-            console.log(`[WAMP] subscribed: ${topic}`)
+            console.log('[WAMP] subscribed to exchange')
           })
       }
     },
@@ -372,15 +385,19 @@ export default {
   },
 
   mounted() {
-    this.$bus.$on('openAccountSettings', () => {
+    if (this.networkState && this.isSignedIn) {
+      this.$wamp.open()
+    }
+
+    this.$bus.$on('modal-open_account-settings', () => {
       this.openView('accountEdit')
     })
 
-    this.$bus.$on('openPasswordChange', () => {
+    this.$bus.$on('modal-open_password-settings', () => {
       this.openView('passwordEdit')
     })
 
-    this.$bus.$on('openSecuritySettings', () => {
+    this.$bus.$on('modal-open_security-settings', () => {
       this.openView('securityEdit')
     })
 
@@ -398,7 +415,7 @@ export default {
       }
     })
 
-    this.$bus.$on('signIn', () => {
+    this.$bus.$on('user_signed-in', () => {
       this.$router.push(this.localePath({ name: this.$routes.home }))
 
       this.$nextTick(() => {
@@ -406,7 +423,7 @@ export default {
       })
     })
 
-    this.$bus.$on('signOut', () => {
+    this.$bus.$on('user_signed-out', () => {
       this.$bus.$emit('wait-page_reloading', true)
 
       this.$cookies.remove('token')
@@ -428,6 +445,9 @@ export default {
         this.signLayout = true
       })
     })
+
+    this.$bus.$on('devices_fetched', this._fetchDevicesProperties)
+    this.$bus.$on('device_fetched', this._fetchDeviceProperties)
 
     this.$wamp.onConnectEvent(this._wampOnConnect)
     this.$wamp.onCloseEvent(this._wampOnDisconnect)
@@ -452,10 +472,13 @@ export default {
     window.removeEventListener('online', this._setNetworkConnected)
     window.removeEventListener('offline', this._setNetworkDisconnected)
 
-    this.$bus.$off('openAccountSettings')
-    this.$bus.$off('openPasswordChange')
-    this.$bus.$off('openSecuritySettings')
+    this.$bus.$off('modal-open_account-settings')
+    this.$bus.$off('modal-open_password-settings')
 
+    this.$bus.$off('devices_fetched', this._fetchDevicesProperties)
+    this.$bus.$off('device_fetched', this._fetchDeviceProperties)
+
+    this.$bus.$off('wait-page_reloading')
     this.$bus.$off('wait-page_reloading')
 
     this.$wamp.offConnectEvent(this._wampOnConnect)
@@ -544,58 +567,164 @@ export default {
       console.log(`[WAMP] closed: ${reason}`)
     },
 
-    _parseDeviceExchangeData(device, channels) {
-      this._.get(device, 'properties', [])
-        .forEach((property) => {
-          DeviceProperty.update({
-            where: property.id,
-            data: {
-              value: property.value,
-            },
-          })
-            .catch(() => {
-              // Nothing to do here
-            })
-        })
+    _processDevicePropertyMessage(data, origin) {
+      const ajv = new Ajv()
 
-      this._.get(device, 'configuration', [])
-        .forEach((configuration) => {
-          DeviceConfiguration.update({
-            where: configuration.id,
-            data: {
-              value: configuration.value,
-            },
-          })
-            .catch(() => {
-              // Nothing to do here
-            })
-        })
+      const valid = ajv.validate(devicePropertySchema, data)
 
-      channels
-        .forEach((channel) => {
-          this._.get(channel, 'properties', [])
-            .forEach((parameter) => {
-              ChannelProperty.update({
-                where: parameter.id,
-                data: {
-                  value: parameter.value,
-                },
+      if (valid) {
+        const device = Device
+          .query()
+          .where('identifier', this._.get(data, 'device'))
+          .first()
+
+        if (device === null) {
+          return
+        }
+
+        const property = DeviceProperty
+          .query()
+          .where('property', this._.get(data, 'property'))
+          .where('device_id', device.id)
+          .first()
+
+        if (property !== null) {
+          if (origin === config.NODE_STORAGE_ORIGIN) {
+            DeviceProperty.update({
+              where: property.id,
+              data: {
+                value: this._.get(data, 'value'),
+                expected: this._.get(data, 'expected'),
+                pending: this._.get(data, 'pending'),
+              },
+            })
+              .catch(() => {
+                // Nothing to do here
               })
-                .catch(() => {
-                  // Nothing to do here
-                })
+          }
+        }
+      }
+    },
+
+    _processChannelPropertyMessage(data, origin) {
+      const ajv = new Ajv()
+
+      const valid = ajv.validate(channelPropertySchema, data)
+
+      if (valid) {
+        const device = Device
+          .query()
+          .where('identifier', this._.get(data, 'device'))
+          .first()
+
+        if (device === null) {
+          return
+        }
+
+        const channel = Channel
+          .query()
+          .where('channel', this._.get(data, 'channel'))
+          .where('device_id', device.id)
+          .first()
+
+        if (channel === null) {
+          return
+        }
+
+        const property = ChannelProperty
+          .query()
+          .where('property', this._.get(data, 'property'))
+          .where('channel_id', channel.id)
+          .first()
+
+        if (property !== null) {
+          if (origin === config.NODE_STORAGE_ORIGIN) {
+            ChannelProperty.update({
+              where: property.id,
+              data: {
+                value: this._.get(data, 'value'),
+                expected: this._.get(data, 'expected'),
+                pending: this._.get(data, 'pending'),
+              },
+            })
+              .catch(() => {
+                // Nothing to do here
+              })
+          }
+        }
+      }
+    },
+
+    /**
+     * Fetch properties storage data for all devices & devices channels
+     */
+    _fetchDevicesProperties() {
+      const devices = Device.all()
+
+      devices
+        .forEach((device) => {
+          this._fetchDeviceProperties(device.id)
+        })
+    },
+
+    /**
+     * Fetch properties storage data for device & device channels
+     *
+     * @param {String} id
+     */
+    _fetchDeviceProperties(id) {
+      const dataFormatter = new Jsona()
+
+      const device = Device.find(id)
+
+      this.$backendApi.fetchDeviceProperties({ device: device.identifier })
+        .then((deviceResponse) => {
+          dataFormatter.deserialize(deviceResponse.data)
+            .forEach((propertyData) => {
+              const property = DeviceProperty
+                .query()
+                .where('property', propertyData.id)
+                .where('device_id', device.id)
+                .first()
+
+              if (property) {
+                DeviceProperty
+                  .update({
+                    where: property.id,
+                    data: {
+                      value: propertyData.value,
+                    },
+                  })
+              }
             })
 
-          this._.get(channel, 'configuration', [])
-            .forEach((parameter) => {
-              ChannelConfiguration.update({
-                where: parameter.id,
-                data: {
-                  value: parameter.value,
-                },
-              })
-                .catch(() => {
-                  // Nothing to do here
+          const channels = Channel
+            .query()
+            .where('device_id', device.id)
+            .all()
+
+          channels
+            .forEach((channel) => {
+              this.$backendApi.fetchChannelProperties({ device: device.identifier, channel: channel.channel })
+                .then((channelResponse) => {
+                  dataFormatter.deserialize(channelResponse.data)
+                    .forEach((propertyData) => {
+                      const property = ChannelProperty
+                        .query()
+                        .where('property', propertyData.id)
+                        .where('channel_id', channel.id)
+                        .first()
+
+                      if (property) {
+                        ChannelProperty
+                          .update({
+                            where: property.id,
+                            data: {
+                              value: propertyData.value,
+                            },
+                          })
+                      }
+                    })
                 })
             })
         })

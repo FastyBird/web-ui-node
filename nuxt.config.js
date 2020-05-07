@@ -1,43 +1,85 @@
 const path = require('path')
 const fs = require('fs')
+const get = require('lodash/get')
 
 const i18n = require('./locales')
 
-const conf = process.env.BUILD_CONF
+const envFile = path.resolve(process.cwd(), '.env')
 
-const confEnvPath = path.resolve(process.cwd(), `.env.${conf}`)
-const defaultEnvPath = path.resolve(process.cwd(), '.env')
+// Import env vars
+if (fs.existsSync(envFile)) {
+  require('dotenv').config({
+    path: envFile,
+  })
+}
 
-require('dotenv').config({
-  path: fs.existsSync(confEnvPath) ? confEnvPath : defaultEnvPath,
-})
+const modules = [
+  // '@nuxtjs/onesignal',
+  // '@nuxtjs/pwa',
+  '@nuxtjs/svg',
+  '@nuxtjs/toast',
+  '@nuxtjs/proxy',
+  '@nuxtjs/device',
+  '@nuxtjs/date-fns',
+  'cookie-universal-nuxt',
+  'nuxt-validate',
+  'nuxt-i18n',
+  'nuxt-fontawesome',
+  'vue-scrollto/nuxt',
+]
 
 const proxy = {}
 
-if (
-  Object.prototype.hasOwnProperty.call(process.env, 'NUXT_ENV_PROXY_PATH') &&
-  Object.prototype.hasOwnProperty.call(process.env, 'NUXT_ENV_PROXY_TARGET')
-) {
-  proxy[process.env.NUXT_ENV_PROXY_PATH] = {
-    target: process.env.NUXT_ENV_PROXY_TARGET,
+if (Object.prototype.hasOwnProperty.call(process.env, 'NUXT_ENV_API_TARGET')) {
+  proxy['/api'] = {
+    target: process.env.NUXT_ENV_API_TARGET,
+    pathRewrite: {
+      '^/api': '', // Remove base path
+    },
     secure: true,
     changeOrigin: true,
+    headers: {
+      'X-Api-Key': process.env.NUXT_ENV_API_KEY,
+    },
   }
 }
 
-if (
-  Object.prototype.hasOwnProperty.call(process.env, 'NUXT_ENV_WS_PROXY_PATH') &&
-  Object.prototype.hasOwnProperty.call(process.env, 'NUXT_ENV_WS_PROXY_TARGET')
-) {
-  proxy[process.env.NUXT_ENV_WS_PROXY_PATH] = {
-    target: process.env.NUXT_ENV_WS_PROXY_TARGET,
+if (Object.prototype.hasOwnProperty.call(process.env, 'NUXT_ENV_WS_TARGET')) {
+  modules.push('@nuxtjs/sentry')
+
+  proxy['/ws-exchange'] = {
+    target: process.env.NUXT_ENV_WS_TARGET,
     pathRewrite: {
       '^/ws-exchange': '',
     },
     secure: true,
-    ws: true,
     changeOrigin: true,
+    ws: true,
+    onProxyReqWs: (proxyReq, req, socket, options, head) => {
+      get(req, 'headers.cookie', '')
+        .split(';')
+        .forEach((item) => {
+          const row = item.trim().split('=')
+
+          if (get(row, '[0]') === 'token') {
+            proxyReq.setHeader('Authorization', `Bearer ${get(row, '[1]')}`)
+          }
+        })
+
+      proxyReq.setHeader('X-Ws-Key', process.env.NUXT_ENV_WS_KEY)
+    },
   }
+}
+
+const sentry = {}
+
+if (Object.prototype.hasOwnProperty.call(process.env, 'NUXT_ENV_SENTRY_DNS')) {
+  Object.assign(sentry, {
+    dsn: process.env.NUXT_ENV_SENTRY_DNS,
+    config: {
+      environment: Object.prototype.hasOwnProperty.call(process.env, 'NUXT_ENV_SENTRY_ENV') ? process.env.NUXT_ENV_SENTRY_ENV : process.env.NODE_ENV,
+    },
+  })
 }
 
 module.exports = {
@@ -63,7 +105,7 @@ module.exports = {
   loading: { color: '#fff' },
 
   css: [
-    '@/node_modules/@fastybird-com/theme/assets/theme',
+    '@/node_modules/@fastybird-com/ui-theme/assets/theme',
     '@/assets/scss/toaster',
   ],
 
@@ -85,27 +127,16 @@ module.exports = {
     '@/plugins/icons.thing',
     '@/plugins/wamp.client',
     '@/plugins/composition-api',
+    '@/plugins/configure.device',
+    '@/plugins/configure.channel',
+    '@/plugins/control.channel',
   ],
 
   buildModules: [
     '@nuxt/typescript-build',
   ],
 
-  modules: [
-    // '@nuxtjs/onesignal',
-    // '@nuxtjs/pwa',
-    '@nuxtjs/svg',
-    '@nuxtjs/toast',
-    '@nuxtjs/proxy',
-    '@nuxtjs/device',
-    '@nuxtjs/sentry',
-    '@nuxtjs/date-fns',
-    'cookie-universal-nuxt',
-    'nuxt-validate',
-    'nuxt-i18n',
-    'nuxt-fontawesome',
-    'vue-scrollto/nuxt',
-  ],
+  modules,
 
   validate: {
     lang: 'en',
@@ -228,13 +259,7 @@ module.exports = {
   //  },
   // },
 
-  sentry: {
-    dsn: process.env.NUXT_ENV_SENTRY_DNS,
-    disabled: process.env.NODE_ENV === 'development',
-    config: {
-      environment: process.env.NUXT_ENV_SENTRY_ENV,
-    },
-  },
+  sentry,
 
   typescript: {
     typeCheck: {

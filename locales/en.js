@@ -577,6 +577,32 @@ export default {
           on: 'Turn {property} on',
           off: 'Turn {property} off',
         },
+        led_mode: {
+          button: 'Status indicator mode',
+          heading: 'Status indicator mode',
+          description: 'Define how the thing status indicator should operate. Indicator could be turned off to not disturb you.',
+          values: {
+            wifi_status: 'Wifi status',
+            always_on: 'Always on',
+            always_off: 'Always off',
+          },
+        },
+        relays_sync: {
+          button: 'Switch synchronization',
+          heading: 'Switch sync mode',
+          description: 'Define how the different switches should be synchronized.',
+          values: {
+            disabled: 'Disabled',
+            zero_or_one: 'Zero or one active',
+            only_one: 'Only one active',
+            all_synchronized: 'All synchronized',
+          },
+        },
+        btn_delay: {
+          button: 'Double click delay',
+          heading: 'Double click delay',
+          description: 'Delay in milliseconds to detect a double click (from 0 to 1000ms).',
+        },
       },
       itead: {
         things: {

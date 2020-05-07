@@ -13,10 +13,17 @@ export const MQTT_SERVER_ADDRESS = process.env.NUXT_ENV_MQTT_SERVER_ADDRESS
 export const MQTT_SERVER_PORT = process.env.NUXT_ENV_MQTT_SERVER_PORT
 export const MQTT_SERVER_SECURED_PORT = process.env.NUXT_ENV_MQTT_SERVER_SECURED_PORT
 
+export const NODE_DEVICES_ORIGIN = 'com.fastybird.devices-node'
+export const NODE_STORAGE_ORIGIN = 'com.fastybird.storage-node'
+export const NODE_TRIGGERS_ORIGIN = 'com.fastybird.triggers-node'
+
+export const RABBIT_MQ_DEVICES_PROPERTIES_DATA_ROUTING_KEY = 'fb.bus.node.data.device.property'
+export const RABBIT_MQ_DEVICES_CONFIGURATION_DATA_ROUTING_KEY = 'fb.bus.node.data.device.property'
+export const RABBIT_MQ_CHANNELS_PROPERTIES_DATA_ROUTING_KEY = 'fb.bus.node.data.channel.property'
+export const RABBIT_MQ_CHANNELS_CONFIGURATION_DATA_ROUTING_KEY = 'fb.bus.node.data.channel.property'
+
 // WS topics
-export const IO_SOCKET_TOPIC_DEVICE = '/io/device/{device_id}'
-export const IO_SOCKET_TOPIC_DEVICE_CHANNEL = '/io/device/{device_id}/channel/{channel_id}'
-export const IO_SOCKET_TOPIC_DEVICE_CHANNEL_PROPERTY = '/io/device/{device_id}/channel/{channel_id}/property/{property_id}'
+export const IO_SOCKET_TOPIC_EXCHANGE = '/io/exchange'
 
 export const groupIcons = [
   'blender',
@@ -128,7 +135,7 @@ export const USER_MENU_ITEMS = [
         root: true,
       })
 
-      context.$bus.$emit('openAccountSettings', true)
+      context.$bus.$emit('modal-open_account-settings', true)
     },
     meta: {
       icon: 'user',
@@ -142,7 +149,7 @@ export const USER_MENU_ITEMS = [
         root: true,
       })
 
-      context.$bus.$emit('openPasswordChange', true)
+      context.$bus.$emit('modal-open_password-settings', true)
     },
     meta: {
       icon: 'lock',
@@ -156,7 +163,7 @@ export const USER_MENU_ITEMS = [
         root: true,
       })
 
-      context.$bus.$emit('openSecuritySettings', true)
+      context.$bus.$emit('modal-open_security-settings', true)
     },
     meta: {
       icon: 'key',
@@ -172,7 +179,7 @@ export const USER_MENU_ITEMS = [
         root: true,
       })
 
-      context.$bus.$emit('signOut', true)
+      context.$bus.$emit('user_signed-out', true)
     },
     meta: {
       icon: 'sign-out-alt',

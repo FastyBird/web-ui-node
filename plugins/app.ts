@@ -6,7 +6,7 @@ import Vue from 'vue'
 import VueContentLoading from 'vue-content-loading'
 
 // @ts-ignore
-import FastyBirdTheme from '@/node_modules/@fastybird-com/theme'
+import FastyBirdTheme from '@/node_modules/@fastybird-com/ui-theme'
 
 // Layout components
 // @ts-ignore

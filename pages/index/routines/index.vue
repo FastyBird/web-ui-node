@@ -67,8 +67,8 @@
 <script>
 import { orderBy } from 'natural-orderby'
 
-import FbComponentLoading from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoading'
-import FbComponentLoadingError from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoadingError'
+import FbComponentLoading from '@/node_modules/@fastybird-com/ui-theme/components/UI/FbComponentLoading'
+import FbComponentLoadingError from '@/node_modules/@fastybird-com/ui-theme/components/UI/FbComponentLoadingError'
 
 import {
   ROUTINES_HASH_DETAIL,
@@ -87,13 +87,13 @@ const RoutineDetail = () => ({
   component: import('~/components/routines/Desktop/Detail'),
   loading: FbComponentLoading,
   error: FbComponentLoadingError,
-  timeout: 5000,
+  timeout: 10000,
 })
 const CreateRoutine = () => ({
   component: import('~/components/routines/Desktop/Create'),
   loading: FbComponentLoading,
   error: FbComponentLoadingError,
-  timeout: 5000,
+  timeout: 10000,
 })
 
 const viewSettings = {

@@ -156,6 +156,8 @@ export default {
     thing(val) {
       if (val) {
         this._configureNavigation()
+
+        this.$bus.$emit('device_fetched', this.thing.device_id)
       }
     },
 
@@ -299,6 +301,8 @@ export default {
       this._setBlocksHeight('detail')
 
       this._checkRoute()
+
+      this.$bus.$emit('device_fetched', this.thing.device_id)
     })
 
     this.$bus.$emit('wait-page_reloading', false)

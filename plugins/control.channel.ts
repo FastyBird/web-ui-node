@@ -6,7 +6,8 @@ import Channel, { ChannelInterface } from '~/models/devices-node/Channel'
 import ChannelProperty, { ChannelPropertyInterface } from '~/models/devices-node/ChannelProperty'
 
 import {
-  IO_SOCKET_TOPIC_DEVICE_CHANNEL_PROPERTY,
+  IO_SOCKET_TOPIC_EXCHANGE,
+  RABBIT_MQ_CHANNELS_PROPERTIES_DATA_ROUTING_KEY,
 } from '~/configuration'
 
 declare module 'vue/types/vue' {
@@ -86,17 +87,12 @@ const controlChannelPlugin: Plugin = ({ app }, inject): void => {
         },
       })
         .then((): void => {
-          let topic = IO_SOCKET_TOPIC_DEVICE_CHANNEL_PROPERTY
-          topic = topic.replace('{device_id}', device.id)
-          topic = topic.replace('{channel_id}', channel.id)
-          topic = topic.replace('{property_id}', property.id)
-
-          app.$wamp.call(topic, {
-            action: 'channel.property',
+          app.$wamp.call(IO_SOCKET_TOPIC_EXCHANGE, {
+            routing_key: RABBIT_MQ_CHANNELS_PROPERTIES_DATA_ROUTING_KEY,
             device: device.identifier,
             channel: channel.channel,
             property: property.property,
-            payload: value,
+            expected: value,
           })
             .then((result): void => {
               processCommandResult(device, channel, property, get(result, 'response') === 'accepted')

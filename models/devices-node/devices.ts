@@ -318,7 +318,7 @@ const moduleActions: ActionTree<DeviceState, any> = {
                         id,
                       })
 
-                      return dataFormatter.deserialize(result.data)
+                      return mapDeviceResponse(dataFormatter.deserialize(result.data))
                     },
                   },
                 )
@@ -420,7 +420,7 @@ const moduleActions: ActionTree<DeviceState, any> = {
                     id: updatedDevice.id,
                   })
 
-                  return dataFormatter.deserialize(result.data)
+                  return mapDeviceResponse(dataFormatter.deserialize(result.data))
                 },
               },
             )

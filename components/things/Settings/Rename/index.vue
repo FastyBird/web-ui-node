@@ -114,22 +114,23 @@ export default {
             }, {
               root: true,
             })
-              .catch((e) => {
-                if (this._.get(e, 'exception', null) !== null) {
-                  this.handleFormError(e.exception, errorMessage)
-                } else {
-                  this.$flashMessage(errorMessage, 'error')
-                }
+              .then(() => {
+                Device.dispatch('edit', {
+                  id: this.thing.device_id,
+                  data: {
+                    title: this.form.model.comment,
+                  },
+                }, {
+                  root: true,
+                })
+                  .catch((e) => {
+                    if (this._.get(e, 'exception', null) !== null) {
+                      this.handleFormError(e.exception, errorMessage)
+                    } else {
+                      this.$flashMessage(errorMessage, 'error')
+                    }
+                  })
               })
-
-            Device.dispatch('edit', {
-              id: this.thing.device_id,
-              data: {
-                title: this.form.model.comment,
-              },
-            }, {
-              root: true,
-            })
               .catch((e) => {
                 if (this._.get(e, 'exception', null) !== null) {
                   this.handleFormError(e.exception, errorMessage)

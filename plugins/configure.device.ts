@@ -5,7 +5,8 @@ import Device from '~/models/devices-node/Device'
 import DeviceConfiguration from '~/models/devices-node/DeviceConfiguration'
 
 import {
-  IO_SOCKET_TOPIC_DEVICE,
+  IO_SOCKET_TOPIC_EXCHANGE,
+  RABBIT_MQ_DEVICES_CONFIGURATION_DATA_ROUTING_KEY,
 } from '~/configuration'
 
 declare module 'vue/types/vue' {
@@ -48,20 +49,11 @@ const configureDevicePlugin: Plugin = ({ app }, inject): void => {
     }
 
     return new Promise((resolve, reject) => {
-      let topic = IO_SOCKET_TOPIC_DEVICE
-      topic = topic.replace('{device_id}', device.id)
-
-      const payload = {}
-
-      Object.defineProperty(payload, parameter.name, data)
-
-      if (parameter.isSelect && typeof data === 'string') {
-        Object.defineProperty(payload, parameter.name, parseInt(data, 10))
-      }
-
-      app.$wamp.call(topic, {
-        action: 'device.configure',
-        payload,
+      app.$wamp.call(IO_SOCKET_TOPIC_EXCHANGE, {
+        routing_key: RABBIT_MQ_DEVICES_CONFIGURATION_DATA_ROUTING_KEY,
+        device: device.identifier,
+        property: parameter.name,
+        expected: parameter.isSelect && typeof data === 'string' ? parseInt(data, 10) : data,
       })
         .then((result): void => {
           if (get(result, 'response') === 'accepted') {

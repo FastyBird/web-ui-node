@@ -45,6 +45,10 @@ interface BackendApiInterface {
   validateSecurityQuestion(payload: { id: string, answer: string }): Promise<any>
 
   requestPassword(payload: { uid: string }): Promise<any>
+
+  fetchDeviceProperties(payload: { device: string }): Promise<any>;
+
+  fetchChannelProperties(payload: { device: string, channel: string }): Promise<any>;
 }
 
 class BackendApi implements BackendApiInterface {
@@ -143,17 +147,34 @@ class BackendApi implements BackendApiInterface {
       }),
     )
   }
+
+  fetchDeviceProperties(payload: { device: string }): Promise<any> {
+    const dataFormatter = new Jsona()
+
+    return this.axios.get(`/storage-node/v1/devices/${payload.device}/properties`)
+  }
+
+  fetchChannelProperties(payload: { device: string, channel: string }): Promise<any> {
+    const dataFormatter = new Jsona()
+
+    return this.axios.get(`/storage-node/v1/devices/${payload.device}/channels/${payload.channel}/properties`)
+  }
 }
 
 const backendApiPlugin: Plugin = ({ app }, inject): void => {
-  const baseUrl = Object.prototype.hasOwnProperty.call(app.context, 'ssrContext') ? process.env.NUXT_ENV_SERVER_API_ROOT : process.env.NUXT_ENV_CLIENT_API_ROOT
+  const baseUrl = Object.prototype.hasOwnProperty.call(app.context, 'ssrContext') ? process.env.NUXT_ENV_API_TARGET : '/api'
+
+  const headers = {
+    'Content-Type': 'application/vnd.api+json',
+  }
+
+  if (Object.prototype.hasOwnProperty.call(app.context, 'ssrContext')) {
+    Object.assign(headers, { 'X-Api-Key': process.env.NUXT_ENV_API_KEY })
+  }
 
   const instance = axios.create({
     baseURL: baseUrl,
-    headers: {
-      'Content-Type': 'application/vnd.api+json',
-      'X-Api-Key': process.env.NUXT_ENV_API_KEY,
-    },
+    headers,
   })
 
   let refreshAccessTokenCall: Promise<any> | null = null

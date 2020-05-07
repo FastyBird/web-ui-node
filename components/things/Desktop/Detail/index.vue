@@ -69,8 +69,8 @@
 </template>
 
 <script>
-import FbComponentLoading from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoading'
-import FbComponentLoadingError from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoadingError'
+import FbComponentLoading from '@/node_modules/@fastybird-com/ui-theme/components/UI/FbComponentLoading'
+import FbComponentLoadingError from '@/node_modules/@fastybird-com/ui-theme/components/UI/FbComponentLoadingError'
 
 import {
   THINGS_HASH_DETAIL,
@@ -84,19 +84,19 @@ const ThingDetailDefault = () => ({
   component: import('~/components/things/Desktop/DetailDefault'),
   loading: FbComponentLoading,
   error: FbComponentLoadingError,
-  timeout: 5000,
+  timeout: 10000,
 })
 const ThingDetailButton = () => ({
   component: import('~/components/things/Desktop/DetailButton'),
   loading: FbComponentLoading,
   error: FbComponentLoadingError,
-  timeout: 5000,
+  timeout: 10000,
 })
 const ThingSettings = () => ({
   component: import('~/components/things/Settings'),
   loading: FbComponentLoading,
   error: FbComponentLoadingError,
-  timeout: 5000,
+  timeout: 10000,
 })
 
 const viewSettings = {

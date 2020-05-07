@@ -229,7 +229,7 @@ const moduleActions: ActionTree<ChannelState, any> = {
                     id: updatedChannel.id,
                   })
 
-                  return dataFormatter.deserialize(result.data)
+                  return mapChannelResponse(dataFormatter.deserialize(result.data))
                 },
               },
             )

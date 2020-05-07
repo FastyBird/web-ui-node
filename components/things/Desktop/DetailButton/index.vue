@@ -177,8 +177,8 @@
 </template>
 
 <script>
-import FbComponentLoading from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoading'
-import FbComponentLoadingError from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoadingError'
+import FbComponentLoading from '@/node_modules/@fastybird-com/ui-theme/components/UI/FbComponentLoading'
+import FbComponentLoadingError from '@/node_modules/@fastybird-com/ui-theme/components/UI/FbComponentLoadingError'
 
 import SharedButtonThing from '~/components/things/Shared/ThingButton'
 
@@ -189,13 +189,13 @@ const SelectThing = () => ({
   component: import('~/components/routines/Edit/SelectThing'),
   loading: FbComponentLoading,
   error: FbComponentLoadingError,
-  timeout: 5000,
+  timeout: 10000,
 })
 const EditAction = () => ({
   component: import('~/components/routines/Edit/EditAction'),
   loading: FbComponentLoading,
   error: FbComponentLoadingError,
-  timeout: 5000,
+  timeout: 10000,
 })
 
 const viewSettings = {

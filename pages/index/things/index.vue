@@ -55,8 +55,8 @@
 <script>
 import { orderBy } from 'natural-orderby'
 
-import FbComponentLoading from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoading'
-import FbComponentLoadingError from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoadingError'
+import FbComponentLoading from '@/node_modules/@fastybird-com/ui-theme/components/UI/FbComponentLoading'
+import FbComponentLoadingError from '@/node_modules/@fastybird-com/ui-theme/components/UI/FbComponentLoadingError'
 
 import {
   THINGS_HASH_DETAIL,
@@ -72,7 +72,7 @@ const ThingDetail = () => ({
   component: import('~/components/things/Desktop/Detail'),
   loading: FbComponentLoading,
   error: FbComponentLoadingError,
-  timeout: 5000,
+  timeout: 10000,
 })
 const ConnectThing = () => import('~/components/things/Desktop/Connect')
 
@@ -207,6 +207,8 @@ export default {
 
     things() {
       this._configureNavigation()
+
+      this.$bus.$emit('devices_fetched')
     },
 
   },
@@ -288,6 +290,8 @@ export default {
   mounted() {
     if (!this.fetchingThings) {
       this._checkRoute()
+
+      this.$bus.$emit('devices_fetched')
     }
 
     this.$bus.$emit('wait-page_reloading', false)

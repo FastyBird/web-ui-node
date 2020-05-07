@@ -86,8 +86,8 @@
 </template>
 
 <script>
-import FbComponentLoading from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoading'
-import FbComponentLoadingError from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoadingError'
+import FbComponentLoading from '@/node_modules/@fastybird-com/ui-theme/components/UI/FbComponentLoading'
+import FbComponentLoadingError from '@/node_modules/@fastybird-com/ui-theme/components/UI/FbComponentLoadingError'
 
 import {
   ROUTINES_HASH_CREATE,
@@ -108,25 +108,25 @@ const SelectThing = () => ({
   component: import('~/components/routines/Phone/SelectThing'),
   loading: FbComponentLoading,
   error: FbComponentLoadingError,
-  timeout: 5000,
+  timeout: 10000,
 })
 const EditCondition = () => ({
   component: import('~/components/routines/Phone/EditCondition'),
   loading: FbComponentLoading,
   error: FbComponentLoadingError,
-  timeout: 5000,
+  timeout: 10000,
 })
 const EditAction = () => ({
   component: import('~/components/routines/Phone/EditAction'),
   loading: FbComponentLoading,
   error: FbComponentLoadingError,
-  timeout: 5000,
+  timeout: 10000,
 })
 const EditSchedule = () => ({
   component: import('~/components/routines/Phone/EditSchedule'),
   loading: FbComponentLoading,
   error: FbComponentLoadingError,
-  timeout: 5000,
+  timeout: 10000,
 })
 
 const viewSettings = {

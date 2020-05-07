@@ -1,15 +1,14 @@
 {
-  "name": "io-server-ui",
+  "name": "web-ui-node",
   "description": "FastyBird IO server user interface",
   "version": "0.1.0",
   "author": "FastyBird s.r.o.",
   "private": true,
   "scripts": {
-    "dev": "cross-env BUILD_CONF=development nuxt-ts",
-    "staging": "cross-env BUILD_CONF=staging nuxt-ts build",
-    "build": "cross-env BUILD_CONF=production nuxt-ts build",
-    "dev:app": "cross-env NODE_ENV=development BUILD_TARGET=electron BUILD_CONF=staging node .electron/index.js",
-    "build:app": "cross-env NODE_ENV=production BUILD_TARGET=electron BUILD_CONF=production node .electron/index.js",
+    "dev": "nuxt-ts",
+    "build": "nuxt-ts build",
+    "dev:app": "cross-env NODE_ENV=development BUILD_TARGET=electron node .electron/index.js",
+    "build:app": "cross-env NODE_ENV=production BUILD_TARGET=electron node .electron/index.js",
     "start": "nuxt-ts start",
     "generate": "nuxt-ts generate",
     "lint": "eslint --ext .ts,.js,.vue --ignore-path .gitignore .",
@@ -17,7 +16,8 @@
     "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
-    "@fastybird-com/theme": "bitbucket:fastybird/fastybird-app-theme#master",
+    "@fastybird-com/json-schemas": "https://github.com/FastyBird/json-schemas.git",
+    "@fastybird-com/ui-theme": "https://github.com/FastyBird/ui-theme.git",
     "@fortawesome/free-brands-svg-icons": "^5.11.2",
     "@fortawesome/free-solid-svg-icons": "^5.11.2",
     "@nuxtjs/date-fns": "^1.1.0",

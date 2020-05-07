@@ -357,8 +357,8 @@
 </template>
 
 <script>
-import FbComponentLoading from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoading'
-import FbComponentLoadingError from '@/node_modules/@fastybird-com/theme/components/UI/FbComponentLoadingError'
+import FbComponentLoading from '@/node_modules/@fastybird-com/ui-theme/components/UI/FbComponentLoading'
+import FbComponentLoadingError from '@/node_modules/@fastybird-com/ui-theme/components/UI/FbComponentLoadingError'
 
 import {
   ROUTINES_QUERY_TYPE_SCHEDULED,
@@ -380,7 +380,7 @@ const EditSchedule = () => ({
   component: import('~/components/routines/Edit/EditSchedule'),
   loading: FbComponentLoading,
   error: FbComponentLoadingError,
-  timeout: 5000,
+  timeout: 10000,
 })
 
 const viewSettings = {

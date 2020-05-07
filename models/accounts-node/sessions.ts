@@ -203,6 +203,11 @@ const moduleActions: ActionTree<SessionState, any> = {
         return
       }
 
+      const storedSession = Session
+        .query()
+        .where('refresh', payload.refresh_token)
+        .first()
+
       const entity = {
         type: ACCOUNTS_NODE_SESSION,
 
@@ -245,6 +250,23 @@ const moduleActions: ActionTree<SessionState, any> = {
             .forEach((row): void => {
               Session.delete(row.id)
             })
+
+          if (storedSession !== null) {
+            const account = Account
+              .query()
+              .where('session_id', storedSession.id)
+              .first()
+
+            if (account !== null) {
+              Account
+                .update({
+                  where: account.id,
+                  data: {
+                    session_id: session.id,
+                  },
+                })
+            }
+          }
 
           // Entity was successfully updated in database
           resolve(session)

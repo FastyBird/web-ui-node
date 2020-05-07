@@ -6,7 +6,8 @@ import Channel from '~/models/devices-node/Channel'
 import ChannelConfiguration from '~/models/devices-node/ChannelConfiguration'
 
 import {
-  IO_SOCKET_TOPIC_DEVICE_CHANNEL,
+  IO_SOCKET_TOPIC_EXCHANGE,
+  RABBIT_MQ_CHANNELS_CONFIGURATION_DATA_ROUTING_KEY,
 } from '~/configuration'
 
 declare module 'vue/types/vue' {
@@ -59,21 +60,12 @@ const configureChannelPlugin: Plugin = ({ app }, inject): void => {
     }
 
     return new Promise((resolve, reject) => {
-      let topic = IO_SOCKET_TOPIC_DEVICE_CHANNEL
-      topic = topic.replace('{device_id}', device.id)
-      topic = topic.replace('{channel_id}', channel.id)
-
-      const payload = {}
-
-      Object.defineProperty(payload, parameter.name, data)
-
-      if (parameter.isSelect && typeof data === 'string') {
-        Object.defineProperty(payload, parameter.name, parseInt(data, 10))
-      }
-
-      app.$wamp.call(topic, {
-        action: 'device.configure',
-        payload,
+      app.$wamp.call(IO_SOCKET_TOPIC_EXCHANGE, {
+        routing_key: RABBIT_MQ_CHANNELS_CONFIGURATION_DATA_ROUTING_KEY,
+        device: device.identifier,
+        channel: channel.channel,
+        property: parameter.name,
+        expected: parameter.isSelect && typeof data === 'string' ? parseInt(data, 10) : data,
       })
         .then((result): void => {
           if (get(result, 'response') === 'accepted') {
