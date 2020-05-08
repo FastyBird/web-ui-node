@@ -179,6 +179,25 @@ const backendApiPlugin: Plugin = ({ app }, inject): void => {
 
   let refreshAccessTokenCall: Promise<any> | null = null
 
+  let pendingRequests = 0
+
+  const MAX_REQUESTS_COUNT = 1
+  const MAX_REQUESTS_COUNT_DELAY = 10
+
+  instance.interceptors.request.use((request: AxiosRequestConfig): Promise<any> => {
+    return new Promise((resolve) => {
+      const interval = setInterval(() => {
+        if (pendingRequests < MAX_REQUESTS_COUNT) {
+          pendingRequests++
+
+          clearInterval(interval)
+
+          resolve(request)
+        }
+      }, MAX_REQUESTS_COUNT_DELAY)
+    })
+  })
+
   // Set basic headers
   instance.interceptors.request.use((request: AxiosRequestConfig): AxiosRequestConfig => {
     const tokenCookie = app.$cookies.get('token')
@@ -198,9 +217,16 @@ const backendApiPlugin: Plugin = ({ app }, inject): void => {
 
   // Add a response interceptor
   instance.interceptors.response.use((response: AxiosResponse): AxiosResponse => {
+    pendingRequests = Math.max(0, pendingRequests - 1)
+
     return response
   }, (error): Promise<any> => {
     const originalRequest = error.config
+
+    // Concurrent request check only for client side
+    if (process.client) {
+      pendingRequests = Math.max(0, pendingRequests - 1)
+    }
 
     if (
       parseInt(get(error, 'response.status', 200), 10) === 401 &&
