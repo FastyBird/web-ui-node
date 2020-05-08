@@ -292,8 +292,6 @@ export default {
 
     isSignedIn(val) {
       if (val && this.networkState) {
-        this.$wamp.open()
-
         if (this.loadingOverlay) {
           this.$nextTick(() => {
             this.loadingOverlay = false
@@ -420,6 +418,8 @@ export default {
 
       this.$nextTick(() => {
         this.signLayout = false
+
+        this.$wamp.open()
       })
     })
 

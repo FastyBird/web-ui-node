@@ -190,7 +190,7 @@ export default {
                   this.$cookies.set('refresh_token', session.refresh)
                 }
 
-                this.$bus.$emit('user_signed-in', false)
+                this.$bus.$emit('user_signed-in')
               })
               .catch((e) => {
                 this.$bus.$emit('wait-page_reloading', false)

@@ -179,7 +179,7 @@ export const USER_MENU_ITEMS = [
         root: true,
       })
 
-      context.$bus.$emit('user_signed-out', true)
+      context.$bus.$emit('user_signed-out')
     },
     meta: {
       icon: 'sign-out-alt',
