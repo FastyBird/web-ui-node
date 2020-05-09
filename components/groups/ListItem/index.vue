@@ -1,6 +1,6 @@
 <template>
   <list-item
-    class="fb-iot-groups-list-item__container"
+    class="fb-groups-list-item__container"
     @click="oneClick"
   >
     <template slot="icon">
@@ -8,7 +8,7 @@
     </template>
 
     <template slot="heading">
-      {{ group.label }}
+      {{ group.name }}
     </template>
 
     <template

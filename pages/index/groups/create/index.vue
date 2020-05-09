@@ -1,5 +1,5 @@
 <template>
-  <div class="fb-iot-groups-group-create-view__container">
+  <div class="fb-groups-group-create-view__container">
     <groups-create-group />
   </div>
 </template>

@@ -2,7 +2,7 @@
   <content-loading
     v-if="fetchingThings || !thing"
     :height="53"
-    class="fb-iot-things-detail-button-trigger-action__preloading"
+    class="fb-things-detail-button-trigger-action__preloading"
   >
     <circle
       cx="25"
@@ -49,7 +49,7 @@
     </template>
 
     <template slot="sub-heading">
-      <span class="fb-iot-things-detail-button-trigger-action__action">{{ $t(`things.triggers.${action.value}`, { property: $tChannelProperty(thing, property).toLowerCase() }) }}</span>
+      <span class="fb-things-detail-button-trigger-action__action">{{ $t(`things.triggers.${action.value}`, { property: $tChannelProperty(thing, property).toLowerCase() }) }}</span>
     </template>
 
     <template slot="detail-large">

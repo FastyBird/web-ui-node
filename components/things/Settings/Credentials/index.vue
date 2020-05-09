@@ -99,7 +99,7 @@ export default {
     return {
       credentials: null,
       form: {
-        scope: 'io_server_thing_edit_credentials',
+        scope: 'thing_edit_credentials',
         model: {
           username: null,
           password: null,

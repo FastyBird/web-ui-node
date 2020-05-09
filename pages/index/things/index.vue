@@ -1,6 +1,6 @@
 <template>
-  <div class="fb-iot-things-list-view__container">
-    <div class="fb-iot-things-list-view__items-container">
+  <div class="fb-things-list-view__container">
+    <div class="fb-things-list-view__items-container">
       <thing-list-item
         v-for="thing in things"
         :key="thing.id"
@@ -39,7 +39,7 @@
         icon="plug"
       />
 
-      <div class="fb-iot-things-list-view__new-thing">
+      <div class="fb-things-list-view__new-thing">
         <fb-button
           variant="outline-primary"
           name="press"

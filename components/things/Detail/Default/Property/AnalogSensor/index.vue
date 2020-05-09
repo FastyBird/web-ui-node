@@ -6,14 +6,14 @@
   >
     <div
       slot="property"
-      class="fb-iot-things-detail-analog-sensor__value-container"
+      class="fb-things-detail-analog-sensor__value-container"
     >
       <template v-if="thing.state">
-        <span class="fb-iot-things-detail-analog-sensor__value">{{ value }}</span>
-        <span class="fb-iot-things-detail-analog-sensor__unit">{{ property.unit }}</span>
+        <span class="fb-things-detail-analog-sensor__value">{{ value }}</span>
+        <span class="fb-things-detail-analog-sensor__unit">{{ property.unit }}</span>
       </template>
       <template v-else>
-        <span class="fb-iot-things-detail-analog-sensor__value">{{ $t('application.states.notAvailable') }}</span>
+        <span class="fb-things-detail-analog-sensor__value">{{ $t('application.states.notAvailable') }}</span>
       </template>
 
       <fb-button

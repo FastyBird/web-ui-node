@@ -1,7 +1,7 @@
 <template>
   <list-item
     :data-state="thing.state ? 'on' : 'off'"
-    class="fb-iot-things-detail-property__container"
+    class="fb-things-detail-property__container"
   >
     <template slot="icon">
       <template v-if="slotExists('icon')">

@@ -1,17 +1,17 @@
 <template>
   <div
     :data-state="thing.state ? 'on' : 'off'"
-    class="fb-iot-things-detail-channel-light__container"
+    class="fb-things-detail-channel-light__container"
   >
     <property-container
       v-if="hasSwitch"
       :thing="thing"
-      class="fb-iot-things-detail-channel-light__channel"
+      class="fb-things-detail-channel-light__channel"
     >
       <template slot="icon">
         <font-awesome-icon
           icon="lightbulb"
-          class="fb-iot-things-channels-light__channel-icon m-t-md"
+          class="fb-things-channels-light__channel-icon m-t-md"
         />
       </template>
 
@@ -22,18 +22,18 @@
 
     <property-container
       :thing="thing"
-      class="fb-iot-things-detail-channel-light__channel"
+      class="fb-things-detail-channel-light__channel"
     >
       <template slot="icon">
         <font-awesome-icon
           icon="lightbulb"
-          class="fb-iot-things-channels-light__channel-icon m-t-md"
+          class="fb-things-channels-light__channel-icon m-t-md"
         />
       </template>
 
       <div
         slot="name"
-        class="fb-iot-things-detail-channel-light__heading"
+        class="fb-things-detail-channel-light__heading"
       >
         <h5 class="fw-b m-y-0">
           {{ $t('channels.light.title') }}
@@ -45,7 +45,7 @@
         slot="channel"
         @click.prevent="showSettings()"
       >
-        <div class="fb-iot-things-detail-channel-light__preview sq-36 cursor-pointer text-center">
+        <div class="fb-things-detail-channel-light__preview sq-36 cursor-pointer text-center">
           <template v-if="!thing.state">
             {{ $t('application.states.notAvailable') }}
           </template>
@@ -55,12 +55,12 @@
 
     <property-container
       :thing="thing"
-      class="fb-iot-things-detail-channel-light__channel fb-iot-things-detail-channel-light__channel-brightness"
+      class="fb-things-detail-channel-light__channel fb-things-detail-channel-light__channel-brightness"
     >
       <template slot="icon">
         <font-awesome-icon
           icon="sun"
-          class="fb-iot-things-channels-light__channel-icon m-t-md"
+          class="fb-things-channels-light__channel-icon m-t-md"
         />
       </template>
 

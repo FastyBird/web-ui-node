@@ -14,13 +14,15 @@
         path="groups.messages.confirmRemove"
         tag="p"
       >
-        <strong slot="group">{{ group.label }}</strong>
+        <strong slot="group">{{ group.name }}</strong>
       </i18n>
     </template>
   </fb-confirmation-window>
 </template>
 
 <script>
+import Group from '~/models/devices-node/Group'
+
 export default {
 
   name: 'GroupsSettingsGroupRemove',
@@ -54,13 +56,11 @@ export default {
       event && event.preventDefault()
 
       const errorMessage = this.$t('groups.messages.notRemoved', {
-        group: this.group.label,
+        group: this.group.name,
       })
 
-      this.$store.dispatch('entities/group/remove', {
+      Group.dispatch('remove', {
         id: this.group.id,
-      }, {
-        root: true,
       })
         .catch((e) => {
           if (this._.get(e, 'exception', null) !== null) {
@@ -70,9 +70,7 @@ export default {
           }
         })
 
-      this.$emit('close')
-
-      this.$router.push(this.localePath(this.$routes.groups.list))
+      this.$emit('removed')
     },
 
     /**

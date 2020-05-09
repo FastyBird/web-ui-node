@@ -1,5 +1,5 @@
 <template>
-  <div class="fb-iot-things-detail-button__container">
+  <div class="fb-things-detail-button__container">
     <fb-loading-box
       v-if="fetchingTriggers || !triggersLoaded"
       :text="$t('things.texts.loadingTriggers')"
@@ -13,7 +13,7 @@
           second-icon="plus"
         />
 
-        <div class="fb-iot-things-detail-button__new-action">
+        <div class="fb-things-detail-button__new-action">
           <fb-button
             variant="outline-primary"
             name="press"

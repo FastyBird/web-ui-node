@@ -1,7 +1,7 @@
 <template>
-  <div class="fb-iot-groups-group-detail-view__container">
+  <div class="fb-groups-group-detail-view__container">
     <fb-loading-box
-      v-if="(fetchingGroup && group === null) || fetchingThings"
+      v-if="fetchingGroup && group === null"
       :text="$t('groups.texts.loadingGroup')"
     />
 
@@ -17,8 +17,8 @@
         ref="settings"
         v-body-scroll-lock="true"
         :group="group"
-        class="fb-iot-groups-group-detail-view__container-settings"
-        @removed="thingRemoved"
+        class="fb-groups-group-detail-view__container-settings"
+        @removed="groupRemoved"
       />
     </template>
   </div>
@@ -34,8 +34,29 @@ import {
   GROUPS_HASH_SETTINGS,
 } from '~/configuration/routes'
 
+import Group from '~/models/devices-node/Group'
+import Thing from '~/models/things/Thing'
+
 import GroupDetail from '~/components/groups/Detail'
 import GroupSettings from '~/components/groups/Settings'
+
+const viewSettings = {
+  opened: 'detail', // Detail is by default
+  items: {
+    detail: {
+      name: 'detail',
+      route: {
+        hash: GROUPS_HASH_DETAIL,
+      },
+    },
+    settings: {
+      name: 'settings',
+      route: {
+        hash: GROUPS_HASH_SETTINGS,
+      },
+    },
+  },
+}
 
 export default {
 
@@ -51,7 +72,7 @@ export default {
   data() {
     return {
       id: this.$route.params.id,
-      settings: false,
+      view: Object.assign({}, viewSettings),
     }
   },
 
@@ -70,9 +91,7 @@ export default {
      * @returns {Group}
      */
     group() {
-      return this.$store.getters['entities/group/query']()
-        .where('id', this.id)
-        .first()
+      return Group.find(this.id)
     },
 
     /**
@@ -81,12 +100,10 @@ export default {
      * @returns {Array}
      */
     things() {
-      const items = this.$store.getters['entities/thing/query']()
+      const items = Thing
+        .query()
         .with('device')
-        .with('device.properties')
-        .with('device.socket')
         .with('channel')
-        .with('channel.properties')
         .where('channel_id', this.group.channels_ids)
         .get()
 
@@ -106,7 +123,7 @@ export default {
      * @returns {Boolean}
      */
     fetchingGroups() {
-      return this.$store.getters['entities/group/fetching']()
+      return Group.getters('fetching')()
     },
 
     /**
@@ -115,7 +132,7 @@ export default {
      * @returns {Boolean}
      */
     fetchingGroup() {
-      return this.$store.getters['entities/group/getting'](this.id)
+      return Group.getters('getting')(this.id)
     },
 
     /**
@@ -124,12 +141,18 @@ export default {
      * @returns {Boolean}
      */
     fetchingThings() {
-      return this.$store.getters['entities/thing/fetching']()
+      return Thing.getters('fetching')()
     },
 
   },
 
   watch: {
+
+    group(val) {
+      if (val) {
+        this._configureNavigation()
+      }
+    },
 
     windowSize(val) {
       if (val !== 'xs') {
@@ -153,11 +176,7 @@ export default {
       if (!val) {
         if (this.group === null) {
           this.$nuxt.error({ statusCode: 404, message: 'Group Not Found' })
-
-          return
         }
-
-        this._configureNavigation()
       }
     },
 
@@ -171,39 +190,53 @@ export default {
         root: true,
       })
         .then(() => {
-          const group = store.getters['entities/group/find'](params.id)
+          const group = Group.find(params.id)
 
-          store.dispatch('template/resetStore', null, {
-            root: true,
-          })
+          if (group) {
+            store.dispatch('template/resetHeadings', null, {
+              root: true,
+            })
 
-          store.dispatch('template/setLeftButton', {
-            name: app.i18n.t('application.buttons.back.title'),
-            icon: 'arrow-left',
-          }, {
-            root: true,
-          })
+            store.dispatch('template/resetButtons', null, {
+              root: true,
+            })
 
-          store.dispatch('template/setFullRowHeading', null, {
-            root: true,
-          })
+            store.dispatch('template/setLeftButton', {
+              name: app.i18n.t('application.buttons.back.title'),
+              icon: 'arrow-left',
+            }, {
+              root: true,
+            })
 
-          store.dispatch('template/setHeading', {
-            heading: group.label,
-            subHeading: group.comment,
-          }, {
-            root: true,
-          })
+            store.dispatch('template/setRightButton', {
+              name: app.i18n.t('application.buttons.edit.title'),
+            }, {
+              root: true,
+            })
 
-          store.dispatch('template/setHeadingIcon', {
-            icon: app.$groupIcon(group),
-          }, {
-            root: true,
-          })
+            store.dispatch('template/setFullRowHeading', null, {
+              root: true,
+            })
 
-          store.dispatch('app/bottomMenuExpand', null, {
-            root: true,
-          })
+            store.dispatch('template/setHeading', {
+              heading: group.name,
+              subHeading: group.comment,
+            }, {
+              root: true,
+            })
+
+            store.dispatch('template/setHeadingIcon', {
+              icon: app.$groupIcon(group),
+            }, {
+              root: true,
+            })
+
+            store.dispatch('app/bottomMenuCollapse', null, {
+              root: true,
+            })
+          } else {
+            error({ statusCode: 404, message: 'Group Not Found' })
+          }
         })
         .catch((e) => {
           if (get(e, 'exception.response.status', 0) === 404) {
@@ -219,22 +252,20 @@ export default {
     if (this.windowSize !== null && this.windowSize !== 'xs') {
       this.$router.push(this.localePath({
         name: this.$routes.groups.list,
-        hash: `${GROUPS_HASH_DETAIL}-${this.id}`,
+        hash: `${GROUPS_HASH_SETTINGS}-${this.id}`,
       }))
 
       return
     }
 
     if (
-      this.$store.getters['entities/group/query']().count() === 0 &&
+      Group.query().count() === 0 &&
       !this.fetchingGroups &&
       !this.fetchingGroup &&
-      !this.$store.getters['entities/group/firstLoadFinished']()
+      !Group.getters('firstLoadFinished')()
     ) {
-      this.$store.dispatch('entities/group/get', {
+      Group.dispatch('get', {
         id: this.id,
-      }, {
-        root: true,
       })
         .catch((e) => {
           if (this._.get(e, 'exception.response.status', 0) === 404) {
@@ -248,11 +279,9 @@ export default {
     if (
       this.things.length === 0 &&
       !this.fetchingThings &&
-      !this.$store.getters['entities/thing/firstLoadFinished'](this.id)
+      !Thing.getters('firstLoadFinished')()
     ) {
-      this.$store.dispatch('entities/thing/fetch', null, {
-        root: true,
-      })
+      Thing.dispatch('fetch')
         .catch(() => {
           this.$nuxt.error({ statusCode: 503, message: 'Something went wrong' })
         })
@@ -260,33 +289,34 @@ export default {
 
     if (!this.fetchingGroup && !this.fetchingGroups && this.group === null) {
       this.$nuxt.error({ statusCode: 404, message: 'Group Not Found' })
-
-      return
     }
 
     if (this.group) {
       this._configureNavigation()
     }
-
-    this.$bus.$on('heading_left_button-clicked', () => {
-      this.$router.push(this.localePath(this.$routes.groups.list))
-    })
   },
 
   mounted() {
-    this._checkRoute()
+    this.$nextTick(() => {
+      this._setBlocksHeight('detail')
 
-    this._setBlocksHeight('detail')
+      this._checkRoute()
+    })
 
-    window.addEventListener('scroll', this._windowScrolledHandler)
+    this.$bus.$emit('wait-page_reloading', false)
+
     window.addEventListener('resize', this._windowResizeHandler)
   },
 
-  beforeDestroy() {
-    this.$bus.$off('heading_left_button-clicked')
-    this.$bus.$off('heading_right_button-clicked')
+  updated() {
+    this._setBlocksHeight('detail')
+  },
 
-    window.removeEventListener('scroll', this._windowScrolledHandler)
+  beforeDestroy() {
+    this.$bus.$off('heading_left_button-clicked', this.leftButtonAction)
+    this.$bus.$off('heading_right_button-clicked', this.rightButtonAction)
+    this.$bus.$off('heading_action_button-clicked', this.actionButtonAction)
+
     window.removeEventListener('resize', this._windowResizeHandler)
   },
 
@@ -300,52 +330,99 @@ export default {
     },
 
     /**
-     * Open thing settings part
+     * Open selected view
+     *
+     * @param {String} view
      */
-    _openSettings() {
-      this.$set(this, 'settings', true)
+    openView(view) {
+      if (Object.prototype.hasOwnProperty.call(this.view.items, view)) {
+        switch (view) {
+          case this.view.items.settings.name:
+            this.view.opened = view
 
-      this.$nextTick(() => {
-        if (this._.get(this.$refs, 'settings')) {
-          const component = this._.get(this.$refs, 'settings')
+            this.$nextTick(() => {
+              if (this._.get(this.$refs, 'settings')) {
+                const component = this._.get(this.$refs, 'settings')
 
-          this._setBlocksHeight('settings', 'height')
+                this._setBlocksHeight('settings')
 
-          // Scroll view to setting part
-          this.$scrollTo(component.$el, 500, {
-            offset: (-1 * this.$store.state.template.marginTop),
-          })
+                // Scroll view to setting part
+                this.$scrollTo(component.$el, 500, {
+                  container: '.fb-default-layout__content',
+                  onDone: () => {
+                    this.$router.push(this.localePath({
+                      name: this.$routes.groups.detail,
+                      params: {
+                        id: this.id,
+                      },
+                      hash: this.view.items.settings.route.hash,
+                    }), () => {
+                      // Reconfigure navigation after changes
+                      this._configureNavigation()
+                    })
+                  },
+                })
+              }
+            })
+            break
+
+          case this.view.items.detail.name:
+            if (this._.get(this.$refs, 'detail')) {
+              const component = this._.get(this.$refs, 'detail')
+
+              this.$scrollTo(component.$el, 500, {
+                container: '.fb-default-layout__content',
+                onDone: () => {
+                  this.$router.push(this.localePath({
+                    name: this.$routes.groups.detail,
+                    params: {
+                      id: this.id,
+                    },
+                  }), () => {
+                    // Reconfigure navigation after changes
+                    this._configureNavigation()
+                  })
+
+                  this.view.opened = view
+                },
+              })
+            } else {
+              this.$router.push(this.localePath({
+                name: this.$routes.groups.detail,
+                params: {
+                  id: this.id,
+                },
+              }))
+
+              this.view.opened = view
+
+              // Reconfigure navigation after changes
+              this._configureNavigation()
+            }
+            break
         }
-      })
-    },
-
-    /**
-     * Close thing settings part
-     */
-    _closeSettings() {
-      if (this._.get(this.$refs, 'detail')) {
-        const component = this._.get(this.$refs, 'detail')
-
-        this.$scrollTo(component.$el, 500, {
-          offset: (-1 * this.$store.state.template.marginTop),
-          onDone: () => {
-            this.$set(this, 'settings', false)
-            this._configureNavigationRightButton()
-          },
-        })
       }
     },
 
     /**
-     * Check route and if is needed open detail window
-     *
-     * @private
+     * Header left button action event
      */
-    _checkRoute() {
-      if (this.$route.hash !== '') {
-        if (this.$route.hash.includes(GROUPS_HASH_SETTINGS)) {
-          this._openSettings()
-        }
+    leftButtonAction() {
+      if (this.windowSize === 'xs') {
+        this.$bus.$emit('wait-page_reloading', 10)
+      }
+
+      this.$router.push(this.localePath({ name: this.$routes.groups.list }))
+    },
+
+    /**
+     * Header right button action event
+     */
+    rightButtonAction() {
+      if (this.view.opened === this.view.items.settings.name) {
+        this.openView(this.view.items.detail.name)
+      } else {
+        this.openView(this.view.items.settings.name)
       }
     },
 
@@ -355,7 +432,11 @@ export default {
      * @private
      */
     _configureNavigation() {
-      this.$store.dispatch('template/resetStore', null, {
+      this.$store.dispatch('template/resetHeadings', null, {
+        root: true,
+      })
+
+      this.$store.dispatch('template/resetButtons', null, {
         root: true,
       })
 
@@ -366,12 +447,26 @@ export default {
         root: true,
       })
 
+      if (this.view.opened === this.view.items.settings.name) {
+        this.$store.dispatch('template/setRightButton', {
+          name: this.$t('application.buttons.close.title'),
+        }, {
+          root: true,
+        })
+      } else if (this.view.opened === this.view.items.detail.name || this.view.opened === this.view.items.type.name) {
+        this.$store.dispatch('template/setRightButton', {
+          name: this.$t('application.buttons.edit.title'),
+        }, {
+          root: true,
+        })
+      }
+
       this.$store.dispatch('template/setFullRowHeading', null, {
         root: true,
       })
 
       this.$store.dispatch('template/setHeading', {
-        heading: this.group.label,
+        heading: this.group.name,
         subHeading: this.group.comment,
       }, {
         root: true,
@@ -383,129 +478,17 @@ export default {
         root: true,
       })
 
-      this.$store.dispatch('app/bottomMenuExpand', null, {
-        root: true,
-      })
-    },
-
-    /**
-     * Configure page header right navigation button
-     *
-     * @private
-     */
-    _configureNavigationRightButton() {
-      this.$store.dispatch('template/setLeftButton', {
-        name: this.$t('application.buttons.back.title'),
-        icon: 'arrow-left',
-      }, {
+      this.$store.dispatch('app/bottomMenuCollapse', null, {
         root: true,
       })
 
-      if (
-        this.settings &&
-        this._.get(this.$refs, 'settings') &&
-        this._.get(this.$refs, 'settings.$el').getBoundingClientRect().top <= (this.$store.state.template.marginTop + 1)
-      ) {
-        this.$store.dispatch('template/setRightButton', {
-          name: this.$t('application.buttons.close.title'),
-        }, {
-          root: true,
-        })
+      // Clear actions
+      this.$bus.$off('heading_left_button-clicked')
+      this.$bus.$off('heading_right_button-clicked')
 
-        this._setOpenedSettingsRoute()
-      } else {
-        this.$store.dispatch('template/setRightButton', {
-          name: this.$t('application.buttons.edit.title'),
-        }, {
-          root: true,
-        })
-
-        this._setClosedSettingsRoute()
-      }
-
-      this.$bus.$on('heading_right_button-clicked', () => {
-        if (
-          this.settings &&
-          this._.get(this.$refs, 'settings') &&
-          this._.get(this.$refs, 'settings.$el').getBoundingClientRect().top <= (this.$store.state.template.marginTop + 1)
-        ) {
-          this._closeSettings()
-        } else {
-          this._openSettings()
-        }
-      })
-    },
-
-    /**
-     * Update view according to view position
-     *
-     * @private
-     */
-    _windowScrolledHandler() {
-      this._configureNavigationRightButton()
-    },
-
-    /**
-     * Update blocks height according to resized window
-     *
-     * @private
-     */
-    _windowResizeHandler() {
-      this._setBlocksHeight('detail')
-      this._setBlocksHeight('settings', 'height')
-
-      if (this.settings && this._.get(this.$refs, 'settings')) {
-        const component = this._.get(this.$refs, 'settings')
-
-        this.$scrollTo(component.$el, 1, {
-          offset: (-1 * this.$store.state.template.marginTop),
-        })
-      }
-    },
-
-    /**
-     * Set component height by reference
-     *
-     * @param {String} block
-     * @param {String} attribute
-     *
-     * @private
-     */
-    _setBlocksHeight(block, attribute = 'minHeight') {
-      if (this._.get(this.$refs, block)) {
-        const component = this._.get(this.$refs, block)
-
-        component.$el.style[attribute] = `${document.querySelector('body').clientHeight}px`
-      }
-    },
-
-    /**
-     * Change route accordingly to view position
-     *
-     * @private
-     */
-    _setOpenedSettingsRoute() {
-      this.$router.push(this.localePath({
-        name: this.$routes.groups.detail,
-        params: {
-          id: this.id,
-        },
-        hash: GROUPS_HASH_SETTINGS,
-      }))
-    },
-
-    /**
-     * Change route accordingly to view position
-     *
-     * @private
-     */
-    _setClosedSettingsRoute() {
-      this.$router.push(this.localePath({
-        name: this.$routes.groups.detail,
-        params: {
-          id: this.id,
-        },
-      }))
+      // Reassign actions
+      this.$bus.$on('heading_left_button-clicked', this.leftButtonAction)
+      this.$bus.$on('heading_right_button-clicked', this.rightButtonAction)
     },
 
   },
@@ -516,7 +499,7 @@ export default {
 
   head() {
     return {
-      title: this.$t('meta.groups.detail.title', { group: this.group.label }),
+      title: this.$t('meta.groups.detail.title', { group: this.group.name }),
     }
   },
 

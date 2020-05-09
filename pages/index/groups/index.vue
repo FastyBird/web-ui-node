@@ -1,6 +1,6 @@
 <template>
-  <div class="fb-iot-groups-list-view__container">
-    <div class="fb-iot-groups-list-view__items-container">
+  <div class="fb-groups-list-view__container">
+    <div class="fb-groups-list-view__items-container">
       <group-list-item
         v-for="group in groups"
         :key="group.id"
@@ -9,72 +9,18 @@
       />
     </div>
 
-    <!-- DEVICE DETAIL FOR LARGE DEVICES //-->
     <off-canvas
       v-if="windowSize !== 'xs' && isMounted"
-      :show="(view.opened.type === view.detail.name || view.opened.type === view.settings.name) && windowSize !== 'xs'"
-      @close="closeView(view.opened.type)"
+      :show="view.opened === view.items.detail.name || view.opened === view.items.settings.name"
+      @close="closeView"
     >
-      <off-canvas-body
-        v-if="view.opened.type !== null && windowSize !== 'xs'"
+      <group-detail
+        v-if="view.opened === view.items.detail.name || view.opened === view.items.settings.name"
+        :id="view.opened === view.items.detail.name ? view.items.detail.id : view.items.settings.id"
         slot="body"
-        :heading="detailHeading"
-        :sub-heading="detailSubHeading"
-      >
-        <template slot="left-button">
-          <button
-            class="button"
-            @click.prevent="handleDetailLeftButton"
-          >
-            <font-awesome-icon
-              v-if="view.opened.type === view.detail.name"
-              icon="times"
-            />
-            <font-awesome-icon
-              v-else
-              icon="arrow-lef"
-            />
-          </button>
-        </template>
-
-        <template slot="right-button">
-          <button
-            v-if="view.opened.type === view.detail.name"
-            class="button"
-            @click.prevent="openView(view.settings.name, viewGroup.id)"
-          >
-            <font-awesome-icon icon="cogs" />
-          </button>
-          <button
-            v-if="view.opened.type === view.settings.name"
-            class="button"
-            @click.prevent="closeView(view.opened.type)"
-          >
-            <font-awesome-icon icon="times" />
-          </button>
-        </template>
-        {{ view.opened.type }}
-        <transition
-          slot="body"
-          name="fade"
-          mode="out-in"
-        >
-          <group-detail
-            v-if="viewDevice !== null && view.opened.type === view.detail.name"
-            :group="viewDevice"
-            :style="`height: ${offCanvasHeight}px`"
-            class="fb-iot-groups-list-view__off-canvas-body"
-          />
-
-          <group-settings
-            v-if="viewDevice !== null && view.opened.type === view.settings.name"
-            :group="viewDevice"
-            :style="`height: ${offCanvasHeight}px`"
-            class="fb-iot-groups-list-view__off-canvas-body"
-            @removed="closeView(view.opened.type)"
-          />
-        </transition>
-      </off-canvas-body>
+        :settings="view.opened === view.items.settings.name"
+        @close="closeView"
+      />
     </off-canvas>
 
     <fb-loading-box
@@ -88,7 +34,7 @@
         icon="folder"
       />
 
-      <div class="fb-routines-list-view__new-routine">
+      <div class="fb-groups-list-view__new-group">
         <fb-button
           variant="outline-primary"
           name="press"
@@ -106,38 +52,50 @@ import FbComponentLoading from '@/node_modules/@fastybird-com/ui-theme/component
 import FbComponentLoadingError from '@/node_modules/@fastybird-com/ui-theme/components/UI/FbComponentLoadingError'
 
 import {
-  GROUPS_GROUP_SETTINGS_LINK,
-
   GROUPS_HASH_DETAIL,
   GROUPS_HASH_SETTINGS,
   GROUPS_HASH_CREATE,
 } from '~/configuration/routes'
 
+import Group from '~/models/devices-node/Group'
+
 import GroupListItem from '~/components/groups/ListItem'
 
-// Off canvas details view
-import OffCanvas from '~/components/layout/OffCanvas'
-
-import NoResults from '~/components/layout/NoResults'
-
 const GroupDetail = () => ({
-  component: import('~/components/groups/Detail'),
+  component: import('~/components/groups/Desktop/Detail'),
   loading: FbComponentLoading,
   error: FbComponentLoadingError,
   timeout: 10000,
 })
-const GroupSettings = () => ({
-  component: import('~/components/groups/Settings'),
-  loading: FbComponentLoading,
-  error: FbComponentLoadingError,
-  timeout: 10000,
-})
-const OffCanvasBody = () => ({
-  component: import('~/components/layout/OffCanvas/Body'),
-  loading: FbComponentLoading,
-  error: FbComponentLoadingError,
-  timeout: 10000,
-})
+
+const viewSettings = {
+  opened: null,
+  items: {
+    create: {
+      name: 'create',
+      route: {
+        hash: GROUPS_HASH_CREATE,
+        length: 7,
+      },
+    },
+    detail: {
+      name: 'detail',
+      id: null,
+      route: {
+        hash: GROUPS_HASH_DETAIL,
+        length: 8,
+      },
+    },
+    settings: {
+      name: 'settings',
+      id: null,
+      route: {
+        hash: GROUPS_HASH_SETTINGS,
+        length: 10,
+      },
+    },
+  },
+}
 
 export default {
 
@@ -145,58 +103,20 @@ export default {
 
   components: {
     GroupListItem,
-    GroupDetail,
-    GroupSettings,
 
-    OffCanvas,
-    OffCanvasBody,
-    NoResults,
+    GroupDetail,
   },
 
   transition: 'fade',
 
   data() {
     return {
-      loading: {
-        detail: null,
-      },
-      view: {
-        opened: {
-          type: null,
-        },
-        create: {
-          name: 'create',
-          type: undefined,
-          id: null,
-          route: {
-            hash: GROUPS_HASH_CREATE,
-            length: 8,
-          },
-        },
-        detail: {
-          name: 'detail',
-          type: undefined,
-          id: null,
-          route: {
-            hash: GROUPS_HASH_DETAIL,
-            length: 8,
-          },
-        },
-        settings: {
-          name: 'settings',
-          id: null,
-          route: {
-            hash: GROUPS_HASH_SETTINGS,
-            length: 10,
-          },
-        },
-      },
+      view: Object.assign({}, viewSettings),
       click: {
         delay: 200,
         clicks: 0,
         timer: null,
       },
-      offCanvasHeight: null,
       isMounted: false,
     }
   },
@@ -213,41 +133,13 @@ export default {
     /**
      * Get all registered & loaded groups
      *
-     * @returns {Array}
+     * @returns {Array<Group>}
      */
     groups() {
-      return this.$store.getters['entities/group/query']()
-        .with('properties')
-        .with('socket')
+      return Group
+        .query()
         .orderBy('label')
         .get()
-    },
-
-    /**
-     * View group data
-     *
-     * @returns {(Group|null)}
-     */
-    viewGroup() {
-      if (this.view.opened.type === null) {
-        return null
-      }
-
-      let groupId = 0
-
-      switch (this.view.opened.type) {
-        case this.view.detail.name:
-          groupId = this.view.detail.id
-          break
-
-        case this.view.settings.name:
-          groupId = this.view.settings.id
-          break
-      }
-
-      return this.$store.getters['entities/group/query']()
-        .where('id', groupId)
-        .first()
     },
 
     /**
@@ -256,78 +148,36 @@ export default {
      * @returns {Boolean}
      */
     fetchingGroups() {
-      return this.$store.getters['entities/group/fetching']()
-    },
-
-    /**
-     * Get detail window heading
-     *
-     * @returns {String}
-     */
-    detailHeading() {
-      if (this.view.opened.type === this.view.detail.name) {
-        return this.viewGroup.label
-      } else if (this.view.opened.type === this.view.settings.name) {
-        return this.viewGroup.label
-      }
-
-      return 'N/A'
-    },
-
-    /**
-     * Get detail window sub-heading
-     *
-     * @returns {(String|null)}
-     */
-    detailSubHeading() {
-      if (this.view.opened.type === this.view.detail.name) {
-        return this.viewGroup.hasComment ? this.viewGroup.comment : null
-      } else if (this.view.opened.type === this.view.settings.name) {
-        return this.viewGroup.hasComment ? this.viewGroup.comment : null
-      }
-
-      return null
+      return Group.getters('fetching')()
     },
 
   },
 
   watch: {
 
-    '$route'(val) {
-      if (this._.get(val, 'hash', '') === '') {
-        this.closeView()
-      } else if (this._.get(val, 'hash', '') !== '') {
-        for (const viewName in this.view) {
-          if (
-            Object.prototype.hasOwnProperty.call(this.view, viewName) &&
-            viewName !== 'opened' &&
-            val.hash.includes(this._.get(this.view[viewName], 'route.hash', ''))
-          ) {
-            this.openView(viewName, val.hash.substring(this._.get(this.view[viewName], 'route.length', 0)))
-
-            return
-          }
-        }
-      }
-    },
-
     windowSize(val) {
       if (val === 'xs') {
-        if (this.view.opened.type === this.view.settings.name) {
+        if (this.view.opened === this.view.items.detail.name) {
           this.$router.push(this.localePath({
-            name: GROUPS_GROUP_SETTINGS_LINK,
-            params: { id: this.view.settings.id },
+            name: this.$routes.things.detail,
+            params: {
+              id: this.view.items.detail.id,
+            },
           }))
-
-          return
-        } else if (this.view.opened.type === this.view.detail.name) {
-          this.$router.push(this.localePath({ name: this.$routes.groups.detail, params: { id: this.view.detail.id } }))
-
-          return
+        } else if (this.view.opened === this.view.items.settings.name) {
+          this.$router.push(this.localePath({
+            name: this.$routes.things.detail,
+            params: {
+              id: this.view.items.settings.id,
+            },
+            hash: GROUPS_HASH_SETTINGS,
+          }))
+        } else if (this.view.opened === this.view.items.create.name) {
+          this.$router.push(this.localePath({
+            name: this.$routes.things.create,
+          }))
         }
       }
-
-      this._calculateWindowHeight()
     },
 
     fetchingGroups(val) {
@@ -336,57 +186,33 @@ export default {
       }
     },
 
+    things() {
+      this._configureNavigation()
+    },
+
   },
 
-  fetch({ app, store }) {
+  fetch({ app, store, error }) {
     if (!store.getters['entities/group/firstLoadFinished']()) {
       return store.dispatch('entities/group/fetch', null, {
         root: true,
       })
         .then(() => {
-          const groupsCount = store.getters['entities/group/query']().count()
+          const groupsCount = Group
+            .query()
+            .count()
 
-          store.dispatch('template/resetStore', null, {
+          store.dispatch('template/resetHeadings', null, {
+            root: true,
+          })
+
+          store.dispatch('template/resetButtons', null, {
             root: true,
           })
 
           store.dispatch('template/setHeading', {
             heading: app.i18n.t('application.headings.groups.list'),
             subHeading: app.i18n.tc('application.subHeadings.groups.list', groupsCount, { count: groupsCount }),
-          }, {
-            root: true,
-          })
-
-          store.dispatch('template/setActionButton', {
-            name: app.i18n.t('application.buttons.add.title'),
-          }, {
-            root: true,
-          })
-
-          store.dispatch('template/addHeadingTab', {
-            name: app.i18n.t('application.buttons.things.title'),
-          }, {
-            root: true,
-          })
-
-          store.dispatch('template/addHeadingTab', {
-            name: app.i18n.t('application.buttons.groups.title'),
-          }, {
-            root: true,
-          })
-
-          store.dispatch('app/bottomMenuExpand', null, {
-            root: true,
-          })
-        })
-        .catch(() => {
-          store.dispatch('template/resetStore', null, {
-            root: true,
-          })
-
-          store.dispatch('template/setHeading', {
-            heading: app.i18n.t('application.headings.groups.list'),
-            subHeading: app.i18n.tc('application.subHeadings.groups.list', 0, { count: 0 }),
           }, {
             root: true,
           })
@@ -415,174 +241,143 @@ export default {
             root: true,
           })
         })
+        .catch(() => {
+          error({ statusCode: 503, message: 'Something went wrong' })
+        })
     }
   },
 
   beforeMount() {
     if (
-      this.$store.getters['entities/group/query']().count() === 0 &&
+      Group.query().count() === 0 &&
       !this.fetchingGroups &&
-      !this.$store.getters['entities/group/firstLoadFinished']()
+      !Group.getters('firstLoadFinished')()
     ) {
-      this.$store.dispatch('entities/group/fetch', {}, {
-        root: true,
-      })
-        .catch((e) => {
-          // eslint-disable-next-line
-          console.log(e)
+      Group.dispatch('fetch')
+        .catch(() => {
+          this.$nuxt.error({ statusCode: 503, message: 'Something went wrong' })
         })
     }
 
-    this._configureNavigation()
+    this.$bus.$on('heading_action_button-clicked', this.actionButtonAction)
 
-    this.$bus.$on('heading_left_button-clicked', () => {
-      this.openGroupCreate()
-    })
+    this._configureNavigation()
   },
 
   mounted() {
-    this._calculateWindowHeight()
-
     if (!this.fetchingGroups) {
       this._checkRoute()
     }
+
+    this.$bus.$emit('wait-page_reloading', false)
 
     this.isMounted = true
   },
 
   beforeDestroy() {
-    this.$bus.$off('heading_left_button-clicked')
+    this.$bus.$off('heading_action_button-clicked', this.actionButtonAction)
   },
 
   methods: {
 
     /**
-     * Event fired by loaded component
-     *
-     * @param {String} component
-     */
-    componentLoaded(component) {
-      if (Object.prototype.hasOwnProperty.call(this.loading, component)) {
-        this.loading[component] = null
-      }
-    },
-
-    openGroupCreate() {
-      if (this.windowSize === 'xs') {
-        this.$router.push(this.localePath(this.$routes.groups.create))
-      } else {
-        this.openView('create')
-      }
-    },
-
-    /**
-     * Open group dialog
+     * Open selected view
      *
      * @param {String} view
-     * @param {String} id
+     * @param {String} [id]
      */
     openView(view, id) {
-      if (
-        this.view.opened.type === view &&
-        (
-          (Object.prototype.hasOwnProperty.call(this.view[view], 'id') && typeof id !== 'undefined' && this.view[view].id === id) || (typeof id === 'undefined')
-        )
-      ) {
-        return
-      }
-
-      for (const viewName in this.view) {
-        if (Object.prototype.hasOwnProperty.call(this.view, viewName)) {
-          if (Object.prototype.hasOwnProperty.call(this.view[viewName], 'id')) {
-            this.view[viewName].id = null
-          }
-
-          if (Object.prototype.hasOwnProperty.call(this.view[viewName], 'groupId')) {
-            this.view[viewName].groupId = null
+      if (Object.prototype.hasOwnProperty.call(this.view.items, view)) {
+        for (const viewName in this.view.items) {
+          if (Object.prototype.hasOwnProperty.call(this.view.items, viewName)) {
+            if (Object.prototype.hasOwnProperty.call(this.view.items[viewName], 'id')) {
+              this.view.items[viewName].id = null
+            }
           }
         }
-      }
 
-      switch (view) {
-        case this.view.detail.name:
-          if (this.windowSize === 'xs') {
-            this.$router.push(this.localePath({
-              name: this.$routes.groups.detail,
-              params: {
-                id,
-              },
-            }))
-          } else {
-            this.$router.push(this.localePath({
-              name: this.$routes.groups.list,
-              hash: `${this.view.detail.route.hash}-${id}`,
-            }))
-          }
-          break
+        switch (view) {
+          case this.view.items.detail.name:
+            if (this.windowSize === 'xs') {
+              this.$bus.$emit('wait-page_reloading', 10)
 
-        case this.view.settings.name:
-          if (this.windowSize === 'xs') {
-            this.$router.push(this.localePath({
-              name: this.$routes.groups.detail,
-              params: {
-                id,
-              },
-              hash: GROUPS_HASH_SETTINGS,
-            }))
-          } else {
-            this.$router.push(this.localePath({
-              name: this.$routes.groups.list,
-              hash: `${this.view.settings.route.hash}-${id}`,
-            }))
-          }
-          break
-      }
+              this.$router.push(this.localePath({
+                name: this.$routes.groups.detail,
+                params: {
+                  id,
+                },
+              }))
 
-      if (Object.prototype.hasOwnProperty.call(this.view, view)) {
-        this.view.opened.type = view
+              return
+            } else {
+              this.$router.push(this.localePath({
+                name: this.$routes.groups.list,
+                hash: `${this.view.items.detail.route.hash}-${id}`,
+              }))
+            }
+            break
 
-        if (Object.prototype.hasOwnProperty.call(this.view[view], 'id') && typeof id !== 'undefined') {
-          this.view[view].id = id
+          case this.view.items.settings.name:
+            if (this.windowSize === 'xs') {
+              this.$bus.$emit('wait-page_reloading', 10)
+
+              this.$router.push(this.localePath({
+                name: this.$routes.groups.detail,
+                params: {
+                  id,
+                },
+                hash: GROUPS_HASH_SETTINGS,
+              }))
+
+              return
+            } else {
+              this.$router.push(this.localePath({
+                name: this.$routes.groups.list,
+                hash: `${this.view.items.settings.route.hash}-${id}`,
+              }))
+            }
+            break
+
+          case this.view.items.create.name:
+            if (this.windowSize === 'xs') {
+              this.$bus.$emit('wait-page_reloading', 10)
+
+              this.$router.push(this.localePath(this.$routes.groups.create))
+
+              return
+            } else {
+              this.$router.push(this.localePath({
+                name: this.$routes.groups.list,
+                hash: this.view.items.create.route.hash,
+              }))
+            }
+            break
         }
-      }
 
-      if (Object.prototype.hasOwnProperty.call(this.loading, view) && typeof id !== 'undefined') {
-        this.loading[view] = id
+        this.view.opened = view
+
+        if (Object.prototype.hasOwnProperty.call(this.view.items[view], 'id') && typeof id !== 'undefined') {
+          this.view.items[view].id = id
+
+          const group = Group.find(id)
+
+          if (group === null) {
+            this.closeView()
+          }
+        }
       }
     },
 
     /**
      * Close opened view
-     *
-     * @param {String} [view]
      */
-    closeView(view) {
-      this.$router.push(this.localePath(this.$routes.groups.list))
+    closeView() {
+      this.$router.push(this.localePath(this.$routes.things.list))
 
-      this.view.opened.type = null
-
-      if (typeof view !== 'undefined' && Object.prototype.hasOwnProperty.call(this.view, view)) {
-        if (Object.prototype.hasOwnProperty.call(this.view[view], 'id')) {
-          this.view[view].id = null
-        }
-
-        if (Object.prototype.hasOwnProperty.call(this.view[view], 'groupId')) {
-          this.view[view].groupId = null
-        }
-      }
+      // Reset to default values
+      Object.assign(this.view, viewSettings)
 
       this.$el.focus()
-    },
-
-    /**
-     * Switch detail display according to actual state
-     */
-    handleDetailLeftButton() {
-      if (this.view.opened.type === this.view.detail.name) {
-        this.closeView(this.view.detail.name)
-      } else if (this.view.opened.type === this.view.settings.name) {
-        this.openView(this.view.detail.name, this.view.settings.id)
-      }
     },
 
     /**
@@ -609,12 +404,10 @@ export default {
       this.click.clicks++
 
       if (this.click.clicks === 1) {
-        const that = this
-
         this.click.timer = setTimeout(() => {
-          that.openView(this.view.detail.name, item.id)
+          this.openView(this.view.detail.name, item.id)
 
-          that.click.clicks = 0
+          this.click.clicks = 0
         }, this.click.delay)
       } else {
         clearTimeout(this.click.timer)
@@ -626,30 +419,26 @@ export default {
     },
 
     /**
+     * Header action button action event
+     */
+    actionButtonAction() {
+      this.openView(this.view.items.create.name)
+    },
+
+    /**
      * Check route and if is needed open detail window
      *
      * @private
      */
     _checkRoute() {
       if (this.$route.hash !== '') {
-        if (this.$route.hash.includes(this.view.detail.route.hash)) {
-          this.openView(this.view.detail.name, this.$route.hash.substring(this.view.detail.route.length))
-        } else if (this.$route.hash.includes(this.view.settings.route.hash)) {
-          this.openView(this.view.settings.name, this.$route.hash.substring(this.view.settings.route.length))
+        if (this.$route.hash.includes(this.view.items.detail.route.hash)) {
+          this.openView(this.view.items.detail.name, this.$route.hash.substring(this.view.items.detail.route.length))
+        } else if (this.$route.hash.includes(this.view.items.settings.route.hash)) {
+          this.openView(this.view.items.settings.name, this.$route.hash.substring(this.view.items.settings.route.length))
+        } else if (this.$route.hash.includes(this.view.items.create.route.hash)) {
+          this.openView(this.view.items.create.name)
         }
-      }
-    },
-
-    /**
-     * Calculate viewport size after window resizing
-     *
-     * @private
-     */
-    _calculateWindowHeight() {
-      if (this.windowSize === 'xs') {
-        this.offCanvasHeight = null
-      } else {
-        this.offCanvasHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0) - 50
       }
     },
 
@@ -659,7 +448,11 @@ export default {
      * @private
      */
     _configureNavigation() {
-      this.$store.dispatch('template/resetStore', null, {
+      this.$store.dispatch('template/resetHeadings', null, {
+        root: true,
+      })
+
+      this.$store.dispatch('template/resetButtons', null, {
         root: true,
       })
 
@@ -671,7 +464,7 @@ export default {
       })
 
       if (this.groups.length) {
-        this.$store.dispatch('template/setAddButton', {
+        this.$store.dispatch('template/setActionButton', {
           name: this.$t('application.buttons.add.title'),
         }, {
           root: true,

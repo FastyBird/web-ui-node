@@ -1,8 +1,8 @@
 <template>
   <off-canvas-body
-    v-if="thing"
-    :heading="$tThingChannel(thing)"
-    :sub-heading="$tThingDevice(thing)"
+    v-if="group"
+    :heading="group.name"
+    :sub-heading="group.comment"
   >
     <template slot="left-button">
       <button
@@ -41,27 +41,18 @@
       name="fade"
       mode="out-in"
     >
-      <template v-if="view.opened === view.items.detail.name">
-        <thing-detail-button
-          v-if="isButtonThing"
-          :thing="thing"
-          :style="`height: ${offCanvasHeight}px`"
-          class="fb-things-list-view__off-canvas-body"
-        />
-
-        <thing-detail-default
-          v-else
-          :thing="thing"
-          :style="`height: ${offCanvasHeight}px`"
-          class="fb-things-list-view__off-canvas-body"
-        />
-      </template>
-
-      <thing-settings
-        v-if="view.opened === view.items.settings.name"
-        :thing="thing"
+      <group-detail
+        v-if="view.opened === view.items.detail.name"
+        :group="group"
         :style="`height: ${offCanvasHeight}px`"
-        class="fb-things-list-view__off-canvas-body"
+        class="fb-groups-list-view__off-canvas-body"
+      />
+
+      <group-settings
+        v-if="view.opened === view.items.settings.name"
+        :group="group"
+        :style="`height: ${offCanvasHeight}px`"
+        class="fb-groups-list-view__off-canvas-body"
         @removed="$emit('close')"
       />
     </transition>
@@ -73,27 +64,20 @@ import FbComponentLoading from '@/node_modules/@fastybird-com/ui-theme/component
 import FbComponentLoadingError from '@/node_modules/@fastybird-com/ui-theme/components/UI/FbComponentLoadingError'
 
 import {
-  THINGS_HASH_DETAIL,
-  THINGS_HASH_SETTINGS,
+  GROUPS_HASH_DETAIL,
+  GROUPS_HASH_SETTINGS,
 } from '~/configuration/routes'
 
-import Hardware from '~/models/devices-node/Hardware'
-import Thing from '~/models/things/Thing'
+import Group from '~/models/devices-node/Group'
 
-const ThingDetailDefault = () => ({
-  component: import('~/components/things/Desktop/DetailDefault'),
+const GroupDetail = () => ({
+  component: import('~/components/groups/Detail'),
   loading: FbComponentLoading,
   error: FbComponentLoadingError,
   timeout: 10000,
 })
-const ThingDetailButton = () => ({
-  component: import('~/components/things/Desktop/DetailButton'),
-  loading: FbComponentLoading,
-  error: FbComponentLoadingError,
-  timeout: 10000,
-})
-const ThingSettings = () => ({
-  component: import('~/components/things/Settings'),
+const GroupSettings = () => ({
+  component: import('~/components/groups/Settings'),
   loading: FbComponentLoading,
   error: FbComponentLoadingError,
   timeout: 10000,
@@ -105,14 +89,14 @@ const viewSettings = {
     detail: {
       name: 'detail',
       route: {
-        hash: THINGS_HASH_DETAIL,
+        hash: GROUPS_HASH_DETAIL,
         length: 8,
       },
     },
     settings: {
       name: 'settings',
       route: {
-        hash: THINGS_HASH_SETTINGS,
+        hash: GROUPS_HASH_SETTINGS,
         length: 10,
       },
     },
@@ -121,12 +105,11 @@ const viewSettings = {
 
 export default {
 
-  name: 'ThingsDesktopDetailContainer',
+  name: 'GroupsDesktopDetailContainer',
 
   components: {
-    ThingDetailDefault,
-    ThingDetailButton,
-    ThingSettings,
+    GroupDetail,
+    GroupSettings,
   },
 
   props: {
@@ -145,30 +128,16 @@ export default {
 
   data() {
     return {
-      thing: null,
+      group: null,
       hardware: null,
-      isButtonThing: false,
+      isButtonGroup: false,
       view: Object.assign({}, viewSettings),
       offCanvasHeight: null,
     }
   },
 
   created() {
-    this.thing = Thing
-      .query()
-      .with('device')
-      .with('channel')
-      .where('channel_id', this.id)
-      .first()
-
-    this.hardware = Hardware
-      .query()
-      .where('device_id', this.thing.device_id)
-      .first()
-
-    this.isButtonThing = this.hardware !== null &&
-      this.hardware.isManufacturerFastyBird &&
-      (this.hardware.model === '8ch_buttons' || this.hardware.model === '16ch_buttons')
+    this.group = Group.find(this.id)
 
     this.view.opened = this.settings ? 'settings' : 'detail'
   },
@@ -215,15 +184,15 @@ export default {
           case this.view.items.detail.name:
             if (this.windowSize === 'xs') {
               this.$router.push(this.localePath({
-                name: this.$routes.things.detail,
+                name: this.$routes.groups.detail,
                 params: {
-                  id: this.thing.id,
+                  id: this.group.id,
                 },
               }))
             } else {
               this.$router.push(this.localePath({
-                name: this.$routes.things.list,
-                hash: `${this.view.items.detail.route.hash}-${this.thing.id}`,
+                name: this.$routes.groups.list,
+                hash: `${this.view.items.detail.route.hash}-${this.group.id}`,
               }))
             }
             break
@@ -231,18 +200,18 @@ export default {
           case this.view.items.settings.name:
             if (this.windowSize === 'xs') {
               this.$router.push(this.localePath({
-                name: this.$routes.things.detail,
+                name: this.$routes.groups.detail,
                 params: {
-                  id: this.thing.id,
+                  id: this.group.id,
                 },
-                hash: THINGS_HASH_SETTINGS,
+                hash: GROUPS_HASH_SETTINGS,
               }))
 
               return
             } else {
               this.$router.push(this.localePath({
-                name: this.$routes.things.list,
-                hash: `${this.view.items.settings.route.hash}-${this.thing.id}`,
+                name: this.$routes.groups.list,
+                hash: `${this.view.items.settings.route.hash}-${this.group.id}`,
               }))
             }
             break

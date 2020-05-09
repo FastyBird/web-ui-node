@@ -120,7 +120,7 @@ export default {
   data() {
     return {
       form: {
-        scope: 'io_server_channel_edit_property',
+        scope: 'channel_edit_property',
         model: null,
         result: null,
       },

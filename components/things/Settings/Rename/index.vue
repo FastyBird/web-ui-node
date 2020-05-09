@@ -64,7 +64,7 @@ export default {
   data() {
     return {
       form: {
-        scope: 'io_server_thing_edit_name',
+        scope: 'thing_edit_name',
         model: {},
         result: null,
       },

@@ -1,7 +1,7 @@
 <template>
   <settings-list-item
     v-if="parameter.isBoolean"
-    class="fb-iot-things-settings-thing__item"
+    class="fb-things-settings-thing__item"
   >
     <fb-switch-element
       :ref="parameter.name"
@@ -23,10 +23,10 @@
   <settings-list-item
     v-else
     type="button"
-    class="fb-iot-things-settings-thing__item"
+    class="fb-things-settings-thing__item"
     @click="$emit('openForm')"
   >
-    <span class="fb-iot-things-settings-thing__item-icon">
+    <span class="fb-things-settings-thing__item-icon">
       <font-awesome-icon icon="angle-right" />
     </span>
     <fb-spinner

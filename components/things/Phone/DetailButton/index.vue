@@ -1,5 +1,5 @@
 <template>
-  <div class="fb-iot-things-phone-detail-button__container">
+  <div class="fb-things-phone-detail-button__container">
     <button-thing
       v-if="view.opened === null || view.opened === view.items.type.name"
       :thing="thing"

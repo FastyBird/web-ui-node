@@ -2,7 +2,7 @@
   <list-item
     :show-status="true"
     :status="thing.state"
-    class="fb-iot-things-list-item__container"
+    class="fb-things-list-item__container"
     @click="oneClick"
   >
     <template slot="icon">
@@ -29,11 +29,11 @@
 
       <div v-else-if="environmentProperty">
         <template v-if="thing.state">
-          <span class="fb-iot-things-list-item__value">{{ environmentProperty.formattedValue }}</span>
-          <span class="fb-iot-things-list-item__unit">{{ environmentProperty.unit }}</span>
+          <span class="fb-things-list-item__value">{{ environmentProperty.formattedValue }}</span>
+          <span class="fb-things-list-item__unit">{{ environmentProperty.unit }}</span>
         </template>
         <template v-else>
-          <span class="fb-iot-things-list-item__value">{{ $t('application.states.notAvailable') }}</span>
+          <span class="fb-things-list-item__value">{{ $t('application.states.notAvailable') }}</span>
         </template>
       </div>
     </template>

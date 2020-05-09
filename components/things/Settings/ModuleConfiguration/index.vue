@@ -135,7 +135,7 @@ export default {
   data() {
     return {
       form: {
-        scope: 'io_server_thing_edit_module_configuration',
+        scope: 'thing_edit_module_configuration',
         model: [],
         result: null,
       },

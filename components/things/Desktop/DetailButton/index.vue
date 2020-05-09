@@ -1,5 +1,5 @@
 <template>
-  <div class="fb-iot-things-desktop-detail-button__container">
+  <div class="fb-things-desktop-detail-button__container">
     <button-thing
       :thing="thing"
       @view="openView"
@@ -10,7 +10,7 @@
       variant="outline-primary"
       uppercase
       pill
-      class="fb-iot-things-desktop-detail-button__add-button"
+      class="fb-things-desktop-detail-button__add-button"
       @click.prevent="openView('type')"
     >
       <font-awesome-icon icon="plus" />
@@ -74,7 +74,7 @@
         <div class="fb-modal-window__body">
           <div
             v-if="view.opened === view.items.type.name"
-            class="fb-iot-things-desktop-detail-button__type"
+            class="fb-things-desktop-detail-button__type"
           >
             <div>
               <fb-button

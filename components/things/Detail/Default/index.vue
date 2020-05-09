@@ -1,7 +1,7 @@
 <template>
   <div
     :data-state="thing.state ? 'on' : 'off'"
-    class="fb-iot-things-detail-default__container"
+    class="fb-things-detail-default__container"
   >
     <list-items-container
       v-if="analogSensors.length || binarySensors.length"

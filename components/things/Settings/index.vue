@@ -1,7 +1,7 @@
 <template>
   <div
     :data-state="thing.state ? 'on' : 'off'"
-    class="fb-iot-things-settings-thing__container"
+    class="fb-things-settings-thing__container"
   >
     <list-items-container
       v-if="isCustom || hasSettings"
@@ -10,10 +10,10 @@
       <settings-list-item
         v-if="isCustom"
         type="button"
-        class="fb-iot-things-settings-thing__item"
+        class="fb-things-settings-thing__item"
         @click="openForm('credentials')"
       >
-        <span class="fb-iot-things-settings-thing__item-icon">
+        <span class="fb-things-settings-thing__item-icon">
           <font-awesome-icon icon="angle-right" />
         </span>
         <fb-spinner
@@ -30,7 +30,7 @@
         :parameter="parameter"
         :hardware="hardware"
         :loading="_.get(loading.deviceParameterForm, parameter.name, false) === true"
-        class="fb-iot-things-settings-thing__item-property"
+        class="fb-things-settings-thing__item-property"
         @submit="submit(parameter, 'device')"
         @openForm="openForm('deviceParameterForm', parameter)"
       />
@@ -38,10 +38,10 @@
       <settings-list-item
         v-if="hasSensorsSettings"
         type="button"
-        class="fb-iot-things-settings-thing__item fb-iot-things-settings-thing__item-property"
+        class="fb-things-settings-thing__item fb-things-settings-thing__item-property"
         @click="openModuleForm('sensor_', $t('things.headings.moduleSensorSettings'))"
       >
-        <span class="fb-iot-things-settings-thing__item-icon">
+        <span class="fb-things-settings-thing__item-icon">
           <font-awesome-icon icon="angle-right" />
         </span>
         <fb-spinner
@@ -57,10 +57,10 @@
       <settings-list-item
         v-if="hasTimeSettings"
         type="button"
-        class="fb-iot-things-settings-thing__item fb-iot-things-settings-thing__item-property"
+        class="fb-things-settings-thing__item fb-things-settings-thing__item-property"
         @click="openModuleForm('ntp_', $t('things.headings.moduleTimeSettings'))"
       >
-        <span class="fb-iot-things-settings-thing__item-icon">
+        <span class="fb-things-settings-thing__item-icon">
           <font-awesome-icon icon="angle-right" />
         </span>
         <fb-spinner
@@ -76,10 +76,10 @@
       <settings-list-item
         v-if="hasSensorsCalibration"
         type="button"
-        class="fb-iot-things-settings-thing__item fb-iot-things-settings-thing__item-property"
+        class="fb-things-settings-thing__item fb-things-settings-thing__item-property"
         @click="openForm('energyCalibration')"
       >
-        <span class="fb-iot-things-settings-thing__item-icon">
+        <span class="fb-things-settings-thing__item-icon">
           <font-awesome-icon icon="angle-right" />
         </span>
         <fb-spinner
@@ -104,10 +104,10 @@
     <list-items-container :heading="$t('things.headings.generalSettings')">
       <settings-list-item
         type="button"
-        class="fb-iot-things-settings-thing__item"
+        class="fb-things-settings-thing__item"
         @click="openWindow('rename')"
       >
-        <span class="fb-iot-things-settings-thing__item-icon">
+        <span class="fb-things-settings-thing__item-icon">
           <font-awesome-icon icon="angle-right" />
         </span>
         <fb-spinner
@@ -119,10 +119,10 @@
 
       <settings-list-item
         type="button"
-        class="fb-iot-things-settings-thing__item fb-iot-things-settings-thing__item-remove"
+        class="fb-things-settings-thing__item fb-things-settings-thing__item-remove"
         @click="openWindow('remove')"
       >
-        <span class="fb-iot-things-settings-thing__item-icon">
+        <span class="fb-things-settings-thing__item-icon">
           <font-awesome-icon icon="exclamation-triangle" />
         </span>
         <fb-spinner

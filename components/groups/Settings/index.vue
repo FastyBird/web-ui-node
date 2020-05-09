@@ -1,12 +1,12 @@
 <template>
-  <div class="fb-iot-groups-settings-group__container">
+  <div class="fb-groups-settings-group__container">
     <list-items-container :heading="$t('groups.headings.generalSettings')">
       <settings-list-item
         type="button"
-        class="fb-iot-groups-settings-group__item"
+        class="fb-groups-settings-group__item"
         @click="openWindow('rename')"
       >
-        <span class="fb-iot-groups-settings-group__item-icon">
+        <span class="fb-groups-settings-group__item-icon">
           <font-awesome-icon icon="angle-right" />
         </span>
         <fb-spinner
@@ -18,10 +18,10 @@
 
       <settings-list-item
         type="button"
-        class="fb-iot-groups-settings-group__item fb-iot-groups-settings-group__item-remove"
+        class="fb-groups-settings-group__item fb-groups-settings-group__item-remove"
         @click="openWindow('remove')"
       >
-        <span class="fb-iot-groups-settings-group__item-icon">
+        <span class="fb-groups-settings-group__item-icon">
           <font-awesome-icon icon="exclamation-triangle" />
         </span>
         <fb-spinner
@@ -46,6 +46,7 @@
       :transparent-bg="transparentModal"
       @loaded="loading.remove = false"
       @close="closeWindow('remove')"
+      @removed="groupRemoved"
     />
   </div>
 </template>
@@ -74,7 +75,6 @@ export default {
 
   data() {
     return {
-      isCustom: false,
       transparentModal: false,
       loading: {
         rename: false,
@@ -119,6 +119,15 @@ export default {
       if (Object.prototype.hasOwnProperty.call(this, window)) {
         this[window].show = false
       }
+    },
+
+    /**
+     * Fired when opened item is removed
+     */
+    groupRemoved() {
+      this.closeWindow('remove')
+
+      this.$emit('removed')
     },
 
   },

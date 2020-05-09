@@ -1,5 +1,5 @@
 <template>
-  <div class="fb-iot-things-thing-detail-view__container">
+  <div class="fb-things-thing-detail-view__container">
     <fb-loading-box
       v-if="fetchingThing && thing === null"
       :text="$t('texts.loading')"
@@ -25,7 +25,7 @@
         ref="settings"
         v-body-scroll-lock="true"
         :thing="thing"
-        class="fb-iot-things-thing-detail-view__container-settings"
+        class="fb-things-thing-detail-view__container-settings"
         @removed="thingRemoved"
       />
     </template>

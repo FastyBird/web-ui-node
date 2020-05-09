@@ -1,7 +1,7 @@
 <template>
   <div
     :data-state="thing.state ? 'on' : 'off'"
-    class="fb-iot-things-switch__container"
+    class="fb-things-switch__container"
     role="button"
   >
     <fb-switch-element
@@ -14,23 +14,23 @@
 
     <div
       v-show="property.command === 'ok' || property.command === 'err'"
-      class="fb-iot-things-switch__result"
+      class="fb-things-switch__result"
     >
       <font-awesome-icon
         v-show="property.command === 'err'"
         icon="ban"
-        class="pos-r fb-iot-things-switch__result-err"
+        class="pos-r fb-things-switch__result-err"
       />
       <font-awesome-icon
         v-show="property.command === 'ok'"
         icon="check"
-        class="pos-r fb-iot-things-switch__result-ok"
+        class="pos-r fb-things-switch__result-ok"
       />
     </div>
 
     <div
       v-show="property.command !== null && property.command !== 'ok' && property.command !== 'err'"
-      class="fb-iot-things-switch__loading"
+      class="fb-things-switch__loading"
     >
       <fb-spinner
         variant="primary"

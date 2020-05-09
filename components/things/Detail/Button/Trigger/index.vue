@@ -1,11 +1,11 @@
 <template>
-  <div class="fb-iot-things-detail-button-trigger__container">
+  <div class="fb-things-detail-button-trigger__container">
     <list-items-container :heading="heading">
       <trigger-action
         v-for="action in trigger.actions"
         :key="action.id"
         :action="action"
-        class="fb-iot-things-detail-button-trigger__actions"
+        class="fb-things-detail-button-trigger__actions"
         @toggle="toggleActionState(action)"
         @remove="confirmRemoveAction(action)"
       />

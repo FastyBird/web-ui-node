@@ -13,13 +13,15 @@
 
     <template slot="form">
       <fb-form-input
-        v-model="form.model.title"
+        v-model="form.model.name"
+        v-validate="'required'"
         :data-vv-scope="form.scope"
-        :error="errors.first(form.scope + '.title')"
-        :has-error="errors.has(form.scope + '.title')"
-        :name="'title'"
-        :label="$t('groups.fields.title.title')"
+        :error="errors.first(form.scope + '.name')"
+        :has-error="errors.has(form.scope + '.name')"
+        :name="'name'"
+        :label="$t('groups.fields.name.title')"
         :placeholder="group.name"
+        :required="true"
         :tab-index="2"
       />
 
@@ -37,6 +39,8 @@
 </template>
 
 <script>
+import Group from '~/models/devices-node/Group'
+
 export default {
 
   name: 'GroupsSettingsGroupRename',
@@ -58,7 +62,7 @@ export default {
   data() {
     return {
       form: {
-        scope: 'io_server_group_edit_name',
+        scope: 'groups_edit_name',
         model: {
           name: '',
           comment: '',
@@ -74,8 +78,8 @@ export default {
     this.$validator.localize({
       en: {
         custom: {
-          title: {
-            required: this.$t('groups.fields.title.validation.required'),
+          name: {
+            required: this.$t('groups.fields.name.validation.required'),
           },
         },
       },
@@ -100,14 +104,12 @@ export default {
         .then((result) => {
           if (result) {
             const errorMessage = this.$t('groups.messages.notEdited', {
-              group: this.group.label,
+              group: this.group.name,
             })
 
-            this.$store.dispatch('entities/group/edit', {
+            Group.dispatch('edit', {
               id: this.group.id,
               data: this.form.model,
-            }, {
-              root: true,
             })
               .catch((e) => {
                 if (this._.get(e, 'exception', null) !== null) {
@@ -149,7 +151,7 @@ export default {
      */
     _initModel() {
       this.form.model = {
-        title: this.group.title,
+        name: this.group.name,
         comment: this.group.comment,
       }
 

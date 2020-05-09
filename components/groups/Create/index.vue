@@ -1,14 +1,14 @@
 <template>
-  <div class="fb-iot-groups-create__container">
+  <div class="fb-groups-create__container">
     <form @submit.prevent="submit">
       <fb-form-input
-        v-model="form.model.title"
+        v-model="form.model.name"
         v-validate="'required'"
         :data-vv-scope="form.scope"
-        :error="errors.first(form.scope + '.title')"
-        :has-error="errors.has(form.scope + '.title')"
-        :name="'title'"
-        :label="$t('groups.fields.title.title')"
+        :error="errors.first(form.scope + '.name')"
+        :has-error="errors.has(form.scope + '.name')"
+        :name="'name'"
+        :label="$t('groups.fields.name.title')"
         :required="true"
       />
 
@@ -22,14 +22,14 @@
         :tab-index="3"
       />
 
-      <div class="fb-iot-groups-create__icons">
+      <div class="fb-groups-create__icons">
         <div>
           <div
             v-for="(icon, index) in icons"
             :key="index"
           >
             <span
-              :class="['fb-iot-groups-create__icon', { 'fb-iot-groups-create__icon-selected': form.model.icon === icon }]"
+              :class="['fb-groups-create__icon', { 'fb-groups-create__icon-selected': form.model.icon === icon }]"
               @click.prevent="selectIcon(icon)"
             >
               <font-awesome-icon :icon="icon" />
@@ -43,6 +43,7 @@
 
 <script>
 import { groupIcons } from '~/configuration'
+import Group from '~/models/devices-node/Group'
 
 export default {
 
@@ -61,7 +62,7 @@ export default {
     return {
       icons: groupIcons,
       form: {
-        scope: 'io_server_group_create',
+        scope: 'groups_create',
         model: {
           title: null,
           comment: null,
@@ -76,7 +77,7 @@ export default {
       en: {
         custom: {
           title: {
-            required: this.$t('groups.fields.title.validation.required'),
+            required: this.$t('groups.fields.name.validation.required'),
           },
         },
       },
@@ -106,10 +107,8 @@ export default {
           if (result) {
             const errorMessage = this.$t('groups.messages.notCreated')
 
-            this.$store.dispatch('entities/group/create', {
+            Group.dispatch('create', {
               data: this.form.model,
-            }, {
-              root: true,
             })
               .catch((e) => {
                 if (this._.get(e, 'exception', null) !== null) {

@@ -1,13 +1,13 @@
 <template>
-  <div class="fb-iot-things-connect-view__container">
+  <div class="fb-things-connect-view__container">
     <div
       v-if="step === 1"
-      class="fb-iot-things-connect-view__step-1"
+      class="fb-things-connect-view__step-1"
     >
-      <div class="fb-iot-things-connect-view__step-1-icon">
+      <div class="fb-things-connect-view__step-1-icon">
         <font-awesome-icon icon="plug" />
       </div>
-      <div class="fb-iot-things-connect-view__step-1-info">
+      <div class="fb-things-connect-view__step-1-info">
         <p>
           If you have switch device, press and hold the pairing/control button on the device for 5s to let device
           switch to pairing mode. This mode is signalized by fast blink led control.
@@ -19,10 +19,10 @@
         type="horizontal"
       />
 
-      <div class="fb-iot-things-connect-view__step-1-icon">
+      <div class="fb-things-connect-view__step-1-icon">
         <font-awesome-icon icon="lightbulb" />
       </div>
-      <div class="fb-iot-things-connect-view__step-1-info">
+      <div class="fb-things-connect-view__step-1-info">
         <p>
           If you have smart bulb, turn wall switch 3 times on and of: <br>on - 1s - off - 1s - on - 1s - off - 1s -
           on
@@ -43,10 +43,10 @@
 
     <form
       v-if="step === 2"
-      class="fb-iot-things-connect-view__step-2"
+      class="fb-things-connect-view__step-2"
       @submit.prevent="submitWifiForm"
     >
-      <div class="fb-iot-things-connect-view__step-2-row">
+      <div class="fb-things-connect-view__step-2-row">
         <div>
           <fb-form-input
             v-model="form.model.name"
@@ -86,7 +86,7 @@
 
     <div
       v-if="step === 3"
-      class="fb-iot-things-connect-view__step-3"
+      class="fb-things-connect-view__step-3"
     >
       <template v-if="search.status === null">
         <font-awesome-icon icon="wifi" />
@@ -184,7 +184,7 @@
 
     <div
       v-if="step === 4"
-      class="fb-iot-things-connect-view__step-4"
+      class="fb-things-connect-view__step-4"
     >
       done....
     </div>

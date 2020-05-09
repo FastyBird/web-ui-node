@@ -120,7 +120,7 @@ export default {
   data() {
     return {
       form: {
-        scope: 'io_server_thing_edit_property',
+        scope: 'edit_property',
         model: null,
         result: null,
       },

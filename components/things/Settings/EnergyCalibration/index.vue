@@ -114,7 +114,7 @@ export default {
   data() {
     return {
       form: {
-        scope: 'io_server_thing_edit_energy_calibration',
+        scope: 'thing_edit_energy_calibration',
         model: [],
         result: null,
       },
