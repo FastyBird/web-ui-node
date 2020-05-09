@@ -27,6 +27,8 @@
 import { Hooper, Slide } from 'hooper'
 import 'hooper/dist/hooper.css'
 
+import { orderBy } from 'natural-orderby'
+
 import CarouselSlide from './Slide'
 
 import Routine from '~/models/routines/Routine'
@@ -65,7 +67,7 @@ export default {
   computed: {
 
     routines() {
-      return Routine
+      const routines = Routine
         .query()
         .with('trigger')
         .with('actions')
@@ -90,6 +92,14 @@ export default {
           query.where('isAutomatic', true)
         })
         .get()
+
+      return orderBy(
+        routines,
+        [
+          v => v.schedule.time,
+        ],
+        ['asc'],
+      )
     },
 
   },
