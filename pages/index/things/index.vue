@@ -246,20 +246,6 @@ export default {
             root: true,
           })
 
-          store.dispatch('template/addHeadingTab', {
-            name: app.i18n.t('application.buttons.things.title'),
-            link: app.localePath(app.$routes.things.list),
-          }, {
-            root: true,
-          })
-
-          store.dispatch('template/addHeadingTab', {
-            name: app.i18n.t('application.buttons.groups.title'),
-            link: app.localePath(app.$routes.groups.list),
-          }, {
-            root: true,
-          })
-
           store.dispatch('app/bottomMenuExpand', null, {
             root: true,
           })
@@ -498,20 +484,6 @@ export default {
           root: true,
         })
       }
-
-      this.$store.dispatch('template/addHeadingTab', {
-        name: this.$t('application.buttons.things.title'),
-        link: this.localePath(this.$routes.things.list),
-      }, {
-        root: true,
-      })
-
-      this.$store.dispatch('template/addHeadingTab', {
-        name: this.$t('application.buttons.groups.title'),
-        link: this.localePath(this.$routes.groups.list),
-      }, {
-        root: true,
-      })
 
       this.$store.dispatch('app/bottomMenuExpand', null, {
         root: true,
