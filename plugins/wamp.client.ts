@@ -192,11 +192,6 @@ class WampClient implements WampClientInterface {
 
           this.log(`Connected! ${this.sessionId} : ${version} : ${server}`)
 
-          this.onConnectEvents
-            .forEach((eventCallback): void => {
-              eventCallback()
-            })
-
           if (this.isLost) {
             this.log('$wamp::opened re-established connection after lost')
           } else {
@@ -213,6 +208,11 @@ class WampClient implements WampClientInterface {
               root: true,
             })
           }
+
+          this.onConnectEvents
+            .forEach((eventCallback): void => {
+              eventCallback()
+            })
           break
 
         // Call result
@@ -256,6 +256,9 @@ class WampClient implements WampClientInterface {
         })
       }
     }
+
+    // Reset subscriptions
+    this.subscriptions = []
   }
 
   subscribe(topic: string, handler: SubscribeCallback): Promise<any> {
@@ -394,9 +397,11 @@ class WampClient implements WampClientInterface {
 
   private send(message: Array<any>): Promise<any> {
     if (this.isConnecting) {
-      return Promise.resolve(new Error('connecting'))
+      return Promise.reject(new Error('connecting'))
     } else if (!this.isConnected && !this.isConnecting) {
       this.reconnect()
+
+      return Promise.reject(new Error('lost'))
     }
 
     return new Promise((resolve, reject): void => {

@@ -207,6 +207,7 @@
       :transparent-bg="transparentModal"
       @loaded="loading.remove = false"
       @close="closeWindow('remove')"
+      @removed="thingRemoved"
     />
 
     <thing-device-parameter-edit
@@ -686,6 +687,15 @@ export default {
       event && event.preventDefault()
 
       this[type].show = false
+    },
+
+    /**
+     * Fired when opened item is removed
+     */
+    thingRemoved() {
+      this.closeWindow('remove')
+
+      this.$emit('removed')
     },
 
     /**

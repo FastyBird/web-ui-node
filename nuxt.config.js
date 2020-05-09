@@ -127,8 +127,6 @@ module.exports = {
     '@/plugins/icons.thing',
     '@/plugins/wamp.client',
     '@/plugins/composition-api',
-    '@/plugins/configure.device',
-    '@/plugins/configure.channel',
     '@/plugins/control.channel',
   ],
 

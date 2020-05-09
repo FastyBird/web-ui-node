@@ -169,10 +169,6 @@ export default {
       return this.$store.state.app.networkState
     },
 
-    exchangeState() {
-      return this.$store.state.wamp.isConnected
-    },
-
     windowSize() {
       return this.$store.state.template.windowSize
     },
@@ -285,8 +281,6 @@ export default {
     networkState(val) {
       if (val && this.isSignedIn) {
         this.$wamp.open()
-      } else {
-        this.$wamp.close()
       }
     },
 
@@ -297,39 +291,6 @@ export default {
             this.loadingOverlay = false
           })
         }
-      } else {
-        this.$wamp.close()
-      }
-    },
-
-    exchangeState(val) {
-      if (val) {
-        return this.$wamp
-          .subscribe(config.IO_SOCKET_TOPIC_EXCHANGE, (data) => {
-            const body = JSON.parse(data)
-
-            if (
-              Object.prototype.hasOwnProperty.call(body, 'routing_key') &&
-              Object.prototype.hasOwnProperty.call(body, 'origin') &&
-              Object.prototype.hasOwnProperty.call(body, 'data')
-            ) {
-              switch (this._.get(body, 'routing_key')) {
-                case 'fb.bus.node.entity.created.device.property':
-                case 'fb.bus.node.entity.updated.device.property':
-                  this._processDevicePropertyMessage(this._.get(body, 'data'), this._.get(body, 'origin'))
-                  break
-
-                case 'fb.bus.node.entity.created.channel.property':
-                case 'fb.bus.node.entity.updated.channel.property':
-                  this._processChannelPropertyMessage(this._.get(body, 'data'), this._.get(body, 'origin'))
-                  break
-              }
-            }
-          })
-          .then(() => {
-            // eslint-disable-next-line
-            console.log('[WAMP] subscribed to exchange')
-          })
       }
     },
 
@@ -560,6 +521,33 @@ export default {
     _wampOnConnect() {
       // eslint-disable-next-line
       console.log('[WAMP] connected')
+
+      this.$wamp
+        .subscribe(config.IO_SOCKET_TOPIC_EXCHANGE, (data) => {
+          const body = JSON.parse(data)
+
+          if (
+            Object.prototype.hasOwnProperty.call(body, 'routing_key') &&
+            Object.prototype.hasOwnProperty.call(body, 'origin') &&
+            Object.prototype.hasOwnProperty.call(body, 'data')
+          ) {
+            switch (this._.get(body, 'routing_key')) {
+              case 'fb.bus.node.entity.created.device.property':
+              case 'fb.bus.node.entity.updated.device.property':
+                this._processDevicePropertyMessage(this._.get(body, 'data'), this._.get(body, 'origin'))
+                break
+
+              case 'fb.bus.node.entity.created.channel.property':
+              case 'fb.bus.node.entity.updated.channel.property':
+                this._processChannelPropertyMessage(this._.get(body, 'data'), this._.get(body, 'origin'))
+                break
+            }
+          }
+        })
+        .then(() => {
+          // eslint-disable-next-line
+          console.log('[WAMP] subscribed to exchange')
+        })
     },
 
     _wampOnDisconnect(reason) {

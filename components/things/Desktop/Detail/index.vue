@@ -145,7 +145,6 @@ export default {
 
   data() {
     return {
-      thing: null,
       hardware: null,
       isButtonThing: false,
       view: Object.assign({}, viewSettings),
@@ -153,14 +152,20 @@ export default {
     }
   },
 
-  created() {
-    this.thing = Thing
-      .query()
-      .with('device')
-      .with('channel')
-      .where('channel_id', this.id)
-      .first()
+  computed: {
 
+    thing() {
+      return Thing
+        .query()
+        .with('device')
+        .with('channel')
+        .where('channel_id', this.id)
+        .first()
+    },
+
+  },
+
+  created() {
     this.hardware = Hardware
       .query()
       .where('device_id', this.thing.device_id)

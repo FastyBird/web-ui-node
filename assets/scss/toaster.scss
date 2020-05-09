@@ -35,9 +35,13 @@
   padding: 15px 15px 15px 50px;
   position: relative;
   width: 300px;
+  display: table-cell;
 
   a {
     color: $gray-lighter;
+    position: absolute;
+    top: -8px;
+    right: 5px;
   }
 }
 
