@@ -86,11 +86,6 @@ export default {
 
   props: {
 
-    account: {
-      type: Object,
-      required: true,
-    },
-
     identity: {
       type: Object,
       required: true,

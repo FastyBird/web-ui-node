@@ -105,15 +105,6 @@ export default {
 
   name: 'SecurityEdit',
 
-  props: {
-
-    account: {
-      type: Object,
-      required: true,
-    },
-
-  },
-
   data() {
     return {
       form: {

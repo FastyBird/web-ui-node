@@ -73,20 +73,17 @@
 
         <account-edit
           v-if="view.accountEdit.show && account !== null"
-          :account="account"
           @close="closeView('accountEdit')"
         />
 
         <password-edit
           v-if="view.passwordEdit.show && account !== null"
-          :account="account"
           :identity="systemIdentity"
           @close="closeView('passwordEdit')"
         />
 
         <security-edit
           v-if="view.securityEdit.show && account !== null"
-          :account="account"
           @close="closeView('securityEdit')"
         />
       </template>

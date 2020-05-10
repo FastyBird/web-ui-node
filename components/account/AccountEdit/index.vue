@@ -164,15 +164,6 @@ export default {
 
   name: 'AccountEdit',
 
-  props: {
-
-    account: {
-      type: Object,
-      required: true,
-    },
-
-  },
-
   data() {
     return {
       countries: ['Africa', 'America', 'Antarctica', 'Arctic', 'Asia', 'Atlantic', 'Australia', 'Europe', 'Indian', 'Pacific'],
