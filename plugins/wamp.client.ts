@@ -448,7 +448,7 @@ declare module 'vuex/types/index' {
 const wampClientPlugin: Plugin = ({ app, store }, inject): void => {
   let wsHost = `wss://${window.location.host}/ws-exchange`
 
-  if (window.location.hostname === 'localhost') {
+  if (window.location.hostname === 'localhost' || window.location.protocol.toLowerCase() === 'http') {
     wsHost = `ws://${window.location.host}/ws-exchange`
   }
 
