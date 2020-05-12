@@ -5,7 +5,7 @@ import { ModelError } from '../errors'
 
 import Thing from './Thing'
 
-import Device from '~/models/devices-node/Device'
+import Device, { DeviceInterface } from '~/models/devices-node/Device'
 import Channel from '~/models/devices-node/Channel'
 
 interface ThingSemaphoreState {
@@ -18,7 +18,6 @@ interface ThingSemaphoreState {
 
 interface ThingState {
   semaphore: ThingSemaphoreState;
-  firstLoad: boolean;
 }
 
 interface SemaphoreAction {
@@ -34,13 +33,25 @@ const moduleState: ThingState = {
     },
     deleting: [],
   },
-
-  firstLoad: false,
 }
 
 const moduleGetters: GetterTree<ThingState, any> = {
   firstLoadFinished: state => (): boolean => {
-    return state.firstLoad
+    let isFinished = false
+
+    if (Device.getters('firstLoadFinished')()) {
+      isFinished = true
+
+      Device
+        .all()
+        .forEach((device: DeviceInterface): void => {
+          if (!Channel.getters('firstLoadFinished')(device.id)) {
+            isFinished = false
+          }
+        })
+    }
+
+    return isFinished
   },
 
   getting: state => (id: string): boolean => {
@@ -240,7 +251,6 @@ const moduleMutations: MutationTree<ThingState> = {
    * @param {Boolean} state.semaphore.fetching.items
    * @param {Array} state.semaphore.fetching.item
    * @param {Array} state.semaphore.deleting
-   * @param {Boolean} state.firstLoad
    * @param {Object} action
    * @param {String} action.type
    * @param {String} action.id
@@ -249,8 +259,6 @@ const moduleMutations: MutationTree<ThingState> = {
     switch (action.type) {
       case 'fetch':
         state.semaphore.fetching.items = true
-
-        state.firstLoad = true
         break
 
       case 'get':

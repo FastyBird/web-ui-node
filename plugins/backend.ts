@@ -181,7 +181,7 @@ const backendApiPlugin: Plugin = ({ app }, inject): void => {
 
   let pendingRequests = 0
 
-  const MAX_REQUESTS_COUNT = 2
+  const MAX_REQUESTS_COUNT = 10
   const MAX_REQUESTS_COUNT_DELAY = 10
 
   instance.interceptors.request.use((request: AxiosRequestConfig): Promise<any> => {
