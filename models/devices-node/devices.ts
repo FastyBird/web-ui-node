@@ -220,7 +220,7 @@ const moduleActions: ActionTree<DeviceState, any> = {
         })
           .then((response: Response): void => {
             console.log('TESTING')
-            console.log(payload.include_channels)
+            console.log(payload)
             console.log(Object.prototype.hasOwnProperty.call(response.entities, 'device'))
             if (payload.include_channels && Object.prototype.hasOwnProperty.call(response.entities, 'device')) {
               const promises: Array<Promise<any>> = []
