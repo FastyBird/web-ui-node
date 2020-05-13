@@ -73,9 +73,9 @@ if (Object.prototype.hasOwnProperty.call(process.env, 'NUXT_ENV_WS_TARGET')) {
 
 const sentry = {}
 
-if (Object.prototype.hasOwnProperty.call(process.env, 'NUXT_ENV_SENTRY_DNS')) {
+if (Object.prototype.hasOwnProperty.call(process.env, 'NUXT_ENV_SENTRY_DSN')) {
   Object.assign(sentry, {
-    dsn: process.env.NUXT_ENV_SENTRY_DNS,
+    dsn: process.env.NUXT_ENV_SENTRY_DSN,
     config: {
       environment: Object.prototype.hasOwnProperty.call(process.env, 'NUXT_ENV_SENTRY_ENV') ? process.env.NUXT_ENV_SENTRY_ENV : process.env.NODE_ENV,
     },
