@@ -154,7 +154,7 @@ const moduleActions: ActionTree<ChannelState, any> = {
           const data = dataFormatter.deserialize(result.data)
 
           commit('DEVICES_CLEAR_SEMAPHORE', {
-            type: 'list',
+            type: 'fetch',
             id: payload.device_id,
           })
 
@@ -174,7 +174,7 @@ const moduleActions: ActionTree<ChannelState, any> = {
         })
         .catch((e: Error): void => {
           commit('DEVICES_CLEAR_SEMAPHORE', {
-            type: 'list',
+            type: 'fetch',
             id: payload.device_id,
           })
 
@@ -204,7 +204,7 @@ const moduleActions: ActionTree<ChannelState, any> = {
       }
 
       commit('DEVICES_SET_SEMAPHORE', {
-        type: 'edit',
+        type: 'update',
         id: channel.id,
       })
 
