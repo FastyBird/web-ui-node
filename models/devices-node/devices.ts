@@ -233,6 +233,7 @@ const moduleActions: ActionTree<DeviceState, any> = {
                       device_id: device.id,
                     })
                       .catch((e: Error): void => {
+                        console.log('CHANNEL ERR')
                         reject(new ApiError(
                           'devices.devices.fetch.failed',
                           e,
@@ -248,6 +249,7 @@ const moduleActions: ActionTree<DeviceState, any> = {
                     type: 'fetch',
                   })
 
+                  console.log('PROMISE ALL OK')
                   // Entities were successfully fetched from server
                   resolve(true)
                 })
@@ -256,6 +258,7 @@ const moduleActions: ActionTree<DeviceState, any> = {
                     type: 'fetch',
                   })
 
+                  console.log('PROMISE ALL ERR')
                   reject(new ApiError(
                     'devices.devices.fetch.failed',
                     e,
@@ -263,6 +266,7 @@ const moduleActions: ActionTree<DeviceState, any> = {
                   ))
                 })
             } else {
+              console.log('NO CHANNELS')
               commit('DEVICES_CLEAR_SEMAPHORE', {
                 type: 'fetch',
               })
