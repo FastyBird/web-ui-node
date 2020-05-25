@@ -136,7 +136,6 @@ const moduleActions: ActionTree<ChannelState, any> = {
   fetch({ state, commit }, payload: { device_id: string }): Promise<any> {
     return new Promise((resolve, reject): void => {
       if (state.semaphore.fetching.items.includes(payload.device_id)) {
-        console.log('CHANNEL FETCHING IN PROGRESS')
         resolve(false)
 
         return
