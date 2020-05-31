@@ -828,9 +828,9 @@
   dependencies:
     ajv "^6.12"
 
-"@fastybird-com/ui-theme@https://github.com/FastyBird/ui-theme.git":
+"@fastybird-com/web-ui-theme@https://github.com/FastyBird/web-ui-theme.git":
   version "0.1.0"
-  resolved "https://github.com/FastyBird/ui-theme.git#1bc29be39f1fb791e3b544ef66029b21c2d1230d"
+  resolved "https://github.com/FastyBird/web-ui-theme.git#da6bea9ed3f6191c26b1b4a347367cf75859a7fd"
   dependencies:
     body-scroll-lock "^2.5.10"
     normalize.css "^8.0.1"

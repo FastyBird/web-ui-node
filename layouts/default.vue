@@ -113,8 +113,8 @@ import ChannelProperty from '~/models/devices-node/ChannelProperty'
 import Trigger from '~/models/triggers-node/Trigger'
 import Thing from '~/models/things/Thing'
 
-const FbDefaultLayout = () => import('@/node_modules/@fastybird-com/ui-theme/layouts/default')
-const FbSignLayout = () => import('@/node_modules/@fastybird-com/ui-theme/layouts/sign')
+const FbDefaultLayout = () => import('@/node_modules/@fastybird-com/web-ui-theme/layouts/default')
+const FbSignLayout = () => import('@/node_modules/@fastybird-com/web-ui-theme/layouts/sign')
 
 const AccountEdit = () => import('~/components/account/AccountEdit')
 const PasswordEdit = () => import('~/components/account/PasswordEdit')

@@ -20,7 +20,7 @@
 <script>
 import * as config from '~/configuration'
 
-const FbErrorLayout = () => import('@/node_modules/@fastybird-com/ui-theme/layouts/error')
+const FbErrorLayout = () => import('@/node_modules/@fastybird-com/web-ui-theme/layouts/error')
 
 export default {
 

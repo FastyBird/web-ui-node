@@ -105,7 +105,7 @@ module.exports = {
   loading: { color: '#fff' },
 
   css: [
-    '@/node_modules/@fastybird-com/ui-theme/assets/theme',
+    '@/node_modules/@fastybird-com/web-ui-theme/assets/theme',
     '@/assets/scss/toaster',
   ],
 

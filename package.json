@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@fastybird-com/json-schemas": "https://github.com/FastyBird/json-schemas.git",
-    "@fastybird-com/ui-theme": "https://github.com/FastyBird/ui-theme.git",
+    "@fastybird-com/web-ui-theme": "https://github.com/FastyBird/web-ui-theme.git",
     "@fortawesome/free-brands-svg-icons": "^5.11.2",
     "@fortawesome/free-solid-svg-icons": "^5.11.2",
     "@nuxtjs/date-fns": "^1.1.0",
