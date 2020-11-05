@@ -3,7 +3,7 @@
     v-if="parameter.isBoolean"
     class="fb-things-settings-thing__item"
   >
-    <fb-switch-element
+    <fb-ui-switch-element
       :ref="parameter.name"
       :status="parameter.value"
       :disabled="!thing.state"
@@ -29,7 +29,7 @@
     <span class="fb-things-settings-thing__item-icon">
       <font-awesome-icon icon="angle-right" />
     </span>
-    <fb-spinner
+    <fb-ui-spinner
       v-if="loading"
       size="sm"
     />

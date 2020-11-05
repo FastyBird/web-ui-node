@@ -16,17 +16,17 @@
         <span class="fb-things-detail-analog-sensor__value">{{ $t('application.states.notAvailable') }}</span>
       </template>
 
-      <fb-button
+      <fb-ui-button
         v-if="thing.state && property.isSettable"
         variant="outline-primary"
         size="xs"
         @click.prevent="$emit('clear')"
       >
         <font-awesome-icon icon="sync-alt" />
-      </fb-button>
+      </fb-ui-button>
     </div>
 
-    <fb-confirmation-window
+    <fb-ui-confirmation-window
       v-if="clearValue.show"
       :transparent-bg="transparentModal"
       icon="trash"
@@ -42,17 +42,18 @@
           path="things.messages.confirmClearCounter"
           tag="p"
         >
-          <strong slot="thing">{{ $tThingChannel(thing) }}</strong>
+          <strong slot="thing">{{ thing.channel.title }}</strong>
         </i18n>
       </template>
-    </fb-confirmation-window>
+    </fb-ui-confirmation-window>
   </property-container>
 </template>
 
 <script>
 import PropertyContainer from '../../PropertyContainer'
 
-import Hardware from '~/models/devices-node/Hardware'
+import Hardware from '~/models/devices-node/hardwares/Hardware'
+import ChannelProperty from '~/models/devices-node/channel-properties/ChannelProperty'
 
 export default {
 
@@ -130,7 +131,7 @@ export default {
 
     this.hardware = Hardware
       .query()
-      .where('device_id', this.thing.device_id)
+      .where('deviceId', this.thing.deviceId)
       .first()
   },
 
@@ -164,10 +165,13 @@ export default {
         return
       }
 
-      this.$controlChannel(this.property, '0')
+      ChannelProperty.dispatch('transmitData', {
+        property: this.property,
+        value: '0',
+      })
         .catch(() => {
           this.$flashMessage(this.$t('things.messages.commandNotAccepted', {
-            thing: this.$tThingChannel(this.thing),
+            thing: this.thing.channel.title,
           }), 'error')
         })
     },
@@ -182,7 +186,7 @@ export default {
     _clearingCheck() {
       if (this.property.isSettable === false) {
         this.$flashMessage(this.$t('things.messages.notSupported', {
-          thing: this.$tThingChannel(this.thing),
+          thing: this.thing.channel.title,
         }), 'error')
 
         return false
@@ -191,7 +195,7 @@ export default {
       // Check if thing is connected to cloud
       if (this.thing.state !== true) {
         this.$flashMessage(this.$t('things.messages.notOnline', {
-          thing: this.$tThingChannel(this.thing),
+          thing: this.thing.channel.title,
         }), 'error')
 
         return false

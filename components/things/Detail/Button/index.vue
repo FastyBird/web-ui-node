@@ -1,6 +1,6 @@
 <template>
   <div class="fb-things-detail-button__container">
-    <fb-loading-box
+    <fb-ui-loading-box
       v-if="fetchingTriggers || !triggersLoaded"
       :text="$t('things.texts.loadingTriggers')"
     />
@@ -14,13 +14,13 @@
         />
 
         <div class="fb-things-detail-button__new-action">
-          <fb-button
+          <fb-ui-button
             variant="outline-primary"
             name="press"
             @click.prevent="$emit('view', 'type')"
           >
             {{ $t('things.buttons.addTriggerAction.title') }}
-          </fb-button>
+          </fb-ui-button>
         </div>
       </template>
 
@@ -37,8 +37,8 @@
 </template>
 
 <script>
-import ChannelProperty from '~/models/devices-node/ChannelProperty'
-import Trigger from '~/models/triggers-node/Trigger'
+import ChannelProperty from '~/models/devices-node/channel-properties/ChannelProperty'
+import Trigger from '~/models/triggers-node/triggers/Trigger'
 import Thing from '~/models/things/Thing'
 
 const ButtonTrigger = () => import('./Trigger')
@@ -70,7 +70,7 @@ export default {
     triggers() {
       const property = ChannelProperty
         .query()
-        .where('channel_id', this.thing.channel_id)
+        .where('channelId', this.thing.channelId)
         .first()
 
       if (property === null) {

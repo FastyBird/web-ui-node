@@ -1,40 +1,41 @@
-<template>
+<template functional>
   <div
-    :data-state="status ? 'on' : 'off'"
-    :class="['fb-list-item__container', {'fb-list-item__container-with-status' : showStatus}]"
-    @click="oneClick($event)"
+    :class="[data.class, data.staticClass, 'fb-list-item__container', `fb-list-item__container-${props.variant}`]"
+    @click="listeners['click']"
   >
-    <div class="fb-list-item__box">
+    <div class="fb-list-item__inner">
       <div class="fb-list-item__icon">
         <slot name="icon" />
       </div>
 
-      <div :class="['fb-list-item__heading', { 'with-subheading': slotExists('sub-heading') }]">
+      <div
+        :class="['fb-list-item__heading', { 'fb-list-item__heading-with-subheading': parent._.get(scopedSlots, 'sub-heading', null) !== null }]"
+      >
         <h2>
           <slot name="heading" />
         </h2>
-        <small v-if="slotExists('sub-heading')">
+        <small v-if="parent._.get(scopedSlots, 'sub-heading', null) !== null">
           <slot name="sub-heading" />
         </small>
       </div>
 
       <div
-        v-if="slotExists('detail-large')"
-        class="fb-list-item__detail-content-large"
+        v-if="parent._.get(scopedSlots, 'detail-large', null) !== null"
+        class="fb-list-item__content-large"
       >
         <slot name="detail-large" />
       </div>
 
       <div
-        v-else-if="slotExists('detail')"
-        class="fb-list-item__detail-content"
+        v-else-if="parent._.get(scopedSlots, 'detail', null) !== null"
+        class="fb-list-item__content"
       >
         <slot name="detail" />
       </div>
 
       <div
         v-else
-        class="fb-list-item__detail-icon"
+        class="fb-list-item__detail"
       >
         <font-awesome-icon
           icon="chevron-right"
@@ -46,7 +47,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from '@vue/composition-api'
+import {
+  defineComponent,
+} from '@vue/composition-api'
 
 export default defineComponent({
 
@@ -54,36 +57,22 @@ export default defineComponent({
 
   props: {
 
-    showStatus: {
-      type: Boolean,
-      default: false,
+    variant: {
+      type: String,
+      default: 'default',
+      validator: (value): boolean => {
+        // The value must match one of these strings
+        return [
+          'default', 'list',
+        ].includes(value)
+      },
     },
 
-    status: {
-      type: Boolean,
-      default: false,
-    },
-
-  },
-
-  setup(props, { emit }) {
-    /**
-     * Double click and single click event handler
-     *
-     * @param {Event} event
-     */
-    function oneClick(event: Event): void {
-      emit('click', event)
-    }
-
-    return {
-      oneClick,
-    }
   },
 
 })
 </script>
 
 <style rel="stylesheet/scss" lang="scss">
-  @import 'index';
+@import 'index';
 </style>

@@ -23,7 +23,7 @@
       />
     </off-canvas>
 
-    <fb-loading-box
+    <fb-ui-loading-box
       v-if="fetchingGroups && groups.length === 0"
       :text="$t('groups.texts.loadingGroups')"
     />
@@ -35,21 +35,20 @@
       />
 
       <div class="fb-groups-list-view__new-group">
-        <fb-button
+        <fb-ui-button
           variant="outline-primary"
           name="press"
           @click.prevent="openGroupCreate"
         >
           {{ $t('groups.buttons.addNew.title') }}
-        </fb-button>
+        </fb-ui-button>
       </div>
     </template>
   </div>
 </template>
 
 <script>
-import FbComponentLoading from '@/node_modules/@fastybird-com/web-ui-theme/components/UI/FbComponentLoading'
-import FbComponentLoadingError from '@/node_modules/@fastybird-com/web-ui-theme/components/UI/FbComponentLoadingError'
+import { FbUiComponentLoading, FbUiComponentLoadingError } from '@fastybird/web-ui-theme'
 
 import {
   GROUPS_HASH_DETAIL,
@@ -57,14 +56,14 @@ import {
   GROUPS_HASH_CREATE,
 } from '~/configuration/routes'
 
-import Group from '~/models/devices-node/Group'
+import Group from '~/models/ui-node/Group'
 
 import GroupListItem from '~/components/groups/ListItem'
 
 const GroupDetail = () => ({
   component: import('~/components/groups/Desktop/Detail'),
-  loading: FbComponentLoading,
-  error: FbComponentLoadingError,
+  loading: FbUiComponentLoading,
+  error: FbUiComponentLoadingError,
   timeout: 10000,
 })
 
@@ -127,7 +126,7 @@ export default {
      * @returns {String}
      */
     windowSize() {
-      return this.$store.state.template.windowSize
+      return this.$store.state.app.windowSize
     },
 
     /**
@@ -259,8 +258,6 @@ export default {
         })
     }
 
-    this.$bus.$on('heading_action_button-clicked', this.actionButtonAction)
-
     this._configureNavigation()
   },
 
@@ -272,10 +269,6 @@ export default {
     this.$bus.$emit('wait-page_reloading', false)
 
     this.isMounted = true
-  },
-
-  beforeDestroy() {
-    this.$bus.$off('heading_action_button-clicked', this.actionButtonAction)
   },
 
   methods: {

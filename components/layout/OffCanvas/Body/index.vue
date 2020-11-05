@@ -1,60 +1,39 @@
-<template>
+<template functional>
   <div class="fb-off-canvas-body__container">
-    <off-canvas-heading
-      :heading="heading"
-      :sub-heading="subHeading"
-    >
-      <template slot="left-button">
-        <slot name="left-button" />
-      </template>
+    <div class="fb-off-canvas-body__heading">
+      <h4 v-if="parent._.get(scopedSlots, 'sub-heading', null) === null">
+        <slot name="heading" />
+      </h4>
+      <h4 v-else>
+        <span><slot name="heading" /></span>
+        <small>
+          <slot name="sub-heading" />
+        </small>
+      </h4>
 
-      <template slot="right-button">
-        <slot name="right-button" />
-      </template>
-    </off-canvas-heading>
+      <slot name="left-button" />
 
-    <slot name="body" />
+      <slot name="right-button" />
+    </div>
+
+    <div class="fb-off-canvas-body__body">
+      <slot name="body" />
+    </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from '@vue/composition-api'
-
-import OffCanvasHeading from './../Heading/index.vue'
+import {
+  defineComponent,
+} from '@vue/composition-api'
 
 export default defineComponent({
 
   name: 'OffCanvasBody',
 
-  components: {
-    OffCanvasHeading,
-  },
-
-  props: {
-
-    heading: {
-      type: String,
-      required: true,
-    },
-
-    subHeading: {
-      type: String,
-      required: false,
-      default: null,
-    },
-
-  },
-
-  setup(props, context) {
-    const root = ref(null);
-
-    return {
-      root,
-      close: (): void => {
-        context.emit('close')
-      },
-    }
-  },
-
 })
 </script>
+
+<style rel="stylesheet/scss" lang="scss">
+@import 'index';
+</style>

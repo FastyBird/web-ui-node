@@ -17,6 +17,6 @@ module.exports = {
   langDir: 'locales/',
   vueI18n: {
     fallbackLocale: 'en',
-    silentTranslationWarn: true,
+    silentTranslationWarn: false,
   },
 }

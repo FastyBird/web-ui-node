@@ -1,0 +1,23 @@
+.fb-triggers-select-action-device-property {
+  &__container {
+    width: 100%;
+
+    .fb-list-item__icon {
+      line-height: 1.5rem;
+
+      .fb-form-checkbox__container {
+        padding: 1.8rem 1rem;
+      }
+    }
+
+    .fb-list-item__content-large {
+      line-height: 1.5rem;
+
+      .fb-form-radio__container {
+        float: left;
+        margin-left: 0;
+        padding-left: 0;
+      }
+    }
+  }
+}

@@ -1,0 +1,24 @@
+@import "~@fastybird/web-ui-theme/src/assets/variables/screen";
+
+.fb-devices-detail-default {
+  &__container {
+    padding-top: $padding-md;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    .fb-ui-no-results__container {
+      margin: $margin-md auto;
+    }
+  }
+
+  &__channel {
+    width: 100%;
+
+    .fb-ui-items-container__items {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+    }
+  }
+}

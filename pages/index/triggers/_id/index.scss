@@ -1,0 +1,24 @@
+.fb-triggers-detail-view {
+  &__container {
+    height: 100%;
+    max-height: 100%;
+
+    &-settings {
+      overflow: scroll;
+    }
+
+    &-loading {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+    }
+  }
+
+  &__loading {
+    -webkit-box-flex: 0;
+    -ms-flex: 0 0 50%;
+    flex: 0 0 50%;
+    max-width: 50%;
+    margin: 0 auto;
+  }
+}

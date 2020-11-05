@@ -17,14 +17,18 @@
         v-if="show"
         class="fb-off-canvas__body"
       >
-        <slot name="body" />
+        <slot />
       </div>
     </transition>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch } from '@vue/composition-api'
+import {
+  defineComponent,
+  ref,
+  watch,
+} from '@vue/composition-api'
 
 export default defineComponent({
 
@@ -61,5 +65,5 @@ export default defineComponent({
 </script>
 
 <style rel="stylesheet/scss" lang="scss">
-  @import 'index';
+@import 'index';
 </style>

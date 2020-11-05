@@ -1,7 +1,7 @@
-class ApiError extends Error {
-  public type: string;
+class ExceptionError extends Error {
+  public type: string
 
-  public exception: Error | null;
+  public exception: Error | null
 
   constructor(type: string, exception: Error | null, ...params: any) {
     // Pass remaining arguments (including vendor specific ones) to parent constructor
@@ -9,7 +9,7 @@ class ApiError extends Error {
 
     // Maintains proper stack trace for where our error was thrown (only available on V8)
     if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, ApiError)
+      Error.captureStackTrace(this, ExceptionError)
     }
 
     // Custom debugging information
@@ -18,4 +18,13 @@ class ApiError extends Error {
   }
 }
 
-export { ApiError }
+class ApiError extends ExceptionError {
+}
+
+class OrmError extends ExceptionError {
+}
+
+export {
+  ApiError,
+  OrmError,
+}

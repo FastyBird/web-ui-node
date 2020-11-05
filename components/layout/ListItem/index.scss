@@ -1,187 +1,121 @@
-@import "~@fastybird-com/web-ui-theme/assets/variables/colors";
-@import "~@fastybird-com/web-ui-theme/assets/variables/screen";
-@import "~@fastybird-com/web-ui-theme/assets/mixins/utilities";
+@import "~@fastybird/web-ui-theme/src/assets/variables/colors";
+@import "~@fastybird/web-ui-theme/src/assets/variables/screen";
+@import "~@fastybird/web-ui-theme/src/assets/mixins/utilities";
 
 .fb-list-item {
   &__container {
-    height: 55px;
-    cursor: pointer;
-    margin-top: 5px;
-    margin-bottom: 5px;
+    height: 5.5rem;
 
-    @media (max-width: $screen-xs-max) {
-      margin: 5px;
-      padding: 0;
-    }
+    &-default {
+      margin-top: $margin-xs;
+      margin-bottom: $margin-xs;
 
-    .fb-spinner__container {
-      position: unset;
-    }
-
-    .fb-checkbox__container {
-      padding: 0;
-      margin: 0;
-      display: inline-block;
-    }
-
-    &-with-status {
-      &[data-state="on"] {
-        > div {
-          border-left: 4px solid $brand-primary;
-        }
+      @media (max-width: $screen-xs-max) {
+        margin: $margin-xs;
       }
 
-      &[data-state="off"] {
-        > div {
-          border-left: 4px solid $gray-lighter;
-        }
+      border: 1px solid $gray-lighter;
+      @include border-radius(0.5rem);
+    }
 
-        .fb-list-item {
-          &__icon svg,
-          &__heading {
-            color: $gray-lighter;
-          }
-        }
-
-        .fb-icon-with-child__container-child {
-          background-color: $brand-danger;
+    &-list {
+      .fb-list-item {
+        &__inner {
+          border-bottom: 1px solid $gray-lighter;
         }
       }
     }
   }
 
-  &__box {
-    @include gridRow;
+  &__inner {
+    height: 100%;
 
-    margin: 0;
-
-    border: 1px solid $gray-lighter;
-    border-radius: 4px;
-    background-color: #fff;
-
-    &:not(:last-child) {
-      @media (min-width: $screen-sm-min) {
-        border-bottom: 1px solid $gray-lighter;
-      }
-    }
+    @include flexRow;
   }
 
   &__icon {
-    font-size: 25px;
-    line-height: 53px;
-    height: 53px;
+    font-size: 2.75rem;
+    line-height: 5.3rem;
+    height: 100%;
     text-align: center;
 
-    @include gridCel(0, 0);
-
     -webkit-box-flex: 0;
-    -ms-flex: 0 0 14%;
-    flex: 0 0 14%;
-    max-width: 14%;
-
-    @media (max-width: $screen-xs-max) {
-      -webkit-box-flex: 0;
-      -ms-flex: 0 0 16.666667%;
-      flex: 0 0 16.666667%;
-      max-width: 16.666667%;
-    }
+    -ms-flex: 0 0 5.5rem;
+    flex: 0 0 5.5rem;
+    max-width: 5.5rem;
   }
 
   &__heading {
+    height: 100%;
     overflow: hidden;
-    padding-top: 18px;
 
-    @include gridCel(0, 0);
-
-    -ms-flex-preferred-size: 0;
-    flex-basis: 0;
-    -webkit-box-flex: 1;
-    -ms-flex-positive: 1;
-    flex-grow: 1;
-    max-width: 100%;
+    -webkit-box-flex: 0;
+    -ms-flex: 4 0 0;
+    flex: 4 0 0;
 
     > h2 {
-      margin: 2px 0;
-      font-size: 120%;
+      margin: 0;
+      line-height: 5.3rem;
+      font-size: 1.5rem;
       font-weight: 500;
     }
 
-    &.with-subheading {
-      padding-top: 10px;
-
+    &-with-subheading {
       > h2 {
-        font-size: 100%;
+        margin-top: 1rem;
+        line-height: 2rem;
+        font-size: 1.4rem;
       }
-    }
 
-    small {
-      font-size: 80%;
-      display: block;
-      text-overflow: ellipsis;
-      overflow: hidden;
-      width: 85%;
-      white-space: nowrap;
+      > small {
+        line-height: 1.3rem;
+        font-size: 1.05rem;
+        display: block;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        width: 85%;
+        white-space: nowrap;
+      }
     }
   }
 
-  &__detail-icon {
-    font-size: 15px;
-    line-height: 53px;
-    height: 53px;
+  &__detail {
+    font-size: 1.75rem;
+    line-height: 5.3rem;
+    height: 100%;
+    text-align: right;
     color: $gray-light;
 
+    padding-right: $padding-sm;
+
+    -webkit-box-flex: 0;
+    -ms-flex: 0 0 2.75rem;
+    flex: 0 0 2.75rem;
+    max-width: 2.75rem;
+  }
+
+  &__content,
+  &__content-large {
+    font-size: 1.75rem;
+    line-height: 5.3rem;
+    height: 100%;
+    color: $gray-light;
+  }
+
+  &__content {
+    text-align: center;
+    -webkit-box-flex: 0;
+    -ms-flex: 0 0 5.5rem;
+    flex: 0 0 5.5rem;
+    max-width: 5.5rem;
+  }
+
+  &__content-large {
     text-align: right;
-
-    @include gridCel(0, 5px);
-
+    padding-right: $padding-sm;
     -webkit-box-flex: 0;
-    -ms-flex: 0 0 8.333333%;
-    flex: 0 0 8.333333%;
-    max-width: 8.333333%;
-  }
-
-  &__detail-content,
-  &__detail-content-large {
-    font-size: 15px;
-    line-height: 53px;
-    height: 53px;
-    text-align: right;
-
-    @include gridCel(0, 5px);
-
-    > div {
-      .fb-things-switch__loading {
-        margin-top: 10px;
-        height: 33px;
-      }
-    }
-  }
-
-  &__detail-content {
-    -webkit-box-flex: 0;
-    -ms-flex: 0 0 20%;
-    flex: 0 0 20%;
-    max-width: 20%;
-
-    @media (max-width: $screen-xs-max) {
-      -webkit-box-flex: 0;
-      -ms-flex: 0 0 25%;
-      flex: 0 0 25%;
-      max-width: 25%;
-    }
-  }
-
-  &__detail-content-large {
-    -webkit-box-flex: 0;
-    -ms-flex: 0 0 22%;
-    flex: 0 0 22%;
-    max-width: 22%;
-
-    @media (max-width: $screen-xs-max) {
-      -webkit-box-flex: 0;
-      -ms-flex: 0 0 35%;
-      flex: 0 0 35%;
-      max-width: 35%;
-    }
+    -ms-flex: 0 0 20rem;
+    flex: 0 0 20rem;
+    max-width: 20rem;
   }
 }

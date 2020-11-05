@@ -152,7 +152,7 @@ export default {
             .query()
             .with('device')
             .with('channel')
-            .where('device_id', this.search.device.id)
+            .where('deviceId', this.search.device.id)
             .first()
 
           if (thing !== null) {

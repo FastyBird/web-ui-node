@@ -1,8 +1,11 @@
 <template>
   <div class="fb-home-view__container">
+    <fb-layout-header-spacer left />
+
     <template v-if="account !== null">
       <gravatar
-        :email="account.email"
+        v-if="account.email !== null"
+        :email="account.email.address"
         :size="250"
         :default-img="'mm'"
         :alt="account.name"
@@ -39,15 +42,7 @@ export default {
   },
 
   created() {
-    this.$store.dispatch('template/resetHeadings', null, {
-      root: true,
-    })
-
-    this.$store.dispatch('template/resetButtons', null, {
-      root: true,
-    })
-
-    this.$store.dispatch('app/bottomMenuExpand', null, {
+    this.$store.dispatch('app/resetHeading', {}, {
       root: true,
     })
   },

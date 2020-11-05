@@ -5,7 +5,7 @@
       @view="openView"
     />
 
-    <fb-button
+    <fb-ui-button
       v-if="triggers.length"
       variant="outline-primary"
       uppercase
@@ -14,21 +14,21 @@
       @click.prevent="openView('type')"
     >
       <font-awesome-icon icon="plus" />
-    </fb-button>
+    </fb-ui-button>
 
-    <fb-modal-window
+    <fb-ui-modal-window
       v-if="view.opened !== null"
       :transparent-bg="true"
       @close="closeView"
     >
       <div
         slot="modal-content"
-        class="fb-modal-window__content"
+        class="fb-ui-modal-window__content"
       >
-        <div class="fb-modal-window__header">
+        <div class="fb-ui-modal-window__header">
           <button
             type="button"
-            class="fb-modal-window__close"
+            class="fb-ui-modal-window__close"
             @click.prevent="closeView"
           >
             <span aria-hidden="true">×</span>
@@ -59,10 +59,10 @@
             </template>
 
             <template v-else-if="view.opened === view.items.actionThing.name">
-              <font-awesome-icon :icon="$thingIcon(view.items.actionThing.thing)" />
+              <font-awesome-icon :icon="view.items.actionThing.thing.device.icon" />
 
               <h4>
-                {{ $tThingChannel(view.items.actionThing.thing) }}
+                {{ view.items.actionThing.thing.channel.title }}
               </h4>
 
               <small>Facilis blanditiis, quibusdam corporis porro natus neque soluta nihil hic aliquam, suscipit,
@@ -71,13 +71,13 @@
           </div>
         </div>
 
-        <div class="fb-modal-window__body">
+        <div class="fb-ui-modal-window__body">
           <div
             v-if="view.opened === view.items.type.name"
             class="fb-things-desktop-detail-button__type"
           >
             <div>
-              <fb-button
+              <fb-ui-button
                 block
                 variant="outline-primary"
                 size="lg"
@@ -85,10 +85,10 @@
                 @click.prevent="openView(view.items.selectThing.name, 'press')"
               >
                 {{ $t('things.buttons.press.title') }}
-              </fb-button>
+              </fb-ui-button>
             </div>
             <div>
-              <fb-button
+              <fb-ui-button
                 block
                 variant="outline-primary"
                 size="lg"
@@ -96,10 +96,10 @@
                 @click.prevent="openView(view.items.selectThing.name, 'click')"
               >
                 {{ $t('things.buttons.click.title') }}
-              </fb-button>
+              </fb-ui-button>
             </div>
             <div>
-              <fb-button
+              <fb-ui-button
                 block
                 variant="outline-primary"
                 size="lg"
@@ -107,7 +107,7 @@
                 @click.prevent="openView(view.items.selectThing.name, 'dblClick')"
               >
                 {{ $t('things.buttons.dblClick.title') }}
-              </fb-button>
+              </fb-ui-button>
             </div>
           </div>
 
@@ -131,9 +131,9 @@
           />
         </div>
 
-        <div class="fb-modal-window__footer">
+        <div class="fb-ui-modal-window__footer">
           <template v-if="view.opened === view.items.type.name || view.opened === view.items.selectThing.name">
-            <fb-button
+            <fb-ui-button
               uppercase
               variant="link"
               size="lg"
@@ -141,11 +141,11 @@
               @click.prevent="closeView"
             >
               {{ $t('application.buttons.close.title') }}
-            </fb-button>
+            </fb-ui-button>
           </template>
 
           <template v-else>
-            <fb-button
+            <fb-ui-button
               uppercase
               variant="link"
               size="lg"
@@ -153,9 +153,9 @@
               @click.prevent="openView(view.items.selectThing.name, actionType)"
             >
               {{ $t('application.buttons.back.title') }}
-            </fb-button>
+            </fb-ui-button>
 
-            <fb-button
+            <fb-ui-button
               uppercase
               variant="outline-primary"
               size="lg"
@@ -168,17 +168,16 @@
               <template v-else>
                 {{ $t('things.buttons.addThing.title') }}
               </template>
-            </fb-button>
+            </fb-ui-button>
           </template>
         </div>
       </div>
-    </fb-modal-window>
+    </fb-ui-modal-window>
   </div>
 </template>
 
 <script>
-import FbComponentLoading from '@/node_modules/@fastybird-com/web-ui-theme/components/UI/FbComponentLoading'
-import FbComponentLoadingError from '@/node_modules/@fastybird-com/web-ui-theme/components/UI/FbComponentLoadingError'
+import { FbUiComponentLoading, FbUiComponentLoadingError } from '@fastybird/web-ui-theme'
 
 import SharedButtonThing from '~/components/things/Shared/ThingButton'
 
@@ -187,14 +186,14 @@ import Thing from '~/models/things/Thing'
 
 const SelectThing = () => ({
   component: import('~/components/routines/Edit/SelectThing'),
-  loading: FbComponentLoading,
-  error: FbComponentLoadingError,
+  loading: FbUiComponentLoading,
+  error: FbUiComponentLoadingError,
   timeout: 10000,
 })
 const EditAction = () => ({
   component: import('~/components/routines/Edit/EditAction'),
-  loading: FbComponentLoading,
-  error: FbComponentLoadingError,
+  loading: FbUiComponentLoading,
+  error: FbUiComponentLoadingError,
   timeout: 10000,
 })
 

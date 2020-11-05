@@ -1,9 +1,10 @@
 <template>
-  <fb-modal-form
+  <fb-ui-modal-form
     :lock-submit-button="form.result !== null"
     :result-is-ok="form.result === true"
     icon="user"
     @submit="submit"
+    @cancer="close"
     @close="close"
   >
     <template slot="header">
@@ -16,7 +17,7 @@
           <div class="fb-account-edit__column">
             <fb-form-input
               v-model="form.model.emailAddress"
-              v-validate="'required|email|checkEmail'"
+              v-validate="'required|email'"
               :data-vv-scope="form.scope"
               :data-vv-as="$t('account.fields.emailAddress.title')"
               :error="errors.first(form.scope + '.email_address')"
@@ -28,10 +29,7 @@
               type="email"
               spellcheck="false"
             >
-              <template
-                v-if="!errors.has(form.scope + '.email_address')"
-                slot="help-line"
-              >
+              <template slot="help-line">
                 {{ $t('account.fields.emailAddress.help') }}
               </template>
             </fb-form-input>
@@ -62,10 +60,7 @@
               :required="true"
               spellcheck="false"
             >
-              <template
-                v-if="!errors.has(form.scope + '.first_name')"
-                slot="help-line"
-              >
+              <template slot="help-line">
                 {{ $t('account.fields.firstName.help') }}
               </template>
             </fb-form-input>
@@ -84,10 +79,7 @@
               :required="true"
               spellcheck="false"
             >
-              <template
-                v-if="!errors.has(form.scope + '.last_name')"
-                slot="help-line"
-              >
+              <template slot="help-line">
                 {{ $t('account.fields.lastName.help') }}
               </template>
             </fb-form-input>
@@ -106,14 +98,18 @@
           </div>
         </div>
 
+        <hr>
+
         <div class="fb-account-edit__columns">
           <div class="fb-account-edit__column">
             <fb-form-select
-              v-model="form.model.timeZone"
+              v-model="form.model.timezone"
               :data-vv-scope="form.scope"
-              :label="$t('account.fields.datetime.timeZone.title')"
+              :label="$t('account.fields.datetime.timezone.title')"
               :items="zonesOptions"
               name="zone"
+              mt="md"
+              mb="lg"
             />
           </div>
 
@@ -124,6 +120,8 @@
               :label="$t('account.fields.datetime.weekStartOn.title')"
               :items="form.options.weekStart"
               name="weekStart"
+              mt="md"
+              mb="lg"
             />
           </div>
         </div>
@@ -151,14 +149,14 @@
         </div>
       </div>
     </template>
-  </fb-modal-form>
+  </fb-ui-modal-form>
 </template>
 
 <script>
 import timezones from '~/helpers/timezones'
 
-import Account from '~/models/accounts-node/Account'
-import Email from '~/models/accounts-node/Email'
+import Account from '~/models/auth-node/accounts/Account'
+import Email from '~/models/auth-node/emails/Email'
 
 export default {
 
@@ -176,7 +174,7 @@ export default {
           middleName: '',
           language: 'en',
           weekStart: 1,
-          timeZone: 'Europe/London',
+          timezone: 'Europe/London',
           dateFormat: 'DD.MM.YYYY',
           timeFormat: 'HH:mm',
         },
@@ -204,7 +202,7 @@ export default {
           ],
           dateFormat: [
             {
-              value: 'MM/DD/YYYY',
+              value: 'MM/dd/YYYY',
               name: 'mm/dd/yyyy',
             }, {
               value: 'DD/MM/YYYY',
@@ -233,6 +231,10 @@ export default {
   },
 
   computed: {
+
+    account() {
+      return this.$store.getters['session/getAccount']()
+    },
 
     /**
      * Get list of time zones for select box
@@ -273,66 +275,9 @@ export default {
         },
       },
     })
-
-    this.$validator.extend('checkEmail', {
-      validate: this.checkEmail,
-      getMessage: (field, params, data) => {
-        return data.message
-      },
-    })
   },
 
   methods: {
-
-    /**
-     * Check if provided email address is not used
-     *
-     * @param {String} value
-     *
-     * @returns {Object}
-     */
-    checkEmail(value) {
-      const emails = this.account.emails
-
-      for (const email of emails) {
-        if (email.address === value) {
-          return {
-            valid: true,
-          }
-        }
-      }
-
-      return this.$backendApi.validateEmail({
-        address: value,
-      })
-        .then(() => {
-          return {
-            valid: true,
-          }
-        })
-        .catch((e) => {
-          if (this._.get(e, 'response', null) !== null && this._.get(e, 'response.data.errors', null) !== null) {
-            this._.get(e, 'response.data.errors', [])
-              .forEach((error) => {
-                if (parseInt(this._.get(error, 'code', 0), 10) === 422) {
-                  return {
-                    valid: false,
-                    data: {
-                      message: this._.get(error, 'detail'),
-                    },
-                  }
-                }
-              })
-          }
-
-          return {
-            valid: false,
-            data: {
-              message: this.$t('application.messages.valueIsNotValid'),
-            },
-          }
-        })
-    },
 
     /**
      * Submit form values
@@ -346,7 +291,7 @@ export default {
         .then((result) => {
           if (result) {
             // Email has been changed
-            if (this.form.model.emailAddress !== this._.get(this.account, 'primaryEmail.address')) {
+            if (this.form.model.emailAddress !== this._.get(this.account, 'email.address')) {
               const storedEmail = Email
                 .query()
                 .where('address', this.form.model.emailAddress)
@@ -356,16 +301,16 @@ export default {
 
               if (storedEmail !== null) {
                 Email.dispatch('edit', {
-                  id: storedEmail.id,
-                  is_default: true,
-                  is_private: storedEmail.is_private,
+                  email: storedEmail,
+                  default: true,
+                  private: storedEmail.private,
                 })
                   .then(() => {
                     this._updateAccount()
                   })
                   .catch((e) => {
                     if (this._.get(e, 'exception', null) !== null) {
-                      this.handleFormError(e.exception, emailErrorMessage)
+                      this.handleException(e.exception, emailErrorMessage)
                     } else {
                       this.$flashMessage(emailErrorMessage, 'error')
                     }
@@ -374,15 +319,15 @@ export default {
                 Email.dispatch('add', {
                   account: this.account,
                   address: this.form.model.emailAddress,
-                  is_default: true,
-                  is_private: false,
+                  default: true,
+                  private: false,
                 })
                   .then(() => {
                     this._updateAccount()
                   })
                   .catch((e) => {
                     if (this._.get(e, 'exception', null) !== null) {
-                      this.handleFormError(e.exception, emailErrorMessage)
+                      this.handleException(e.exception, emailErrorMessage)
                     } else {
                       this.$flashMessage(emailErrorMessage, 'error')
                     }
@@ -424,19 +369,19 @@ export default {
       const errorMessage = this.$t('account.messages.accountNotEdited')
 
       Account.dispatch('edit', {
-        id: this.account.id,
-        first_name: this.form.model.firstName,
-        last_name: this.form.model.lastName,
-        middle_name: this.form.model.middleName,
+        account: this.account,
+        firstName: this.form.model.firstName,
+        lastName: this.form.model.lastName,
+        middleName: this.form.model.middleName,
         language: this.form.model.language,
-        week_start: this.form.model.weekStart,
-        time_zone: this.form.model.timeZone,
-        date_format: this.form.model.dateFormat,
-        time_format: this.form.model.timeFormat,
+        weekStart: this.form.model.weekStart,
+        timezone: this.form.model.timezone,
+        dateFormat: this.form.model.dateFormat,
+        timeFormat: this.form.model.timeFormat,
       })
         .catch((e) => {
           if (this._.get(e, 'exception', null) !== null) {
-            this.handleFormError(e.exception, errorMessage)
+            this.handleException(e.exception, errorMessage)
           } else {
             this.$flashMessage(errorMessage, 'error')
           }
@@ -487,15 +432,15 @@ export default {
      */
     _initModel() {
       this.form.model = {
-        emailAddress: this._.get(this.account, 'primaryEmail.address'),
-        firstName: this.account.firstName,
-        lastName: this.account.lastName,
-        middleName: this.account.middleName,
-        language: this.account.language,
-        weekStart: this.account.weekStart,
-        timeZone: this.account.timeZone,
-        dateFormat: this.account.dateFormat,
-        timeFormat: this.account.timeFormat,
+        emailAddress: this._.get(this.account, 'email.address'),
+        firstName: this._.get(this.account, 'firstName'),
+        lastName: this._.get(this.account, 'lastName'),
+        middleName: this._.get(this.account, 'middleName'),
+        language: this._.get(this.account, 'language'),
+        weekStart: this._.get(this.account, 'weekStart'),
+        timezone: this._.get(this.account, 'timezone'),
+        dateFormat: this._.get(this.account, 'dateFormat'),
+        timeFormat: this._.get(this.account, 'timeFormat'),
       }
 
       this.errors.clear(this.form.scope)

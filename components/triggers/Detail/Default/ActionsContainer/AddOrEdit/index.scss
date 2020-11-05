@@ -1,0 +1,35 @@
+@import "~@fastybird/web-ui-theme/src/assets/variables/colors";
+@import "~@fastybird/web-ui-theme/src/assets/variables/screen";
+
+.fb-triggers-detail-default-actions-container-add-or-edit {
+  &__container {
+    .fb-ui-modal-window__body {
+      .fb-ui-items-container__heading {
+        padding-left: 0;
+      }
+
+      .fb-ui-items-container__items {
+        padding: 0;
+      }
+    }
+
+    .fb-ui-modal-window__footer {
+      .fb-ui-button[data-variant="link"] {
+        color: $text-muted !important;
+      }
+    }
+  }
+
+  &__icon {
+    font-size: 4em;
+    margin-bottom: $margin-sm;
+  }
+
+  &__content {
+    min-height: 10rem;
+
+    .fb-triggers-list-devices__container {
+      margin: 0;
+    }
+  }
+}

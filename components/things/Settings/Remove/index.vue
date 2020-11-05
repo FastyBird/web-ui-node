@@ -1,5 +1,5 @@
 <template>
-  <fb-confirmation-window
+  <fb-ui-confirmation-window
     :transparent-bg="transparentBg"
     icon="trash"
     @confirmed="remove"
@@ -14,14 +14,14 @@
         path="things.messages.confirmRemove"
         tag="p"
       >
-        <strong slot="thing">{{ $tThingChannel(thing) }}</strong>
+        <strong slot="thing">{{ thing.channel.title }}</strong>
       </i18n>
     </template>
-  </fb-confirmation-window>
+  </fb-ui-confirmation-window>
 </template>
 
 <script>
-import Device from '~/models/devices-node/Device'
+import Device from '~/models/devices-node/devices/Device'
 
 export default {
 
@@ -56,7 +56,7 @@ export default {
       event && event.preventDefault()
 
       const errorMessage = this.$t('things.messages.notRemoved', {
-        thing: this.$tThingChannel(this.thing),
+        thing: this.thing.channel.title,
       })
 
       Device.dispatch('remove', {
@@ -64,7 +64,7 @@ export default {
       })
         .catch((e) => {
           if (this._.get(e, 'exception', null) !== null) {
-            this.handleFormError(e.exception, errorMessage)
+            this.handleException(e.exception, errorMessage)
           } else {
             this.$flashMessage(errorMessage, 'error')
           }

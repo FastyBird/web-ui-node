@@ -1,11 +1,12 @@
 <template>
-  <fb-modal-form
+  <fb-ui-modal-form
     v-if="thing !== null"
     :transparent-bg="transparentBg"
     :lock-submit-button="form.result !== null"
     :result-is-ok="form.result === true"
     icon="key"
     @submit="submit"
+    @cancel="close"
     @close="close"
   >
     <template slot="header">
@@ -65,7 +66,7 @@
         </div>
       </div>
     </template>
-  </fb-modal-form>
+  </fb-ui-modal-form>
 </template>
 
 <script>
@@ -74,8 +75,7 @@ import {
   MQTT_SERVER_PORT,
 } from '~/configuration'
 
-import Device from '~/models/devices-node/Device'
-import Credentials from '~/models/devices-node/Credentials'
+import Device from '~/models/devices-node/devices/Device'
 
 export default {
 
@@ -112,11 +112,6 @@ export default {
   },
 
   created() {
-    this.credentials = Credentials
-      .query()
-      .where('device_id', this.thing.device_id)
-      .first()
-
     this._initModel()
 
     this.$validator.localize({
@@ -151,18 +146,15 @@ export default {
         .then((result) => {
           if (result) {
             const errorMessage = this.$t('things.messages.notEdited', {
-              thing: this.$tThingChannel(this.thing),
+              thing: this.thing.channel.title,
             })
 
             Device.dispatch('edit', {
-              id: this.thing.device_id,
-              data: {
-                credentials: this.form.model,
-              },
+              id: this.thing.deviceId,
             })
               .catch((e) => {
                 if (this._.get(e, 'exception', null) !== null) {
-                  this.handleFormError(e.exception, errorMessage)
+                  this.handleException(e.exception, errorMessage)
                 } else {
                   this.$flashMessage(errorMessage, 'error')
                 }

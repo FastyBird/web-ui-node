@@ -1,10 +1,11 @@
 <template>
-  <fb-modal-form
+  <fb-ui-modal-form
     :transparent-bg="transparentBg"
     :lock-submit-button="form.result !== null"
     :result-is-ok="form.result === true"
     icon="pencil-alt"
     @submit="submit"
+    @cancel="close"
     @close="close"
   >
     <template slot="header">
@@ -35,11 +36,11 @@
         :tab-index="3"
       />
     </template>
-  </fb-modal-form>
+  </fb-ui-modal-form>
 </template>
 
 <script>
-import Group from '~/models/devices-node/Group'
+import Group from '~/models/ui-node/Group'
 
 export default {
 
@@ -113,7 +114,7 @@ export default {
             })
               .catch((e) => {
                 if (this._.get(e, 'exception', null) !== null) {
-                  this.handleFormError(e.exception, errorMessage)
+                  this.handleException(e.exception, errorMessage)
                 } else {
                   this.$flashMessage(errorMessage, 'error')
                 }

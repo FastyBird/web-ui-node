@@ -1,0 +1,31 @@
+.fb-triggers-select-condition-device-property {
+  &__container {
+    width: 100%;
+
+    .fb-list-item__icon {
+      line-height: 1.5rem;
+
+      .fb-form-checkbox__container {
+        padding: 1.8rem 1rem;
+      }
+    }
+
+    .fb-form-field__container {
+      display: inline-block;
+
+      select {
+        padding: 0 !important;
+      }
+    }
+  }
+
+  &__channel-property-combined-operand {
+    &-operator {
+      width: 5rem;
+    }
+
+    &-operand {
+      width: 13rem;
+    }
+  }
+}

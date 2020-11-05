@@ -6,13 +6,11 @@ import {
   DEVICE_FASTYBIRD_BUTTON_DBL_CLICK,
 } from '~/configuration/devices'
 
-import Trigger from '~/models/triggers-node/Trigger'
-import Action from '~/models/triggers-node/Action'
-import ChannelProperty from '~/models/devices-node/ChannelProperty'
+import Trigger from '~/models/triggers-node/triggers/Trigger'
+import Action from '~/models/triggers-node/actions/Action'
+import ChannelProperty from '~/models/devices-node/channel-properties/ChannelProperty'
 
-import {
-  TRIGGERS_ACTION_CHANNEL_PROPERTY,
-} from '~/models/triggers-node/types'
+import { ActionEntityTypeType } from '~/models/triggers-node/actions/types'
 
 export default {
 
@@ -41,7 +39,7 @@ export default {
     triggers() {
       const property = ChannelProperty
         .query()
-        .where('channel_id', this.thing.channel_id)
+        .where('channelId', this.thing.channelId)
         .first()
 
       if (property === null) {
@@ -131,12 +129,10 @@ export default {
                   enabled: data.enabled,
                   value: row.operation,
                 },
-              }, {
-                root: true,
               })
                 .catch((e) => {
                   if (Object.prototype.hasOwnProperty.call(e, 'exception')) {
-                    this.handleFormError(e.exception, errorMessage)
+                    this.handleException(e.exception, errorMessage)
                   } else {
                     this.$flashMessage(errorMessage, 'error')
                   }
@@ -147,7 +143,7 @@ export default {
                 trigger,
                 data: {
                   id: null,
-                  type: TRIGGERS_ACTION_CHANNEL_PROPERTY,
+                  type: ActionEntityTypeType.CHANNEL_PROPERTY,
                   enabled: data.enabled,
                   device: data.device,
                   channel: data.channel,
@@ -157,7 +153,7 @@ export default {
               })
                 .catch((e) => {
                   if (Object.prototype.hasOwnProperty.call(e, 'exception')) {
-                    this.handleFormError(e.exception, errorMessage)
+                    this.handleException(e.exception, errorMessage)
                   } else {
                     this.$flashMessage(errorMessage, 'error')
                   }
@@ -170,7 +166,7 @@ export default {
         this._.get(data, 'rows', [])
           .forEach((row) => {
             mappedActions.push({
-              type: TRIGGERS_ACTION_CHANNEL_PROPERTY,
+              type: ActionEntityTypeType.CHANNEL_PROPERTY,
               enabled: !!data.enabled,
               device: data.device,
               channel: data.channel,
@@ -181,15 +177,15 @@ export default {
 
         const property = ChannelProperty
           .query()
-          .where('channel_id', this.thing.channel_id)
+          .where('channelId', this.thing.channelId)
           .first()
 
         // Create new trigger with remapped actions
         Trigger.dispatch('add', {
           channelProperty: true,
           data: {
-            name: this.thing.device_id,
-            comment: this.thing.channel_id,
+            name: this.thing.deviceId,
+            comment: this.thing.channelId,
             device: this.thing.device.identifier,
             channel: this.thing.channel.channel,
             enabled: true,
@@ -201,7 +197,7 @@ export default {
         })
           .catch((e) => {
             if (Object.prototype.hasOwnProperty.call(e, 'exception')) {
-              this.handleFormError(e.exception, errorMessage)
+              this.handleException(e.exception, errorMessage)
             } else {
               this.$flashMessage(errorMessage, 'error')
             }
@@ -234,7 +230,7 @@ export default {
                 const errorMessage = this.$t('triggers.messages.actionNotRemoved')
 
                 if (Object.prototype.hasOwnProperty.call(e, 'exception')) {
-                  this.handleFormError(e.exception, errorMessage)
+                  this.handleException(e.exception, errorMessage)
                 } else {
                   this.$flashMessage(errorMessage, 'error')
                 }
@@ -248,7 +244,7 @@ export default {
             const errorMessage = this.$t('things.messages.actionNotRemoved')
 
             if (Object.prototype.hasOwnProperty.call(e, 'exception')) {
-              this.handleFormError(e.exception, errorMessage)
+              this.handleException(e.exception, errorMessage)
             } else {
               this.$flashMessage(errorMessage, 'error')
             }

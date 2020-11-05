@@ -11,7 +11,7 @@
       />
     </list-items-container>
 
-    <fb-confirmation-window
+    <fb-ui-confirmation-window
       v-if="remove.show"
       :transparent-bg="transparentModal"
       icon="trash"
@@ -27,10 +27,10 @@
           path="things.messages.confirmRemoveAction"
           tag="p"
         >
-          <strong slot="thing">{{ $tThingChannel(remove.thing) }}</strong>
+          <strong slot="thing">{{ remove.thing.channel.title }}</strong>
         </i18n>
       </template>
-    </fb-confirmation-window>
+    </fb-ui-confirmation-window>
   </div>
 </template>
 
@@ -43,10 +43,10 @@ import {
   DEVICE_FASTYBIRD_BUTTON_DBL_CLICK,
 } from '~/configuration/devices'
 
-import Trigger from '~/models/triggers-node/Trigger'
-import Action from '~/models/triggers-node/Action'
-import Device from '~/models/devices-node/Device'
-import Channel from '~/models/devices-node/Channel'
+import Trigger from '~/models/triggers-node/triggers/Trigger'
+import Action from '~/models/triggers-node/actions/Action'
+import Device from '~/models/devices-node/devices/Device'
+import Channel from '~/models/devices-node/channels/Channel'
 import Thing from '~/models/things/Thing'
 
 export default {
@@ -119,7 +119,7 @@ export default {
           const errorMessage = this.$t('triggers.messages.actionNotUpdated')
 
           if (Object.prototype.hasOwnProperty.call(e, 'exception')) {
-            this.handleFormError(e.exception, errorMessage)
+            this.handleException(e.exception, errorMessage)
           } else {
             this.$flashMessage(errorMessage, 'error')
           }
@@ -143,7 +143,7 @@ export default {
 
       const channel = Channel
         .query()
-        .where('device_id', device.id)
+        .where('deviceId', device.id)
         .where('channel', action.channel)
         .first()
 
@@ -155,7 +155,7 @@ export default {
         .query()
         .with('device')
         .with('channel')
-        .where('channel_id', channel.id)
+        .where('channelId', channel.id)
         .first()
 
       this.remove.show = true
@@ -184,7 +184,7 @@ export default {
             const errorMessage = this.$t('triggers.messages.actionNotRemoved')
 
             if (Object.prototype.hasOwnProperty.call(e, 'exception')) {
-              this.handleFormError(e.exception, errorMessage)
+              this.handleException(e.exception, errorMessage)
             } else {
               this.$flashMessage(errorMessage, 'error')
             }
@@ -197,7 +197,7 @@ export default {
             const errorMessage = this.$t('things.messages.actionNotRemoved')
 
             if (Object.prototype.hasOwnProperty.call(e, 'exception')) {
-              this.handleFormError(e.exception, errorMessage)
+              this.handleException(e.exception, errorMessage)
             } else {
               this.$flashMessage(errorMessage, 'error')
             }

@@ -1,4 +1,4 @@
-@import "~@fastybird-com/web-ui-theme/assets/variables/colors";
+@import "~@fastybird/web-ui-theme/src/assets/variables/colors";
 
 .fb-things-list-item {
   &__container {
@@ -11,14 +11,6 @@
 
     svg {
       height: 53px;
-    }
-
-    .fb-spinner__container {
-      width: 32px;
-      display: inline-block;
-      position: relative;
-      float: right;
-      margin-top: 15px;
     }
 
     .fb-things-switch__container {

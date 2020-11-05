@@ -1,10 +1,11 @@
 <template>
-  <fb-modal-form
+  <fb-ui-modal-form
     :transparent-bg="transparentBg"
     :lock-submit-button="form.result !== null"
     :result-is-ok="form.result === true"
     icon="pencil-alt"
     @submit="submit"
+    @cancel="close"
     @close="close"
   >
     <template slot="header">
@@ -20,7 +21,7 @@
         :has-error="errors.has(form.scope + '.title')"
         :name="'title'"
         :label="$t('things.vendors.global.title.title')"
-        :placeholder="$tThingChannel(thing, true)"
+        :placeholder="thing.channel.title"
         :required="true"
         :tab-index="2"
       />
@@ -32,16 +33,16 @@
         :has-error="errors.has(form.scope + '.comment')"
         :name="'comment'"
         :label="$t('things.vendors.global.comment.title')"
-        :placeholder="$tThingDevice(thing, true)"
+        :placeholder="thing.device.title"
         :tab-index="3"
       />
     </template>
-  </fb-modal-form>
+  </fb-ui-modal-form>
 </template>
 
 <script>
-import Device from '~/models/devices-node/Device'
-import Channel from '~/models/devices-node/Channel'
+import Device from '~/models/devices-node/devices/Device'
+import Channel from '~/models/devices-node/channels/Channel'
 
 export default {
 
@@ -103,29 +104,22 @@ export default {
         .then((result) => {
           if (result) {
             const errorMessage = this.$t('things.messages.notRenamed', {
-              thing: this.$tThingChannel(this.thing),
+              thing: this.thing.channel.title,
             })
 
             Channel.dispatch('edit', {
-              id: this.thing.channel_id,
-              data: {
-                title: this.form.model.title,
-              },
-            }, {
-              root: true,
+              device: this.device,
+              id: this.thing.channelId,
+              name: this.form.model.title,
             })
               .then(() => {
                 Device.dispatch('edit', {
-                  id: this.thing.device_id,
-                  data: {
-                    title: this.form.model.comment,
-                  },
-                }, {
-                  root: true,
+                  id: this.thing.deviceId,
+                  name: this.form.model.comment,
                 })
                   .catch((e) => {
                     if (this._.get(e, 'exception', null) !== null) {
-                      this.handleFormError(e.exception, errorMessage)
+                      this.handleException(e.exception, errorMessage)
                     } else {
                       this.$flashMessage(errorMessage, 'error')
                     }
@@ -133,7 +127,7 @@ export default {
               })
               .catch((e) => {
                 if (this._.get(e, 'exception', null) !== null) {
-                  this.handleFormError(e.exception, errorMessage)
+                  this.handleException(e.exception, errorMessage)
                 } else {
                   this.$flashMessage(errorMessage, 'error')
                 }
@@ -171,8 +165,8 @@ export default {
      */
     _initModel() {
       this.form.model = {
-        title: this.$tThingChannel(this.thing) !== this.$tThingChannel(this.thing, true) ? this.$tThingChannel(this.thing) : null,
-        comment: this.$tThingDevice(this.thing) !== this.$tThingDevice(this.thing, true) ? this.$tThingDevice(this.thing) : null,
+        title: this.thing.channel.title,
+        comment: this.thing.device.title,
       }
 
       this.errors.clear(this.form.scope)

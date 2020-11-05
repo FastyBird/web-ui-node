@@ -1,22 +1,27 @@
-@import "~@fastybird-com/web-ui-theme/assets/variables/colors";
+@import "~@fastybird/web-ui-theme/src/assets/variables/colors";
 
 .fb-things-switch {
   &__container {
     text-align: center;
 
-    .fb-spinner__container {
-      margin-top: -10px;
+    .fb-ui-switch-element__container {
+      display: block;
+      margin-top: 16px;
+    }
+
+    .fb-ui-spinner__container {
+      display: block;
+      margin-top: 18px;
     }
   }
 
-  &__loading,
+  &__result,
+  &__loading {
+    margin-right: 10px;
+  }
+
   &__result {
-    width: 32px;
-    text-align: center;
-    display: inline-block;
-    margin-top: 2px;
-    margin-right: 5px;
-    position: relative;
+    width: 18px;
 
     .icon {
       width: 32px;
@@ -44,25 +49,13 @@
     }
   }
 
-  &__loading {
-    > div {
-      display: inline-block;
-      font-size: floor(32px * 0.5);
-      height: 32px;
-      line-height: 32px;
-      text-align: center;
-      width: 32px;
-      position: relative;
-    }
-  }
-
   &__container {
     &[data-state="off"] {
-      .fb-switch-element__container input:disabled ~ .fb-switch-element__track {
+      .fb-ui-switch-element__container input:disabled ~ .fb-ui-switch-element__track {
         background-color: $gray-lighter
       }
 
-      .fb-switch-element__container input:disabled ~ .fb-switch-element__thumb {
+      .fb-ui-switch-element__container input:disabled ~ .fb-ui-switch-element__thumb {
         border-color: $gray-lighter;
       }
     }

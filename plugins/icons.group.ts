@@ -1,5 +1,4 @@
 import { Plugin } from '@nuxt/types'
-import { GroupInterface } from '~/models/devices-node/Group'
 
 declare module 'vue/types/vue' {
   interface Vue {
@@ -19,8 +18,8 @@ declare module 'vuex/types/index' {
   }
 }
 
-const groupIconPlugin: Plugin = ({ app }, inject): void => {
-  inject('groupIcon', (group: GroupInterface): string => {
+const groupIconPlugin: Plugin = (context, inject): void => {
+  inject('groupIcon', (group: any): string => {
     return group.icon
   })
 }

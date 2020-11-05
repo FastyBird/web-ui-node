@@ -1,0 +1,62 @@
+@import "~@fastybird/web-ui-theme/src/assets/variables/colors";
+@import "~@fastybird/web-ui-theme/src/assets/variables/screen";
+@import "~@fastybird/web-ui-theme/src/assets/mixins/utilities";
+
+.fb-index {
+  &__container {
+    height: 100%;
+
+    &-inner {
+      @include flexRow;
+      height: 100%;
+      overflow: hidden;
+    }
+  }
+
+  &__logo {
+    text-align: center;
+    padding: 1rem 0;
+    height: 5rem;
+    display: block;
+
+    @media (min-width: $screen-sm-min) and (max-width: $screen-md-max) {
+      padding: 0.875rem 0;
+    }
+
+    > svg {
+      display: inline-block;
+      width: auto;
+      height: 3rem;
+      fill: $brand-primary-contrast;
+
+      @media (min-width: $screen-sm-min) and (max-width: $screen-md-max) {
+        margin-left: 1rem;
+        height: 3.25rem;
+      }
+    }
+  }
+
+  &__header-logo {
+    flex-grow: 1;
+    text-align: center;
+    margin: $margin-md 0;
+    height: 3rem;
+
+    > svg {
+      fill: $brand-primary-contrast;
+      height: 3rem;
+    }
+  }
+
+  &__user-navigation {
+    @media (min-width: $screen-sm-min) {
+      display: none;
+    }
+  }
+
+  &__user-menu {
+    @media (max-width: $screen-xs-max) {
+      display: none;
+    }
+  }
+}

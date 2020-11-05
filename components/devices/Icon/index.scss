@@ -1,0 +1,10 @@
+.fb-devices-icon {
+  &__container {
+    .fb-ui-icon-with-child {
+      &__child-icon {
+        line-height: 1rem;
+        bottom: 1rem;
+      }
+    }
+  }
+}

@@ -1,6 +1,6 @@
 <template>
   <div class="fb-groups-group-detail-view__container">
-    <fb-loading-box
+    <fb-ui-loading-box
       v-if="fetchingGroup && group === null"
       :text="$t('groups.texts.loadingGroup')"
     />
@@ -9,7 +9,7 @@
       <group-detail
         ref="detail"
         :group="group"
-        :things="things"
+        :things="[]"
       />
 
       <group-settings
@@ -34,8 +34,7 @@ import {
   GROUPS_HASH_SETTINGS,
 } from '~/configuration/routes'
 
-import Group from '~/models/devices-node/Group'
-import Thing from '~/models/things/Thing'
+import Group from '~/models/ui-node/Group'
 
 import GroupDetail from '~/components/groups/Detail'
 import GroupSettings from '~/components/groups/Settings'
@@ -82,7 +81,7 @@ export default {
      * @returns {String}
      */
     windowSize() {
-      return this.$store.state.template.windowSize
+      return this.$store.state.app.windowSize
     },
 
     /**
@@ -92,29 +91,6 @@ export default {
      */
     group() {
       return Group.find(this.id)
-    },
-
-    /**
-     * View group things data
-     *
-     * @returns {Array}
-     */
-    things() {
-      const items = Thing
-        .query()
-        .with('device')
-        .with('channel')
-        .where('channel_id', this.group.channels_ids)
-        .get()
-
-      return orderBy(
-        items,
-        [
-          v => this.$tThingChannel(v),
-          v => this.$tThingDevice(v),
-        ],
-        ['asc'],
-      )
     },
 
     /**
@@ -133,15 +109,6 @@ export default {
      */
     fetchingGroup() {
       return Group.getters('getting')(this.id)
-    },
-
-    /**
-     * Flag signalizing that group things are loading from server
-     *
-     * @returns {Boolean}
-     */
-    fetchingThings() {
-      return Thing.getters('fetching')()
     },
 
   },
@@ -276,17 +243,6 @@ export default {
         })
     }
 
-    if (
-      this.things.length === 0 &&
-      !this.fetchingThings &&
-      !Thing.getters('firstLoadFinished')()
-    ) {
-      Thing.dispatch('fetch')
-        .catch(() => {
-          this.$nuxt.error({ statusCode: 503, message: 'Something went wrong' })
-        })
-    }
-
     if (!this.fetchingGroup && !this.fetchingGroups && this.group === null) {
       this.$nuxt.error({ statusCode: 404, message: 'Group Not Found' })
     }
@@ -315,7 +271,6 @@ export default {
   beforeDestroy() {
     this.$bus.$off('heading_left_button-clicked', this.leftButtonAction)
     this.$bus.$off('heading_right_button-clicked', this.rightButtonAction)
-    this.$bus.$off('heading_action_button-clicked', this.actionButtonAction)
 
     window.removeEventListener('resize', this._windowResizeHandler)
   },

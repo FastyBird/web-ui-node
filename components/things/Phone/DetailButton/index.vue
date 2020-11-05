@@ -31,50 +31,47 @@
       @close="closeView"
     >
       <template slot="items">
-        <fb-button
+        <fb-ui-button
           block
           variant="link"
           name="press"
           @click.prevent="openView(view.items.selectThing.name, 'press')"
         >
           {{ $t('things.buttons.press.title') }}
-        </fb-button>
+        </fb-ui-button>
 
-        <fb-divider
-          :text="$t('application.misc.or')"
-          type="horizontal"
-        />
+        <fb-ui-divider type="horizontal">
+          {{ $t('application.misc.or') }}
+        </fb-ui-divider>
 
-        <fb-button
+        <fb-ui-button
           block
           variant="link"
           name="click"
           @click.prevent="openView(view.items.selectThing.name, 'click')"
         >
           {{ $t('things.buttons.click.title') }}
-        </fb-button>
+        </fb-ui-button>
 
-        <fb-divider
-          :text="$t('application.misc.or')"
-          type="horizontal"
-        />
+        <fb-ui-divider type="horizontal">
+          {{ $t('application.misc.or') }}
+        </fb-ui-divider>
 
-        <fb-button
+        <fb-ui-button
           block
           variant="link"
           name="dblClick"
           @click.prevent="openView(view.items.selectThing.name, 'dblClick')"
         >
           {{ $t('things.buttons.dblClick.title') }}
-        </fb-button>
+        </fb-ui-button>
       </template>
     </phone-bottom-menu>
   </div>
 </template>
 
 <script>
-import FbComponentLoading from '@/node_modules/@fastybird-com/web-ui-theme/components/UI/FbComponentLoading'
-import FbComponentLoadingError from '@/node_modules/@fastybird-com/web-ui-theme/components/UI/FbComponentLoadingError'
+import { FbUiComponentLoading, FbUiComponentLoadingError } from '@fastybird/web-ui-theme'
 
 import {
   THINGS_HASH_SETTINGS,
@@ -87,14 +84,14 @@ import Thing from '~/models/things/Thing'
 
 const SelectThing = () => ({
   component: import('~/components/routines/Phone/SelectThing'),
-  loading: FbComponentLoading,
-  error: FbComponentLoadingError,
+  loading: FbUiComponentLoading,
+  error: FbUiComponentLoadingError,
   timeout: 10000,
 })
 const EditAction = () => ({
   component: import('~/components/routines/Phone/EditAction'),
-  loading: FbComponentLoading,
-  error: FbComponentLoadingError,
+  loading: FbUiComponentLoading,
+  error: FbUiComponentLoadingError,
   timeout: 10000,
 })
 
@@ -142,7 +139,7 @@ export default {
      * @returns {String}
      */
     windowSize() {
-      return this.$store.state.template.windowSize
+      return this.$store.state.app.windowSize
     },
 
   },
@@ -166,7 +163,6 @@ export default {
   beforeDestroy() {
     this.$bus.$on('heading_left_button-clicked', this.leftButtonAction)
     this.$bus.$on('heading_right_button-clicked', this.rightButtonAction)
-    this.$bus.$on('heading_action_button-clicked', this.actionButtonAction)
   },
 
   methods: {
@@ -332,14 +328,14 @@ export default {
       })
 
       this.$store.dispatch('template/setHeading', {
-        heading: this.$tThingChannel(this.thing),
-        subHeading: this.$tThingDevice(this.thing),
+        heading: this.thing.channel.title,
+        subHeading: this.thing.device.title,
       }, {
         root: true,
       })
 
       this.$store.dispatch('template/setHeadingIcon', {
-        icon: this.$thingIcon(this.thing),
+        icon: this.thing.device.icon,
       }, {
         root: true,
       })
@@ -359,12 +355,10 @@ export default {
       // Clear actions
       this.$bus.$off('heading_left_button-clicked')
       this.$bus.$off('heading_right_button-clicked')
-      this.$bus.$off('heading_action_button-clicked')
 
       // Reassign actions
       this.$bus.$on('heading_left_button-clicked', this.leftButtonAction)
       this.$bus.$on('heading_right_button-clicked', this.rightButtonAction)
-      this.$bus.$on('heading_action_button-clicked', this.actionButtonAction)
     },
 
   },

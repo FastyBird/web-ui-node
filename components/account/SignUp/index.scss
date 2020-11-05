@@ -1,4 +1,4 @@
-@import "~@fastybird-com/web-ui-theme/assets/mixins/utilities";
+@import "~@fastybird/web-ui-theme/src/assets/mixins/utilities";
 
 .fb-account-sign-up {
   &__container {
@@ -13,11 +13,9 @@
   }
 
   &__name {
-    @include gridRow;
+    @include flexRow;
 
     &-field {
-      @include gridCel;
-
       -webkit-box-flex: 0;
       -ms-flex: 0 0 50%;
       flex: 0 0 50%;

@@ -1,27 +1,26 @@
 import { ActionTree, GetterTree, MutationTree } from 'vuex'
 
-interface AppMenuInterface {
-  main: boolean;
-  bottom: boolean;
-}
-
 interface AppState {
-  networkState: boolean;
-
-  touchDeviceState: boolean;
-
-  menu: AppMenuInterface;
+  networkState: boolean
+  touchDeviceState: boolean
+  hideMenu: boolean
+  hideTabs: boolean
+  windowSize: string
+  heading: {
+    heading: string | null,
+    subHeading: string | null,
+  }
 }
 
 const moduleState: AppState = {
-
   networkState: true,
-
   touchDeviceState: false,
-
-  menu: {
-    main: true,
-    bottom: false,
+  hideMenu: false,
+  hideTabs: false,
+  windowSize: 'md',
+  heading: {
+    heading: null,
+    subHeading: null,
   },
 }
 
@@ -38,45 +37,34 @@ const moduleActions: ActionTree<AppState, any> = {
     })
   },
 
-  mainMenuCollapse({ commit }): void {
-    commit('APP_SET_MENU_STATE', {
-      state: true,
-      type: 'main',
-    })
-  },
-
-  mainMenuToggle({ commit, state }): void {
-    commit('APP_SET_MENU_STATE', {
-      state: !state.menu.main,
-      type: 'main',
-    })
-  },
-
-  bottomMenuCollapse({ commit }): void {
-    commit('APP_SET_MENU_STATE', {
-      state: true,
-      type: 'bottom',
-    })
-  },
-
-  bottomMenuExpand({ commit }): void {
-    commit('APP_SET_MENU_STATE', {
-      state: false,
-      type: 'bottom',
-    })
-  },
-
-  bottomMenuToggle({ commit, state }): void {
-    commit('APP_SET_MENU_STATE', {
-      state: !state.menu.bottom,
-      type: 'bottom',
-    })
-  },
-
-  setTouchDeviceState({ commit, state }, payload: { state: boolean }): void {
+  setTouchDeviceState({ commit }, payload: { state: boolean }): void {
     commit('APP_SET_TOUCH_DEVICE_STATE', {
       state: payload.state,
     })
+  },
+
+  setWindowSize({ commit }, payload: { size: string }): void {
+    commit('APP_SET_WINDOW_SIZE', {
+      size: payload.size,
+    })
+  },
+
+  setLayoutConfig({ commit }, payload: { hideMenu: boolean, hideTabs: boolean }): void {
+    commit('APP_SET_LAYOUT_CONFIG', {
+      hideMenu: payload.hideMenu,
+      hideTabs: payload.hideTabs,
+    })
+  },
+
+  setHeading({ commit }, payload: { heading: boolean, subHeading: boolean }): void {
+    commit('SET_HEADING', {
+      heading: payload.heading,
+      subHeading: payload.subHeading,
+    })
+  },
+
+  resetHeading({ commit }): void {
+    commit('RESET_HEADING')
   },
 
   resetStore({ commit }) {
@@ -89,16 +77,27 @@ const moduleMutations: MutationTree<AppState> = {
     state.networkState = action.state
   },
 
-  ['APP_SET_MENU_STATE'](state: AppState, action: { state: boolean, type: string }): void {
-    if (action.type === 'main') {
-      state.menu.main = action.state
-    } else if (action.type === 'bottom') {
-      state.menu.bottom = action.state
-    }
-  },
-
   ['APP_SET_TOUCH_DEVICE_STATE'](state: AppState, action: { state: boolean }): void {
     state.touchDeviceState = action.state
+  },
+
+  ['APP_SET_WINDOW_SIZE'](state: AppState, action: { size: string }): void {
+    state.windowSize = action.size
+  },
+
+  ['APP_SET_LAYOUT_CONFIG'](state: AppState, action: { hideMenu: boolean, hideTabs: boolean }): void {
+    state.hideMenu = action.hideMenu
+    state.hideTabs = action.hideTabs
+  },
+
+  ['SET_HEADING'](state: AppState, action: { heading: string | null, subHeading: string | null }): void {
+    state.heading.heading = action.heading
+    state.heading.subHeading = action.subHeading
+  },
+
+  ['RESET_HEADING'](state: AppState): void {
+    state.heading.heading = null
+    state.heading.subHeading = null
   },
 
   ['RESET_STATE'](state: AppState): void {

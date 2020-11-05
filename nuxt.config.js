@@ -22,10 +22,10 @@ const modules = [
   '@nuxtjs/device',
   '@nuxtjs/date-fns',
   'cookie-universal-nuxt',
-  'nuxt-validate',
   'nuxt-i18n',
   'nuxt-fontawesome',
   'vue-scrollto/nuxt',
+  '@fastybird/vue-wamp-v1/@nuxt',
 ]
 
 const proxy = {}
@@ -45,8 +45,6 @@ if (Object.prototype.hasOwnProperty.call(process.env, 'NUXT_ENV_API_TARGET')) {
 }
 
 if (Object.prototype.hasOwnProperty.call(process.env, 'NUXT_ENV_WS_TARGET')) {
-  modules.push('@nuxtjs/sentry')
-
   proxy['/ws-exchange'] = {
     target: process.env.NUXT_ENV_WS_TARGET,
     pathRewrite: {
@@ -55,7 +53,7 @@ if (Object.prototype.hasOwnProperty.call(process.env, 'NUXT_ENV_WS_TARGET')) {
     secure: true,
     changeOrigin: true,
     ws: true,
-    onProxyReqWs: (proxyReq, req, socket, options, head) => {
+    onProxyReqWs: (proxyReq, req) => {
       get(req, 'headers.cookie', '')
         .split(';')
         .forEach((item) => {
@@ -74,6 +72,8 @@ if (Object.prototype.hasOwnProperty.call(process.env, 'NUXT_ENV_WS_TARGET')) {
 const sentry = {}
 
 if (Object.prototype.hasOwnProperty.call(process.env, 'NUXT_ENV_SENTRY_DSN')) {
+  modules.push('@nuxtjs/sentry')
+
   Object.assign(sentry, {
     dsn: process.env.NUXT_ENV_SENTRY_DSN,
     config: {
@@ -91,11 +91,22 @@ module.exports = {
     titleTemplate: '%s | FastyBird IO server',
     meta: [
       { charset: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width,initial-scale=1.0' },
-      { hid: 'description', name: 'description', content: process.env.npm_package_description || '' },
+      {
+        name: 'viewport',
+        content: 'width=device-width,initial-scale=1.0',
+      },
+      {
+        hid: 'description',
+        name: 'description',
+        content: process.env.npm_package_description || '',
+      },
     ],
     link: [
-      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+      {
+        rel: 'icon',
+        type: 'image/x-icon',
+        href: '/favicon.ico',
+      },
     ],
     htmlAttrs: {
       lang: 'en',
@@ -105,7 +116,8 @@ module.exports = {
   loading: { color: '#fff' },
 
   css: [
-    '@/node_modules/@fastybird-com/web-ui-theme/assets/theme',
+    '@/node_modules/@fastybird/web-ui-theme/src/assets/theme',
+    '@/node_modules/pretty-checkbox/src/pretty-checkbox',
     '@/assets/scss/toaster',
   ],
 
@@ -117,17 +129,12 @@ module.exports = {
     '@/plugins/lodash',
     '@/plugins/event.bus',
     '@/plugins/backend',
-    '@/plugins/translate.device',
-    '@/plugins/translate.channel',
-    '@/plugins/translate.device.property',
-    '@/plugins/translate.channel.property',
-    '@/plugins/icons.channel',
     '@/plugins/icons.group',
-    '@/plugins/icons.routine',
-    '@/plugins/icons.thing',
-    '@/plugins/wamp.client',
-    '@/plugins/composition-api',
-    '@/plugins/control.channel',
+    '@/plugins/vuex-orm-axios',
+    {
+      src: '@/plugins/vuex-orm-wamp',
+      mode: 'client',
+    },
   ],
 
   buildModules: [
@@ -136,9 +143,9 @@ module.exports = {
 
   modules,
 
-  validate: {
-    lang: 'en',
-    nuxti18n: true,
+  wamp: {
+    wsuri: 'ws://localhost:3000/ws-exchange',
+    debug: true,
   },
 
   toast: {
@@ -149,7 +156,7 @@ module.exports = {
   },
 
   router: {
-    middleware: ['session', 'account'],
+    middleware: ['session', 'account', 'router'],
   },
 
   i18n,
@@ -178,12 +185,15 @@ module.exports = {
           'faCheck',
           'faCheckCircle',
           'faChevronRight',
+          'faClipboard',
           'faClock',
+          'faCog',
           'faCogs',
           'faCouch',
           'faCube',
           'faCubes',
           'faDesktop',
+          'faEllipsisV',
           'faEnvelope',
           'faExclamationTriangle',
           'faFan',
@@ -197,7 +207,9 @@ module.exports = {
           'faKey',
           'faLightbulb',
           'faLock',
+          'faMagic',
           'faMapMarkerAlt',
+          'faMicrochip',
           'faMicrophoneAlt',
           'faMinus',
           'faMinusCircle',
@@ -208,6 +220,8 @@ module.exports = {
           'faPlusCircle',
           'faPowerOff',
           'faProjectDiagram',
+          'faRobot',
+          'faSatelliteDish',
           'faSearch',
           'faShower',
           'faSignOutAlt',

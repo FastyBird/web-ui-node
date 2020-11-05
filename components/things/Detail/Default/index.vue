@@ -56,7 +56,7 @@
 </template>
 
 <script>
-import ChannelProperty from '~/models/devices-node/ChannelProperty'
+import ChannelProperty from '~/models/devices-node/channel-properties/ChannelProperty'
 
 const AnalogSensor = () => import('./Property/AnalogSensor')
 const BinaryActor = () => import('./Property/BinaryActor')
@@ -88,7 +88,7 @@ export default {
     analogSensors() {
       return ChannelProperty
         .query()
-        .where('channel_id', this.thing.channel_id)
+        .where('channelId', this.thing.channelId)
         .where('datatype', ['integer', 'float'])
         .where('is_settable', false)
         .get()
@@ -97,7 +97,7 @@ export default {
     analogActors() {
       return ChannelProperty
         .query()
-        .where('channel_id', this.thing.channel_id)
+        .where('channelId', this.thing.channelId)
         .where('datatype', ['integer', 'float'])
         .where('is_settable', true)
         .get()
@@ -106,7 +106,7 @@ export default {
     binarySensors() {
       return ChannelProperty
         .query()
-        .where('channel_id', this.thing.channel_id)
+        .where('channelId', this.thing.channelId)
         .where('datatype', 'boolean')
         .where('is_settable', false)
         .get()
@@ -115,7 +115,7 @@ export default {
     binaryActors() {
       return ChannelProperty
         .query()
-        .where('channel_id', this.thing.channel_id)
+        .where('channelId', this.thing.channelId)
         .where('datatype', 'boolean')
         .where('is_settable', true)
         .get()
@@ -124,7 +124,7 @@ export default {
     switches() {
       return ChannelProperty
         .query()
-        .where('channel_id', this.thing.channel_id)
+        .where('channelId', this.thing.channelId)
         .where('property', 'switch')
         .get()
     },

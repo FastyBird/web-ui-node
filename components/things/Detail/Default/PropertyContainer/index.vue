@@ -10,7 +10,7 @@
 
       <font-awesome-icon
         v-else
-        :icon="$channelPropertyIcon(thing, property, 'plug')"
+        :icon="property.icon"
       />
     </template>
 
@@ -19,7 +19,7 @@
         <slot name="heading" />
       </template>
       <template v-else>
-        {{ $tChannelProperty(thing, property) }}
+        {{ property.title }}
       </template>
     </template>
 

@@ -54,7 +54,7 @@ COPY ./vue-shim.d.ts ${APP_CODE_PATH}/
 RUN cd ${APP_CODE_PATH} \
  && yarn cache clean \
  && yarn install --network-timeout 1000000 \
- && yarn build \
+ && yarn build:web \
 ;
 
 #####################################

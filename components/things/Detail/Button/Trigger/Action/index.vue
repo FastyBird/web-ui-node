@@ -41,15 +41,15 @@
     :status="action.enabled"
   >
     <template slot="icon">
-      <font-awesome-icon :icon="$thingIcon(thing)" />
+      <font-awesome-icon :icon="thing.device.icon" />
     </template>
 
     <template slot="heading">
-      {{ $tThingChannel(thing) }}
+      {{ thing.channel.title }}
     </template>
 
     <template slot="sub-heading">
-      <span class="fb-things-detail-button-trigger-action__action">{{ $t(`things.triggers.${action.value}`, { property: $tChannelProperty(thing, property).toLowerCase() }) }}</span>
+      <span class="fb-things-detail-button-trigger-action__action">{{ $t(`things.triggers.${action.value}`, { property: property.title.toLowerCase() }) }}</span>
     </template>
 
     <template slot="detail-large">
@@ -59,21 +59,21 @@
         @change="toggle"
       />
 
-      <fb-button
+      <fb-ui-button
         size="sm"
         variant="link"
         @click="remove"
       >
         {{ $t('application.buttons.remove.title') }}
-      </fb-button>
+      </fb-ui-button>
     </template>
   </list-item>
 </template>
 
 <script>
-import Device from '~/models/devices-node/Device'
-import Channel from '~/models/devices-node/Channel'
-import ChannelProperty from '~/models/devices-node/ChannelProperty'
+import Device from '~/models/devices-node/devices/Device'
+import Channel from '~/models/devices-node/channels/Channel'
+import ChannelProperty from '~/models/devices-node/channel-properties/ChannelProperty'
 import Thing from '~/models/things/Thing'
 
 export default {
@@ -114,7 +114,7 @@ export default {
 
       const channel = Channel
         .query()
-        .where('device_id', device.id)
+        .where('deviceId', device.id)
         .where('channel', this.action.channel)
         .first()
 
@@ -126,7 +126,7 @@ export default {
         .query()
         .with('device')
         .with('channel')
-        .where('channel_id', channel.id)
+        .where('channelId', channel.id)
         .first()
     },
 
@@ -142,7 +142,7 @@ export default {
 
       return ChannelProperty
         .query()
-        .where('channel_id', this.thing.channel_id)
+        .where('channelId', this.thing.channelId)
         .where('property', this.action.property)
         .first()
     },

@@ -1,0 +1,10 @@
+@import "~@fastybird/web-ui-theme/src/assets/variables/colors";
+@import "~@fastybird/web-ui-theme/src/assets/variables/screen";
+
+.fb-triggers-settings-trigger-remove {
+  &__icon {
+    color: $brand-danger;
+    font-size: 8rem;
+    margin: $margin-lg 0 $margin-md 0;
+  }
+}

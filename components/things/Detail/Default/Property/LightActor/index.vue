@@ -38,7 +38,7 @@
         <h5 class="fw-b m-y-0">
           {{ $t('channels.light.title') }}
         </h5>
-        <small>{{ $tThingChannel(thing) }}</small>
+        <small>{{ thing.channel.title }}</small>
       </div>
 
       <div

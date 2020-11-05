@@ -16,7 +16,7 @@
         <span class="fb-things-settings-thing__item-icon">
           <font-awesome-icon icon="angle-right" />
         </span>
-        <fb-spinner
+        <fb-ui-spinner
           v-if="loading.credentials"
           size="sm"
         />
@@ -44,7 +44,7 @@
         <span class="fb-things-settings-thing__item-icon">
           <font-awesome-icon icon="angle-right" />
         </span>
-        <fb-spinner
+        <fb-ui-spinner
           v-if="loading.sensorsSettings"
           size="sm"
         />
@@ -63,7 +63,7 @@
         <span class="fb-things-settings-thing__item-icon">
           <font-awesome-icon icon="angle-right" />
         </span>
-        <fb-spinner
+        <fb-ui-spinner
           v-if="loading.timeSettings"
           size="sm"
         />
@@ -82,7 +82,7 @@
         <span class="fb-things-settings-thing__item-icon">
           <font-awesome-icon icon="angle-right" />
         </span>
-        <fb-spinner
+        <fb-ui-spinner
           v-if="loading.energyCalibration"
           size="sm"
         />
@@ -110,7 +110,7 @@
         <span class="fb-things-settings-thing__item-icon">
           <font-awesome-icon icon="angle-right" />
         </span>
-        <fb-spinner
+        <fb-ui-spinner
           v-if="loading.rename"
           size="sm"
         />
@@ -125,7 +125,7 @@
         <span class="fb-things-settings-thing__item-icon">
           <font-awesome-icon icon="exclamation-triangle" />
         </span>
-        <fb-spinner
+        <fb-ui-spinner
           v-if="loading.remove"
           size="sm"
         />
@@ -234,11 +234,11 @@
 import DeviceParameter from './DeviceParameter'
 import ChannelParameter from './ChannelParameter'
 
-import DeviceProperty from '~/models/devices-node/DeviceProperty'
-import DeviceConfiguration from '~/models/devices-node/DeviceConfiguration'
-import ChannelConfiguration from '~/models/devices-node/ChannelConfiguration'
-import Hardware from '~/models/devices-node/Hardware'
-import Firmware from '~/models/devices-node/Firmware'
+import DeviceProperty from '~/models/devices-node/device-properties/DeviceProperty'
+import DeviceConfiguration from '~/models/devices-node/device-configuration/DeviceConfiguration'
+import ChannelConfiguration from '~/models/devices-node/channel-configuration/ChannelConfiguration'
+import Hardware from '~/models/devices-node/hardwares/Hardware'
+import Firmware from '~/models/devices-node/firmwares/Firmware'
 
 const ThingCredentials = () => import('./Credentials')
 const ThingRename = () => import('./Rename')
@@ -250,7 +250,7 @@ const ThingChannelParameterEdit = () => import('./ChannelParameterEdit')
 
 export default {
 
-  name: 'ThingsSettingsThing',
+  name: 'DevicesSettings',
 
   components: {
     ThingCredentials,
@@ -338,24 +338,12 @@ export default {
     deviceParameters() {
       return DeviceConfiguration
         .query()
-        .where('device_id', this.thing.device_id)
+        .where('deviceId', this.thing.deviceId)
         .where((item) => {
           return this._.get(item, 'name').indexOf('ntp_') !== 0 &&
             this._.get(item, 'name').indexOf('sensor_') !== 0
         })
         .orderBy('name')
-        .get()
-    },
-
-    /**
-     * Get all channel configuration parameters
-     *
-     * @returns {Array}
-     */
-    channelParameters() {
-      return ChannelConfiguration
-        .query()
-        .where('id', this.thing.channel.configuration_ids)
         .get()
     },
 
@@ -367,7 +355,7 @@ export default {
     hardware() {
       return Hardware
         .query()
-        .where('device_id', this.thing.device_id)
+        .where('deviceId', this.thing.deviceId)
         .first()
     },
 
@@ -405,7 +393,7 @@ export default {
     firmware() {
       return Firmware
         .query()
-        .where('device_id', this.thing.device_id)
+        .where('deviceId', this.thing.deviceId)
         .first()
     },
 
@@ -430,7 +418,7 @@ export default {
     wifiSSID() {
       const property = DeviceProperty
         .query()
-        .where('device_id', this.thing.device_id)
+        .where('deviceId', this.thing.deviceId)
         .where('property', 'ssid')
         .first()
 
@@ -445,7 +433,7 @@ export default {
     ipAddress() {
       const property = DeviceProperty
         .query()
-        .where('device_id', this.thing.device_id)
+        .where('deviceId', this.thing.deviceId)
         .where('property', 'ip-address')
         .first()
 
@@ -464,7 +452,7 @@ export default {
 
       return DeviceConfiguration
         .query()
-        .where('device_id', this.thing.device_id)
+        .where('deviceId', this.thing.deviceId)
         .where((item) => {
           return this._.get(item, 'name').indexOf('ntp_') === 0
         })
@@ -483,7 +471,7 @@ export default {
 
       return DeviceConfiguration
         .query()
-        .where('device_id', this.thing.device_id)
+        .where('deviceId', this.thing.deviceId)
         .where((item) => {
           return this._.get(item, 'name').indexOf('sensor_') === 0 &&
             !this._.get(item, 'name').includes('sensor_expected_')
@@ -503,7 +491,7 @@ export default {
 
       return DeviceConfiguration
         .query()
-        .where('device_id', this.thing.device_id)
+        .where('deviceId', this.thing.deviceId)
         .where((item) => {
           return this._.get(item, 'name').indexOf('sensor_expected_') === 0
         })
@@ -614,7 +602,7 @@ export default {
     openForm(type, parameter) {
       if ((type === 'deviceParameterForm' || type === 'channelParameterForm') && !this.thing.state) {
         this.$flashMessage(this.$t('things.messages.notOnline', {
-          thing: this.$tThingChannel(this.thing),
+          thing: this.thing.channel.title,
         }), 'error')
 
         return
@@ -648,7 +636,7 @@ export default {
     openModuleForm(prefix, title) {
       if (!this.thing.state) {
         this.$flashMessage(this.$t('things.messages.notOnline', {
-          thing: this.$tThingChannel(this.thing),
+          thing: this.thing.channel.title,
         }), 'error')
 
         return
@@ -707,7 +695,7 @@ export default {
     submit(parameter, type) {
       if (!this.thing.state) {
         this.$flashMessage(this.$t('things.messages.notOnline', {
-          thing: this.$tThingChannel(this.thing),
+          thing: this.thing.channel.title,
         }), 'error')
 
         return
@@ -715,14 +703,14 @@ export default {
 
       if (type === 'device') {
         DeviceConfiguration.dispatch('edit', {
-          device_id: this.thing.device_id,
+          deviceId: this.thing.deviceId,
           parameter_id: parameter.id,
           data: this.form.parameter[parameter.name],
         })
       } else if (type === 'channel') {
         ChannelConfiguration.dispatch('edit', {
-          device_id: this.thing.device_id,
-          channel_id: this.thing.channel_id,
+          deviceId: this.thing.deviceId,
+          channelId: this.thing.channelId,
           parameter_id: parameter.id,
           data: this.form.parameter[parameter.name],
         })

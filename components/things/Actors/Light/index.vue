@@ -1,5 +1,5 @@
 <template>
-  <fb-modal-window
+  <fb-ui-modal-window
     class="fb-things-channels-light__container"
     @closed="close"
   >
@@ -158,7 +158,7 @@
     >
       <div class="row">
         <div class="col-4 offset-4 col-md-2 offset-md-8">
-          <fb-button
+          <fb-ui-button
             block
             uppercase
             variant="link"
@@ -168,10 +168,10 @@
             @click="close"
           >
             {{ $t('application.buttons.close.title') }}
-          </fb-button>
+          </fb-ui-button>
         </div>
         <div class="col-4 col-md-2">
-          <fb-button
+          <fb-ui-button
             block
             uppercase
             variant="link"
@@ -181,17 +181,18 @@
             @click.prevent="sendColor()"
           >
             {{ $t('application.buttons.save.title') }}
-          </fb-button>
+          </fb-ui-button>
         </div>
       </div>
     </div>
-  </fb-modal-window>
+  </fb-ui-modal-window>
 </template>
 
 <script>
 import tinyColor from 'tinycolor2'
 
 import VueSlider from 'vue-slider-component'
+import ChannelProperty from '@/models/devices-node/channel-properties/ChannelProperty'
 
 export default {
 
@@ -364,7 +365,10 @@ export default {
       const payload = Object.assign({}, this.channelData)
       payload.rgb = setColor.toRgb()
 
-      this.$controlChannel(this.clearTotal.property, payload)
+      ChannelProperty.dispatch('transmitData', {
+        property: this.clearTotal.property,
+        value: payload,
+      })
         .then(() => {
           this.disableUpdate = false
         })
@@ -372,7 +376,7 @@ export default {
           this.disableUpdate = false
 
           this.$flashMessage(this.$t('things.messages.commandNotAccepted', {
-            thing: this.$tThingChannel(this.thing),
+            thing: this.thing.channel.title,
           }), 'error')
         })
     },

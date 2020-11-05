@@ -43,7 +43,7 @@
 
 <script>
 import { groupIcons } from '~/configuration'
-import Group from '~/models/devices-node/Group'
+import Group from '~/models/ui-node/Group'
 
 export default {
 
@@ -112,7 +112,7 @@ export default {
             })
               .catch((e) => {
                 if (this._.get(e, 'exception', null) !== null) {
-                  this.handleFormError(e.exception, errorMessage)
+                  this.handleException(e.exception, errorMessage)
                 } else {
                   this.$flashMessage(errorMessage, 'error')
                 }

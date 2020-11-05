@@ -9,7 +9,7 @@
         <span class="fb-groups-settings-group__item-icon">
           <font-awesome-icon icon="angle-right" />
         </span>
-        <fb-spinner
+        <fb-ui-spinner
           v-if="loading.rename"
           size="sm"
         />
@@ -24,7 +24,7 @@
         <span class="fb-groups-settings-group__item-icon">
           <font-awesome-icon icon="exclamation-triangle" />
         </span>
-        <fb-spinner
+        <fb-ui-spinner
           v-if="loading.remove"
           size="sm"
         />

@@ -1,8 +1,8 @@
 <template>
   <off-canvas-body
     v-if="thing"
-    :heading="$tThingChannel(thing)"
-    :sub-heading="$tThingDevice(thing)"
+    :heading="thing.channel.title"
+    :sub-heading="thing.device.title"
   >
     <template slot="left-button">
       <button
@@ -69,33 +69,32 @@
 </template>
 
 <script>
-import FbComponentLoading from '@/node_modules/@fastybird-com/web-ui-theme/components/UI/FbComponentLoading'
-import FbComponentLoadingError from '@/node_modules/@fastybird-com/web-ui-theme/components/UI/FbComponentLoadingError'
+import { FbUiComponentLoading, FbUiComponentLoadingError } from '@fastybird/web-ui-theme'
 
 import {
   THINGS_HASH_DETAIL,
   THINGS_HASH_SETTINGS,
 } from '~/configuration/routes'
 
-import Hardware from '~/models/devices-node/Hardware'
+import Hardware from '~/models/devices-node/hardwares/Hardware'
 import Thing from '~/models/things/Thing'
 
 const ThingDetailDefault = () => ({
   component: import('~/components/things/Desktop/DetailDefault'),
-  loading: FbComponentLoading,
-  error: FbComponentLoadingError,
+  loading: FbUiComponentLoading,
+  error: FbUiComponentLoadingError,
   timeout: 10000,
 })
 const ThingDetailButton = () => ({
   component: import('~/components/things/Desktop/DetailButton'),
-  loading: FbComponentLoading,
-  error: FbComponentLoadingError,
+  loading: FbUiComponentLoading,
+  error: FbUiComponentLoadingError,
   timeout: 10000,
 })
 const ThingSettings = () => ({
   component: import('~/components/things/Settings'),
-  loading: FbComponentLoading,
-  error: FbComponentLoadingError,
+  loading: FbUiComponentLoading,
+  error: FbUiComponentLoadingError,
   timeout: 10000,
 })
 
@@ -159,7 +158,7 @@ export default {
         .query()
         .with('device')
         .with('channel')
-        .where('channel_id', this.id)
+        .where('channelId', this.id)
         .first()
     },
 
@@ -168,7 +167,7 @@ export default {
   created() {
     this.hardware = Hardware
       .query()
-      .where('device_id', this.thing.device_id)
+      .where('deviceId', this.thing.deviceId)
       .first()
 
     this.isButtonThing = this.hardware !== null &&

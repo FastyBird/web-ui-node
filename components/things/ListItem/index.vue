@@ -6,15 +6,15 @@
     @click="oneClick"
   >
     <template slot="icon">
-      <icon-with-child :primary-icon="$thingIcon(thing)" />
+      <icon-with-child :primary-icon="thing.device.icon" />
     </template>
 
     <template slot="heading">
-      {{ $tThingChannel(thing) }}
+      {{ thing.channel.title }}
     </template>
 
     <template slot="sub-heading">
-      {{ $tThingDevice(thing) }}
+      {{ thing.device.title }}
     </template>
 
     <template
@@ -23,7 +23,7 @@
     >
       <switch-actor
         v-if="switchProperty"
-        :thing="thing"
+        :device="thing.device"
         :property="switchProperty"
       />
 
@@ -41,10 +41,10 @@
 </template>
 
 <script>
-import SwitchActor from '~/components/things/Actors/Switch'
+import SwitchActor from '~/components/devices/Actors/Switch'
 
-import ChannelProperty from '~/models/devices-node/ChannelProperty'
-import Hardware from '~/models/devices-node/Hardware'
+import ChannelProperty from '~/models/devices-node/channel-properties/ChannelProperty'
+import Hardware from '~/models/devices-node/hardwares/Hardware'
 
 export default {
 
@@ -68,7 +68,7 @@ export default {
     switchProperty() {
       return ChannelProperty
         .query()
-        .where('channel_id', this.thing.channel_id)
+        .where('channelId', this.thing.channelId)
         .where('property', 'switch')
         .first()
     },
@@ -76,7 +76,7 @@ export default {
     environmentProperty() {
       const hardware = Hardware
         .query()
-        .where('device_id', this.thing.device_id)
+        .where('deviceId', this.thing.deviceId)
         .first()
 
       if (
@@ -86,7 +86,7 @@ export default {
       ) {
         return ChannelProperty
           .query()
-          .where('channel_id', this.thing.channel_id)
+          .where('channelId', this.thing.channelId)
           .where('property', 'temperature')
           .first()
       }

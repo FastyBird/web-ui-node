@@ -1,0 +1,7 @@
+.fb-expandable-box {
+  &__container {
+    overflow-y: auto;
+
+    transition: all 300ms ease-in-out;
+  }
+}

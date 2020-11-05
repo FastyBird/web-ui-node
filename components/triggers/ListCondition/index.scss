@@ -1,0 +1,35 @@
+@import "~@fastybird/web-ui-theme/src/assets/variables/colors";
+@import "~@fastybird/web-ui-theme/src/assets/variables/screen";
+@import "~@fastybird/web-ui-theme/src/assets/mixins/utilities";
+
+.fb-triggers-list-condition {
+  &__item {
+    &-conditions {
+      @include flexRow;
+
+      &-state {
+        flex-grow: 1;
+      }
+
+      &-buttons {
+        -webkit-box-flex: 0;
+        -ms-flex: 0 0 8rem;
+        flex: 0 0 8rem;
+        max-width: 8rem;
+      }
+
+      &-remove-icon {
+        color: $brand-danger;
+        font-size: 8rem;
+        margin: $margin-lg 0 $margin-md 0;
+      }
+    }
+  }
+
+  &__preloading {
+    border: 1px solid $gray-lighter;
+    border-radius: 4px;
+    width: 100%;
+    margin-top: $margin-xs;
+  }
+}

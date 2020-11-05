@@ -3,21 +3,51 @@
     v-if="props.type === 'div'"
     :class="[data.class, data.staticClass, 'fb-settings-list-item__container']"
   >
-    <slot />
+    <div
+      v-if="parent._.get(scopedSlots, 'prefix', null) !== null"
+      class="fb-settings-list-item__prefix"
+    >
+      <slot name="prefix" />
+    </div>
+    <div class="fb-settings-list-item__content">
+      <slot />
+    </div>
+    <div
+      v-if="parent._.get(scopedSlots, 'suffix', null) !== null"
+      class="fb-settings-list-item__suffix"
+    >
+      <slot name="suffix" />
+    </div>
   </div>
 
   <button
     v-else
     :class="[data.class, data.staticClass, 'fb-settings-list-item__container']"
     role="button"
-    @click.prevent="listeners['click']()"
+    @click.prevent="listeners['click']"
   >
-    <slot />
+    <span
+      v-if="parent._.get(scopedSlots, 'prefix', null) !== null"
+      class="fb-settings-list-item__prefix"
+    >
+      <slot name="prefix" />
+    </span>
+    <span class="fb-settings-list-item__content">
+      <slot />
+    </span>
+    <span
+      v-if="parent._.get(scopedSlots, 'suffix', null) !== null"
+      class="fb-settings-list-item__suffix"
+    >
+      <slot name="suffix" />
+    </span>
   </button>
 </template>
 
 <script lang="ts">
-import { defineComponent } from '@vue/composition-api'
+import {
+  defineComponent,
+} from '@vue/composition-api'
 
 export default defineComponent({
 
@@ -42,5 +72,5 @@ export default defineComponent({
 </script>
 
 <style rel="stylesheet/scss" lang="scss">
-  @import 'index';
+@import 'index';
 </style>

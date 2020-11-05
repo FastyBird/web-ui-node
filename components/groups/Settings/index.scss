@@ -1,5 +1,4 @@
-@import "~@fastybird-com/web-ui-theme/assets/variables/colors";
-@import "~@fastybird-com/web-ui-theme/assets/variables/borders";
+@import "~@fastybird/web-ui-theme/src/assets/variables/colors";
 
 .fb-groups-settings-group {
   &__item {
@@ -11,11 +10,11 @@
       color: $brand-danger;
     }
 
-    .fb-spinner__container {
+    .fb-ui-spinner__container {
       margin-right: 15px;
     }
 
-    .fb-switch-element__container {
+    .fb-ui-switch-element__container {
       float: right;
     }
 

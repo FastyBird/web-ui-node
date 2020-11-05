@@ -1,0 +1,54 @@
+@import "~@fastybird/web-ui-theme/src/assets/variables/colors";
+@import "~@fastybird/web-ui-theme/src/assets/variables/screen";
+@import "~@fastybird/web-ui-theme/src/assets/mixins/utilities";
+
+.fb-triggers-desktop-create {
+  &__container {
+    .fb-ui-modal-window__footer {
+      .fb-ui-button[data-variant="link"] {
+        color: $text-muted !important;
+      }
+    }
+
+    .fb-ui-modal-window__body {
+      .fb-ui-items-container__heading {
+        padding-left: 0;
+      }
+
+      .fb-ui-items-container__items {
+        padding: 0;
+      }
+    }
+  }
+
+  &__icon {
+    font-size: 4em;
+    margin-bottom: $margin-sm;
+  }
+
+  &__select-type {
+    @include flexRow;
+
+    &-item {
+      -webkit-box-flex: 0;
+      -ms-flex: 0 0 50%;
+      flex: 0 0 50%;
+      max-width: 50%;
+
+      margin-bottom: $margin-sm;
+      padding: $padding-xs;
+
+      .fb-ui-button[data-size="lg"] {
+        text-align: center;
+        font-size: 1.8rem;
+        overflow: hidden;
+
+        svg {
+          display: block;
+          margin: 0 auto $margin-sm auto;
+          font-size: 2em;
+        }
+      }
+    }
+  }
+}

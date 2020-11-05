@@ -1,13 +1,13 @@
 <template>
-  <fb-modal-window @close="$emit('close')">
+  <fb-ui-modal-window @close="$emit('close')">
     <div
       slot="modal-content"
-      class="fb-modal-window__content fb-things-desktop-connect__container"
+      class="fb-ui-modal-window__content fb-things-desktop-connect__container"
     >
-      <div class="fb-modal-window__header">
+      <div class="fb-ui-modal-window__header">
         <button
           type="button"
-          class="fb-modal-window__close"
+          class="fb-ui-modal-window__close"
           @click.prevent="$emit('close')"
         >
           <span aria-hidden="true">×</span>
@@ -51,7 +51,7 @@
         </div>
       </div>
 
-      <div class="fb-modal-window__body">
+      <div class="fb-ui-modal-window__body">
         <div
           v-if="step === 1"
           class="fb-things-desktop-connect__step-1"
@@ -68,10 +68,9 @@
             </div>
           </div>
 
-          <fb-divider
-            :text="$t('application.misc.or')"
-            type="horizontal"
-          />
+          <fb-ui-divider type="horizontal">
+            {{ $t('application.misc.or') }}
+          </fb-ui-divider>
 
           <div class="fb-things-desktop-connect__step-1-row">
             <div class="fb-things-desktop-connect__step-1-icon">
@@ -133,7 +132,7 @@
           </template>
 
           <template v-if="search.status === 'started'">
-            <fb-spinner size="lg" />
+            <fb-ui-spinner size="lg" />
 
             <p>
               Searching...
@@ -157,7 +156,7 @@
           </template>
 
           <template v-if="search.status === 'configuring'">
-            <fb-spinner size="lg" />
+            <fb-ui-spinner size="lg" />
 
             <p>
               Configuring device...
@@ -173,7 +172,7 @@
           </template>
 
           <template v-if="search.status === 'synchronizing'">
-            <fb-spinner size="lg" />
+            <fb-ui-spinner size="lg" />
 
             <p>
               Synchronizing device with server
@@ -189,9 +188,9 @@
         </div>
       </div>
 
-      <div class="fb-modal-window__footer">
+      <div class="fb-ui-modal-window__footer">
         <template v-if="step === 1">
-          <fb-button
+          <fb-ui-button
             uppercase
             variant="link"
             size="lg"
@@ -199,9 +198,9 @@
             @click.prevent="$emit('close')"
           >
             {{ $t('application.buttons.close.title') }}
-          </fb-button>
+          </fb-ui-button>
 
-          <fb-button
+          <fb-ui-button
             uppercase
             variant="outline-primary"
             size="lg"
@@ -209,11 +208,11 @@
             @click.prevent="nextStep"
           >
             {{ $t('application.buttons.next.title') }}
-          </fb-button>
+          </fb-ui-button>
         </template>
 
         <template v-if="step === 2">
-          <fb-button
+          <fb-ui-button
             uppercase
             variant="link"
             size="lg"
@@ -221,9 +220,9 @@
             @click.prevent="previousStep"
           >
             {{ $t('application.buttons.back.title') }}
-          </fb-button>
+          </fb-ui-button>
 
-          <fb-button
+          <fb-ui-button
             uppercase
             variant="outline-primary"
             size="lg"
@@ -231,11 +230,11 @@
             @click.prevent="submitWifiForm"
           >
             {{ $t('application.buttons.next.title') }}
-          </fb-button>
+          </fb-ui-button>
         </template>
 
         <template v-if="step === 3">
-          <fb-button
+          <fb-ui-button
             v-if="search.status === null || search.status === 'canceled' || search.status === 'error'"
             uppercase
             variant="link"
@@ -244,9 +243,9 @@
             @click.prevent="previousStep"
           >
             {{ $t('application.buttons.back.title') }}
-          </fb-button>
+          </fb-ui-button>
 
-          <fb-button
+          <fb-ui-button
             v-if="search.status === null || search.status === 'canceled' || search.status === 'error'"
             uppercase
             variant="outline-primary"
@@ -255,9 +254,9 @@
             @click.prevent="startSearching"
           >
             {{ $t('things.buttons.search.title') }}
-          </fb-button>
+          </fb-ui-button>
 
-          <fb-button
+          <fb-ui-button
             v-if="search.status === 'started'"
             uppercase
             variant="outline-primary"
@@ -266,9 +265,9 @@
             @click.prevent="cancelSearching"
           >
             {{ $t('application.buttons.cancel.title') }}
-          </fb-button>
+          </fb-ui-button>
 
-          <fb-button
+          <fb-ui-button
             v-if="search.status === 'configuring' || search.status === 'finished' || search.status === 'synchronizing'"
             uppercase
             disabled
@@ -278,11 +277,11 @@
             @click.prevent="$emit('close')"
           >
             {{ $t('application.buttons.next.title') }}
-          </fb-button>
+          </fb-ui-button>
         </template>
 
         <template v-if="step === 4">
-          <fb-button
+          <fb-ui-button
             uppercase
             variant="link"
             size="lg"
@@ -290,11 +289,11 @@
             @click.prevent="$emit('close')"
           >
             {{ $t('application.buttons.close.title') }}
-          </fb-button>
+          </fb-ui-button>
         </template>
       </div>
     </div>
-  </fb-modal-window>
+  </fb-ui-modal-window>
 </template>
 
 <script>

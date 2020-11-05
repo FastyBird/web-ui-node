@@ -77,7 +77,7 @@
         data-vv-validate-on="blur"
       />
 
-      <fb-button
+      <fb-ui-button
         block
         uppercase
         variant="primary"
@@ -85,7 +85,7 @@
         tabindex="6"
       >
         {{ $t('account.buttons.signUp.title') }}
-      </fb-button>
+      </fb-ui-button>
     </form>
   </div>
 </template>

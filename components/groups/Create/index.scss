@@ -1,5 +1,5 @@
-@import "~@fastybird-com/web-ui-theme/assets/variables/colors";
-@import "~@fastybird-com/web-ui-theme/assets/mixins/utilities";
+@import "~@fastybird/web-ui-theme/src/assets/variables/colors";
+@import "~@fastybird/web-ui-theme/src/assets/mixins/utilities";
 
 .fb-groups-create {
   &__icons {
@@ -7,11 +7,9 @@
     padding-right: 15px;
 
     > div {
-      @include gridRow;
+      @include flexRow;
 
       > div {
-        @include gridCel(0, 0);
-
         -webkit-box-flex: 0;
         -ms-flex: 0 0 33.333333%;
         flex: 0 0 33.333333%;

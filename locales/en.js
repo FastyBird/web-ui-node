@@ -18,6 +18,28 @@ export default {
         title: 'Add new group',
       },
     },
+    devices: {
+      list: {
+        title: 'Registered devices',
+      },
+      detail: {
+        title: 'Device: {device}',
+      },
+      connect: {
+        title: 'Connect new device',
+      },
+    },
+    triggers: {
+      list: {
+        title: 'Configured triggers',
+      },
+      detail: {
+        title: 'trigger: {trigger}',
+      },
+      create: {
+        title: 'Add new trigger',
+      },
+    },
     things: {
       list: {
         title: 'Registered things',
@@ -67,6 +89,9 @@ export default {
       save: {
         title: 'Save',
       },
+      done: {
+        title: 'Done',
+      },
       close: {
         title: 'Close',
       },
@@ -94,10 +119,22 @@ export default {
       groups: {
         title: 'Groups',
       },
+      reset: {
+        title: 'Reset',
+      },
+      rename: {
+        title: 'Rename',
+      },
     },
     tabs: {
       dashboard: {
         title: 'Dashboard',
+      },
+      devices: {
+        title: 'Devices',
+      },
+      triggers: {
+        title: 'Triggers',
       },
       things: {
         title: 'Things',
@@ -108,6 +145,7 @@ export default {
     },
     messages: {
       requestError: 'Something went wrong, please try again later.',
+      unknownError: 'Something went wrong, please try reload app.',
       valueIsNotValid: 'This value is not valid.',
       loadingApp: 'Application is loading...',
       offlineState: 'It looks like you have no internet connection. Application need internet connection to be able to communicate with services. Try to go online please.',
@@ -115,6 +153,8 @@ export default {
     menu: {
       root: 'IO server',
       dashboard: 'Dashboard',
+      devices: 'Devices',
+      triggers: 'Triggers',
       things: 'Things',
       routines: 'Routines',
       administration: 'Administration',
@@ -169,6 +209,7 @@ export default {
     },
     misc: {
       or: 'or',
+      paging: '{page} of {total}',
     },
   },
   account: {
@@ -200,13 +241,13 @@ export default {
         uid: {
           title: 'Primary email or username',
           validation: {
-            required: 'Please fill in your primary email or username.',
+            required: 'Please fill in your primary email or username',
           },
         },
         password: {
           title: 'Password',
           validation: {
-            required: 'Please fill in your password.',
+            required: 'Please fill in your password',
           },
         },
       },
@@ -215,23 +256,23 @@ export default {
       },
       emailAddress: {
         title: 'Email',
-        help: 'Primary email, eg. john@doe.com',
+        help: 'Email address, eg. john@doe.com',
         validation: {
-          required: 'Please fill in your email address.',
+          required: 'Please fill in your email address',
         },
       },
       firstName: {
         title: 'First name',
         help: 'First name, eg. John',
         validation: {
-          required: 'Please fill in first name.',
+          required: 'Please fill in first name',
         },
       },
       lastName: {
         title: 'Last name',
         help: 'Last name, eg. Doe',
         validation: {
-          required: 'Please fill in last name.',
+          required: 'Please fill in last name',
         },
       },
       middleName: {
@@ -241,7 +282,7 @@ export default {
         title: 'Language',
       },
       datetime: {
-        timeZone: {
+        timezone: {
           title: 'Time zone',
         },
         dateFormat: {
@@ -259,82 +300,26 @@ export default {
           },
         },
       },
-      securityQuestion: {
-        currentQuestion: {
-          title: 'Existing question',
-        },
-        currentAnswer: {
-          title: 'Answer',
-          help: 'Answer to your current security question',
-          invalid: 'Answer to security question is incorrect.',
-          validation: {
-            required: 'It is necessary to answer to your actual security question.',
-          },
-        },
-        question: {
-          title: 'New question',
-          prompt: 'Please select...',
-          values: {
-            motherMaidenName: 'Your mother\'s maiden name',
-            firstPetName: 'Your first pet\'s name',
-            elementarySchoolName: 'The name of your elementary school',
-            elementarySchoolMascot: 'Your elementary school mascot',
-            friedNickname: 'Your best friend\'s nickname',
-            favoriteSportsTeam: 'Your favorite sports team',
-            favoriteWriter: 'Your favorite writer',
-            favoriteActor: 'Your favorite actor',
-            favoriteSinger: 'Your favorite singer',
-            favoriteSong: 'Your favorite song',
-            grewUpStreetName: 'The name of the street you grew up on',
-            makeOfFirstCar: 'Make and model of your first car',
-            cityWhereYouMetSpouse: 'The city where you first met your spouse',
-            other: 'Other...',
-          },
-          validation: {
-            required: 'Please select your new security question.',
-          },
-        },
-        customQuestion: {
-          title: 'Custom question',
-          help: 'Write down your custom security question',
-          validation: {
-            required: 'Please fill in your custom question.',
-          },
-        },
-        answer: {
-          title: 'Answer',
-          help: 'Write down answer to your security question',
-          validation: {
-            required: 'Please fill in your answer to security question.',
-          },
-        },
-        lockingNotice: {
-          title: 'I understand my account will be locked if I am unable to answer this question',
-          validation: {
-            required: 'Please check this checkbox if you understand this action.',
-          },
-        },
-      },
       password: {
         current: {
           title: 'Current password',
           help: 'Your actual password',
           validation: {
-            required: 'Please fill in your current password.',
+            required: 'Please fill in your current password',
           },
         },
         new: {
           title: 'New password',
           help: 'Your new password',
           validation: {
-            required: 'Please fill in your new password.',
+            required: 'Please fill in your new password',
           },
         },
         repeat: {
           title: 'Repeat new password',
           help: 'Confirm your new password',
           validation: {
-            required: 'Please repeat your new password.',
+            required: 'Please repeat your new password',
           },
         },
       },
@@ -378,7 +363,7 @@ export default {
       title: {
         title: 'Give group a name',
         validation: {
-          required: 'Please fill in group name.',
+          required: 'Please fill in group name',
         },
       },
       comment: {
@@ -397,134 +382,168 @@ export default {
       },
     },
   },
-  things: {
+  devices: {
     headings: {
-      allThings: 'All things',
-      sensors: 'Sensor|Sensors',
-      actors: 'Actor|Actors',
-      lights: 'Light|Lights',
-      switches: 'Switch|Switches',
-      calibrate: 'Calibrate energy sensors',
-      clearCounter: 'Clear counter',
-      credentials: 'Thing connection credentials',
-      remove: 'Remove thing',
-      rename: 'Rename thing',
-      settings: 'Thing settings',
+      allDevices: 'All devices',
+      channel: 'Channel: {channel}',
+      resetChannel: 'Reset channel',
+      renameDevice: 'Rename device',
+      renameChannel: 'Rename channel',
+      remove: 'Remove device',
+      credentials: 'Connection credentials',
+      deviceSettings: 'Device settings',
+      channelSettings: 'Channel settings',
+      moduleSensorSettings: 'Device sensor settings',
+      moduleTimeSettings: 'Device time settings',
       generalSettings: 'General settings',
-      moduleSensorSettings: 'Thing sensor settings',
-      moduleTimeSettings: 'Thing time settings',
-      manufacturerAndNetwork: 'Manufacturer & Network info',
-      selectTriggerThing: 'Things',
-      newAction: 'Add new action when...',
-      removeAction: 'Remove action',
-      buttonActionPressed: 'Button pressed',
-      buttonActionClicked: 'Button clicked',
-      buttonActionDblClicked: 'Button double-clicked',
+      channelParameterEdit: 'Channel parameter settings',
+      deviceParameterEdit: 'Device parameter settings',
+      addNewDevice: 'Connect new device',
+      syncDevices: 'Sync devices',
     },
     subHeadings: {
-      allThings: 'no things | one thing | {count} things',
+      allDevices: 'No devices created. Continue with creating a new device | One device created. Continue with selecting one from the list column | {count} devices created. Continue with selecting one from the list column',
+      addNewDevice: 'Register new machine devices to the system',
+      syncDevices: 'Sync all devices with server',
     },
     messages: {
-      notEdited: 'Thing {thing} couldn\'t be updated, please try again later.',
-      commandNotAccepted: 'Last command was not accepted by thing <strong>{thing}</strong>.',
-      notOnline: 'Thing <strong>{thing}</strong> is not connected to server.',
-      notSupported: 'This function is not supported by <strong>{thing}</strong>.',
-      confirmClearCounter: 'Clear total consumption counter for thing {thing} ?',
-      confirmRemove: 'Are you sure to remove thing {thing} ?',
-      notRemoved: 'Thing {thing} couldn\'t be removed, please try again later.',
-      notRenamed: 'Thing {thing} couldn\'t be renamed, please try again later.',
-      triggerNotCreated: 'Configured action couldn\'t be created, please try again later.',
-      actionNotRemoved: 'Selected action couldn\'t be removed, please try again later.',
-      confirmRemoveAction: 'Are you sure to remove thing {thing} action ?',
+      notOnline: 'Device <strong>{device}</strong> is not connected to server.',
+      commandNotAccepted: 'Last command was not accepted by device <strong>{device}</strong>.',
+      notSupported: 'This function is not supported by <strong>{device}</strong>.',
+      confirmResetChannel: 'Clear measured values for device {device} and channel {channel} ?',
+      deviceNotRenamed: 'Device {device} couldn\'t be renamed.',
+      channelNotRenamed: 'Channel {channel} couldn\'t be renamed.',
+      confirmRemoveDevice: 'Are you sure to remove device {device} ?',
+      deviceNotRemoved: 'Device {device} couldn\'t be removed.',
+      deviceNotEdited: 'Device {device} couldn\'t be updated.',
+      parameterNotUpdated: 'Parameter {parameter} couldn\'t be updated.',
+      moduleNotUpdated: 'Module for device {device} couldn\'t be updated.',
+      calibrationFailed: 'Calibration for device {device} failed.',
+      deviceNotAdded: 'Something went wrong. Device could not be registered.',
+      credentialsNotUpdated: 'Credentials for device {device} couldn\'t be updated.',
     },
     texts: {
-      loadingThings: 'Loading things...',
-      loadingThing: 'Loading thing...',
-      noThings: 'You don\'t have assigned any thing',
-      noProperties: 'This thing is without controllable properties',
-      notFound: 'Thing was not found, please try reload page.',
-      wifi: {
-        name: 'Wifi name',
-        ip: 'IP address',
-      },
-      hardware: {
-        model: 'Model',
-        manufacturer: 'Manufacturer',
-      },
-      noThingsActions: 'You don\'t have assigned any action to this thing',
-      loadingTriggers: 'Loading details...',
+      loadingDevices: 'Loading devices...',
+      loadingDevice: 'Loading device...',
+      notFound: 'Device was not found, please try reload page.',
+      noDevices: 'You don\'t have assigned any device',
+      noChannels: 'This device is without channels',
+      noProperties: 'This channel is without properties',
     },
     fields: {
-      wifi: {
-        name: {
-          title: 'Wifi SSID name',
-          validation: {
-            required: 'Please fill in wifi SSID name.',
-          },
+      deviceName: {
+        title: 'Device name',
+        placeholder: 'Enter device name',
+        validation: {
+          required: 'Please fill in device name',
         },
-        password: {
-          title: 'Password for wifi access',
-          placeholder: 'Leave blank if your wifi is without password',
+      },
+      deviceComment: {
+        title: 'Device description',
+        placeholder: 'Enter device description',
+      },
+      identifier: {
+        title: 'Device identifier',
+        validation: {
+          required: 'Please fill in device unique identifier',
         },
+      },
+      username: {
+        title: 'Username',
+        placeholder: 'Enter device username',
+        validation: {
+          required: 'Please fill in device communication username',
+        },
+      },
+      password: {
+        title: 'Password',
+        placeholder: 'Enter device password',
+        validation: {
+          required: 'Please fill in device communication password',
+        },
+      },
+      clientId: {
+        title: 'Client ID',
+      },
+      mqtt: {
+        server: {
+          title: 'MQTT server address',
+        },
+        port: {
+          title: 'MQTT server port',
+        },
+        securedServer: {
+          title: 'MQTT server secured address',
+        },
+        securedPort: {
+          title: 'MQTT server secured port',
+        },
+      },
+      search: {
+        title: 'Search devices',
+        placeholder: 'Search for device',
+      },
+      channelName: {
+        title: 'Channel name',
+        placeholder: 'Enter channel name',
+        validation: {
+          required: 'Please fill in channel name',
+        },
+      },
+      channelComment: {
+        title: 'Channel description',
+        placeholder: 'Enter channel description',
       },
     },
     buttons: {
-      remove: {
-        title: 'Remove thing',
+      addNew: {
+        title: 'Connect new device',
       },
-      rename: {
-        title: 'Rename thing',
+      addTypeMqtt: {
+        title: 'MQTT',
+      },
+      addTypeUdp: {
+        title: 'UDP packets',
+      },
+      addTypeSigfox: {
+        title: 'Sigfox',
+      },
+      addTypeLora: {
+        title: 'LoRa',
       },
       credentials: {
         title: 'Connection credentials',
       },
-      timeConfiguration: {
-        title: 'Time settings',
-        description: 'Configure thing timezone etc.',
-      },
       sensorConfiguration: {
         title: 'Sensor settings',
-        description: 'Configure thing sensors etc.',
+        description: 'Configure device sensors etc.',
+      },
+      timeConfiguration: {
+        title: 'Time settings',
+        description: 'Configure device timezone etc.',
       },
       energyCalibration: {
         title: 'Calibrate energy',
       },
-      press: {
-        title: 'Button is pressed',
+      renameDevice: {
+        title: 'Rename device',
       },
-      click: {
-        title: 'Button is clicked',
+      renameChannel: {
+        title: 'Rename channel',
       },
-      dblClick: {
-        title: 'Button is double-clicked',
+      removeDevice: {
+        title: 'Remove device',
       },
-      addTriggerAction: {
-        title: 'Add action',
+      sync: {
+        title: 'Synchronise',
       },
-      addNew: {
-        title: 'Connect new thing',
-      },
-      search: {
-        title: 'Start searching',
-      },
-      addThing: {
-        title: 'Add thing',
-      },
-      updateThing: {
-        title: 'Update thing',
-      },
-    },
-    triggers: {
-      toggle: 'Toggle {property} state',
-      on: 'Turn {property} on',
-      off: 'Turn {property} off',
     },
     vendors: {
       global: {
         title: {
           title: 'Thing name',
           validation: {
-            required: 'Please fill in thing name.',
+            required: 'Please fill in thing name',
           },
         },
         comment: {
@@ -533,13 +552,13 @@ export default {
         username: {
           title: 'Thing MQTT username',
           validation: {
-            required: 'Please fill in your thing username.',
+            required: 'Please fill in your thing username',
           },
         },
         password: {
           title: 'Thing MQTT password',
           validation: {
-            required: 'Please fill in your thing password.',
+            required: 'Please fill in your thing password',
           },
         },
         mqttServer: {
@@ -605,7 +624,7 @@ export default {
         },
       },
       itead: {
-        things: {
+        devices: {
           sonoff_basic: {
             title: 'Sonoff Smart Switch',
             channels: {
@@ -848,6 +867,288 @@ export default {
       },
     },
   },
+  triggers: {
+    headings: {
+      allTriggers: 'All triggers',
+      addNewTrigger: 'Create new trigger',
+      conditions: 'When...',
+      actions: 'Then...',
+      scheduledDate: 'When...',
+      scheduledTime: 'When...',
+      generalSettings: 'General settings',
+      renameTrigger: 'Rename trigger',
+      removeTrigger: 'Remove trigger',
+      typeActor: 'Available actors',
+      typeSensor: 'Available sensors',
+      typeDevice: 'Available devices',
+      typeTime: 'Time based condition',
+      typeDate: 'Date based condition',
+      addNewCondition: 'Add new condition',
+      removeCondition: 'Remove condition',
+      removeAction: 'Remove action',
+      triggerType: 'Choose trigger type',
+      createTrigger: 'Create new trigger',
+      createTimeScheduledTrigger: 'Create new time based trigger',
+      createDateScheduledTrigger: 'Create new date based trigger',
+      createDeviceTrigger: 'Create new device controlled trigger',
+      createSensorTrigger: 'Create new sensor controlled trigger',
+      createManualTrigger: 'Create new manual trigger',
+      selectDevice: 'Select device to be assigned',
+      syncTriggers: 'Sync triggers',
+      automaticTrigger: 'Automatic trigger',
+      manualTrigger: 'Manual trigger',
+      scheduledTrigger: '{days}, {time}',
+    },
+    subHeadings: {
+      allTriggers: 'No triggers created. Continue with creating a new trigger | One trigger created. Continue with selecting one from the list column | {count} triggers created. Continue with selecting one from the list column',
+      addNewTrigger: 'Create new automation or manual trigger',
+      syncTriggers: 'Sync all triggers with server',
+    },
+    messages: {
+      triggerNotRenamed: 'Trigger {trigger} couldn\'t be renamed.',
+      confirmRemoveTrigger: 'Are you sure to remove trigger {trigger} ?',
+      triggerNotRemoved: 'Trigger {trigger} couldn\'t be removed.',
+      conditionNotUpdated: 'Condition for trigger {trigger} couldn\'t be updated.',
+      actionNotUpdated: 'Action for trigger {trigger} couldn\'t be updated.',
+      confirmRemoveCondition: 'Are you sure to remove trigger condition ?',
+      confirmRemoveAction: 'Are you sure to remove trigger action ?',
+      atLeastOneConditionProperty: 'You have to select at least one property.',
+      atLeastOneActionProperty: 'You have to select at least one property.',
+    },
+    texts: {
+      loadingTriggers: 'Loading triggers...',
+      loadingTrigger: 'Loading trigger...',
+      noTriggers: 'You don\'t have created any trigger',
+      loadingDevices: 'Loading devices...',
+      loadingDevice: 'Loading device...',
+      noDevices: 'You don\'t have assigned any device',
+      triggerDevices: 'no device | {count} device | {count} devices',
+      noConditions: 'No conditions are assigned to this trigger',
+      noActions: 'No actions are assigned to this trigger',
+      noNotifications: 'No notifications are assigned to this trigger',
+      scheduledTime: 'Scheduled for time: {time}',
+      scheduledDate: 'Scheduled: {date} {time}',
+      everyday: 'Everyday',
+    },
+    fields: {
+      search: {
+        title: 'Search',
+        placeholder: 'Search for triggers',
+      },
+      triggerName: {
+        title: 'Give trigger a name',
+        placeholder: 'Rise n\' Shine',
+        validation: {
+          required: 'Please fill in trigger name',
+        },
+      },
+      triggerComment: {
+        title: 'Describe your trigger',
+        placeholder: 'Short trigger description for better identification',
+      },
+      conditionDate: {
+        title: 'Specific day & hour',
+      },
+      conditionTime: {
+        title: 'Time of the day',
+      },
+      conditionRepeat: {
+        title: 'Repeat',
+      },
+    },
+    buttons: {
+      addNew: {
+        title: 'Add new trigger',
+      },
+      triggerEnabled: {
+        title: 'Trigger is enabled',
+      },
+      triggerDisabled: {
+        title: 'Trigger is disabled',
+      },
+      renameTrigger: {
+        title: 'Rename trigger',
+      },
+      removeTrigger: {
+        title: 'Remove trigger',
+      },
+      addSensor: {
+        title: 'Add sensor',
+      },
+      updateSensor: {
+        title: 'Update sensor',
+      },
+      addDevice: {
+        title: 'Add device',
+      },
+      updateDevice: {
+        title: 'Update device',
+      },
+      addTime: {
+        title: 'Add time',
+      },
+      updateTime: {
+        title: 'Update time',
+      },
+      addDate: {
+        title: 'Add date',
+      },
+      updateDate: {
+        title: 'Update date',
+      },
+      addTypeTimeOfDay: {
+        title: 'A time of day occurs',
+      },
+      addTypeDate: {
+        title: 'A specific day occurs',
+      },
+      addTypeDeviceControlled: {
+        title: 'An device is controlled',
+      },
+      addTypeSensorDetect: {
+        title: 'A sensor detects something',
+      },
+      addTypeManual: {
+        title: 'Custom manual scene',
+      },
+      sync: {
+        title: 'Synchronise',
+      },
+    },
+    actions: {
+      toggle: 'Toggle {property} state',
+      on: 'Turn {property} on',
+      off: 'Turn {property} off',
+    },
+    conditions: {
+      above: '{property} value is above {value}',
+      eq: '{property} value is equal to {value}',
+      below: '{property} value is below {value}',
+    },
+  },
+  things: {
+    headings: {
+      allThings: 'All things',
+      sensors: 'Sensor|Sensors',
+      actors: 'Actor|Actors',
+      lights: 'Light|Lights',
+      switches: 'Switch|Switches',
+      calibrate: 'Calibrate energy sensors',
+      clearCounter: 'Clear counter',
+      credentials: 'Thing connection credentials',
+      remove: 'Remove thing',
+      rename: 'Rename thing',
+      settings: 'Thing settings',
+      generalSettings: 'General settings',
+      moduleSensorSettings: 'Thing sensor settings',
+      moduleTimeSettings: 'Thing time settings',
+      manufacturerAndNetwork: 'Manufacturer & Network info',
+      selectTriggerThing: 'Things',
+      newAction: 'Add new action when...',
+      removeAction: 'Remove action',
+      buttonActionPressed: 'Button pressed',
+      buttonActionClicked: 'Button clicked',
+      buttonActionDblClicked: 'Button double-clicked',
+    },
+    subHeadings: {
+      allThings: 'no things | one thing | {count} things',
+    },
+    messages: {
+      notEdited: 'Thing {thing} couldn\'t be updated, please try again later.',
+      commandNotAccepted: 'Last command was not accepted by thing <strong>{thing}</strong>.',
+      notOnline: 'Thing <strong>{thing}</strong> is not connected to server.',
+      notSupported: 'This function is not supported by <strong>{thing}</strong>.',
+      confirmClearCounter: 'Clear total consumption counter for thing {thing} ?',
+      confirmRemove: 'Are you sure to remove thing {thing} ?',
+      notRemoved: 'Thing {thing} couldn\'t be removed, please try again later.',
+      notRenamed: 'Thing {thing} couldn\'t be renamed, please try again later.',
+      triggerNotCreated: 'Configured action couldn\'t be created, please try again later.',
+      actionNotRemoved: 'Selected action couldn\'t be removed, please try again later.',
+      confirmRemoveAction: 'Are you sure to remove thing {thing} action ?',
+    },
+    texts: {
+      loadingThings: 'Loading things...',
+      loadingThing: 'Loading thing...',
+      noThings: 'You don\'t have assigned any thing',
+      noProperties: 'This thing is without controllable properties',
+      notFound: 'Thing was not found, please try reload page.',
+      wifi: {
+        name: 'Wifi name',
+        ip: 'IP address',
+      },
+      hardware: {
+        model: 'Model',
+        manufacturer: 'Manufacturer',
+      },
+      noThingsActions: 'You don\'t have assigned any action to this thing',
+      loadingTriggers: 'Loading details...',
+    },
+    fields: {
+      wifi: {
+        name: {
+          title: 'Wifi SSID name',
+          validation: {
+            required: 'Please fill in wifi SSID name',
+          },
+        },
+        password: {
+          title: 'Password for wifi access',
+          placeholder: 'Leave blank if your wifi is without password',
+        },
+      },
+    },
+    buttons: {
+      remove: {
+        title: 'Remove thing',
+      },
+      rename: {
+        title: 'Rename thing',
+      },
+      credentials: {
+        title: 'Connection credentials',
+      },
+      timeConfiguration: {
+        title: 'Time settings',
+        description: 'Configure thing timezone etc.',
+      },
+      sensorConfiguration: {
+        title: 'Sensor settings',
+        description: 'Configure thing sensors etc.',
+      },
+      energyCalibration: {
+        title: 'Calibrate energy',
+      },
+      press: {
+        title: 'Button is pressed',
+      },
+      click: {
+        title: 'Button is clicked',
+      },
+      dblClick: {
+        title: 'Button is double-clicked',
+      },
+      addTriggerAction: {
+        title: 'Add action',
+      },
+      addNew: {
+        title: 'Connect new thing',
+      },
+      search: {
+        title: 'Start searching',
+      },
+      addThing: {
+        title: 'Add thing',
+      },
+      updateThing: {
+        title: 'Update thing',
+      },
+    },
+    triggers: {
+      toggle: 'Toggle {property} state',
+      on: 'Turn {property} on',
+      off: 'Turn {property} off',
+    },
+  },
   routines: {
     headings: {
       allRoutines: 'All routines',
@@ -954,13 +1255,13 @@ export default {
           email: 'Send e-mail',
         },
         validation: {
-          required: 'Selecting notification type is required.',
+          required: 'Selecting notification type is required',
         },
       },
       sms: {
         title: 'SMS number',
         validation: {
-          required: 'Please fill in mobile phone number.',
+          required: 'Please fill in mobile phone number',
         },
       },
       value: {
@@ -969,15 +1270,15 @@ export default {
           email: 'E-mail address',
         },
         validation: {
-          required: 'This field is required.',
-          invalidAddress: 'This e-mail address is invalid.',
+          required: 'This field is required',
+          invalidAddress: 'This e-mail address is invalid',
         },
       },
       email: {
         title: 'E-mail address',
         prompt: '-- Please select e-mail --',
         validation: {
-          required: 'You have to select saved e-mail address or custom address.',
+          required: 'You have to select saved e-mail address or custom address',
         },
         values: {
           custom: 'Send to custom address',

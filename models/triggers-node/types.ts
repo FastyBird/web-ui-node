@@ -1,15 +1,39 @@
-// Triggers node
-export const TRIGGER_AUTOMATIC = 'triggers-node/trigger-automatic'
-export const TRIGGER_MANUAL = 'triggers-node/trigger-manual'
-export const TRIGGER_CHANNEL_PROPERTY = 'triggers-node/trigger-channel-property'
+import { TJsonaModel } from 'jsona/lib/JsonaTypes'
 
-export const TRIGGERS_CONDITION_DEVICE_PROPERTY = 'triggers-node/condition-device-property'
-export const TRIGGERS_CONDITION_CHANNEL_PROPERTY = 'triggers-node/condition-channel-property'
-export const TRIGGERS_CONDITION_TIME = 'triggers-node/condition-time'
-export const TRIGGERS_CONDITION_DATE = 'triggers-node/condition-date'
+import { TriggerEntityTypeType } from '~/models/triggers-node/triggers/types'
+import { ActionEntityTypeType } from '~/models/triggers-node/actions/types'
+import { ConditionEntityTypeType } from '~/models/triggers-node/conditions/types'
+import { NotificationEntityTypeType } from '~/models/triggers-node/notifications/types'
 
-export const TRIGGERS_ACTION_DEVICE_PROPERTY = 'triggers-node/action-device-property'
-export const TRIGGERS_ACTION_CHANNEL_PROPERTY = 'triggers-node/action-channel-property'
+export enum ConditionOperatorType {
+  STATE_VALUE_EQUAL = 'eq',
+  STATE_VALUE_ABOVE = 'above',
+  STATE_VALUE_BELOW = 'below',
+}
 
-export const TRIGGERS_NOTIFICATION_SMS = 'triggers-node/notification-sms'
-export const TRIGGERS_NOTIFICATION_EMAIL = 'triggers-node/notification-email'
+export interface TriggerJsonModelInterface extends TJsonaModel {
+  id: string
+  type: TriggerEntityTypeType
+}
+
+export interface ActionJsonModelInterface extends TJsonaModel {
+  id: string
+  type: ActionEntityTypeType
+}
+
+export interface ConditionJsonModelInterface extends TJsonaModel {
+  id: string
+  type: ConditionEntityTypeType
+}
+
+export interface NotificationJsonModelInterface extends TJsonaModel {
+  id: string
+  type: NotificationEntityTypeType
+}
+
+export interface RelationInterface extends TJsonaModel {
+  id: string
+  type: TriggerEntityTypeType | ActionEntityTypeType | NotificationEntityTypeType | ConditionEntityTypeType
+}
+
+export const ModuleOriginType = 'com.fastybird.triggers-node'

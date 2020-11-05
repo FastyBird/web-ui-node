@@ -1,0 +1,22 @@
+@import "~@fastybird/web-ui-theme/src/assets/variables/screen";
+
+.fb-triggers-create {
+  &__items {
+    margin-bottom: 0;
+
+    .fb-list-items-container__heading {
+      padding-left: 0;
+    }
+
+    .fb-list-items-container__items {
+      padding: 0;
+    }
+  }
+
+  &__add-item {
+    &-row.fb-ui-button[data-size="lg"] {
+      margin-top: $margin-xs;
+      line-height: 2rem;
+    }
+  }
+}

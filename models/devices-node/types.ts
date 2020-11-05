@@ -1,20 +1,35 @@
-export const DEVICES_NODE_PHYSICAL_DEVICE = 'devices-node/physical-device'
+import { TJsonaModel } from 'jsona/lib/JsonaTypes'
 
-export const DEVICES_NODE_CREDENTIALS = 'devices-node/credentials'
+import { DeviceEntityTypeType } from '~/models/devices-node/devices/types'
+import { DevicePropertyEntityTypeType } from '~/models/devices-node/device-properties/types'
+import { ChannelEntityTypeType } from '~/models/devices-node/channels/types'
+import { ChannelPropertyEntityTypeType } from '~/models/devices-node/channel-properties/types'
+import { HardwareEntityTypeType } from '~/models/devices-node/hardwares/types'
+import { FirmwareEntityTypeType } from '~/models/devices-node/firmwares/types'
 
-export const DEVICES_NODE_HARDWARE = 'devices-node/hardware'
-export const DEVICES_NODE_FIRMWARE = 'devices-node/firmware'
+export interface DeviceJsonModelInterface extends TJsonaModel {
+  id: string
+  type: DeviceEntityTypeType
+}
 
-export const DEVICES_NODE_CHANNEL = 'devices-node/channel'
+export interface DevicePropertyJsonModelInterface extends TJsonaModel {
+  id: string
+  type: DevicePropertyEntityTypeType
+}
 
-export const DEVICES_NODE_DEVICE_CONFIGURATION_BOOLEAN = 'devices-node/device-configuration-boolean'
-export const DEVICES_NODE_DEVICE_CONFIGURATION_NUMBER = 'devices-node/device-configuration-number'
-export const DEVICES_NODE_DEVICE_CONFIGURATION_SELECT = 'devices-node/device-configuration-select'
-export const DEVICES_NODE_DEVICE_CONFIGURATION_TEXT = 'devices-node/device-configuration-text'
+export interface ChannelJsonModelInterface extends TJsonaModel {
+  id: string
+  type: ChannelEntityTypeType
+}
 
-export const DEVICES_NODE_CHANNEL_CONFIGURATION_BOOLEAN = 'devices-node/channel-configuration-boolean'
-export const DEVICES_NODE_CHANNEL_CONFIGURATION_NUMBER = 'devices-node/channel-configuration-number'
-export const DEVICES_NODE_CHANNEL_CONFIGURATION_SELECT = 'devices-node/channel-configuration-select'
-export const DEVICES_NODE_CHANNEL_CONFIGURATION_TEXT = 'devices-node/channel-configuration-text'
+export interface ChannelPropertyJsonModelInterface extends TJsonaModel {
+  id: string
+  type: ChannelPropertyEntityTypeType
+}
 
-export const DEVICES_NODE_GROUP = 'devices-node/group'
+export interface RelationInterface extends TJsonaModel {
+  id: string
+  type: DeviceEntityTypeType | ChannelEntityTypeType | DevicePropertyEntityTypeType | ChannelPropertyEntityTypeType | HardwareEntityTypeType | FirmwareEntityTypeType
+}
+
+export const ModuleOriginType = 'com.fastybird.devices-node'

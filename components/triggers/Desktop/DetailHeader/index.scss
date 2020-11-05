@@ -1,0 +1,11 @@
+.fb-triggers-desktop-detail-header {
+  &__container {
+    .fb-desktop-detail-heading__buttons {
+      padding-right: 1rem;
+
+      .fb-ui-switch-element__container {
+        margin-right: 0.5rem;
+      }
+    }
+  }
+}

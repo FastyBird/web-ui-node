@@ -1,0 +1,32 @@
+@import "~@fastybird/web-ui-theme/src/assets/variables/screen";
+@import "~@fastybird/web-ui-theme/src/assets/mixins/utilities";
+
+.fb-triggers-list-devices {
+  &__container {
+    @media (min-width: $screen-sm-min) {
+      max-height: 50vh;
+      overflow-y: scroll;
+    }
+
+    @media (max-width: $screen-xs-max) {
+      margin-left: $margin-sm;
+      margin-right: $margin-sm;
+    }
+
+    .fb-list-item__container {
+      margin-left: 0;
+      margin-right: 0;
+    }
+  }
+
+  &__buttons {
+    @include flexRow;
+
+    &-item {
+      -webkit-box-flex: 0;
+      -ms-flex: 0 0 50%;
+      flex: 0 0 50%;
+      max-width: 50%;
+    }
+  }
+}

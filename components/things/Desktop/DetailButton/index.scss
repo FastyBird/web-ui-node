@@ -1,9 +1,9 @@
-@import "~@fastybird-com/web-ui-theme/assets/variables/colors";
-@import "~@fastybird-com/web-ui-theme/assets/mixins/utilities";
+@import "~@fastybird/web-ui-theme/src/assets/variables/colors";
+@import "~@fastybird/web-ui-theme/src/assets/mixins/utilities";
 
 .fb-things-desktop-detail-button {
   &__container {
-    .fb-modal-window__header {
+    .fb-ui-modal-window__header {
       text-align: center;
 
       svg {
@@ -37,14 +37,14 @@
       }
     }
 
-    .fb-modal-window__body {
+    .fb-ui-modal-window__body {
       .fb-list-items-container__items {
         padding: 0;
       }
     }
 
-    .fb-modal-window__footer {
-      .fb-btn-link {
+    .fb-ui-modal-window__footer {
+      .fb-ui-button[data-variant="link"] {
         color: $text-muted !important;
       }
     }
@@ -84,11 +84,9 @@
   }
 
   &__type {
-    @include gridRow;
+    @include flexRow;
 
     > div {
-      @include gridCel;
-
       -webkit-box-flex: 0;
       -ms-flex: 0 0 50%;
       flex: 0 0 50%;

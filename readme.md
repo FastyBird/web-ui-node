@@ -14,7 +14,7 @@ FastyBird Web UI node is tested against ECMAScript 6
 
 > **NOTE:** If you don't want to install it manually, try [docker image](#install-with-docker)
 
-The best way to install **@fastybird-com/web-ui-node** is using [Yarn](https://yarnpkg.com/). If you don't have Yarn yet, [download it](https://classic.yarnpkg.com/en/docs/install#search-stable) following the instructions.
+The best way to install **fastybird/web-ui-node** is using [Yarn](https://yarnpkg.com/). If you don't have Yarn yet, [download it](https://classic.yarnpkg.com/en/docs/install#search-stable) following the instructions.
 Then use command:
 
 ```sh

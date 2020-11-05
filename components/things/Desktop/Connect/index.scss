@@ -1,9 +1,9 @@
-@import "~@fastybird-com/web-ui-theme/assets/variables/colors";
-@import "~@fastybird-com/web-ui-theme/assets/mixins/utilities";
+@import "~@fastybird/web-ui-theme/src/assets/variables/colors";
+@import "~@fastybird/web-ui-theme/src/assets/mixins/utilities";
 
 .fb-things-desktop-connect {
   &__container {
-    .fb-modal-window__header {
+    .fb-ui-modal-window__header {
       text-align: center;
 
       svg {
@@ -37,12 +37,12 @@
       }
     }
 
-    .fb-modal-window__body {
+    .fb-ui-modal-window__body {
 
     }
 
-    .fb-modal-window__footer {
-      .fb-btn-link {
+    .fb-ui-modal-window__footer {
+      .fb-ui-button[data-variant="link"] {
         color: $text-muted !important;
       }
     }
@@ -50,7 +50,7 @@
 
   &__step-1 {
     &-row {
-      @include gridRow;
+      @include flexRow;
     }
 
     &-icon {
@@ -58,8 +58,6 @@
       -ms-flex: 0 0 22%;
       flex: 0 0 22%;
       max-width: 22%;
-
-      @include gridCel;
 
       text-align: center;
 
@@ -75,18 +73,14 @@
       -ms-flex-positive: 1;
       flex-grow: 1;
       max-width: 100%;
-
-      @include gridCel;
     }
   }
 
   &__step-2 {
     &-row {
-      @include gridRow;
+      @include flexRow;
 
       > div {
-        @include gridCel;
-
         -webkit-box-flex: 0;
         -ms-flex: 0 0 66.666667%;
         flex: 0 0 66.666667%;
@@ -109,7 +103,7 @@
       width: 100px;
     }
 
-    .fb-spinner__container {
+    .fb-ui-spinner__container {
       height: 100px;
       position: relative;
       display: inline-block;

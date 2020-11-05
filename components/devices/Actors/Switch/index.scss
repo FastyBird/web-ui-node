@@ -1,0 +1,55 @@
+@import "~@fastybird/web-ui-theme/src/assets/variables/colors";
+
+.fb-devices-switch {
+  &__container {
+    height: 100%;
+
+    &[data-state="off"] {
+      .fb-ui-switch-element__container input:disabled ~ .fb-ui-switch-element__track {
+        background-color: $gray-lighter
+      }
+
+      .fb-ui-switch-element__container input:disabled ~ .fb-ui-switch-element__thumb {
+        border-color: $gray-lighter;
+      }
+    }
+
+    .fb-ui-spinner__container {
+      width: 2rem;
+      height: 2rem;
+      vertical-align: middle;
+
+      &:before,
+      &:after {
+        width: 2rem;
+        height: 2rem;
+        margin: -1rem 0 0 -1rem;
+      }
+    }
+  }
+
+  &__result,
+  &__loading {
+    height: 100%;
+  }
+
+  &__result {
+    &-ok,
+    &-err {
+      height: 2rem;
+      width: 2rem;
+      line-height: 2rem;
+      display: inline-block;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    &-ok {
+      color: $brand-primary;
+    }
+
+    &-err {
+      color: $brand-danger;
+    }
+  }
+}

@@ -1,11 +1,12 @@
 <template>
-  <fb-modal-form
+  <fb-ui-modal-form
     v-if="thing !== null"
     :transparent-bg="transparentBg"
     :lock-submit-button="form.result !== null"
     :result-is-ok="form.result === true"
     icon="tachometer-alt"
     @submit="submit"
+    @cancel="close"
     @close="close"
   >
     <template slot="header">
@@ -86,12 +87,12 @@
         </fb-form-select>
       </template>
     </template>
-  </fb-modal-form>
+  </fb-ui-modal-form>
 </template>
 
 <script>
-import Hardware from '~/models/devices-node/Hardware'
-import DeviceConfiguration from '~/models/devices-node/DeviceConfiguration'
+import Hardware from '~/models/devices-node/hardwares/Hardware'
+import DeviceConfiguration from '~/models/devices-node/device-configuration/DeviceConfiguration'
 
 export default {
 
@@ -131,7 +132,7 @@ export default {
     hardware() {
       return Hardware
         .query()
-        .where('device_id', this.thing.device_id)
+        .where('deviceId', this.thing.deviceId)
         .first()
     },
 
@@ -143,7 +144,7 @@ export default {
     parameters() {
       const parameters = DeviceConfiguration
         .query()
-        .where('device_id', this.thing.device_id)
+        .where('deviceId', this.thing.deviceId)
         .orderBy('name')
         .get()
 
@@ -260,11 +261,9 @@ export default {
               .forEach((parameter) => {
                 if (Object.prototype.hasOwnProperty.call(this.form.model, parameter.name)) {
                   DeviceConfiguration.dispatch('edit', {
-                    device_id: this.thing.device_id,
+                    deviceId: this.thing.deviceId,
                     parameter_id: parameter.id,
                     data: this._.get(this.form.model, parameter.name),
-                  }, {
-                    root: true,
                   })
                 }
               })

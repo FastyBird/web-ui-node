@@ -60,26 +60,25 @@
 </template>
 
 <script>
-import FbComponentLoading from '@/node_modules/@fastybird-com/web-ui-theme/components/UI/FbComponentLoading'
-import FbComponentLoadingError from '@/node_modules/@fastybird-com/web-ui-theme/components/UI/FbComponentLoadingError'
+import { FbUiComponentLoading, FbUiComponentLoadingError } from '@fastybird/web-ui-theme'
 
 import {
   GROUPS_HASH_DETAIL,
   GROUPS_HASH_SETTINGS,
 } from '~/configuration/routes'
 
-import Group from '~/models/devices-node/Group'
+import Group from '~/models/ui-node/Group'
 
 const GroupDetail = () => ({
   component: import('~/components/groups/Detail'),
-  loading: FbComponentLoading,
-  error: FbComponentLoadingError,
+  loading: FbUiComponentLoading,
+  error: FbUiComponentLoadingError,
   timeout: 10000,
 })
 const GroupSettings = () => ({
   component: import('~/components/groups/Settings'),
-  loading: FbComponentLoading,
-  error: FbComponentLoadingError,
+  loading: FbUiComponentLoading,
+  error: FbUiComponentLoadingError,
   timeout: 10000,
 })
 

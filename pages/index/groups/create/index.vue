@@ -27,7 +27,7 @@ export default {
      * @returns {String}
      */
     windowSize() {
-      return this.$store.state.template.windowSize
+      return this.$store.state.app.windowSize
     },
 
   },

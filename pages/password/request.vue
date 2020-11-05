@@ -17,5 +17,7 @@ export default {
 
   transition: 'fade',
 
+  layout: 'sign',
+
 }
 </script>

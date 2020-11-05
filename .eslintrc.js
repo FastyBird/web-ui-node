@@ -64,9 +64,10 @@ module.exports = {
     'no-case-declarations': 'off',
     'camelcase': 'off',
     'no-template-curly-in-string': 'off',
-    '@typescript-eslint/no-unused-vars': 'off',
+    'no-unused-vars': ['error', {'args': 'after-used'}],
     'no-useless-computed-key': 'off',
     'semi': 'off',
+    '@typescript-eslint/no-unused-vars': ['error', {'args': 'after-used'}],
   },
   'overrides': [
     {

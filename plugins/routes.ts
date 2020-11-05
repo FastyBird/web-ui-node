@@ -8,6 +8,12 @@ interface AccountRoutesInterface {
   resetPassword: string;
 }
 
+interface DevicesRoutesInterface {
+  list: string;
+  detail: string;
+  connect: string;
+}
+
 interface ThingsRoutesInterface {
   list: string;
   detail: string;
@@ -27,12 +33,20 @@ interface RoutinesRoutesInterface {
   create: string;
 }
 
+interface TriggersRoutesInterface {
+  list: string;
+  detail: string;
+  create: string;
+}
+
 interface RoutesInterface {
   home: string;
   account: AccountRoutesInterface;
+  devices: DevicesRoutesInterface;
   things: ThingsRoutesInterface;
   groups: GroupsRoutesInterface;
   routines: RoutinesRoutesInterface;
+  triggers: TriggersRoutesInterface;
 }
 
 declare module 'vue/types/vue' {
@@ -61,6 +75,11 @@ const routesPlugin: Plugin = (context, inject): void => {
       signUp: routes.ACCOUNT_SIGN_UP_LINK,
       resetPassword: routes.ACCOUNT_RESET_PASSWORD_LINK,
     },
+    devices: {
+      list: routes.DEVICES_LIST_LINK,
+      detail: routes.DEVICES_DETAIL_LINK,
+      connect: routes.DEVICES_CONNECT_LINK,
+    },
     things: {
       list: routes.THINGS_LIST_LINK,
       detail: routes.THINGS_THING_DETAIL_LINK,
@@ -76,6 +95,11 @@ const routesPlugin: Plugin = (context, inject): void => {
       list: routes.ROUTINES_LIST_LINK,
       detail: routes.ROUTINES_ROUTINE_DETAIL_LINK,
       create: routes.ROUTINES_CREATE_LINK,
+    },
+    triggers: {
+      list: routes.TRIGGERS_LIST_LINK,
+      detail: routes.TRIGGERS_DETAIL_LINK,
+      create: routes.TRIGGERS_CREATE_LINK,
     },
   })
 }

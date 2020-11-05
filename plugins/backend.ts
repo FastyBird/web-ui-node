@@ -1,21 +1,21 @@
 import { Plugin } from '@nuxt/types'
-import { Model } from '@vuex-orm/core'
+import { Store } from 'vuex'
 import Jsona from 'jsona'
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
+import axios, {
+  AxiosInstance,
+  AxiosRequestConfig,
+  AxiosResponse,
+} from 'axios'
 import get from 'lodash/get'
 // @ts-ignore
 import jwtDecode from 'jwt-decode'
 
-import Session, { SessionInterface } from '~/models/accounts-node/Session'
-import SecurityQuestion from '~/models/accounts-node/SecurityQuestion'
-import Identity from '~/models/accounts-node/Identity'
+import { SemaphoreType } from '~/store/session'
 
-import {
-  ACCOUNTS_NODE_EMAIL,
-  ACCOUNTS_NODE_SYSTEM_IDENTITY,
-  ACCOUNTS_NODE_SECURITY_QUESTION,
-  ACCOUNTS_NODE_SESSION,
-} from '~/models/accounts-node/types'
+import Account from '~/models/auth-node/accounts/Account'
+import { AccountEntityTypeType } from '~/models/auth-node/accounts/types'
+import { EmailEntityTypeType } from '~/models/auth-node/emails/types'
+import { IdentityEntityTypeType } from '~/models/auth-node/identities/types'
 
 declare module 'vue/types/vue' {
   interface Vue {
@@ -35,100 +35,245 @@ declare module 'vuex/types/index' {
   }
 }
 
-interface BackendApiInterface {
-  validateSession(payload: { uid: string }): Promise<any>
+interface SessionAttributesInterface {
+  expiration: string,
+  refresh: string,
+  token: string,
+  token_type: string,
+}
 
-  validateIdentity(payload: { id: string, password: string }): Promise<any>
+interface SessionAccountRelationshipDataInterface {
+  id: string,
+  type: AccountEntityTypeType,
+}
+
+interface SessionAccountRelationshipInterface {
+  data: SessionAccountRelationshipDataInterface,
+}
+
+interface SessionRelationshipsInterface {
+  account: SessionAccountRelationshipInterface,
+}
+
+interface SessionDataInterface {
+  id: string,
+  type: string,
+  attributes: SessionAttributesInterface,
+  relationships: SessionRelationshipsInterface,
+}
+
+interface SessionResponseInterface {
+  data: SessionDataInterface,
+}
+
+interface SessionCreatePayloadInterface {
+  uid: string,
+  password: string,
+}
+
+interface SessionRefreshPayloadInterface {
+  refreshToken: string,
+}
+
+interface BackendApiInterface {
+  getAxios(): AxiosInstance
+
+  fetchSession(): Promise<any>
+
+  createSession(payload: SessionCreatePayloadInterface): Promise<any>
+
+  refreshSession(payload: SessionRefreshPayloadInterface): Promise<any>
 
   validateEmail(payload: { address: string }): Promise<any>
 
-  validateSecurityQuestion(payload: { id: string, answer: string }): Promise<any>
-
   requestPassword(payload: { uid: string }): Promise<any>
-
-  fetchDeviceProperties(payload: { device: string }): Promise<any>;
-
-  fetchChannelProperties(payload: { device: string, channel: string }): Promise<any>;
 }
 
 class BackendApi implements BackendApiInterface {
-  private axios: AxiosInstance
+  private readonly axios: AxiosInstance
+  private readonly store: Store<any>
 
-  constructor(instance: AxiosInstance) {
+  constructor(instance: AxiosInstance, store: Store<any>) {
     this.axios = instance
+    this.store = store
   }
 
-  validateSession(payload: { uid: string }): Promise<any> {
-    const dataFormatter = new Jsona()
-
-    return this.axios.post(
-      '/accounts-node/v1/session/validate',
-      dataFormatter.serialize({
-        stuff: Object.assign({}, {
-          type: ACCOUNTS_NODE_SESSION,
-          uid: payload.uid,
-        }),
-      }),
-    )
+  getAxios(): AxiosInstance {
+    return this.axios
   }
 
-  validateIdentity(payload: { id: string, password: string }): Promise<any> {
-    const identity = Identity.find(payload.id)
+  fetchSession(): Promise<any> {
+    this.store.dispatch('session/setSemaphore', {
+      type: SemaphoreType.FETCHING,
+    }, {
+      root: true,
+    })
 
-    if (identity === null) {
-      return new Promise((resolve, reject): void => {
-        reject(new Error('accounts.identities.validate.failed'))
-      })
-    }
+    return new Promise((resolve: (value: { accessToken: string, refreshToken: string }) => void, reject): void => {
+      this.axios.get(
+        '/auth-node/v1/session',
+      )
+        .then((response: AxiosResponse<SessionResponseInterface>): void => {
+          this.store.dispatch('session/set', {
+            accessToken: response.data.data.attributes.token,
+            refreshToken: response.data.data.attributes.refresh,
+            tokenExpiration: response.data.data.attributes.expiration,
+            tokenType: response.data.data.attributes.token_type,
+            accountId: response.data.data.relationships.account.data.id,
+          }, {
+            root: true,
+          })
 
+          Account.dispatch('get', {
+            id: response.data.data.relationships.account.data.id,
+          })
+            .then(() => {
+              resolve({
+                accessToken: response.data.data.attributes.token,
+                refreshToken: response.data.data.attributes.refresh,
+              })
+            })
+            .catch((e) => {
+              reject(e)
+            })
+        })
+        .catch((e: Error): void => {
+          reject(e)
+        })
+        .finally(() => {
+          this.store.dispatch('session/clearSemaphore', {
+            type: SemaphoreType.FETCHING,
+          }, {
+            root: true,
+          })
+        })
+    })
+  }
+
+  createSession(payload: SessionCreatePayloadInterface): Promise<any> {
     const dataFormatter = new Jsona()
 
-    return this.axios.post(
-      `/accounts-node/v1/accounts/${identity.account_id}/identities/${identity.id}/validate`,
-      dataFormatter.serialize({
-        stuff: Object.assign({}, {
-          id: identity.id,
-          type: ACCOUNTS_NODE_SYSTEM_IDENTITY,
-          password: {
-            current: payload.password,
-          },
+    this.store.dispatch('session/setSemaphore', {
+      type: SemaphoreType.CREATING,
+    }, {
+      root: true,
+    })
+
+    return new Promise((resolve: (value: { accessToken: string, refreshToken: string }) => void, reject): void => {
+      this.axios.post(
+        '/auth-node/v1/session',
+        dataFormatter.serialize({
+          stuff: Object.assign({}, {
+            type: AccountEntityTypeType.USER,
+
+            uid: payload.uid,
+            password: payload.password,
+          }),
         }),
-      }),
-    )
+      )
+        .then((response: AxiosResponse<SessionResponseInterface>): void => {
+          this.store.dispatch('session/set', {
+            accessToken: response.data.data.attributes.token,
+            refreshToken: response.data.data.attributes.refresh,
+            tokenExpiration: response.data.data.attributes.expiration,
+            tokenType: response.data.data.attributes.token_type,
+            accountId: response.data.data.relationships.account.data.id,
+          }, {
+            root: true,
+          })
+
+          Account.dispatch('get', {
+            id: response.data.data.relationships.account.data.id,
+          })
+            .then(() => {
+              resolve({
+                accessToken: response.data.data.attributes.token,
+                refreshToken: response.data.data.attributes.refresh,
+              })
+            })
+            .catch((e) => {
+              reject(e)
+            })
+        })
+        .catch((e: Error): void => {
+          reject(e)
+        })
+        .finally(() => {
+          this.store.dispatch('session/clearSemaphore', {
+            type: SemaphoreType.CREATING,
+          }, {
+            root: true,
+          })
+        })
+    })
+  }
+
+  refreshSession(payload: SessionRefreshPayloadInterface): Promise<any> {
+    const dataFormatter = new Jsona()
+
+    this.store.dispatch('session/setSemaphore', {
+      type: SemaphoreType.UPDATING,
+    }, {
+      root: true,
+    })
+
+    return new Promise((resolve: (value: { accessToken: string, refreshToken: string }) => void, reject): void => {
+      this.axios.patch(
+        '/auth-node/v1/session',
+        dataFormatter.serialize({
+          stuff: Object.assign({}, {
+            type: AccountEntityTypeType.USER,
+
+            refresh: payload.refreshToken,
+          }),
+        }),
+      )
+        .then((response: AxiosResponse<SessionResponseInterface>): void => {
+          this.store.dispatch('session/set', {
+            accessToken: response.data.data.attributes.token,
+            refreshToken: response.data.data.attributes.refresh,
+            tokenExpiration: response.data.data.attributes.expiration,
+            tokenType: response.data.data.attributes.token_type,
+            accountId: response.data.data.relationships.account.data.id,
+          }, {
+            root: true,
+          })
+
+          Account.dispatch('get', {
+            id: response.data.data.relationships.account.data.id,
+          })
+            .then(() => {
+              resolve({
+                accessToken: response.data.data.attributes.token,
+                refreshToken: response.data.data.attributes.refresh,
+              })
+            })
+            .catch((e) => {
+              reject(e)
+            })
+        })
+        .catch((e: Error): void => {
+          reject(e)
+        })
+        .finally(() => {
+          this.store.dispatch('session/clearSemaphore', {
+            type: SemaphoreType.UPDATING,
+          }, {
+            root: true,
+          })
+        })
+    })
   }
 
   validateEmail(payload: { address: string }): Promise<any> {
     const dataFormatter = new Jsona()
 
     return this.axios.post(
-      '/accounts-node/v1/validate-email',
+      '/auth-node/v1/validate-email',
       dataFormatter.serialize({
         stuff: Object.assign({}, {
-          type: ACCOUNTS_NODE_EMAIL,
+          type: EmailEntityTypeType.EMAIL,
           address: payload.address,
-        }),
-      }),
-    )
-  }
-
-  validateSecurityQuestion(payload: { id: string, answer: string }): Promise<any> {
-    const securityQuestion = SecurityQuestion.find(payload.id)
-
-    if (securityQuestion === null) {
-      return new Promise((resolve, reject): void => {
-        reject(new Error('accounts.security_question.validate.failed'))
-      })
-    }
-
-    const dataFormatter = new Jsona()
-
-    return this.axios.post(
-      `/accounts-node/v1/accounts/${securityQuestion.account_id}/security-question/validate`,
-      dataFormatter.serialize({
-        stuff: Object.assign({}, {
-          id: securityQuestion.id,
-          type: ACCOUNTS_NODE_SECURITY_QUESTION,
-          current_answer: payload.answer,
         }),
       }),
     )
@@ -138,30 +283,18 @@ class BackendApi implements BackendApiInterface {
     const dataFormatter = new Jsona()
 
     return this.axios.post(
-      '/accounts-node/v1/password-reset',
+      '/auth-node/v1/password-reset',
       dataFormatter.serialize({
         stuff: Object.assign({}, {
-          type: ACCOUNTS_NODE_SYSTEM_IDENTITY,
+          type: IdentityEntityTypeType.USER,
           uid: payload.uid,
         }),
       }),
     )
   }
-
-  fetchDeviceProperties(payload: { device: string }): Promise<any> {
-    const dataFormatter = new Jsona()
-
-    return this.axios.get(`/storage-node/v1/devices/${payload.device}/properties`)
-  }
-
-  fetchChannelProperties(payload: { device: string, channel: string }): Promise<any> {
-    const dataFormatter = new Jsona()
-
-    return this.axios.get(`/storage-node/v1/devices/${payload.device}/channels/${payload.channel}/properties`)
-  }
 }
 
-const backendApiPlugin: Plugin = ({ app }, inject): void => {
+const backendApiPlugin: Plugin = ({ app, store }, inject): void => {
   const baseUrl = Object.prototype.hasOwnProperty.call(app.context, 'ssrContext') ? process.env.NUXT_ENV_API_TARGET : '/api'
 
   const headers = {
@@ -200,16 +333,14 @@ const backendApiPlugin: Plugin = ({ app }, inject): void => {
 
   // Set basic headers
   instance.interceptors.request.use((request: AxiosRequestConfig): AxiosRequestConfig => {
-    const tokenCookie = app.$cookies.get('token')
+    const accessToken = store.getters['session/getAccessToken']()
 
-    if (tokenCookie !== null && typeof tokenCookie !== 'undefined' && tokenCookie !== '') {
-      if (get(request, 'url', '').startsWith('/accounts-node/v1/session') && request.method === 'patch') {
-        // eslint-disable-next-line no-param-reassign
-        delete request.headers.Authorization
-      } else {
-        // eslint-disable-next-line no-param-reassign
-        request.headers.Authorization = `Bearer ${tokenCookie}`
-      }
+    if (get(request, 'url', '').startsWith('/auth-node/v1/session') && request.method === 'patch') {
+      // eslint-disable-next-line no-param-reassign
+      delete request.headers.Authorization
+    } else if (accessToken !== null) {
+      // eslint-disable-next-line no-param-reassign
+      request.headers.Authorization = `Bearer ${accessToken}`
     }
 
     return request
@@ -230,7 +361,7 @@ const backendApiPlugin: Plugin = ({ app }, inject): void => {
 
     if (
       parseInt(get(error, 'response.status', 200), 10) === 401 &&
-      originalRequest.url !== '/accounts-node/v1/session' &&
+      originalRequest.url !== '/auth-node/v1/session' &&
       originalRequest.method !== 'patch' &&
       !get(originalRequest, '_retry', false)
     ) {
@@ -238,25 +369,44 @@ const backendApiPlugin: Plugin = ({ app }, inject): void => {
       originalRequest._retry = true // now it can be retried
 
       if (refreshAccessTokenCall === null) {
-        refreshAccessTokenCall = Session.dispatch('refresh', {
-          refresh_token: app.$cookies.get('refresh_token'),
-        })
-          .then((session: SessionInterface): Promise<any> => {
+        const dataFormatter = new Jsona()
+
+        refreshAccessTokenCall = instance.patch(
+          '/auth-node/v1/session',
+          dataFormatter.serialize({
+            stuff: Object.assign({}, {
+              type: AccountEntityTypeType.USER,
+
+              refresh: store.getters['session/getRefreshToken'](),
+            }),
+          }),
+        )
+          .then((response: AxiosResponse<SessionResponseInterface>): Promise<any> => {
+            store.dispatch('session/set', {
+              accessToken: response.data.data.attributes.token,
+              refreshToken: response.data.data.attributes.refresh,
+              tokenExpiration: response.data.data.attributes.expiration,
+              tokenType: response.data.data.attributes.token_type,
+              accountId: response.data.data.relationships.account.data.id,
+            }, {
+              root: true,
+            })
+
             // Reset call instance
             refreshAccessTokenCall = null
 
-            originalRequest.headers.Authorization = `Bearer ${session.token}`
+            originalRequest.headers.Authorization = `Bearer ${response.data.data.attributes.token}`
 
-            const decodedAccessToken = jwtDecode(session.token)
+            const decodedAccessToken = jwtDecode(response.data.data.attributes.token)
 
-            app.$cookies.set('token', session.token, {
+            app.$cookies.set('token', response.data.data.attributes.token, {
               path: '/',
               maxAge: (((new Date(decodedAccessToken.exp * 1000)).getTime() / 1000) - ((new Date()).getTime() / 1000)),
             })
 
-            const decodedRefreshToken = jwtDecode(session.refresh)
+            const decodedRefreshToken = jwtDecode(response.data.data.attributes.refresh)
 
-            app.$cookies.set('refresh_token', session.refresh, {
+            app.$cookies.set('refresh_token', response.data.data.attributes.refresh, {
               path: '/',
               maxAge: (((new Date(decodedRefreshToken.exp * 1000)).getTime() / 1000) - ((new Date()).getTime() / 1000)),
             })
@@ -279,9 +429,7 @@ const backendApiPlugin: Plugin = ({ app }, inject): void => {
     }
   })
 
-  Model.setAxios(instance)
-
-  inject('backendApi', new BackendApi(instance))
+  inject('backendApi', new BackendApi(instance, store))
 }
 
 export default backendApiPlugin

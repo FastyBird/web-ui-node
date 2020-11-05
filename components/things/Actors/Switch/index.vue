@@ -4,8 +4,8 @@
     class="fb-things-switch__container"
     role="button"
   >
-    <fb-switch-element
-      v-if="property.command === null"
+    <fb-ui-switch-element
+      v-if="command === null"
       :status="propertyValue"
       :disabled="!thing.state"
       variant="primary"
@@ -13,26 +13,26 @@
     />
 
     <div
-      v-show="property.command === 'ok' || property.command === 'err'"
+      v-show="command === true || command === false"
       class="fb-things-switch__result"
     >
       <font-awesome-icon
-        v-show="property.command === 'err'"
+        v-show="command === false"
         icon="ban"
         class="pos-r fb-things-switch__result-err"
       />
       <font-awesome-icon
-        v-show="property.command === 'ok'"
+        v-show="command === true"
         icon="check"
         class="pos-r fb-things-switch__result-ok"
       />
     </div>
 
     <div
-      v-show="property.command !== null && property.command !== 'ok' && property.command !== 'err'"
+      v-show="command !== null && command !== true && command !== false"
       class="fb-things-switch__loading"
     >
-      <fb-spinner
+      <fb-ui-spinner
         variant="primary"
         size="sm"
       />
@@ -41,6 +41,8 @@
 </template>
 
 <script>
+import ChannelProperty from '@/models/devices-node/channel-properties/ChannelProperty'
+
 export default {
 
   name: 'ThingsActorsSwitch',
@@ -57,6 +59,12 @@ export default {
       required: true,
     },
 
+  },
+
+  data() {
+    return {
+      command: null,
+    }
   },
 
   computed: {
@@ -85,14 +93,14 @@ export default {
      */
     toggleChannelState() {
       // Check if some command on channel is in progress
-      if (this.property.command !== null) {
+      if (this.command !== null) {
         return
       }
 
       // Check if thing is connected to server
       if (this.thing.state === false) {
         this.$flashMessage(this.$t('things.messages.notOnline', {
-          thing: this.$tThingChannel(this.thing),
+          thing: this.thing.channel.title,
         }), 'error')
 
         return
@@ -114,14 +122,40 @@ export default {
         newValue = actualValue ? 'off' : 'on'
       }
 
-      this.$controlChannel(this.property, `${newValue}`)
+      this.command = 'working'
+
+      ChannelProperty.dispatch('transmitData', {
+        property: this.property,
+        value: `${newValue}`,
+      })
+        .then(() => {
+          this.command = true
+
+          this.$timer.start('resetCommand')
+        })
         .catch(() => {
+          this.command = false
+
           this.$flashMessage(this.$t('things.messages.commandNotAccepted', {
-            thing: this.$tThingChannel(this.thing),
+            thing: this.thing.channel.title,
           }), 'error')
+
+          this.$timer.start('resetCommand')
         })
     },
 
+    resetCommand() {
+      this.command = null
+
+      this.$timer.stop('resetCommand')
+    },
+
+  },
+
+  timers: {
+    resetCommand: {
+      time: 500,
+    },
   },
 
 }

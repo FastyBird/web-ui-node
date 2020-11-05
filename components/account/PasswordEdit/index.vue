@@ -1,9 +1,10 @@
 <template>
-  <fb-modal-form
+  <fb-ui-modal-form
     :lock-submit-button="form.result !== null"
     :result-is-ok="form.result === true"
     icon="key"
     @submit="submit"
+    @cancel="close"
     @close="close"
   >
     <template slot="header">
@@ -13,7 +14,7 @@
     <template slot="form">
       <fb-form-input
         v-model="form.model.password.current"
-        v-validate="'required|checkCurrentPassword'"
+        v-validate="'required'"
         :data-vv-scope="form.scope"
         :error="errors.first(form.scope + '.current_password')"
         :has-error="errors.has(form.scope + '.current_password')"
@@ -24,10 +25,7 @@
         data-vv-validate-on="blur"
         spellcheck="false"
       >
-        <template
-          v-if="!errors.has(form.scope + '.current_password')"
-          slot="help-line"
-        >
+        <template slot="help-line">
           {{ $t('account.fields.password.current.help') }}
         </template>
       </fb-form-input>
@@ -45,10 +43,7 @@
         type="password"
         spellcheck="false"
       >
-        <template
-          v-if="!errors.has(form.scope + '.new_password')"
-          slot="help-line"
-        >
+        <template slot="help-line">
           {{ $t('account.fields.password.new.help') }}
         </template>
       </fb-form-input>
@@ -66,19 +61,16 @@
         type="password"
         spellcheck="false"
       >
-        <template
-          v-if="!errors.has(form.scope + '.repeat_password')"
-          slot="help-line"
-        >
+        <template slot="help-line">
           {{ $t('account.fields.password.repeat.help') }}
         </template>
       </fb-form-input>
     </template>
-  </fb-modal-form>
+  </fb-ui-modal-form>
 </template>
 
 <script>
-import Identity from '~/models/accounts-node/Identity'
+import Identity from '~/models/auth-node/identities/Identity'
 
 export default {
 
@@ -127,57 +119,9 @@ export default {
         },
       },
     })
-
-    this.$validator.extend('checkCurrentPassword', {
-      validate: this.checkCurrentPassword,
-      getMessage: (field, params, data) => {
-        return this._.get(data, 'message', '')
-      },
-    })
   },
 
   methods: {
-
-    /**
-     * Check if provided current password is correct
-     *
-     * @param {String} value
-     *
-     * @returns {Object}
-     */
-    checkCurrentPassword(value) {
-      return this.$backendApi.validateIdentity({
-        id: this.identity.id,
-        password: value,
-      })
-        .then(() => {
-          return {
-            valid: true,
-          }
-        })
-        .catch((e) => {
-          if (this._.get(e, 'response', null) !== null && this._.get(e, 'response.data.errors', null) !== null) {
-            this._.get(e, 'response.data.errors', [])
-              .forEach((error) => {
-                if (parseInt(this._.get(error, 'code', 0), 10) === 422) {
-                  return {
-                    valid: false,
-                    data: {
-                      message: this._.get(error, 'detail'),
-                    },
-                  }
-                }
-              })
-          }
-
-          return {
-            valid: false,
-            data: {
-              message: this.$t('application.messages.valueIsNotValid'),
-            },
-          }
-        })
-    },
 
     /**
      * Submit form values
@@ -194,12 +138,14 @@ export default {
 
             Identity.dispatch('edit', {
               id: this.identity.id,
-              current_password: this.form.model.password.current,
-              new_password: this.form.model.password.new,
+              password: {
+                current: this.form.model.password.current,
+                new: this.form.model.password.new,
+              },
             })
               .catch((e) => {
                 if (this._.get(e, 'exception', null) !== null) {
-                  this.handleFormError(e.exception, errorMessage)
+                  this.handleException(e.exception, errorMessage)
                 } else {
                   this.$flashMessage(errorMessage, 'error')
                 }

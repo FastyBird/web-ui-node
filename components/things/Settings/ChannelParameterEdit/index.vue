@@ -1,10 +1,11 @@
 <template>
-  <fb-modal-form
+  <fb-ui-modal-form
     :transparent-bg="transparentBg"
     :lock-submit-button="form.result !== null"
     :result-is-ok="form.result === true"
     icon="plug"
     @submit="submit"
+    @cancel="close"
     @close="close"
   >
     <template slot="header">
@@ -87,12 +88,12 @@
         </template>
       </fb-form-select>
     </template>
-  </fb-modal-form>
+  </fb-ui-modal-form>
 </template>
 
 <script>
-import Hardware from '~/models/devices-node/Hardware'
-import ChannelConfiguration from '~/models/devices-node/ChannelConfiguration'
+import Hardware from '~/models/devices-node/hardwares/Hardware'
+import ChannelConfiguration from '~/models/devices-node/channel-configuration/ChannelConfiguration'
 
 export default {
 
@@ -137,7 +138,7 @@ export default {
     hardware() {
       return Hardware
         .query()
-        .where('device_id', this.thing.device_id)
+        .where('deviceId', this.thing.deviceId)
         .first()
     },
 
@@ -259,7 +260,7 @@ export default {
       // Check if thing is connected to cloud
       if (!this.thing.state) {
         this.$flashMessage(this.$t('things.messages.notOnline', {
-          thing: this.$tThingChannel(this.thing),
+          thing: this.thing.channel.title,
         }), 'error')
 
         return
@@ -269,8 +270,8 @@ export default {
         .then((result) => {
           if (result) {
             ChannelConfiguration.dispatch('edit', {
-              device_id: this.thing.device_id,
-              channel_id: this.thing.channel_id,
+              deviceId: this.thing.deviceId,
+              channelId: this.thing.channelId,
               parameter_id: this.parameter.id,
               data: this.form.model,
             })
