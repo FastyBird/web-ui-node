@@ -1,4 +1,4 @@
-@import "~@fastybird/web-ui-theme/src/assets/variables/colors";
+@import "~assets/scss/variables";
 
 .fb-triggers-desktop-detail-toolbar {
   &__container {
@@ -14,8 +14,8 @@
 
   &__paging {
     display: inline-block;
-    line-height: 2.6rem;
-    padding: 0 1rem;
+    line-height: 2.5rem;
+    padding: 0 $padding-sm;
 
     &-page {
       font-weight: 800;

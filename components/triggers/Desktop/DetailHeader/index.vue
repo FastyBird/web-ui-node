@@ -16,22 +16,22 @@
 
       <template slot="buttons">
         <fb-ui-switch-element
-          v-if="!editMode"
           ref="enabled"
+          v-if="!editMode"
           :status="form.model.enabled"
-          variant="primary"
+          :variant="buttonVariantTypes.PRIMARY"
           @change="toggleTriggerState"
         />
 
         <fb-ui-button
           v-if="editMode"
-          variant="outline-primary"
-          size="xs"
+          :variant="buttonVariantTypes.OUTLINE_PRIMARY"
+          :size="sizeTypes.EXTRA_SMALL"
           @click.prevent="openForm(viewTypes.RENAME_FORM)"
         >
           <fb-ui-spinner
             v-if="view.loading.renameForm"
-            size="sm"
+            :size="sizeTypes.SMALL"
           />
           <template v-else>
             <font-awesome-icon icon="pencil-alt" />
@@ -41,14 +41,14 @@
 
         <fb-ui-button
           v-if="editMode"
-          variant="outline-danger"
-          size="xs"
+          :variant="buttonVariantTypes.OUTLINE_DANGER"
+          :size="sizeTypes.EXTRA_SMALL"
           @click.prevent="openForm(viewTypes.REMOVE_CONFIRMATION)"
         >
           <fb-ui-spinner
             v-if="view.loading.removeConfirmation"
-            size="sm"
-            variant="danger"
+            :size="sizeTypes.SMALL"
+            :variant="spinnerVariantTypes.DANGER"
           />
           <template v-else>
             <font-awesome-icon icon="trash-alt" />
@@ -84,6 +84,14 @@ import {
   reactive,
   SetupContext,
 } from '@vue/composition-api'
+
+import get from 'lodash/get'
+
+import {
+  FbSizeTypes,
+  FbUiButtonVariantTypes,
+  FbUiSpinnerVariantTypes,
+} from '@fastybird/web-ui-theme'
 
 import { TriggerInterface } from '~/models/triggers-node/triggers/types'
 import Trigger from '~/models/triggers-node/triggers/Trigger'
@@ -191,12 +199,24 @@ export default defineComponent({
     async function toggleTriggerState(): Promise<void> {
       form.model.enabled = !form.model.enabled
 
-      await Trigger.dispatch('edit', {
-        trigger: props.trigger,
-        data: {
-          enabled: form.model.enabled,
-        },
-      })
+      const errorMessage = context.root.$t('triggers.messages.triggerNotUpdated', {
+        trigger: props.trigger.name,
+      }).toString()
+
+      try {
+        await Trigger.dispatch('edit', {
+          trigger: props.trigger,
+          data: {
+            enabled: form.model.enabled,
+          },
+        })
+      } catch (e) {
+        if (get(e, 'exception', null) !== null) {
+          context.root.handleException(e.exception, errorMessage)
+        } else {
+          context.root.$flashMessage(errorMessage, 'error')
+        }
+      }
     }
 
     // Open info window
@@ -226,6 +246,9 @@ export default defineComponent({
       openWindow,
       closeWindow,
       triggerRemoved,
+      sizeTypes: FbSizeTypes,
+      buttonVariantTypes: FbUiButtonVariantTypes,
+      spinnerVariantTypes: FbUiSpinnerVariantTypes,
     }
   },
 

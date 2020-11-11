@@ -2,15 +2,19 @@
   <fb-ui-modal-form
     :lock-submit-button="remoteFormResult !== formResultTypes.NONE"
     :state="remoteFormResult"
+    :submit-btn-text="$t('application.buttons.done.title')"
+    :submit-btn-show="submitBtnShow"
+    :cancel-btn-text="cancelBtnText"
+    :data-type="openedType()"
+    @submit="submitBtnCallback"
+    @cancel="cancelBtnCallback"
+    @close="closeView"
     class="fb-triggers-desktop-create__container"
-    @submit="submitTrigger"
-    @cancel="closeWindow"
-    @close="closeWindow"
   >
     <fb-ui-modal-header
-      v-if="view.triggerType.show"
       slot="modal-header"
-      @close="closeWindow"
+      v-if="view.triggerType.show"
+      @close="closeView"
     >
       <font-awesome-icon
         slot="icon"
@@ -29,76 +33,76 @@
     </fb-ui-modal-header>
 
     <fb-ui-modal-header
-      v-if="view.generalInfo.show"
       slot="modal-header"
-      @close="closeWindow"
+      v-if="view.generalInfo.show"
+      @close="closeView"
     >
       <font-awesome-icon
-        v-if="view.generalInfo.type === triggerTypes.TIME_SCHEDULED"
         slot="icon"
+        v-if="view.generalInfo.type === triggerTypes.TIME_SCHEDULED"
         icon="clock"
         class="fb-triggers-desktop-create__icon"
       />
 
       <font-awesome-icon
-        v-if="view.generalInfo.type === triggerTypes.DATE_SCHEDULED"
         slot="icon"
+        v-if="view.generalInfo.type === triggerTypes.DATE_SCHEDULED"
         icon="calendar"
         class="fb-triggers-desktop-create__icon"
       />
 
       <font-awesome-icon
-        v-if="view.generalInfo.type === triggerTypes.DEVICE"
         slot="icon"
+        v-if="view.generalInfo.type === triggerTypes.DEVICE"
         icon="plug"
         class="fb-triggers-desktop-create__icon"
       />
 
       <font-awesome-icon
-        v-if="view.generalInfo.type === triggerTypes.SENSOR"
         slot="icon"
+        v-if="view.generalInfo.type === triggerTypes.SENSOR"
         icon="thermometer-half"
         class="fb-triggers-desktop-create__icon"
       />
 
       <font-awesome-icon
-        v-if="view.generalInfo.type === triggerTypes.MANUAL"
         slot="icon"
+        v-if="view.generalInfo.type === triggerTypes.MANUAL"
         icon="gamepad"
         class="fb-triggers-desktop-create__icon"
       />
 
       <template
-        v-if="view.generalInfo.type === triggerTypes.TIME_SCHEDULED"
         slot="heading"
+        v-if="view.generalInfo.type === triggerTypes.TIME_SCHEDULED"
       >
         {{ $t('triggers.headings.createTimeScheduledTrigger') }}
       </template>
 
       <template
-        v-if="view.generalInfo.type === triggerTypes.DATE_SCHEDULED"
         slot="heading"
+        v-if="view.generalInfo.type === triggerTypes.DATE_SCHEDULED"
       >
         {{ $t('triggers.headings.createDateScheduledTrigger') }}
       </template>
 
       <template
-        v-if="view.generalInfo.type === triggerTypes.DEVICE"
         slot="heading"
+        v-if="view.generalInfo.type === triggerTypes.DEVICE"
       >
         {{ $t('triggers.headings.createDeviceTrigger') }}
       </template>
 
       <template
-        v-if="view.generalInfo.type === triggerTypes.SENSOR"
         slot="heading"
+        v-if="view.generalInfo.type === triggerTypes.SENSOR"
       >
         {{ $t('triggers.headings.createSensorTrigger') }}
       </template>
 
       <template
-        v-if="view.generalInfo.type === triggerTypes.MANUAL"
         slot="heading"
+        v-if="view.generalInfo.type === triggerTypes.MANUAL"
       >
         {{ $t('triggers.headings.createManualTrigger') }}
       </template>
@@ -110,9 +114,9 @@
     </fb-ui-modal-header>
 
     <fb-ui-modal-header
-      v-if="view.listConditionDevices.show || view.listActionDevices.show"
       slot="modal-header"
-      @close="closeWindow"
+      v-if="view.listConditionDevices.show || view.listActionDevices.show"
+      @close="closeView"
     >
       <font-awesome-icon
         slot="icon"
@@ -131,9 +135,9 @@
     </fb-ui-modal-header>
 
     <fb-ui-modal-header
-      v-if="view.selectConditionDevice.show && view.selectConditionDevice.device !== null"
       slot="modal-header"
-      @close="closeWindow"
+      v-if="view.selectConditionDevice.show && view.selectConditionDevice.device !== null"
+      @close="closeView"
     >
       <font-awesome-icon
         slot="icon"
@@ -152,9 +156,9 @@
     </fb-ui-modal-header>
 
     <fb-ui-modal-header
-      v-if="view.selectActionDevice.show && view.selectActionDevice.device !== null"
       slot="modal-header"
-      @close="closeWindow"
+      v-if="view.selectActionDevice.show && view.selectActionDevice.device !== null"
+      @close="closeView"
     >
       <font-awesome-icon
         slot="icon"
@@ -173,9 +177,9 @@
     </fb-ui-modal-header>
 
     <fb-ui-modal-header
-      v-if="view.configureTime.show"
       slot="modal-header"
-      @close="closeWindow"
+      v-if="view.configureTime.show"
+      @close="closeView"
     >
       <font-awesome-icon
         slot="icon"
@@ -193,260 +197,105 @@
       </template>
     </fb-ui-modal-header>
 
-    <div
-      slot="form"
-      class="fb-triggers-desktop-create__content"
-    >
-      <fb-ui-transition-expand>
-        <div
-          v-if="view.triggerType.show"
-          class="fb-triggers-desktop-create__select-type"
-        >
-          <div class="fb-triggers-desktop-create__select-type-item">
-            <fb-ui-button
-              block
-              variant="outline-primary"
-              name="scheduled"
-              size="lg"
-              @click.prevent="triggerType(triggerTypes.TIME_SCHEDULED)"
-            >
-              <font-awesome-icon icon="clock" />
-              {{ $t('triggers.buttons.addTypeTimeOfDay.title') }}
-            </fb-ui-button>
-          </div>
-          <div class="fb-triggers-desktop-create__select-type-item">
-            <fb-ui-button
-              block
-              variant="outline-primary"
-              name="device"
-              size="lg"
-              @click.prevent="triggerType(triggerTypes.DEVICE)"
-            >
-              <font-awesome-icon icon="plug" />
-              {{ $t('triggers.buttons.addTypeDeviceControlled.title') }}
-            </fb-ui-button>
-          </div>
-          <div class="fb-triggers-desktop-create__select-type-item">
-            <fb-ui-button
-              block
-              variant="outline-primary"
-              name="sensor"
-              size="lg"
-              @click.prevent="triggerType(triggerTypes.SENSOR)"
-            >
-              <font-awesome-icon icon="thermometer-half" />
-              {{ $t('triggers.buttons.addTypeSensorDetect.title') }}
-            </fb-ui-button>
-          </div>
-          <div class="fb-triggers-desktop-create__select-type-item">
-            <fb-ui-button
-              block
-              variant="outline-primary"
-              name="scene"
-              size="lg"
-              @click.prevent="triggerType(triggerTypes.MANUAL)"
-            >
-              <font-awesome-icon icon="gamepad" />
-              {{ $t('triggers.buttons.addTypeManual.title') }}
-            </fb-ui-button>
-          </div>
-        </div>
-      </fb-ui-transition-expand>
-
-      <fb-ui-transition-expand>
-        <div
-          v-if="view.generalInfo.show"
-          class="fb-triggers-desktop-create__content"
-        >
-          <trigger-create
-            :trigger="trigger"
-            :type="view.generalInfo.type"
-            :remote-submit.sync="remoteSubmit"
-            :remote-form-result.sync="remoteFormResult"
-            @addCondition="openWindow(viewTypes.LIST_CONDITION_DEVICES)"
-            @addAction="openWindow(viewTypes.LIST_ACTION_DEVICES)"
-            @addTimeSchedule="openWindow(viewTypes.CONFIGURE_TIME)"
-            @addDateSchedule="openWindow(viewTypes.CONFIGURE_DATE)"
-            @close="close"
-          />
-        </div>
-      </fb-ui-transition-expand>
-
-      <fb-ui-transition-expand>
-        <div
-          v-if="view.listConditionDevices.show"
-          class="fb-triggers-desktop-create__content"
-        >
-          <triggers-list-devices
-            :type="selectDeviceViewTypes.SENSORS"
-            :items="conditions"
-            @select="listConditionDevices"
-          />
-        </div>
-      </fb-ui-transition-expand>
-
-      <fb-ui-transition-expand>
-        <div
-          v-if="view.listActionDevices.show"
-          class="fb-triggers-desktop-create__content"
-        >
-          <triggers-list-devices
-            :type="selectDeviceViewTypes.ACTORS"
-            :items="actions"
-            @select="listActionDevices"
-          />
-        </div>
-      </fb-ui-transition-expand>
-
-      <fb-ui-transition-expand>
-        <div
-          v-if="view.selectConditionDevice.show && Object.keys(form.model.conditions).length > 0"
-          class="fb-triggers-desktop-create__content"
-        >
-          <triggers-select-condition-device
-            v-model="form.model.conditions"
-            :device="view.selectConditionDevice.device"
-          />
-        </div>
-      </fb-ui-transition-expand>
-
-      <fb-ui-transition-expand>
-        <div
-          v-if="view.selectActionDevice.show && Object.keys(form.model.actions).length > 0"
-          class="fb-triggers-desktop-create__content"
-        >
-          <triggers-select-action-device
-            v-model="form.model.actions"
-            :device="view.selectActionDevice.device"
-          />
-        </div>
-      </fb-ui-transition-expand>
-
-      <fb-ui-transition-expand>
-        <div
-          v-if="view.configureTime.show && Object.keys(form.model.time).length > 0"
-          class="fb-triggers-desktop-create__content"
-        >
-          <triggers-select-time v-model="form.model.time" />
-        </div>
-      </fb-ui-transition-expand>
-    </div>
-
-    <template
-      v-if="!view.generalInfo.show"
-      slot="modal-footer"
-    >
-      <fb-ui-button
+    <div slot="form">
+      <div
         v-if="view.triggerType.show"
-        uppercase
-        variant="link"
-        size="lg"
-        name="close"
-        @click.prevent="closeWindow"
+        class="fb-triggers-desktop-create__select-type"
       >
-        {{ $t('application.buttons.close.title') }}
-      </fb-ui-button>
+        <div class="fb-triggers-desktop-create__select-type-item">
+          <fb-ui-button
+            :variant="buttonVariantTypes.OUTLINE_PRIMARY"
+            :size="sizeTypes.LARGE"
+            @click.prevent="triggerType(triggerTypes.TIME_SCHEDULED)"
+            block
+            name="scheduled"
+          >
+            <font-awesome-icon icon="clock" />
+            {{ $t('triggers.buttons.addTypeTimeOfDay.title') }}
+          </fb-ui-button>
+        </div>
+        <div class="fb-triggers-desktop-create__select-type-item">
+          <fb-ui-button
+            :variant="buttonVariantTypes.OUTLINE_PRIMARY"
+            :size="sizeTypes.LARGE"
+            @click.prevent="triggerType(triggerTypes.DEVICE)"
+            block
+            name="device"
+          >
+            <font-awesome-icon icon="plug" />
+            {{ $t('triggers.buttons.addTypeDeviceControlled.title') }}
+          </fb-ui-button>
+        </div>
+        <div class="fb-triggers-desktop-create__select-type-item">
+          <fb-ui-button
+            :variant="buttonVariantTypes.OUTLINE_PRIMARY"
+            :size="sizeTypes.LARGE"
+            @click.prevent="triggerType(triggerTypes.SENSOR)"
+            block
+            name="sensor"
+          >
+            <font-awesome-icon icon="thermometer-half" />
+            {{ $t('triggers.buttons.addTypeSensorDetect.title') }}
+          </fb-ui-button>
+        </div>
+        <div class="fb-triggers-desktop-create__select-type-item">
+          <fb-ui-button
+            :variant="buttonVariantTypes.OUTLINE_PRIMARY"
+            :size="sizeTypes.LARGE"
+            @click.prevent="triggerType(triggerTypes.MANUAL)"
+            block
+            name="scene"
+          >
+            <font-awesome-icon icon="gamepad" />
+            {{ $t('triggers.buttons.addTypeManual.title') }}
+          </fb-ui-button>
+        </div>
+      </div>
 
-      <template v-if="view.listConditionDevices.show || view.listActionDevices.show">
-        <fb-ui-button
-          uppercase
-          variant="link"
-          size="lg"
-          name="back"
-          @click.prevent="openWindow(viewTypes.GENERAL_INFO)"
-        >
-          {{ $t('application.buttons.back.title') }}
-        </fb-ui-button>
-      </template>
+      <trigger-create
+        v-if="view.generalInfo.show"
+        :trigger="trigger"
+        :type="view.generalInfo.type"
+        :remote-submit.sync="remoteSubmit"
+        :remote-form-result.sync="remoteFormResult"
+        @addCondition="openView(viewTypes.LIST_CONDITION_DEVICES)"
+        @addAction="openView(viewTypes.LIST_ACTION_DEVICES)"
+        @addTimeSchedule="openView(viewTypes.CONFIGURE_TIME)"
+        @addDateSchedule="openView(viewTypes.CONFIGURE_DATE)"
+        @close="closeCreateTrigger"
+      />
 
-      <template v-if="view.selectConditionDevice.show">
-        <fb-ui-button
-          uppercase
-          variant="link"
-          size="lg"
-          name="back"
-          @click.prevent="openWindow(viewTypes.LIST_CONDITION_DEVICES)"
-        >
-          {{ $t('application.buttons.back.title') }}
-        </fb-ui-button>
+      <triggers-list-devices
+        v-if="view.listConditionDevices.show"
+        :type="selectDeviceViewTypes.SENSORS"
+        :items="conditions"
+        @select="listConditionDevices"
+      />
 
-        <fb-ui-button
-          uppercase
-          variant="outline-primary"
-          size="lg"
-          name="add"
-          @click.prevent="submitConditionDevice"
-        >
-          <template v-if="hasConditionDevice">
-            {{ $t('triggers.buttons.updateDevice.title') }}
-          </template>
-          <template v-else>
-            {{ $t('triggers.buttons.addDevice.title') }}
-          </template>
-        </fb-ui-button>
-      </template>
+      <triggers-list-devices
+        v-if="view.listActionDevices.show"
+        :type="selectDeviceViewTypes.ACTORS"
+        :items="actions"
+        @select="listActionDevices"
+      />
 
-      <template v-if="view.selectActionDevice.show">
-        <fb-ui-button
-          uppercase
-          variant="link"
-          size="lg"
-          name="back"
-          @click.prevent="openWindow(viewTypes.LIST_ACTION_DEVICES)"
-        >
-          {{ $t('application.buttons.back.title') }}
-        </fb-ui-button>
+      <triggers-select-condition-device
+        v-if="view.selectConditionDevice.show && Object.keys(form.model.conditions).length > 0"
+        v-model="form.model.conditions"
+        :device="view.selectConditionDevice.device"
+      />
 
-        <fb-ui-button
-          uppercase
-          variant="outline-primary"
-          size="lg"
-          name="add"
-          @click.prevent="submitActionDevice"
-        >
-          <template v-if="hasActionDevice">
-            {{ $t('triggers.buttons.updateDevice.title') }}
-          </template>
-          <template v-else>
-            {{ $t('triggers.buttons.addDevice.title') }}
-          </template>
-        </fb-ui-button>
-      </template>
+      <triggers-select-action-device
+        v-if="view.selectActionDevice.show && Object.keys(form.model.actions).length > 0"
+        v-model="form.model.actions"
+        :device="view.selectActionDevice.device"
+      />
 
-      <template v-if="view.configureDate.show">
-        <fb-ui-button
-          uppercase
-          variant="outline-primary"
-          size="lg"
-          name="add"
-          @click.prevent="submitDate"
-        >
-          <template v-if="hasConditionDate">
-            {{ $t('triggers.buttons.updateDate.title') }}
-          </template>
-          <template v-else>
-            {{ $t('triggers.buttons.addDate.title') }}
-          </template>
-        </fb-ui-button>
-      </template>
-
-      <template v-if="view.configureTime.show">
-        <fb-ui-button
-          uppercase
-          variant="outline-primary"
-          size="lg"
-          name="add"
-          @click.prevent="submitTime"
-        >
-          <template v-if="hasConditionTime">
-            {{ $t('triggers.buttons.updateTime.title') }}
-          </template>
-          <template v-else>
-            {{ $t('triggers.buttons.addTime.title') }}
-          </template>
-        </fb-ui-button>
-      </template>
-    </template>
+      <triggers-select-time
+        v-if="view.configureTime.show && Object.keys(form.model.time).length > 0"
+        v-model="form.model.time"
+      />
+    </div>
   </fb-ui-modal-form>
 </template>
 
@@ -462,7 +311,11 @@ import {
 
 import uuid from 'uuid'
 
-import { FbFormResultType } from '@fastybird/web-ui-theme'
+import {
+  FbSizeTypes,
+  FbFormResultType,
+  FbUiButtonVariantTypes,
+} from '@fastybird/web-ui-theme'
 
 import Trigger from '~/models/triggers-node/triggers/Trigger'
 import {
@@ -711,11 +564,14 @@ export default defineComponent({
         Trigger.dispatch('remove', {
           trigger: trigger.value,
         })
+          .catch(() => {
+            context.root.$nuxt.error({ statusCode: 503, message: 'Something went wrong' })
+          })
       }
     })
 
     // Open info window
-    function openWindow(type: ViewTypes): void {
+    function openView(type: ViewTypes): void {
       if (type === ViewTypes.CONFIGURE_TIME) {
         form.model.conditions = {}
         form.model.actions = {}
@@ -805,7 +661,7 @@ export default defineComponent({
     }
 
     // Close opened window
-    function closeWindow(): void {
+    function closeView(): void {
       Object.keys(view)
         .forEach((key: string): void => {
           if (
@@ -836,6 +692,9 @@ export default defineComponent({
             notifications: [],
           },
         })
+          .catch(() => {
+            context.root.$nuxt.error({ statusCode: 503, message: 'Something went wrong' })
+          })
       } else {
         Trigger.dispatch('add', {
           id: triggerId,
@@ -847,11 +706,14 @@ export default defineComponent({
             notifications: [],
           },
         })
+          .catch(() => {
+            context.root.$nuxt.error({ statusCode: 503, message: 'Something went wrong' })
+          })
       }
 
       view[ViewTypes.GENERAL_INFO].type = type
 
-      openWindow(ViewTypes.GENERAL_INFO)
+      openView(ViewTypes.GENERAL_INFO)
     }
 
     function listConditionDevices(device: DeviceInterface): void {
@@ -941,7 +803,7 @@ export default defineComponent({
 
       view[ViewTypes.SELECT_CONDITION_DEVICE].device = device
 
-      openWindow(ViewTypes.SELECT_CONDITION_DEVICE)
+      openView(ViewTypes.SELECT_CONDITION_DEVICE)
     }
 
     function listActionDevices(device: DeviceInterface): void {
@@ -1028,7 +890,7 @@ export default defineComponent({
 
       view[ViewTypes.SELECT_ACTION_DEVICE].device = device
 
-      openWindow(ViewTypes.SELECT_ACTION_DEVICE)
+      openView(ViewTypes.SELECT_ACTION_DEVICE)
     }
 
     function submitConditionDevice(): void {
@@ -1159,7 +1021,7 @@ export default defineComponent({
       }
 
       if (result) {
-        openWindow(ViewTypes.GENERAL_INFO)
+        openView(ViewTypes.GENERAL_INFO)
       } else {
         context.root.$flashMessage(context.root.$t('application.messages.unknownError').toString(), 'error')
       }
@@ -1241,9 +1103,12 @@ export default defineComponent({
                     }
                   }
                 } else {
-                  await Action.dispatch('remove', {
+                  Action.dispatch('remove', {
                     action,
                   })
+                    .catch(() => {
+                      context.root.$nuxt.error({ statusCode: 503, message: 'Something went wrong' })
+                    })
                 }
               } else if (form.model.actions[key].type === ActionItemType.CHANNEL_ACTION) {
                 if (form.model.actions[key].selected) {
@@ -1283,9 +1148,12 @@ export default defineComponent({
                     }
                   }
                 } else {
-                  await Action.dispatch('remove', {
+                  Action.dispatch('remove', {
                     action,
                   })
+                    .catch(() => {
+                      context.root.$nuxt.error({ statusCode: 503, message: 'Something went wrong' })
+                    })
                 }
               }
             }
@@ -1293,7 +1161,7 @@ export default defineComponent({
       }
 
       if (result) {
-        openWindow(ViewTypes.GENERAL_INFO)
+        openView(ViewTypes.GENERAL_INFO)
       } else {
         context.root.$flashMessage(context.root.$t('application.messages.unknownError').toString(), 'error')
       }
@@ -1332,7 +1200,7 @@ export default defineComponent({
       }
 
       if (result) {
-        openWindow(ViewTypes.GENERAL_INFO)
+        openView(ViewTypes.GENERAL_INFO)
       } else {
         context.root.$flashMessage(context.root.$t('application.messages.unknownError').toString(), 'error')
       }
@@ -1373,7 +1241,7 @@ export default defineComponent({
       }
 
       if (result) {
-        openWindow(ViewTypes.GENERAL_INFO)
+        openView(ViewTypes.GENERAL_INFO)
       } else {
         context.root.$flashMessage(context.root.$t('application.messages.unknownError').toString(), 'error')
       }
@@ -1383,8 +1251,8 @@ export default defineComponent({
       remoteSubmit.value = true
     }
 
-    function close(): void {
-      closeWindow()
+    function closeCreateTrigger(): void {
+      closeView()
 
       if (windowSize.value === 'xs') {
         context.root.$router.push(context.root.localePath({
@@ -1401,6 +1269,61 @@ export default defineComponent({
       }
     }
 
+    const submitBtnShow = computed<boolean>((): boolean => {
+      return !(view.triggerType.show || view.listConditionDevices.show || view.listActionDevices.show)
+    })
+
+    const cancelBtnText = computed<string>((): string => {
+      if (view.triggerType.show || view.generalInfo.show) {
+        return context.root.$t('application.buttons.close.title').toString()
+      }
+
+      return context.root.$t('application.buttons.back.title').toString()
+    })
+
+    function submitBtnCallback(): void {
+      if (view.generalInfo.show) {
+        submitTrigger()
+      } else if (view.selectConditionDevice.show) {
+        submitConditionDevice()
+      } else if (view.selectActionDevice.show) {
+        submitActionDevice()
+      } else if (view.configureDate.show) {
+        submitDate()
+      } else if (view.configureTime.show) {
+        submitTime()
+      }
+    }
+
+    function cancelBtnCallback(): void {
+      if (view.triggerType.show || view.generalInfo.show) {
+        closeView()
+      } else if (
+        view.configureDate.show ||
+        view.configureTime.show ||
+        view.listActionDevices.show ||
+        view.listConditionDevices.show
+      ) {
+        openView(ViewTypes.GENERAL_INFO)
+      } else if (view.selectActionDevice.show) {
+        openView(ViewTypes.LIST_ACTION_DEVICES)
+      } else if (view.selectConditionDevice.show) {
+        openView(ViewTypes.LIST_CONDITION_DEVICES)
+      }
+    }
+
+    function openedType(): string {
+      if (view.selectActionDevice.show || view.selectConditionDevice.show) {
+        return 'select-device'
+      } else if (view.listActionDevices.show || view.listConditionDevices.show) {
+        return 'list-devices'
+      } else if (view.configureDate.show || view.configureTime.show) {
+        return 'select-date-time'
+      }
+
+      return 'other'
+    }
+
     return {
       remoteSubmit,
       remoteFormResult,
@@ -1411,23 +1334,25 @@ export default defineComponent({
       view,
       form,
       trigger,
-      viewTypes: ViewTypes,
-      selectDeviceViewTypes: SelectViewType,
-      triggerTypes: TriggerType,
+      submitBtnShow,
+      cancelBtnText,
       conditions,
       actions,
-      openWindow,
-      closeWindow,
+      submitBtnCallback,
+      cancelBtnCallback,
+      openView,
+      closeView,
       triggerType,
       listConditionDevices,
       listActionDevices,
-      submitConditionDevice,
-      submitActionDevice,
-      submitDate,
-      submitTime,
-      submitTrigger,
-      close,
+      closeCreateTrigger,
+      openedType,
+      viewTypes: ViewTypes,
+      selectDeviceViewTypes: SelectViewType,
+      triggerTypes: TriggerType,
+      sizeTypes: FbSizeTypes,
       formResultTypes: FbFormResultType,
+      buttonVariantTypes: FbUiButtonVariantTypes,
     }
   },
 

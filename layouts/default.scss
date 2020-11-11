@@ -1,6 +1,26 @@
+@import "~@fastybird/web-ui-theme/src/assets/variables/colors";
+
 .fb-application {
   &__container {
     height: 100%;
+
+    .fb-ui-modal-window__content {
+      background-color: #f8f8f8;
+    }
+
+    .fb-layout-content__container {
+      background-color: #f8f8f8;
+    }
+
+    .fb-ui-modal-form__result {
+      background-color: #f8f8f8;
+    }
+
+    .fb-ui-modal-window__footer {
+      .fb-ui-button[data-variant="link"] {
+        color: $text-muted !important;
+      }
+    }
   }
 }
 

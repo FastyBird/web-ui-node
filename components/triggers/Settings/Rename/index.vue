@@ -7,7 +7,7 @@
       :transparent-bg="transparentBg"
       :lock-submit-button="form.result !== formResultTypes.NONE"
       :state="form.result"
-      variant="phone"
+      :variant="$windowSize.isExtraSmall() ? modalVariantTypes.PHONE : modalVariantTypes.DEFAULT"
       @submit="handleSubmit(submit)"
       @cancel="close"
       @close="close"
@@ -21,7 +21,7 @@
       </template>
 
       <template slot="form">
-        <fb-ui-content mb="lg">
+        <fb-ui-content :mb="sizeTypes.LARGE">
           <validation-provider
             v-slot="{ errors }"
             name="triggerName"
@@ -69,7 +69,11 @@ import {
   localize,
 } from 'vee-validate'
 
-import { FbFormResultType } from '@fastybird/web-ui-theme'
+import {
+  FbFormResultType,
+  FbSizeTypes,
+  FbUiModalVariantType,
+} from '@fastybird/web-ui-theme'
 
 import Trigger from '~/models/triggers-node/triggers/Trigger'
 import { TriggerInterface } from '~/models/triggers-node/triggers/types'
@@ -200,6 +204,8 @@ export default defineComponent({
       close,
       submit,
       formResultTypes: FbFormResultType,
+      modalVariantTypes: FbUiModalVariantType,
+      sizeTypes: FbSizeTypes,
     }
   },
 

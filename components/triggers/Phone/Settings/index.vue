@@ -1,5 +1,43 @@
 <template>
   <div class="fb-triggers-settings-trigger__container">
+    <validation-observer ref="validator">
+      <h3 class="fb-triggers-settings-trigger__heading">
+        {{ $t('triggers.headings.aboutTrigger') }}
+      </h3>
+
+      <fb-ui-content
+        :ph="sizeTypes.SMALL"
+        :pv="sizeTypes.SMALL"
+      >
+        <fb-ui-content :mb="sizeTypes.LARGE">
+          <validation-provider
+            v-slot="{ errors }"
+            name="triggerName"
+            rules="required"
+          >
+            <fb-form-input
+              v-model="form.model.name"
+              :error="errors[0]"
+              :has-error="errors.length > 0"
+              :label="$t('triggers.fields.triggerName.title')"
+              :placeholder="$t('triggers.fields.triggerName.placeholder')"
+              :required="true"
+              :tab-index="2"
+              name="triggerName"
+            />
+          </validation-provider>
+        </fb-ui-content>
+
+        <fb-form-text-area
+          v-model="form.model.comment"
+          :label="$t('triggers.fields.triggerComment.title')"
+          :placeholder="$t('triggers.fields.triggerComment.placeholder')"
+          :tab-index="3"
+          name="triggerComment"
+        />
+      </fb-ui-content>
+    </validation-observer>
+
     <fb-ui-items-container>
       <template slot="heading">
         {{ $t('triggers.headings.generalSettings') }}
@@ -10,7 +48,7 @@
           slot="suffix"
           ref="enabled"
           :status="form.model.enabled"
-          variant="primary"
+          :variant="switchVariantTypes.PRIMARY"
           @change="toggleTriggerState"
         />
 
@@ -23,32 +61,14 @@
       </settings-list-item>
 
       <settings-list-item
-        type="button"
-        class="fb-triggers-settings-trigger__item"
-        @click="openForm(viewTypes.RENAME_FORM)"
-      >
-        <fb-ui-spinner
-          v-if="view.loading.renameForm"
-          slot="prefix"
-          size="sm"
-        />
-        <font-awesome-icon
-          slot="suffix"
-          icon="angle-right"
-        />
-
-        {{ $t('triggers.buttons.renameTrigger.title') }}
-      </settings-list-item>
-
-      <settings-list-item
+        @click="openWindow(viewTypes.REMOVE_CONFIRMATION)"
         type="button"
         class="fb-triggers-settings-trigger__item fb-triggers-settings-trigger__item-remove"
-        @click="openWindow(viewTypes.REMOVE_CONFIRMATION)"
       >
         <fb-ui-spinner
-          v-if="view.loading.removeConfirmation"
           slot="prefix"
-          size="sm"
+          v-if="view.loading.removeConfirmation"
+          :size="sizeTypes.SMALL"
         />
         <font-awesome-icon
           slot="suffix"
@@ -59,15 +79,7 @@
       </settings-list-item>
     </fb-ui-items-container>
 
-    <triggers-settings-rename
-      v-if="view.renameForm.show"
-      :trigger="trigger"
-      :transparent-bg="true"
-      @loaded="view.loading.renameForm = false"
-      @close="closeForm(viewTypes.RENAME_FORM)"
-    />
-
-    <triggers-settings-remove
+    <triggers-phone-settings-remove
       v-if="view.removeConfirmation.show"
       :trigger="trigger"
       :transparent-bg="true"
@@ -83,48 +95,62 @@ import {
   defineComponent,
   PropType,
   reactive,
+  ref,
+  watch,
 } from '@vue/composition-api'
+
+import get from 'lodash/get'
+
+import {
+  ValidationProvider,
+  ValidationObserver,
+  extend,
+  localize,
+} from 'vee-validate'
+
+import {
+  FbFormResultType,
+  FbSizeTypes,
+  FbUiSwitchElementVariantTypes,
+} from '@fastybird/web-ui-theme'
 
 import Trigger from '~/models/triggers-node/triggers/Trigger'
 import { TriggerInterface } from '~/models/triggers-node/triggers/types'
 
-const TriggersSettingsRename = () => import('~/components/triggers/Settings/Rename/index.vue')
-const TriggersSettingsRemove = () => import('~/components/triggers/Settings/Remove/index.vue')
+const TriggersPhoneSettingsRemove = () => import('~/components/triggers/Settings/Remove/index.vue')
 
 enum ViewTypes {
-  RENAME_FORM = 'renameForm',
   REMOVE_CONFIRMATION = 'removeConfirmation',
 }
 
-interface TriggersSettingsViewLoadingInterface {
-  renameForm: boolean
+interface TriggersPhoneSettingsViewLoadingInterface {
   removeConfirmation: boolean
 }
 
-interface TriggersSettingsViewRenameInterface {
+interface TriggersPhoneSettingsViewRemoveConfirmationInterface {
   show: boolean
 }
 
-interface TriggersSettingsViewRemoveConfirmationInterface {
-  show: boolean
+interface TriggersPhoneSettingsViewInterface {
+  loading: TriggersPhoneSettingsViewLoadingInterface
+  removeConfirmation: TriggersPhoneSettingsViewRemoveConfirmationInterface
 }
 
-interface TriggersSettingsViewInterface {
-  loading: TriggersSettingsViewLoadingInterface
-  renameForm: TriggersSettingsViewRenameInterface
-  removeConfirmation: TriggersSettingsViewRemoveConfirmationInterface
-}
-
-interface TriggersSettingsFormModelInterface {
+interface TriggersPhoneSettingsFormModelInterface {
+  name: string
+  comment: string | null
   enabled: boolean
 }
 
-interface TriggersSettingsFormInterface {
-  model: TriggersSettingsFormModelInterface
+interface TriggersPhoneSettingsFormInterface {
+  model: TriggersPhoneSettingsFormModelInterface
 }
 
-interface TriggersSettingsInterface {
+interface TriggersPhoneSettingsPropsInterface {
   trigger: TriggerInterface
+  remoteSubmit: boolean
+  remoteFormResult: FbFormResultType
+  remoteReset: boolean
 }
 
 export default defineComponent({
@@ -138,59 +164,92 @@ export default defineComponent({
       required: true,
     },
 
+    remoteSubmit: {
+      type: Boolean,
+      default: false,
+    },
+
+    remoteFormResult: {
+      type: String as PropType<FbFormResultType>,
+      default: FbFormResultType.NONE,
+    },
+
+    remoteReset: {
+      type: Boolean,
+      default: false,
+    },
+
   },
 
   components: {
-    TriggersSettingsRename,
-    TriggersSettingsRemove,
+    TriggersPhoneSettingsRemove,
+
+    ValidationProvider,
+    ValidationObserver,
   },
 
-  setup(props: TriggersSettingsInterface, context) {
-    const view = reactive<TriggersSettingsViewInterface>({
+  setup(props: TriggersPhoneSettingsPropsInterface, context) {
+    const view = reactive<TriggersPhoneSettingsViewInterface>({
       loading: {
-        renameForm: false,
         removeConfirmation: false,
-      },
-      renameForm: {
-        show: false,
       },
       removeConfirmation: {
         show: false,
       },
     })
 
-    const form = reactive<TriggersSettingsFormInterface>({
+    const form = reactive<TriggersPhoneSettingsFormInterface>({
       model: {
+        name: props.trigger.name,
+        comment: props.trigger.comment,
         enabled: props.trigger.enabled,
       },
     })
 
-    // Open edit form
-    function openForm(type: ViewTypes): void {
-      view[type].show = true
+    const validator = ref<InstanceType<typeof ValidationObserver>>(null)
 
-      if (Object.prototype.hasOwnProperty.call(view.loading, type)) {
-        if (type === ViewTypes.RENAME_FORM) {
-          view.loading[type] = true
+    localize({
+      en: {
+        fields: {
+          triggerName: {
+            required: context.root.$t('triggers.fields.triggerName.validation.required').toString(),
+          },
+        },
+      },
+    })
+
+    extend('required', {
+      validate: (value) => {
+        return {
+          required: true,
+          valid: !['', null, undefined].includes(value),
         }
-      }
-    }
-
-    // Close edit form
-    function closeForm(type: ViewTypes): void {
-      view[type].show = false
-    }
+      },
+      computesRequired: true,
+    })
 
     // Submit edit parameter
     async function toggleTriggerState(): Promise<void> {
       form.model.enabled = !form.model.enabled
 
-      await Trigger.dispatch('edit', {
-        trigger: props.trigger,
-        data: {
-          enabled: form.model.enabled,
-        },
-      })
+      const errorMessage = context.root.$t('triggers.messages.triggerNotUpdated', {
+        trigger: props.trigger.name,
+      }).toString()
+
+      try {
+        await Trigger.dispatch('edit', {
+          trigger: props.trigger,
+          data: {
+            enabled: form.model.enabled,
+          },
+        })
+      } catch (e) {
+        if (get(e, 'exception', null) !== null) {
+          context.root.handleException(e.exception, errorMessage)
+        } else {
+          context.root.$flashMessage(errorMessage, 'error')
+        }
+      }
     }
 
     // Open info window
@@ -210,16 +269,80 @@ export default defineComponent({
       context.emit('removed')
     }
 
+    // Submit form
+    function submit(): void {
+      context.emit('update:remoteSubmit', false)
+
+      context.emit('update:remoteFormResult', FbFormResultType.WORKING)
+
+      if (validator.value !== null) {
+        validator.value
+          .validate()
+          .then((success: boolean): void => {
+            if (success) {
+              context.emit('update:remoteFormResult', FbFormResultType.OK)
+
+              const errorMessage = context.root.$t('triggers.messages.triggerNotRenamed', {
+                trigger: props.trigger.name,
+              }).toString()
+
+              Trigger.dispatch('edit', {
+                trigger: props.trigger,
+                data: {
+                  name: form.model.name,
+                  comment: form.model.comment,
+                },
+              })
+                .catch((e) => {
+                  context.emit('update:remoteFormResult', FbFormResultType.ERROR)
+
+                  if (get(e, 'exception', null) !== null) {
+                    context.root.$flashMessage(errorMessage, 'error')
+                  } else {
+                    context.root.$flashMessage(errorMessage, 'error')
+                  }
+                })
+            } else {
+              context.emit('update:remoteFormResult', FbFormResultType.NONE)
+            }
+          })
+      }
+    }
+
+    watch(
+      (): boolean => props.remoteSubmit,
+      (val): void => {
+        if (val) {
+          submit()
+        }
+      },
+    )
+
+    watch(
+      (): boolean => props.remoteReset,
+      (val): void => {
+        context.emit('update:remoteReset', false)
+
+        if (val) {
+          form.model.name = props.trigger.name
+          form.model.comment = props.trigger.comment
+          form.model.enabled = props.trigger.enabled
+        }
+      },
+    )
+
     return {
       view,
       viewTypes: ViewTypes,
       form,
-      openForm,
-      closeForm,
+      validator,
       toggleTriggerState,
       openWindow,
       closeWindow,
       triggerRemoved,
+      submit,
+      sizeTypes: FbSizeTypes,
+      switchVariantTypes: FbUiSwitchElementVariantTypes,
     }
   },
 

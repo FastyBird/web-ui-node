@@ -1,14 +1,11 @@
 <template>
-  <validation-observer
-    ref="validator"
-    v-slot="{ handleSubmit }"
-  >
+  <validation-observer ref="validator">
     <validation-provider
       v-slot="{ errors }"
       name="triggerName"
       rules="required"
     >
-      <fb-ui-content mb="md">
+      <fb-ui-content :mb="sizeTypes.MEDIUM">
         <fb-form-input
           v-model="form.model.name"
           :error="errors[0]"
@@ -17,20 +14,20 @@
           :placeholder="$t('triggers.fields.triggerName.placeholder')"
           :required="true"
           :tab-index="2"
-          name="triggerName"
           @blur="updateTrigger"
+          name="triggerName"
         />
       </fb-ui-content>
     </validation-provider>
 
-    <fb-ui-content mb="md">
+    <fb-ui-content :mb="sizeTypes.MEDIUM">
       <fb-form-text-area
         v-model="form.model.comment"
         :label="$t('triggers.fields.triggerComment.title')"
         :placeholder="$t('triggers.fields.triggerComment.placeholder')"
         :tab-index="3"
-        name="triggerComment"
         @blur="updateTrigger"
+        name="triggerComment"
       />
     </fb-ui-content>
 
@@ -42,11 +39,11 @@
 
         <fb-ui-button
           v-if="conditions.length === 0"
-          variant="outline-default"
-          size="lg"
-          class="fb-triggers-create__add-item-row"
-          block
+          :variant="buttonVariantTypes.OUTLINE_DEFAULT"
+          :size="sizeTypes.LARGE"
           @click="$emit('addCondition')"
+          block
+          class="fb-triggers-create__add-item-row"
         >
           <font-awesome-icon icon="plus-circle" />
           <span>{{ $t('triggers.buttons.addDevice.title') }}</span>
@@ -60,12 +57,12 @@
         />
 
         <template
-          v-if="conditions.length > 0"
           slot="buttons"
+          v-if="conditions.length > 0"
         >
           <fb-ui-button
-            variant="link"
-            size="xs"
+            :variant="buttonVariantTypes.LINK"
+            :size="sizeTypes.EXTRA_SMALL"
             @click="$emit('addCondition')"
           >
             <font-awesome-icon icon="plus" />
@@ -85,11 +82,11 @@
 
         <fb-ui-button
           v-if="schedule === null"
-          variant="outline-default"
-          size="lg"
-          class="fb-triggers-create__add-item-row"
-          block
+          :variant="buttonVariantTypes.OUTLINE_DEFAULT"
+          :size="sizeTypes.LARGE"
           @click="$emit('addTimeSchedule')"
+          block
+          class="fb-triggers-create__add-item-row"
         >
           <font-awesome-icon icon="plus-circle" />
           <span>{{ $t('triggers.buttons.addTime.title') }}</span>
@@ -113,11 +110,11 @@
 
         <fb-ui-button
           v-if="schedule === null"
-          variant="outline-default"
-          size="lg"
-          class="fb-triggers-create__add-item-row"
-          block
+          :variant="buttonVariantTypes.OUTLINE_DEFAULT"
+          :size="sizeTypes.LARGE"
           @click="$emit('addDateSchedule')"
+          block
+          class="fb-triggers-create__add-item-row"
         >
           <font-awesome-icon icon="plus-circle" />
           <span>{{ $t('triggers.buttons.addDate.title') }}</span>
@@ -140,14 +137,14 @@
 
       <fb-ui-button
         v-if="actions.length === 0"
-        variant="outline-default"
-        size="lg"
-        class="fb-triggers-create__add-item-row"
-        block
+        :variant="buttonVariantTypes.OUTLINE_DEFAULT"
+        :size="sizeTypes.LARGE"
         @click="$emit('addAction')"
+        block
+        class="fb-triggers-create__add-item-row"
       >
         <font-awesome-icon icon="plus-circle" />
-        <span>{{ $t('triggers.buttons.addDevice.title') }}</span>
+        <span>{{ $t('triggers.buttons.addAccessory.title') }}</span>
       </fb-ui-button>
 
       <triggers-list-action
@@ -158,12 +155,12 @@
       />
 
       <template
-        v-if="actions.length > 0"
         slot="buttons"
+        v-if="actions.length > 0"
       >
         <fb-ui-button
-          variant="link"
-          size="xs"
+          :variant="buttonVariantTypes.LINK"
+          :size="sizeTypes.EXTRA_SMALL"
           @click="$emit('addAction')"
         >
           <font-awesome-icon icon="plus" />
@@ -192,7 +189,11 @@ import {
   localize,
 } from 'vee-validate'
 
-import { FbFormResultType } from '@fastybird/web-ui-theme'
+import {
+  FbSizeTypes,
+  FbUiButtonVariantTypes,
+  FbFormResultType,
+} from '@fastybird/web-ui-theme'
 
 import Trigger from '~/models/triggers-node/triggers/Trigger'
 import { TriggerInterface } from '~/models/triggers-node/triggers/types'
@@ -382,6 +383,9 @@ export default defineComponent({
           comment: form.model.comment,
         },
       })
+        .catch(() => {
+          context.root.$nuxt.error({ statusCode: 503, message: 'Something went wrong' })
+        })
     }
 
     watch(
@@ -417,6 +421,8 @@ export default defineComponent({
       actions,
       form,
       updateTrigger,
+      sizeTypes: FbSizeTypes,
+      buttonVariantTypes: FbUiButtonVariantTypes,
     }
   },
 

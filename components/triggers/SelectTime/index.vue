@@ -2,7 +2,7 @@
   <div class="fb-triggers-select-time__container">
     <h3>{{ $t('triggers.fields.conditionTime.title') }}</h3>
 
-    <scroll-picker-group class="flex">
+    <scroll-picker-group>
       <scroll-picker
         v-model="form.model.hour"
         :options="hours"

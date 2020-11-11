@@ -1,9 +1,9 @@
-@import "~@fastybird/web-ui-theme/src/assets/variables/colors";
-@import "~@fastybird/web-ui-theme/src/assets/variables/screen";
+@import "~assets/scss/variables";
 
 .fb-list-items-search {
   &__container {
     padding: $padding-sm;
     border-bottom: 1px solid $gray-lighter;
+    background-color: $content-background-color;
   }
 }

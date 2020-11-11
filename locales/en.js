@@ -105,13 +105,16 @@ export default {
         title: 'No',
       },
       back: {
-        title: 'Go back',
+        title: 'Back',
       },
       next: {
         title: 'Next step',
       },
       add: {
         title: 'Add',
+      },
+      update: {
+        title: 'Update',
       },
       things: {
         title: 'Things',
@@ -871,11 +874,12 @@ export default {
     headings: {
       allTriggers: 'All triggers',
       addNewTrigger: 'Create new trigger',
-      conditions: 'When...',
-      actions: 'Then...',
+      conditions: 'When:',
+      actions: 'Accessories:',
       scheduledDate: 'When...',
       scheduledTime: 'When...',
-      generalSettings: 'General settings',
+      aboutTrigger: 'About trigger',
+      generalSettings: 'Trigger settings',
       renameTrigger: 'Rename trigger',
       removeTrigger: 'Remove trigger',
       typeActor: 'Available actors',
@@ -906,10 +910,14 @@ export default {
     },
     messages: {
       triggerNotRenamed: 'Trigger {trigger} couldn\'t be renamed.',
-      confirmRemoveTrigger: 'Are you sure to remove trigger {trigger} ?',
       triggerNotRemoved: 'Trigger {trigger} couldn\'t be removed.',
+      conditionNotCreated: 'Condition for trigger {trigger} couldn\'t be added.',
       conditionNotUpdated: 'Condition for trigger {trigger} couldn\'t be updated.',
+      conditionNotRemoved: 'Condition for trigger {trigger} couldn\'t be removed.',
+      actionNotCreated: 'Action for trigger {trigger} couldn\'t be added.',
       actionNotUpdated: 'Action for trigger {trigger} couldn\'t be updated.',
+      actionNotRemoved: 'Action for trigger {trigger} couldn\'t be removed.',
+      confirmRemoveTrigger: 'Are you sure to remove trigger {trigger} ?',
       confirmRemoveCondition: 'Are you sure to remove trigger condition ?',
       confirmRemoveAction: 'Are you sure to remove trigger action ?',
       atLeastOneConditionProperty: 'You have to select at least one property.',
@@ -922,9 +930,8 @@ export default {
       loadingDevices: 'Loading devices...',
       loadingDevice: 'Loading device...',
       noDevices: 'You don\'t have assigned any device',
-      triggerDevices: 'no device | {count} device | {count} devices',
       noConditions: 'No conditions are assigned to this trigger',
-      noActions: 'No actions are assigned to this trigger',
+      noActions: 'No accessories are assigned to this trigger',
       noNotifications: 'No notifications are assigned to this trigger',
       scheduledTime: 'Scheduled for time: {time}',
       scheduledDate: 'Scheduled: {date} {time}',
@@ -936,29 +943,32 @@ export default {
         placeholder: 'Search for triggers',
       },
       triggerName: {
-        title: 'Give trigger a name',
+        title: 'Give trigger a name:',
         placeholder: 'Rise n\' Shine',
         validation: {
           required: 'Please fill in trigger name',
         },
       },
       triggerComment: {
-        title: 'Describe your trigger',
+        title: 'Describe your trigger:',
         placeholder: 'Short trigger description for better identification',
       },
       conditionDate: {
-        title: 'Specific day & hour',
+        title: 'When:',
       },
       conditionTime: {
-        title: 'Time of the day',
+        title: 'When:',
       },
       conditionRepeat: {
-        title: 'Repeat',
+        title: 'Repeat:',
       },
     },
     buttons: {
       addNew: {
         title: 'Add new trigger',
+      },
+      sync: {
+        title: 'Synchronise triggers',
       },
       triggerEnabled: {
         title: 'Trigger is enabled',
@@ -971,30 +981,6 @@ export default {
       },
       removeTrigger: {
         title: 'Remove trigger',
-      },
-      addSensor: {
-        title: 'Add sensor',
-      },
-      updateSensor: {
-        title: 'Update sensor',
-      },
-      addDevice: {
-        title: 'Add device',
-      },
-      updateDevice: {
-        title: 'Update device',
-      },
-      addTime: {
-        title: 'Add time',
-      },
-      updateTime: {
-        title: 'Update time',
-      },
-      addDate: {
-        title: 'Add date',
-      },
-      updateDate: {
-        title: 'Update date',
       },
       addTypeTimeOfDay: {
         title: 'A time of day occurs',
@@ -1011,8 +997,17 @@ export default {
       addTypeManual: {
         title: 'Custom manual scene',
       },
-      sync: {
-        title: 'Synchronise',
+      addDevice: {
+        title: 'Add device',
+      },
+      addTime: {
+        title: 'Add time',
+      },
+      addDate: {
+        title: 'Add date',
+      },
+      addAccessory: {
+        title: 'Add accessory',
       },
     },
     actions: {
@@ -1147,233 +1142,6 @@ export default {
       toggle: 'Toggle {property} state',
       on: 'Turn {property} on',
       off: 'Turn {property} off',
-    },
-  },
-  routines: {
-    headings: {
-      allRoutines: 'All routines',
-      addNew: 'Choose new routine type',
-      createRoutine: 'New routine',
-      routineType: 'Routine type',
-      selectThing: 'Things',
-      smsNotification: 'Send sms to',
-      emailNotification: 'Send email to',
-      conditions: 'Routine thing conditions',
-      actions: 'Routine actions',
-      rename: 'Rename routine',
-      refresh: 'Refresh routine',
-      remove: 'Remove routine',
-      generalSettings: 'General settings',
-      addCondition: 'Add a thing condition to this routine?',
-      addSchedule: 'Schedule this routine?',
-      addAction: 'Add a thing action to this routine?',
-      automaticRoutine: 'Automatic routine',
-      manualRoutine: 'Manual routine',
-      scheduledRoutine: '{days}, {time}',
-      removeCondition: 'Remove condition',
-      removeAction: 'Remove action',
-      scheduledTime: 'Routine scheduled for time',
-      selectSchedule: 'Select schedule time',
-      editSchedule: 'Update schedule time',
-      typeActor: 'Available actor things',
-      typeSensor: 'Available sensor things',
-      typeThing: 'Available universal things',
-    },
-    subHeadings: {
-      allRoutines: 'no routines | one routine | {count} routines',
-      createScheduledRoutine: 'Scheduled routine',
-      createThingControlRoutine: 'Things watchdog',
-      createSensorRoutine: 'Sensors watchdog',
-      createManualRoutine: 'Manually controlled',
-    },
-    messages: {
-      notFound: 'Routine was not found, please try reload page.',
-      selectPropertyAction: 'Please select at least one property to control',
-      selectPropertyCondition: 'Please select at least one property to watch',
-      fillOperand: 'Please fill operand value for channel \'{channel}\' and property \'{property}\'',
-      missingCondition: 'You have to add at least one condition.',
-      missingActionOrNotification: 'You have to add at least one action or notification.',
-      notCreated: 'Routine {routine} couldn\'t be created, please try again later.',
-      conditionNotAdded: 'Condition couldn\'t be added into routine, please try again later.',
-      conditionNotRemoved: 'Condition couldn\'t be removed from routine, please try again later.',
-      conditionNotCreated: 'Condition couldn\'t be added to routine, please try again later.',
-      conditionNotUpdated: 'Condition couldn\'t be updated, please try again later.',
-      minimumConditions: 'Routine have to have at least one condition.',
-      actionNotAdded: 'Action couldn\'t be added into routine, please try again later.',
-      actionNotRemoved: 'Action couldn\'t be removed from routine, please try again later.',
-      actionNotCreated: 'Action couldn\'t be added to routine, please try again later.',
-      actionNotUpdated: 'Action couldn\'t be updated, please try again later.',
-      notificationNotAdded: 'Notification couldn\'t be added into the routine, please try again later.',
-      notificationNotRemoved: 'Notification couldn\'t be removed from routine, please try again later.',
-      minimumActionsNotification: 'Routine have to have at least one action or notification.',
-      confirmRefresh: 'Received new details for routine {routine}. Do you want to refresh it ?',
-      notRefreshed: 'Routine {routine} couldn\'t be refreshed, please try reload page.',
-      confirmRemove: 'Are you sure to remove routine {routine} ?',
-      notRemoved: 'Routine {routine} couldn\'t be removed, please try again later.',
-      notEdited: 'Routine {routine} couldn\'t be updated, please try again later.',
-      confirmRemoveCondition: 'Are you sure to remove routine condition with thing {thing} ?',
-      confirmRemoveAction: 'Are you sure to remove routine action with thing {thing} ?',
-    },
-    texts: {
-      loadingRoutines: 'Loading routines...',
-      loadingRoutine: 'Loading routine...',
-      noRoutines: 'You don\'t have created any routine',
-      loadingThings: 'Loading things...',
-      loadingThing: 'Loading thing...',
-      noThings: 'You don\'t have assigned any thing',
-      routineThings: 'no things | {count} thing | {count} things',
-      everyday: 'Everyday',
-      scheduled: 'Scheduled: {time}',
-      noConditions: 'You don\'t have assigned any condition to this routine',
-      noActions: 'You don\'t have assigned any action to this routine',
-      selectActorThing: 'Select one thing to be used as actor',
-      selectThing: 'Select one thing to be used as condition',
-      selectSensorThing: 'Select one thing to be used as condition',
-      actionThingProperties: 'Choose thing property and action to perform',
-      conditionThingProperties: 'Choose thing property which should be watched',
-      createScheduledRoutine: 'Actions will be executed at given time',
-      createThingControlRoutine: 'Actions will be executed when thing meet conditions',
-      createSensorRoutine: 'Actions will be executed when sensors meet conditions',
-      createManualRoutine: 'Actions will be executed on your order',
-      scheduledTime: 'Select time of the day & days of the week',
-    },
-    fields: {
-      name: {
-        title: 'Give routine a name',
-        validation: {
-          required: 'Please fill in routine name',
-        },
-      },
-      comment: {
-        title: 'Describe your routine',
-      },
-      type: {
-        title: 'Notification type',
-        prompt: '-- Please select type --',
-        values: {
-          sms: 'Send SMS',
-          email: 'Send e-mail',
-        },
-        validation: {
-          required: 'Selecting notification type is required',
-        },
-      },
-      sms: {
-        title: 'SMS number',
-        validation: {
-          required: 'Please fill in mobile phone number',
-        },
-      },
-      value: {
-        values: {
-          sms: 'SMS number',
-          email: 'E-mail address',
-        },
-        validation: {
-          required: 'This field is required',
-          invalidAddress: 'This e-mail address is invalid',
-        },
-      },
-      email: {
-        title: 'E-mail address',
-        prompt: '-- Please select e-mail --',
-        validation: {
-          required: 'You have to select saved e-mail address or custom address',
-        },
-        values: {
-          custom: 'Send to custom address',
-        },
-      },
-      time: {
-        title: 'Time of the day',
-      },
-      repeat: {
-        title: 'Repeat',
-      },
-    },
-    buttons: {
-      addThing: {
-        title: 'Add thing',
-      },
-      updateThing: {
-        title: 'Update thing',
-      },
-      addSchedule: {
-        title: 'Select schedule',
-      },
-      updateSchedule: {
-        title: 'Update schedule',
-      },
-      save: {
-        title: 'Add routine',
-      },
-      enabled: {
-        title: 'Routine is enabled',
-      },
-      disabled: {
-        title: 'Routine is disabled',
-      },
-      rename: {
-        title: 'Rename routine',
-      },
-      remove: {
-        title: 'Remove routine',
-      },
-      thingToCondition: {
-        title: 'Controlled thing to condition',
-      },
-      sensorToCondition: {
-        title: 'Sensor thing to condition',
-      },
-      thingToAction: {
-        title: 'Controlled thing to action',
-      },
-      addNew: {
-        title: 'Add new routine',
-      },
-      addTypeTimeOfDay: {
-        title: 'A time of day occurs',
-      },
-      addTypeThingControlled: {
-        title: 'An thing is controlled',
-      },
-      addTypeSensorDetect: {
-        title: 'A sensor detects something',
-      },
-      addTypeManual: {
-        title: 'Custom manual scene',
-      },
-      addCondition: {
-        title: 'Add condition',
-      },
-      addAction: {
-        title: 'Add action',
-      },
-    },
-    groups: {
-      actors: 'Actors',
-      sensors: 'Sensors',
-    },
-    variations: {
-      on: 'On',
-      off: 'Off',
-      toggle: 'Toggle',
-      press: 'Press',
-      click: 'Click',
-      dbl_click: 'Double click',
-      triple_click: 'Triple click',
-      lng_click: 'Long click',
-      lng_lng_click: 'Extra long click',
-    },
-    actions: {
-      toggle: 'Toggle {property} state',
-      on: 'Turn {property} on',
-      off: 'Turn {property} off',
-    },
-    conditions: {
-      above: '{property} value is above {value}',
-      eq: '{property} value is equal to {value}',
-      below: '{property} value is below {value}',
     },
   },
 }

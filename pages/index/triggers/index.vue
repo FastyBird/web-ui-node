@@ -17,8 +17,8 @@
         :search-placeholder="$t('triggers.fields.search.placeholder')"
       >
         <fb-ui-no-results
-          v-if="noResults"
           slot="items"
+          v-if="noResults"
         >
           <font-awesome-icon
             slot="icon"
@@ -35,10 +35,10 @@
 
         <template v-else>
           <list-item
-            v-for="trigger in triggers"
             slot="items"
+            v-for="trigger in triggers"
             :key="trigger.id"
-            variant="list"
+            :variant="listItemTypes.LIST"
             @click="openDetail(trigger.id)"
           >
             <font-awesome-icon
@@ -57,8 +57,8 @@
         </template>
 
         <div
-          v-if="!view.detail.opened || openedDetail === null"
           slot="detail"
+          v-if="!view.detail.opened || openedDetail === null"
           class="fb-triggers-list-view__detail-info"
         >
           <fb-ui-content ml="md">
@@ -93,7 +93,7 @@
 
               <fb-ui-button
                 slot="action"
-                variant="outline-primary"
+                :variant="buttonVariantTypes.OUTLINE_PRIMARY"
                 @click.prevent="openView(viewTypes.CREATE)"
               >
                 {{ $t('triggers.buttons.addNew.title') }}
@@ -116,7 +116,7 @@
 
               <fb-ui-button
                 slot="action"
-                variant="outline-default"
+                :variant="buttonVariantTypes.OUTLINE_DEFAULT"
                 @click.prevent="synchroniseTriggers"
               >
                 {{ $t('triggers.buttons.sync.title') }}
@@ -154,7 +154,7 @@
       </list-layout>
 
       <triggers-desktop-create
-        v-if="view.create.opened && windowSize !== 'xs'"
+        v-if="view.create.opened && !$windowSize.isExtraSmall()"
         @close="closeView(viewTypes.CREATE)"
       />
 
@@ -185,7 +185,13 @@ import {
 import { orderBy } from 'natural-orderby'
 
 import {
+  FbSizeTypes,
+  FbUiButtonVariantTypes,
+} from '@fastybird/web-ui-theme'
+
+import {
   TRIGGERS_HASH_DETAIL,
+  TRIGGERS_HASH_CREATE,
 } from '~/configuration/routes'
 
 import Trigger from '~/models/triggers-node/triggers/Trigger'
@@ -195,7 +201,8 @@ import TriggersDetail from '~/components/triggers/Detail/index.vue'
 import TriggersDesktopCreate from '~/components/triggers/Desktop/Create/index.vue'
 import TriggersDesktopDetailHeader from '~/components/triggers/Desktop/DetailHeader/index.vue'
 import TriggersDesktopDetailToolbar from '~/components/triggers/Desktop/DetailToolbar/index.vue'
-import TriggersPhoneSelectType from '~/components/triggers/Phone/SelectType/index.vue'
+
+import { ListItemSizeTypes } from '~/components/layout/ListItem/index.vue'
 
 enum ViewTypes {
   CREATE = 'create',
@@ -235,7 +242,6 @@ export default defineComponent({
     TriggersDesktopCreate,
     TriggersDesktopDetailHeader,
     TriggersDesktopDetailToolbar,
-    TriggersPhoneSelectType,
   },
 
   setup(props: {}, context: SetupContext) {
@@ -328,6 +334,8 @@ export default defineComponent({
 
           case ViewTypes.CREATE:
             view.create.opened = false
+
+            context.root.$router.push(context.root.localePath(context.root.$routes.triggers.list))
             break
         }
       }
@@ -338,7 +346,7 @@ export default defineComponent({
       if (Object.prototype.hasOwnProperty.call(view, type)) {
         switch (type) {
           case ViewTypes.DETAIL:
-            if (windowSize.value === 'xs') {
+            if (context.root.$windowSize.isExtraSmall()) {
               if (typeof id !== 'undefined') {
                 context.root.$router.push(context.root.localePath({
                   name: context.root.$routes.triggers.detail,
@@ -361,12 +369,17 @@ export default defineComponent({
             break
 
           case ViewTypes.CREATE:
-            if (windowSize.value === 'xs') {
+            if (context.root.$windowSize.isExtraSmall()) {
               context.root.$bus.$emit('wait-page_reloading', 10)
 
               context.root.$router.push(context.root.localePath(context.root.$routes.triggers.create))
 
               return
+            } else {
+              context.root.$router.push(context.root.localePath({
+                name: context.root.$routes.triggers.list,
+                hash: TRIGGERS_HASH_CREATE,
+              }))
             }
             break
         }
@@ -415,6 +428,8 @@ export default defineComponent({
       if (context.root.$route.hash !== '') {
         if (context.root.$route.hash.includes(TRIGGERS_HASH_DETAIL)) {
           openView(ViewTypes.DETAIL, context.root.$route.hash.substring(TRIGGERS_HASH_DETAIL.length + 1))
+        } else if (context.root.$route.hash.includes(TRIGGERS_HASH_CREATE)) {
+          openView(ViewTypes.CREATE)
         }
       }
     }
@@ -448,7 +463,7 @@ export default defineComponent({
     watch(
       (): string => windowSize.value,
       (val): void => {
-        if (val === 'xs' && isMounted.value) {
+        if (val === FbSizeTypes.EXTRA_SMALL && isMounted.value) {
           if (view.detail.opened && view.detail.id !== null) {
             context.root.$router.push(context.root.localePath({
               name: context.root.$routes.triggers.detail,
@@ -500,7 +515,6 @@ export default defineComponent({
       viewTypes: ViewTypes,
       isMounted,
       editMode,
-      windowSize,
       triggers,
       isLoading,
       noResults,
@@ -512,6 +526,8 @@ export default defineComponent({
       toggleEditMode,
       openPreviousItem,
       openNextItem,
+      listItemTypes: ListItemSizeTypes,
+      buttonVariantTypes: FbUiButtonVariantTypes,
     }
   },
 

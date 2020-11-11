@@ -1,22 +1,71 @@
+@import "~assets/scss/variables";
+
 .fb-triggers-select-action-device-property {
   &__container {
     width: 100%;
+  }
 
-    .fb-list-item__icon {
-      line-height: 1.5rem;
+  &__property {
+    margin: $margin-sm;
 
-      .fb-form-checkbox__container {
-        padding: 1.8rem 1rem;
+    .fb-list-item {
+      &__heading {
+        padding-left: $padding-md;
+      }
+
+      &__content {
+        .fb-form-checkbox__container {
+          padding: 0;
+        }
+      }
+    }
+  }
+
+  &__actions {
+    .fb-triggers-select-action-device-property__action:first-child {
+      .fb-list-item__inner {
+        border-top: 1px solid $gray-lighter;
+      }
+    }
+  }
+
+  &__action {
+    .fb-list-item {
+      &__heading {
+        padding-left: $padding-lg;
+      }
+
+      &__content {
+        padding-right: $padding-lg;
+        text-align: center;
+
+        .fb-form-radio {
+          &__indicator-label {
+            display: none;
+          }
+
+          &__container {
+            padding: 0;
+          }
+        }
+      }
+
+      &__content-large {
+        padding-right: $padding-lg;
+        max-width: 15rem;
       }
     }
 
-    .fb-list-item__content-large {
-      line-height: 1.5rem;
+    &-operation {
+      width: 8rem;
+      display: inline-block;
 
-      .fb-form-radio__container {
-        float: left;
-        margin-left: 0;
-        padding-left: 0;
+      input {
+        text-align: right;
+      }
+
+      &-unit {
+        font-size: $font-size-sm;
       }
     }
   }

@@ -2,8 +2,8 @@
   <desktop-detail-toolbar class="fb-triggers-desktop-detail-toolbar__container">
     <template slot="left">
       <fb-ui-button
-        variant="link-default"
-        size="xs"
+        :variant="buttonVariantTypes.LINK_DEFAULT"
+        :size="sizeTypes.EXTRA_SMALL"
         @click.prevent="$emit('close', $event)"
       >
         <font-awesome-icon icon="times" />
@@ -12,8 +12,8 @@
 
       <fb-ui-button
         v-if="!editMode"
-        variant="link-default"
-        size="xs"
+        :variant="buttonVariantTypes.LINK_DEFAULT"
+        :size="sizeTypes.EXTRA_SMALL"
         @click.prevent="$emit('toggleEdit', $event)"
       >
         <font-awesome-icon icon="pencil-alt" />
@@ -22,8 +22,8 @@
 
       <fb-ui-button
         v-if="editMode"
-        variant="link"
-        size="xs"
+        :variant="buttonVariantTypes.LINK"
+        :size="sizeTypes.EXTRA_SMALL"
         @click.prevent="$emit('toggleEdit', $event)"
       >
         <font-awesome-icon icon="check" />
@@ -53,16 +53,16 @@
 
       <fb-ui-button
         :disabled="page <= 1"
-        variant="link-default"
-        size="xs"
+        :variant="buttonVariantTypes.LINK_DEFAULT"
+        :size="sizeTypes.EXTRA_SMALL"
         @click.prevent="$emit('previous', $event)"
       >
         <font-awesome-icon icon="angle-left" />
       </fb-ui-button>
       <fb-ui-button
         :disabled="page >= total"
-        variant="link-default"
-        size="xs"
+        :variant="buttonVariantTypes.LINK_DEFAULT"
+        :size="sizeTypes.EXTRA_SMALL"
         @click.prevent="$emit('next', $event)"
       >
         <font-awesome-icon icon="angle-right" />
@@ -76,6 +76,11 @@ import {
   defineComponent,
   PropType,
 } from '@vue/composition-api'
+
+import {
+  FbSizeTypes,
+  FbUiButtonVariantTypes,
+} from '@fastybird/web-ui-theme'
 
 import { TriggerInterface } from '~/models/triggers-node/triggers/types'
 
@@ -112,6 +117,13 @@ export default defineComponent({
       default: 0,
     },
 
+  },
+
+  setup() {
+    return {
+      sizeTypes: FbSizeTypes,
+      buttonVariantTypes: FbUiButtonVariantTypes,
+    }
   },
 
 })

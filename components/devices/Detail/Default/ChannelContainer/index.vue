@@ -3,7 +3,6 @@
     <list-item
       v-for="property in analogSensors"
       :key="property.id"
-      @click="() => {}"
     >
       <font-awesome-icon
         slot="icon"
@@ -28,7 +27,6 @@
     <list-item
       v-for="property in binarySensors"
       :key="property.id"
-      @click="() => {}"
     >
       <font-awesome-icon
         slot="icon"
@@ -55,7 +53,6 @@
     <list-item
       v-for="property in binaryActors"
       :key="property.id"
-      @click="() => {}"
     >
       <font-awesome-icon
         slot="icon"
@@ -76,7 +73,6 @@
     <list-item
       v-for="property in switches"
       :key="property.id"
-      @click="() => {}"
     >
       <font-awesome-icon
         slot="icon"

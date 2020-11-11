@@ -1,47 +1,26 @@
 <template>
   <div class="fb-triggers-list-condition__container">
     <template v-if="condition.isDeviceProperty || condition.isChannelProperty">
-      <content-loading
+      <list-item
         v-if="fetchingDevices || device === null"
-        :height="28.5"
+        :variant="$windowSize.isExtraSmall() ? listSizeTypes.LIST : listSizeTypes.DEFAULT"
         class="fb-triggers-list-condition__preloading"
       >
-        <circle
-          cx="15"
-          cy="50%"
-          r="9"
+        <fb-ui-spinner
+          slot="icon"
+          :variant="spinnerVariantTypes.DEFAULT"
         />
-        <rect
-          x="30"
-          y="5"
-          rx="4"
-          ry="4"
-          width="100"
-          height="8"
+
+        <font-awesome-icon
+          slot="detail"
+          icon="ellipsis-h"
         />
-        <rect
-          x="30"
-          y="15"
-          rx="4"
-          ry="4"
-          width="50"
-          height="6"
-        />
-        <rect
-          x="340"
-          y="9"
-          rx="4"
-          ry="4"
-          width="50"
-          height="10"
-        />
-      </content-loading>
+      </list-item>
 
       <list-item
         v-else
-        :variant="windowSize === 'xs' ? 'list' : 'default'"
+        :variant="$windowSize.isExtraSmall() ? listSizeTypes.LIST : listSizeTypes.DEFAULT"
         class="fb-triggers-list-condition__item"
-        @click="() => {}"
       >
         <font-awesome-icon
           slot="icon"
@@ -81,12 +60,12 @@
           </template>
         </template>
 
-        <template slot="detail">
+        <template :slot="condition.draft ? 'detail-large' : 'detail'">
           <div class="fb-triggers-list-condition__item-conditions">
             <div class="fb-triggers-list-condition__item-conditions-state">
               <fb-ui-switch-element
                 :status="form.model.enabled"
-                variant="primary"
+                :variant="switchVariantTypes.PRIMARY"
                 @change="toggle"
               />
             </div>
@@ -96,8 +75,8 @@
               class="fb-triggers-list-condition__item-conditions-buttons"
             >
               <fb-ui-button
-                size="sm"
-                variant="link"
+                :size="sizeTypes.SMALL"
+                :variant="buttonVariantTypes.LINK"
                 @click="remove"
               >
                 {{ $t('application.buttons.remove.title') }}
@@ -110,19 +89,18 @@
 
     <template v-else>
       <list-item
-        :variant="windowSize === 'xs' ? 'list' : 'default'"
+        :variant="$windowSize.isExtraSmall() ? listSizeTypes.LIST : listSizeTypes.DEFAULT"
         class="fb-triggers-list-condition__item"
-        @click="() => {}"
       >
         <font-awesome-icon
-          v-if="condition.isDate"
           slot="icon"
+          v-if="condition.isDate"
           icon="calendar"
         />
 
         <font-awesome-icon
-          v-if="condition.isTime"
           slot="icon"
+          v-if="condition.isTime"
           icon="clock"
         />
 
@@ -157,12 +135,12 @@
           </template>
         </template>
 
-        <template slot="detail">
+        <template :slot="condition.draft ? 'detail-large' : 'detail'">
           <div class="fb-triggers-list-condition__item-conditions">
             <div class="fb-triggers-list-condition__item-conditions-state">
               <fb-ui-switch-element
                 :status="form.model.enabled"
-                variant="primary"
+                :variant="switchVariantTypes.PRIMARY"
                 @change="toggle"
               />
             </div>
@@ -172,8 +150,8 @@
               class="fb-triggers-list-condition__item-conditions-buttons"
             >
               <fb-ui-button
-                size="sm"
-                variant="link"
+                :size="sizeTypes.SMALL"
+                :variant="buttonVariantTypes.LINK"
                 @click="remove"
               >
                 {{ $t('application.buttons.remove.title') }}
@@ -199,6 +177,13 @@ import {
 
 import get from 'lodash/get'
 
+import {
+  FbSizeTypes,
+  FbUiButtonVariantTypes,
+  FbUiSwitchElementVariantTypes,
+  FbUiSpinnerVariantTypes,
+} from '@fastybird/web-ui-theme'
+
 import { TriggerInterface } from '~/models/triggers-node/triggers/types'
 import Condition from '~/models/triggers-node/conditions/Condition'
 import { ConditionInterface } from '~/models/triggers-node/conditions/types'
@@ -213,6 +198,8 @@ import ChannelProperty from '~/models/devices-node/channel-properties/ChannelPro
 import { ChannelPropertyInterface } from '~/models/devices-node/channel-properties/types'
 
 import { AccountInterface } from '~/models/auth-node/accounts/types'
+
+import { ListItemSizeTypes } from '~/components/layout/ListItem/index.vue'
 
 interface TriggersDetailDefaultConditionsContainerConditionFormModelInterface {
   enabled: boolean
@@ -336,9 +323,21 @@ export default defineComponent({
     }
 
     async function remove(): Promise<void> {
-      await Condition.dispatch('remove', {
-        condition: props.condition,
-      })
+      const errorMessage = context.root.$t('triggers.messages.conditionNotRemoved', {
+        trigger: props.trigger.name,
+      }).toString()
+
+      try {
+        await Condition.dispatch('remove', {
+          condition: props.condition,
+        })
+      } catch (e) {
+        if (get(e, 'exception', null) !== null) {
+          context.root.handleException(e.exception, errorMessage)
+        } else {
+          context.root.$flashMessage(errorMessage, 'error')
+        }
+      }
     }
 
     function translateDay(day: number): string {
@@ -373,6 +372,11 @@ export default defineComponent({
       toggle,
       remove,
       translateDay,
+      listSizeTypes: ListItemSizeTypes,
+      sizeTypes: FbSizeTypes,
+      buttonVariantTypes: FbUiButtonVariantTypes,
+      switchVariantTypes: FbUiSwitchElementVariantTypes,
+      spinnerVariantTypes: FbUiSpinnerVariantTypes,
     }
   },
 

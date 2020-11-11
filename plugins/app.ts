@@ -8,7 +8,6 @@ import { Plugin } from '@nuxt/types'
 
 import VueCompositionApi from '@vue/composition-api'
 
-// @ts-ignore
 import FastyBirdTheme,
 {
   FbUiButton,
@@ -19,6 +18,7 @@ import FastyBirdTheme,
   FbUiLoadingBox,
   FbUiMediaItem,
   FbUiModalForm,
+  FbUiModalInfo,
   FbUiModalHeader,
   FbUiModalHeaderIcon,
   FbUiNoResults,
@@ -32,14 +32,30 @@ import FastyBirdTheme,
   FbFormRadioButtonsGroup,
   FbFormSelect,
   FbFormTextArea,
+  FbLayoutContent,
+  FbLayoutFooter,
+  FbLayoutHeader,
   FbLayoutHeaderHeading,
   FbLayoutHeaderButton,
   FbLayoutHeaderContent,
   FbLayoutHeaderSpacer,
+  FbLayoutNavigation,
+  FbLayoutNavigationItem,
+  FbLayoutNavigationDivider,
+  FbLayoutPhoneMenu,
+  FbLayoutPhoneMenuButton,
+  FbLayoutPhoneMenuContent,
+  FbLayoutPhoneMenuHeading,
+  FbLayoutSidebar,
+  FbLayoutSignBox,
+  FbLayoutSignFooter,
+  FbLayoutSignFooterItem,
+  FbLayoutTabs,
+  FbLayoutTabsItem,
+  FbLayoutUserMenu,
+  FbLayoutUserMenuItem,
+  FbLayoutUserMenuDivider,
 } from '@fastybird/web-ui-theme'
-
-// @ts-ignore
-import VueContentLoading from 'vue-content-loading'
 
 // @ts-ignore
 import PrettyCheckbox from 'pretty-checkbox-vue'
@@ -82,8 +98,6 @@ Vue.component('OffCanvas', OffCanvas)
 Vue.component('OffCanvasBody', OffCanvasBody)
 Vue.component('SettingsListItem', SettingsListItem)
 
-Vue.component('ContentLoading', VueContentLoading)
-
 Vue.component('FbUiButton', FbUiButton)
 Vue.component('FbUiContent', FbUiContent)
 Vue.component('FbUiConfirmationWindow', FbUiConfirmationWindow)
@@ -92,12 +106,14 @@ Vue.component('FbUiDivider', FbUiDivider)
 Vue.component('FbUiLoadingBox', FbUiLoadingBox)
 Vue.component('FbUiMediaItem', FbUiMediaItem)
 Vue.component('FbUiModalForm', FbUiModalForm)
+Vue.component('FbUiModalInfo', FbUiModalInfo)
 Vue.component('FbUiModalHeader', FbUiModalHeader)
 Vue.component('FbUiModalHeaderIcon', FbUiModalHeaderIcon)
 Vue.component('FbUiNoResults', FbUiNoResults)
 Vue.component('FbUiSpinner', FbUiSpinner)
 Vue.component('FbUiSwitchElement', FbUiSwitchElement)
 Vue.component('FbUiTransitionExpand', FbUiTransitionExpand)
+
 Vue.component('FbFormInput', FbFormInput)
 Vue.component('FbFormCheckbox', FbFormCheckbox)
 Vue.component('FbFormCheckboxesGroup', FbFormCheckboxesGroup)
@@ -105,10 +121,30 @@ Vue.component('FbFormRadioButton', FbFormRadioButton)
 Vue.component('FbFormRadioButtonsGroup', FbFormRadioButtonsGroup)
 Vue.component('FbFormSelect', FbFormSelect)
 Vue.component('FbFormTextArea', FbFormTextArea)
+
+Vue.component('FbLayoutContent', FbLayoutContent)
+Vue.component('FbLayoutFooter', FbLayoutFooter)
+Vue.component('FbLayoutHeader', FbLayoutHeader)
 Vue.component('FbLayoutHeaderHeading', FbLayoutHeaderHeading)
 Vue.component('FbLayoutHeaderButton', FbLayoutHeaderButton)
 Vue.component('FbLayoutHeaderContent', FbLayoutHeaderContent)
 Vue.component('FbLayoutHeaderSpacer', FbLayoutHeaderSpacer)
+Vue.component('FbLayoutNavigation', FbLayoutNavigation)
+Vue.component('FbLayoutNavigationItem', FbLayoutNavigationItem)
+Vue.component('FbLayoutNavigationDivider', FbLayoutNavigationDivider)
+Vue.component('FbLayoutPhoneMenu', FbLayoutPhoneMenu)
+Vue.component('FbLayoutPhoneMenuButton', FbLayoutPhoneMenuButton)
+Vue.component('FbLayoutPhoneMenuContent', FbLayoutPhoneMenuContent)
+Vue.component('FbLayoutPhoneMenuHeading', FbLayoutPhoneMenuHeading)
+Vue.component('FbLayoutSidebar', FbLayoutSidebar)
+Vue.component('FbLayoutSignBox', FbLayoutSignBox)
+Vue.component('FbLayoutSignFooter', FbLayoutSignFooter)
+Vue.component('FbLayoutSignFooterItem', FbLayoutSignFooterItem)
+Vue.component('FbLayoutTabs', FbLayoutTabs)
+Vue.component('FbLayoutTabsItem', FbLayoutTabsItem)
+Vue.component('FbLayoutUserMenu', FbLayoutUserMenu)
+Vue.component('FbLayoutUserMenuItem', FbLayoutUserMenuItem)
+Vue.component('FbLayoutUserMenuDivider', FbLayoutUserMenuDivider)
 
 Vue.mixin(HelpersMixin)
 

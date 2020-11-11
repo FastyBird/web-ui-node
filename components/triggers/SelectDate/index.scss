@@ -1,27 +1,39 @@
-@import "~@fastybird/web-ui-theme/src/assets/variables/screen";
-@import "~@fastybird/web-ui-theme/src/assets/mixins/utilities";
+@import "~assets/scss/variables";
 
 .fb-triggers-select-date {
   &__container {
+    h3 {
+      display: inline-block;
+      max-width: 100%;
+      margin: 0 0 $margin-sm $margin-sm;
+      font-size: $heading-font-size-md;
+    }
+
+    h3:first-child {
+      font-size: $heading-font-size-lg;
+      font-weight: normal;
+    }
+
+    .vue-scroll-picker-group {
+      display: flex;
+      background-color: $content-background-color;
+      border-top: 1px solid $gray-lighter;
+      border-bottom: 1px solid $gray-lighter;
+      margin-bottom: $margin-md;
+    }
+
     .vue-scroll-picker {
-      font-size: 2.4rem;
+      font-size: $font-size-md * 2;
     }
 
     .vue-scroll-picker-layer {
       div.top {
         background: linear-gradient(180deg, #fcfcfc 10%, rgba(255, 255, 255, 0.7));
       }
+
       div.bottom {
         background: linear-gradient(0deg, #fcfcfc 10%, rgba(255, 255, 255, 0.7));
       }
-    }
-
-    h3 {
-      display: inline-block;
-      max-width: 100%;
-      margin: 0 0 $margin-sm $margin-sm;
-      font-weight: bold;
-      font-size: 1.3rem;
     }
   }
 }

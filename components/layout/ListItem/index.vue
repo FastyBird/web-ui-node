@@ -1,10 +1,13 @@
 <template functional>
   <div
     :class="[data.class, data.staticClass, 'fb-list-item__container', `fb-list-item__container-${props.variant}`]"
-    @click="listeners['click']"
+    @click="() => { parent._.get(listeners, 'click', null) !== null ? listeners['click']() : () => {} }"
   >
     <div class="fb-list-item__inner">
-      <div class="fb-list-item__icon">
+      <div
+        v-if="parent._.get(scopedSlots, 'icon', null) !== null"
+        class="fb-list-item__icon"
+      >
         <slot name="icon" />
       </div>
 
@@ -48,8 +51,13 @@
 
 <script lang="ts">
 import {
-  defineComponent,
+  defineComponent, PropType,
 } from '@vue/composition-api'
+
+export enum ListItemSizeTypes {
+  DEFAULT = 'default',
+  LIST = 'list',
+}
 
 export default defineComponent({
 
@@ -58,12 +66,13 @@ export default defineComponent({
   props: {
 
     variant: {
-      type: String,
-      default: 'default',
+      type: String as PropType<ListItemSizeTypes>,
+      default: ListItemSizeTypes.DEFAULT,
       validator: (value): boolean => {
         // The value must match one of these strings
         return [
-          'default', 'list',
+          ListItemSizeTypes.DEFAULT,
+          ListItemSizeTypes.LIST,
         ].includes(value)
       },
     },

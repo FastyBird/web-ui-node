@@ -1,6 +1,5 @@
-@import "~@fastybird/web-ui-theme/src/assets/variables/colors";
-@import "~@fastybird/web-ui-theme/src/assets/variables/screen";
-@import "~@fastybird/web-ui-theme/src/assets/mixins/utilities";
+@import "~assets/scss/variables";
+@import "~assets/scss/mixins";
 
 .fb-triggers-list-condition {
   &__item {
@@ -17,19 +16,12 @@
         flex: 0 0 8rem;
         max-width: 8rem;
       }
-
-      &-remove-icon {
-        color: $brand-danger;
-        font-size: 8rem;
-        margin: $margin-lg 0 $margin-md 0;
-      }
     }
   }
 
   &__preloading {
-    border: 1px solid $gray-lighter;
-    border-radius: 4px;
-    width: 100%;
-    margin-top: $margin-xs;
+    .fb-ui-spinner__container {
+      margin-top: 1.45rem;
+    }
   }
 }

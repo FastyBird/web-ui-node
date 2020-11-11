@@ -6,8 +6,9 @@ module.exports = {
   },
   extends: [
     '@nuxtjs',
-    'plugin:nuxt/recommended',
     '@nuxtjs/eslint-config-typescript',
+    'plugin:nuxt/base',
+    'plugin:nuxt/recommended',
   ],
   rules: {
     // don't require .vue extension when importing

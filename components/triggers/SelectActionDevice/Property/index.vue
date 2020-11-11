@@ -1,56 +1,114 @@
 <template>
-  <list-item
+  <div
     :key="property.id"
     class="fb-triggers-select-action-device-property__container"
-    @click="toggleState"
   >
-    <template slot="icon">
-      <fb-form-checkbox
-        v-model="form.model.selected"
-        :name="`property_${property.property}`"
-      />
-    </template>
+    <list-item
+      :variant="listItemTypes.DEFAULT"
+      @click="toggleState"
+      class="fb-triggers-select-action-device-property__property"
+    >
+      <template slot="heading">
+        {{ property.title }}
+      </template>
 
-    <template slot="heading">
-      {{ property.title }}
-    </template>
+      <template slot="detail">
+        <fb-form-checkbox
+          v-model="form.model.selected"
+          :name="`property_${property.property}`"
+        />
+      </template>
+    </list-item>
 
-    <template slot="detail-large">
-      <fb-ui-switch-element
-        v-if="property.isBoolean"
-        :status="form.model.operation"
-        :disabled="!form.model.selected"
-        variant="primary"
-        @change="propertyChanged"
-      />
-
+    <div class="fb-triggers-select-action-device-property__actions">
       <fb-form-radio-buttons-group
-        v-else-if="property.isEnum"
         ref="actionsGroup"
+        v-if="property.isEnum"
         v-model="form.model.operation"
+        :size="sizeTypes.SMALL"
         name="value"
-        button
-        size="sm"
-        variant="primary"
       >
-        <template v-for="(item, key) in property.format.split(',')">
-          <fb-form-radio-button
-            :key="key"
-            :label="item"
-            :group="actionsGroup"
-            name="value"
-          >
-            <template v-if="$te(`triggers.${item}`)">
-              {{ $t(`triggers.variations.${item}`) }}
+        <list-item
+          v-for="(item, key) in property.format.split(',')"
+          :key="key"
+          :variant="listItemTypes.LIST"
+          @click="form.model.operation = item"
+          class="fb-triggers-select-action-device-property__action"
+        >
+          <template slot="heading">
+            <template v-if="$t(`triggers.variations.actions.${item}`) !== `triggers.variations.actions.${item}`">
+              {{ $t(`triggers.variations.actions.${item}`) }}
             </template>
             <template v-else>
               {{ item }}
             </template>
-          </fb-form-radio-button>
-        </template>
+          </template>
+
+          <template slot="detail">
+            <fb-form-radio-button
+              :label="item"
+              :group="actionsGroup"
+              :id="`value-${item}`"
+              name="value"
+            >
+              <template v-if="$t(`triggers.variations.actions.${item}`) !== `triggers.variations.actions.${item}`">
+                {{ $t(`triggers.variations.actions.${item}`) }}
+              </template>
+              <template v-else>
+                {{ item }}
+              </template>
+            </fb-form-radio-button>
+          </template>
+        </list-item>
       </fb-form-radio-buttons-group>
-    </template>
-  </list-item>
+
+      <list-item
+        v-else-if="property.isBoolean"
+        :variant="listItemTypes.LIST"
+        @click="propertyChanged"
+        class="fb-triggers-select-action-device-property__action"
+      >
+        <template slot="heading">
+          {{ $t('triggers.variations.state') }}
+        </template>
+
+        <template slot="detail-large">
+          <fb-ui-switch-element
+            :status="form.model.operation"
+            :disabled="!form.model.selected"
+            :variant="switchVariantTypes.PRIMARY"
+            @change="propertyChanged"
+          />
+        </template>
+      </list-item>
+
+      <list-item
+        v-else
+        :variant="listItemTypes.LIST"
+        class="fb-triggers-select-action-device-property__action"
+      >
+        <template slot="heading">
+          {{ $t('triggers.variations.value') }}
+        </template>
+
+        <template slot="detail-large">
+          <fb-form-input
+            v-model="form.model.operation"
+            :size="sizeTypes.SMALL"
+            name="operation"
+            class="fb-triggers-select-action-device-property__action-operation"
+          />
+
+          <span
+            v-if="property.unit !== null"
+            class="fb-triggers-select-action-device-property__action-operation-unit"
+          >
+            {{ property.unit }}
+          </span>
+        </template>
+      </list-item>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -64,10 +122,16 @@ import {
   watch,
 } from '@vue/composition-api'
 
-import { FbFormRadioButtonsGroup } from '@fastybird/web-ui-theme'
+import {
+  FbSizeTypes,
+  FbFormRadioButtonsGroup,
+  FbUiSwitchElementVariantTypes,
+} from '@fastybird/web-ui-theme'
 
 import { DevicePropertyInterface } from '~/models/devices-node/device-properties/types'
 import { ChannelPropertyInterface } from '~/models/devices-node/channel-properties/types'
+
+import { ListItemSizeTypes } from '~/components/layout/ListItem/index.vue'
 
 interface TriggersSelectActionDevicePropertyValueInterface {
   selected: boolean
@@ -106,6 +170,7 @@ export default defineComponent({
 
   setup(props: TriggersSelectActionDevicePropertyPropsInterface, context: SetupContext) {
     const isMounted = ref<boolean>(false)
+
     const actionsGroup = ref<InstanceType<typeof FbFormRadioButtonsGroup> | null>(null)
 
     const form = reactive<TriggersSelectActionDevicePropertyFormInterface>({
@@ -184,6 +249,9 @@ export default defineComponent({
       propertyChanged,
       toggleState,
       actionsGroup,
+      listItemTypes: ListItemSizeTypes,
+      sizeTypes: FbSizeTypes,
+      switchVariantTypes: FbUiSwitchElementVariantTypes,
     }
   },
 

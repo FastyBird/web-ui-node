@@ -23,7 +23,7 @@
         <swipe-list
           ref="list"
           :items="actions"
-          :disabled="windowSize !== 'xs'"
+          :disabled="!$windowSize.isExtraSmall()"
           class="fb-triggers-detail-default-actions-container__items"
         >
           <template v-slot="{ item }">
@@ -36,8 +36,8 @@
                 class="fb-triggers-detail-default-actions-container__item-buttons"
               >
                 <fb-ui-button
-                  variant="link"
-                  size="xs"
+                  :variant="buttonVariantTypes.LINK"
+                  :size="sizeTypes.EXTRA_SMALL"
                   @click.prevent="openRemoveConfirmation(item)"
                 >
                   <font-awesome-icon icon="minus-circle" />
@@ -55,8 +55,8 @@
 
           <template v-slot:right="{ item }">
             <div
-              class="fb-triggers-detail-default-actions-container__item-remove"
               @click.prevent="openRemoveConfirmation(item)"
+              class="fb-triggers-detail-default-actions-container__item-remove"
             >
               <font-awesome-icon icon="trash" />
             </div>
@@ -66,8 +66,8 @@
 
       <template slot="buttons">
         <fb-ui-button
-          variant="link"
-          size="xs"
+          :variant="buttonVariantTypes.LINK"
+          :size="sizeTypes.EXTRA_SMALL"
           @click.prevent="openWindow(viewTypes.ADD_OR_EDIT)"
         >
           <font-awesome-icon icon="plus" />
@@ -85,7 +85,6 @@
 
     <fb-ui-confirmation-window
       v-if="view.removeConfirmation.show"
-      class="fb-triggers-detail-default-actions-container__remove-container"
       @confirmed="removeAction"
       @close="closeWindow(viewTypes.REMOVE_CONFIRMATION)"
     >
@@ -122,6 +121,13 @@ import {
 
 import { SwipeList } from 'vue-swipe-actions'
 
+import get from 'lodash/get'
+
+import {
+  FbSizeTypes,
+  FbUiButtonVariantTypes,
+} from '@fastybird/web-ui-theme'
+
 import 'vue-swipe-actions/dist/vue-swipe-actions.css'
 
 import { TriggerInterface } from '~/models/triggers-node/triggers/types'
@@ -129,7 +135,8 @@ import Action from '~/models/triggers-node/actions/Action'
 import { ActionInterface } from '~/models/triggers-node/actions/types'
 
 import TriggersListAction from '~/components/triggers/ListAction/index.vue'
-import TriggersDetailDefaultActionsContainerAddOrEdit from '~/components/triggers/Detail/Default/ActionsContainer/AddOrEdit/index.vue'
+import TriggersDetailDefaultActionsContainerAddOrEdit
+  from '~/components/triggers/Detail/Default/ActionsContainer/AddOrEdit/index.vue'
 
 enum ViewTypes {
   ADD_OR_EDIT = 'addOrEdit',
@@ -224,9 +231,21 @@ export default defineComponent({
         const action = Action.find(view.removeConfirmation.action)
 
         if (action !== null) {
-          await Action.dispatch('remove', {
-            action,
-          })
+          const errorMessage = context.root.$t('triggers.messages.actionNotRemoved', {
+            trigger: props.trigger.name,
+          }).toString()
+
+          try {
+            await Action.dispatch('remove', {
+              action,
+            })
+          } catch (e) {
+            if (get(e, 'exception', null) !== null) {
+              context.root.handleException(e.exception, errorMessage)
+            } else {
+              context.root.$flashMessage(errorMessage, 'error')
+            }
+          }
         }
       }
 
@@ -242,6 +261,8 @@ export default defineComponent({
       closeWindow,
       openRemoveConfirmation,
       removeAction,
+      sizeTypes: FbSizeTypes,
+      buttonVariantTypes: FbUiButtonVariantTypes,
     }
   },
 

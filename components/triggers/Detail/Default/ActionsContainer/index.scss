@@ -1,6 +1,5 @@
-@import "~@fastybird/web-ui-theme/src/assets/variables/colors";
-@import "~@fastybird/web-ui-theme/src/assets/variables/screen";
-@import "~@fastybird/web-ui-theme/src/assets/mixins/utilities";
+@import "~assets/scss/variables";
+@import "~assets/scss/mixins";
 
 .fb-triggers-detail-default-actions-container {
   &__container {
@@ -34,7 +33,7 @@
       -ms-flex: 0 0 5rem;
       flex: 0 0 5rem;
       max-width: 5rem;
-      line-height: 6.5rem;
+      line-height: 7.5rem;
       text-align: center;
     }
 
@@ -48,13 +47,13 @@
       align-items: center;
       cursor: pointer;
       left: 0;
-      padding: 0 2rem;
+      padding: 0 $padding-md;
     }
 
     &-remove {
       background-color: $brand-danger;
-      color: $brand-primary-contrast;
-      font-size: 2rem;
+      color: $brand-danger-contrast;
+      font-size: $font-size-lg;
     }
 
     &-edit {

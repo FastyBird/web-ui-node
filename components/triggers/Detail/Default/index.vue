@@ -26,7 +26,8 @@ import Notification from '~/models/triggers-node/notifications/Notification'
 import Condition from '~/models/triggers-node/conditions/Condition'
 
 import TriggersDetailDefaultActionsContainer from '~/components/triggers/Detail/Default/ActionsContainer/index.vue'
-import TriggersDetailDefaultConditionsContainer from '~/components/triggers/Detail/Default/ConditionsContainer/index.vue'
+import TriggersDetailDefaultConditionsContainer
+  from '~/components/triggers/Detail/Default/ConditionsContainer/index.vue'
 
 interface TriggersDetailDefaultPropsInterface {
   trigger: TriggerInterface

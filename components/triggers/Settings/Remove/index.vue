@@ -1,7 +1,6 @@
 <template>
   <fb-ui-confirmation-window
     :transparent-bg="transparentBg"
-    class="fb-triggers-settings-trigger-remove__container"
     @confirmed="remove"
     @close="close"
   >

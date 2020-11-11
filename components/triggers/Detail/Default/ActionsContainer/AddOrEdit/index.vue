@@ -2,17 +2,20 @@
   <fb-ui-modal-form
     :lock-submit-button="formResult !== formResultTypes.NONE"
     :state="formResult"
-    :submit-btn-label="submitBtnLabel"
-    :cancel-btn-label="cancelBtnLabel"
-    :variant="'phone'"
-    class="fb-triggers-detail-default-actions-container-add-or-edit__container"
-    @submit="submitBtnCallback"
+    :submit-btn-text="$t('application.buttons.done.title')"
+    :cancel-btn-text="cancelBtnText"
+    :variant="$windowSize.isExtraSmall() ? modalVariantTypes.PHONE : modalVariantTypes.DEFAULT"
+    :submit-btn-show="!view.listDevices.show"
+    :data-type="openedType()"
+    @submit="submitDevice"
     @cancel="cancelBtnCallback"
     @close="closeWindow"
+    class="fb-triggers-detail-default-actions-container-add-or-edit__container"
   >
     <fb-ui-modal-header
-      v-if="view.listDevices.show"
       slot="modal-header"
+      v-if="view.listDevices.show"
+      :variant="$windowSize.isExtraSmall() ? modalVariantTypes.PHONE : modalVariantTypes.DEFAULT"
       @close="closeWindow"
     >
       <font-awesome-icon
@@ -29,11 +32,23 @@
         Facilis blanditiis, quibusdam corporis porro natus neque soluta nihil hic aliquam, suscipit,
         consectetur omnis placeat architecto quae laboriosam. Id porro adipisci, alias.
       </template>
+
+      <fb-ui-button
+        slot="left-button"
+        :variant="buttonVariantTypes.LINK"
+        :size="sizeTypes.EXTRA_SMALL"
+        @click.prevent="cancelBtnCallback"
+        uppercase
+        name="close"
+      >
+        {{ cancelBtnText }}
+      </fb-ui-button>
     </fb-ui-modal-header>
 
     <fb-ui-modal-header
-      v-if="view.selectDevice.show && view.selectDevice.device !== null"
       slot="modal-header"
+      v-if="view.selectDevice.show && view.selectDevice.device !== null"
+      :variant="$windowSize.isExtraSmall() ? modalVariantTypes.PHONE : modalVariantTypes.DEFAULT"
       @close="closeWindow"
     >
       <font-awesome-icon
@@ -50,20 +65,40 @@
         Facilis blanditiis, quibusdam corporis porro natus neque soluta nihil hic aliquam, suscipit,
         consectetur omnis placeat architecto quae laboriosam. Id porro adipisci, alias.
       </template>
+
+      <fb-ui-button
+        slot="left-button"
+        :variant="buttonVariantTypes.LINK"
+        :size="sizeTypes.EXTRA_SMALL"
+        @click.prevent="cancelBtnCallback"
+        uppercase
+        name="close"
+      >
+        {{ cancelBtnText }}
+      </fb-ui-button>
+
+      <fb-ui-button
+        slot="right-button"
+        :variant="buttonVariantTypes.LINK"
+        :size="sizeTypes.EXTRA_SMALL"
+        @click.prevent="submitDevice"
+        uppercase
+        name="submit"
+      >
+        {{ $t('application.buttons.done.title') }}
+      </fb-ui-button>
     </fb-ui-modal-header>
 
     <div
       slot="form"
       class="fb-triggers-detail-default-actions-container-add-or-edit__content"
     >
-      <fb-ui-transition-expand>
-        <triggers-list-devices
-          v-if="view.listDevices.show"
-          :type="selectDeviceViewTypes.ACTORS"
-          :items="actions"
-          @select="listDevices"
-        />
-      </fb-ui-transition-expand>
+      <triggers-list-devices
+        v-if="view.listDevices.show"
+        :type="selectDeviceViewTypes.ACTORS"
+        :items="actions"
+        @select="listDevices"
+      />
 
       <triggers-select-action-device
         v-if="view.selectDevice.show && Object.keys(form.model.devices).length > 0"
@@ -71,22 +106,6 @@
         :device="view.selectDevice.device"
       />
     </div>
-
-    <template
-      v-if="view.listDevices.show"
-      slot="modal-footer"
-    >
-      <fb-ui-button
-        v-if="view.listDevices.show"
-        uppercase
-        variant="link"
-        size="lg"
-        name="close"
-        @click.prevent="closeWindow"
-      >
-        {{ $t('application.buttons.close.title') }}
-      </fb-ui-button>
-    </template>
   </fb-ui-modal-form>
 </template>
 
@@ -100,7 +119,14 @@ import {
   computed,
 } from '@vue/composition-api'
 
-import { FbFormResultType } from '@fastybird/web-ui-theme'
+import get from 'lodash/get'
+
+import {
+  FbSizeTypes,
+  FbFormResultType,
+  FbUiModalVariantType,
+  FbUiButtonVariantTypes,
+} from '@fastybird/web-ui-theme'
 
 import { TriggerInterface } from '~/models/triggers-node/triggers/types'
 import Action from '~/models/triggers-node/actions/Action'
@@ -378,12 +404,26 @@ export default defineComponent({
               if (form.model.devices[key].type === ItemType.DEVICE_ACTION) {
                 if (form.model.devices[key].selected) {
                   if (action !== null) {
-                    await Action.dispatch('edit', {
-                      action,
-                      data: {
-                        value: form.model.devices[key].operation,
-                      },
-                    })
+                    const errorMessage = context.root.$t('triggers.messages.actionNotUpdated', {
+                      trigger: props.trigger.name,
+                    }).toString()
+
+                    try {
+                      await Action.dispatch('edit', {
+                        action,
+                        data: {
+                          value: form.model.devices[key].operation,
+                        },
+                      })
+                    } catch (e) {
+                      result = false
+
+                      if (get(e, 'exception', null) !== null) {
+                        context.root.handleException(e.exception, errorMessage)
+                      } else {
+                        context.root.$flashMessage(errorMessage, 'error')
+                      }
+                    }
                   } else {
                     const property = DeviceProperty
                       .query()
@@ -393,34 +433,76 @@ export default defineComponent({
                       .first()
 
                     if (property !== null) {
-                      await Action.dispatch('add', {
-                        trigger: props.trigger,
-                        data: {
-                          type: ActionEntityTypeType.DEVICE_PROPERTY,
-                          enabled: true,
-                          value: form.model.devices[key].operation,
-                          device: property.deviceBackward?.identifier,
-                          property: property.property,
-                        },
-                      })
+                      const errorMessage = context.root.$t('triggers.messages.actionNotCreated', {
+                        trigger: props.trigger.name,
+                      }).toString()
+
+                      try {
+                        await Action.dispatch('add', {
+                          trigger: props.trigger,
+                          data: {
+                            type: ActionEntityTypeType.DEVICE_PROPERTY,
+                            enabled: true,
+                            value: form.model.devices[key].operation,
+                            device: property.deviceBackward?.identifier,
+                            property: property.property,
+                          },
+                        })
+                      } catch (e) {
+                        result = false
+
+                        if (get(e, 'exception', null) !== null) {
+                          context.root.handleException(e.exception, errorMessage)
+                        } else {
+                          context.root.$flashMessage(errorMessage, 'error')
+                        }
+                      }
                     } else {
                       result = false
                     }
                   }
                 } else {
-                  await Action.dispatch('remove', {
-                    action,
-                  })
+                  const errorMessage = context.root.$t('triggers.messages.actionNotRemoved', {
+                    trigger: props.trigger.name,
+                  }).toString()
+
+                  try {
+                    await Action.dispatch('remove', {
+                      action,
+                    })
+                  } catch (e) {
+                    result = false
+
+                    if (get(e, 'exception', null) !== null) {
+                      context.root.handleException(e.exception, errorMessage)
+                    } else {
+                      context.root.$flashMessage(errorMessage, 'error')
+                    }
+                  }
                 }
               } else if (form.model.devices[key].type === ItemType.CHANNEL_ACTION) {
                 if (form.model.devices[key].selected) {
                   if (action !== null) {
-                    await Action.dispatch('edit', {
-                      action,
-                      data: {
-                        value: form.model.devices[key].operation,
-                      },
-                    })
+                    const errorMessage = context.root.$t('triggers.messages.actionNotUpdated', {
+                      trigger: props.trigger.name,
+                    }).toString()
+
+                    try {
+                      await Action.dispatch('edit', {
+                        action,
+                        data: {
+                          value: form.model.devices[key].operation,
+                        },
+                      })
+                    } catch (e) {
+                      result = false
+
+                      if (get(e, 'exception', null) !== null) {
+                        context.root.handleException(e.exception, errorMessage)
+                      } else {
+                        context.root.$flashMessage(errorMessage, 'error')
+                      }
+                    }
                   } else {
                     const property = ChannelProperty
                       .query()
@@ -431,25 +513,53 @@ export default defineComponent({
                       .first()
 
                     if (property !== null) {
-                      await Action.dispatch('add', {
-                        trigger: props.trigger,
-                        data: {
-                          type: ActionEntityTypeType.CHANNEL_PROPERTY,
-                          enabled: true,
-                          value: form.model.devices[key].operation,
-                          device: property.channelBackward?.deviceBackward?.identifier,
-                          channel: property.channelBackward?.channel,
-                          property: property.property,
-                        },
-                      })
+                      const errorMessage = context.root.$t('triggers.messages.actionNotCreated', {
+                        trigger: props.trigger.name,
+                      }).toString()
+
+                      try {
+                        await Action.dispatch('add', {
+                          trigger: props.trigger,
+                          data: {
+                            type: ActionEntityTypeType.CHANNEL_PROPERTY,
+                            enabled: true,
+                            value: form.model.devices[key].operation,
+                            device: property.channelBackward?.deviceBackward?.identifier,
+                            channel: property.channelBackward?.channel,
+                            property: property.property,
+                          },
+                        })
+                      } catch (e) {
+                        result = false
+
+                        if (get(e, 'exception', null) !== null) {
+                          context.root.handleException(e.exception, errorMessage)
+                        } else {
+                          context.root.$flashMessage(errorMessage, 'error')
+                        }
+                      }
                     } else {
                       result = false
                     }
                   }
                 } else {
-                  await Action.dispatch('remove', {
-                    action,
-                  })
+                  const errorMessage = context.root.$t('triggers.messages.actionNotRemoved', {
+                    trigger: props.trigger.name,
+                  }).toString()
+
+                  try {
+                    await Action.dispatch('remove', {
+                      action,
+                    })
+                  } catch (e) {
+                    result = false
+
+                    if (get(e, 'exception', null) !== null) {
+                      context.root.handleException(e.exception, errorMessage)
+                    } else {
+                      context.root.$flashMessage(errorMessage, 'error')
+                    }
+                  }
                 }
               }
             }
@@ -467,28 +577,28 @@ export default defineComponent({
       }
     }
 
-    function submitBtnCallback(): void {
-      if (view.selectDevice.show) {
-        submitDevice()
+    function openedType(): string {
+      if (view.listDevices.show) {
+        return 'list-devices'
       }
+
+      return 'select-device'
     }
 
     function cancelBtnCallback(): void {
       if (view.selectDevice.show) {
         openWindow(ViewTypes.LIST_DEVICES)
+      } else {
+        closeWindow()
       }
     }
 
-    const submitBtnLabel = computed<string>((): string => {
+    const cancelBtnText = computed<string>((): string => {
       if (view.selectDevice.show) {
-        return hasActionDevice.value ? context.root.$t('triggers.buttons.updateDevice.title').toString() : context.root.$t('triggers.buttons.addDevice.title').toString()
+        return context.root.$t('application.buttons.back.title').toString()
       }
 
-      return context.root.$t('application.buttons.save.title').toString()
-    })
-
-    const cancelBtnLabel = computed<string>((): string => {
-      return context.root.$t('application.buttons.back.title').toString()
+      return context.root.$t('application.buttons.close.title').toString()
     })
 
     return {
@@ -496,17 +606,19 @@ export default defineComponent({
       formResult,
       view,
       form,
-      submitBtnLabel,
-      cancelBtnLabel,
+      cancelBtnText,
       viewTypes: ViewTypes,
       selectDeviceViewTypes: SelectViewType,
-      formResultTypes: FbFormResultType,
       cancelBtnCallback,
-      submitBtnCallback,
       openWindow,
       closeWindow,
       listDevices,
       submitDevice,
+      openedType,
+      formResultTypes: FbFormResultType,
+      modalVariantTypes: FbUiModalVariantType,
+      sizeTypes: FbSizeTypes,
+      buttonVariantTypes: FbUiButtonVariantTypes,
     }
   },
 

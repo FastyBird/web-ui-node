@@ -1,166 +1,372 @@
 <template>
-  <fb-ui-modal-form
-    :lock-submit-button="formResult !== formResultTypes.NONE"
-    :state="formResult"
-    :submit-btn-label="submitBtnLabel"
-    :cancel-btn-label="cancelBtnLabel"
-    class="fb-triggers-detail-default-conditions-container-add-or-edit__container"
-    @submit="submitBtnCallback"
-    @cancel="cancelBtnCallback"
-    @close="closeWindow"
-  >
-    <fb-ui-modal-header
-      v-if="view.selectType.show"
-      slot="modal-header"
-      @close="closeWindow"
-    >
-      <font-awesome-icon
-        slot="icon"
-        icon="magic"
-        class="fb-triggers-detail-default-conditions-container-add-or-edit__icon"
-      />
+  <div class="fb-triggers-detail-default-conditions-container-add-or-edit__outer">
+    <template v-if="view.selectType.show && $windowSize.isExtraSmall()">
+      <fb-layout-phone-menu-content>
+        <div class="fb-triggers-detail-default-conditions-container-add-or-edit__select-type">
+          <template v-if="!trigger.isTime">
+            <fb-ui-button
+              :variant="buttonVariantTypes.LINK"
+              @click.prevent="openWindow(viewTypes.CONFIGURE_DATE)"
+              block
+              name="condition"
+            >
+              {{ $t('triggers.buttons.addTypeDate.title') }}
+            </fb-ui-button>
 
-      <template slot="heading">
+            <fb-ui-divider type="horizontal">
+              {{ $t('application.misc.or') }}
+            </fb-ui-divider>
+          </template>
+
+          <template v-if="!trigger.isDate">
+            <fb-ui-button
+              :variant="buttonVariantTypes.LINK"
+              @click.prevent="openWindow(viewTypes.CONFIGURE_TIME)"
+              block
+              name="action"
+            >
+              {{ $t('triggers.buttons.addTypeTimeOfDay.title') }}
+            </fb-ui-button>
+
+            <fb-ui-divider type="horizontal">
+              {{ $t('application.misc.or') }}
+            </fb-ui-divider>
+          </template>
+
+          <fb-ui-button
+            :variant="buttonVariantTypes.LINK"
+            @click.prevent="openWindow(viewTypes.LIST_DEVICES)"
+            block
+            name="action"
+          >
+            {{ $t('triggers.buttons.addTypeDeviceControlled.title') }}
+          </fb-ui-button>
+
+          <fb-ui-divider type="horizontal">
+            {{ $t('application.misc.or') }}
+          </fb-ui-divider>
+
+          <fb-ui-button
+            :variant="buttonVariantTypes.LINK"
+            @click.prevent="openWindow(viewTypes.LIST_SENSORS)"
+            block
+            name="action"
+          >
+            {{ $t('triggers.buttons.addTypeSensorDetect.title') }}
+          </fb-ui-button>
+        </div>
+      </fb-layout-phone-menu-content>
+
+      <fb-layout-phone-menu-heading>
         {{ $t('triggers.headings.addNewCondition') }}
-      </template>
+      </fb-layout-phone-menu-heading>
 
-      <template slot="description">
-        Facilis blanditiis, quibusdam corporis porro natus neque soluta nihil hic aliquam, suscipit,
-        consectetur omnis placeat architecto quae laboriosam. Id porro adipisci, alias.
-      </template>
-    </fb-ui-modal-header>
+      <fb-layout-phone-menu-button>
+        <fb-ui-button
+          :variant="buttonVariantTypes.LINK"
+          :size="sizeTypes.LARGE"
+          @click.prevent="closeWindow"
+          block
+          name="close"
+        >
+          {{ $t('application.buttons.close.title') }}
+        </fb-ui-button>
+      </fb-layout-phone-menu-button>
+    </template>
 
-    <fb-ui-modal-header
-      v-if="view.listDevices.show"
-      slot="modal-header"
+    <fb-ui-modal-form
+      v-else
+      :lock-submit-button="formResult !== formResultTypes.NONE"
+      :state="formResult"
+      :submit-btn-text="$t('application.buttons.done.title')"
+      :cancel-btn-text="cancelBtnLabel"
+      :variant="$windowSize.isExtraSmall() ? modalVariantTypes.PHONE : modalVariantTypes.DEFAULT"
+      :submit-btn-show="!view.listDevices.show"
+      :data-type="openedType()"
+      @submit="submitBtnCallback"
+      @cancel="cancelBtnCallback"
       @close="closeWindow"
+      class="fb-triggers-detail-default-conditions-container-add-or-edit__container"
     >
-      <font-awesome-icon
-        slot="icon"
-        icon="plug"
-        class="fb-triggers-detail-default-conditions-container-add-or-edit__icon"
-      />
+      <fb-ui-modal-header
+        slot="modal-header"
+        v-if="view.selectType.show"
+        :variant="$windowSize.isExtraSmall() ? modalVariantTypes.PHONE : modalVariantTypes.DEFAULT"
+        @close="closeWindow"
+      >
+        <font-awesome-icon
+          slot="icon"
+          icon="magic"
+          class="fb-triggers-detail-default-conditions-container-add-or-edit__icon"
+        />
 
-      <template slot="heading">
-        {{ $t('triggers.headings.typeDevice') }}
-      </template>
+        <template slot="heading">
+          {{ $t('triggers.headings.addNewCondition') }}
+        </template>
 
-      <template slot="description">
-        Facilis blanditiis, quibusdam corporis porro natus neque soluta nihil hic aliquam, suscipit,
-        consectetur omnis placeat architecto quae laboriosam. Id porro adipisci, alias.
-      </template>
-    </fb-ui-modal-header>
+        <template slot="description">
+          Facilis blanditiis, quibusdam corporis porro natus neque soluta nihil hic aliquam, suscipit,
+          consectetur omnis placeat architecto quae laboriosam. Id porro adipisci, alias.
+        </template>
 
-    <fb-ui-modal-header
-      v-if="view.listSensors.show"
-      slot="modal-header"
-      @close="closeWindow"
-    >
-      <font-awesome-icon
-        slot="icon"
-        icon="thermometer-half"
-        class="fb-triggers-detail-default-conditions-container-add-or-edit__icon"
-      />
+        <fb-ui-button
+          slot="left-button"
+          :variant="buttonVariantTypes.LINK"
+          :size="sizeTypes.EXTRA_SMALL"
+          @click.prevent="cancelBtnCallback"
+          uppercase
+          name="close"
+        >
+          {{ cancelBtnLabel }}
+        </fb-ui-button>
+      </fb-ui-modal-header>
 
-      <template slot="heading">
-        {{ $t('triggers.headings.typeSensor') }}
-      </template>
+      <fb-ui-modal-header
+        slot="modal-header"
+        v-if="view.listDevices.show"
+        :variant="$windowSize.isExtraSmall() ? modalVariantTypes.PHONE : modalVariantTypes.DEFAULT"
+        @close="closeWindow"
+      >
+        <font-awesome-icon
+          slot="icon"
+          icon="plug"
+          class="fb-triggers-detail-default-conditions-container-add-or-edit__icon"
+        />
 
-      <template slot="description">
-        Facilis blanditiis, quibusdam corporis porro natus neque soluta nihil hic aliquam, suscipit,
-        consectetur omnis placeat architecto quae laboriosam. Id porro adipisci, alias.
-      </template>
-    </fb-ui-modal-header>
+        <template slot="heading">
+          {{ $t('triggers.headings.typeDevice') }}
+        </template>
 
-    <fb-ui-modal-header
-      v-if="view.configureTime.show"
-      slot="modal-header"
-      @close="closeWindow"
-    >
-      <font-awesome-icon
-        slot="icon"
-        icon="clock"
-        class="fb-triggers-detail-default-conditions-container-add-or-edit__icon"
-      />
+        <template slot="description">
+          Facilis blanditiis, quibusdam corporis porro natus neque soluta nihil hic aliquam, suscipit,
+          consectetur omnis placeat architecto quae laboriosam. Id porro adipisci, alias.
+        </template>
 
-      <template slot="heading">
-        {{ $t('triggers.headings.typeTime') }}
-      </template>
+        <fb-ui-button
+          slot="left-button"
+          :variant="buttonVariantTypes.LINK"
+          :size="sizeTypes.EXTRA_SMALL"
+          @click.prevent="cancelBtnCallback"
+          uppercase
+          name="close"
+        >
+          {{ cancelBtnLabel }}
+        </fb-ui-button>
+      </fb-ui-modal-header>
 
-      <template slot="description">
-        Facilis blanditiis, quibusdam corporis porro natus neque soluta nihil hic aliquam, suscipit,
-        consectetur omnis placeat architecto quae laboriosam. Id porro adipisci, alias.
-      </template>
-    </fb-ui-modal-header>
+      <fb-ui-modal-header
+        slot="modal-header"
+        v-if="view.listSensors.show"
+        :variant="$windowSize.isExtraSmall() ? modalVariantTypes.PHONE : modalVariantTypes.DEFAULT"
+        @close="closeWindow"
+      >
+        <font-awesome-icon
+          slot="icon"
+          icon="thermometer-half"
+          class="fb-triggers-detail-default-conditions-container-add-or-edit__icon"
+        />
 
-    <fb-ui-modal-header
-      v-if="view.configureDate.show"
-      slot="modal-header"
-      @close="closeWindow"
-    >
-      <font-awesome-icon
-        slot="icon"
-        icon="calendar"
-        class="fb-triggers-detail-default-conditions-container-add-or-edit__icon"
-      />
+        <template slot="heading">
+          {{ $t('triggers.headings.typeSensor') }}
+        </template>
 
-      <template slot="heading">
-        {{ $t('triggers.headings.typeTime') }}
-      </template>
+        <template slot="description">
+          Facilis blanditiis, quibusdam corporis porro natus neque soluta nihil hic aliquam, suscipit,
+          consectetur omnis placeat architecto quae laboriosam. Id porro adipisci, alias.
+        </template>
 
-      <template slot="description">
-        Facilis blanditiis, quibusdam corporis porro natus neque soluta nihil hic aliquam, suscipit,
-        consectetur omnis placeat architecto quae laboriosam. Id porro adipisci, alias.
-      </template>
-    </fb-ui-modal-header>
+        <fb-ui-button
+          slot="left-button"
+          :variant="buttonVariantTypes.LINK"
+          :size="sizeTypes.EXTRA_SMALL"
+          @click.prevent="cancelBtnCallback"
+          uppercase
+          name="close"
+        >
+          {{ cancelBtnLabel }}
+        </fb-ui-button>
+      </fb-ui-modal-header>
 
-    <fb-ui-modal-header
-      v-if="view.selectDevice.show && view.selectDevice.device !== null"
-      slot="modal-header"
-      @close="closeWindow"
-    >
-      <font-awesome-icon
-        slot="icon"
-        :icon="view.selectDevice.device.icon"
-        class="fb-triggers-detail-default-conditions-container-add-or-edit__icon"
-      />
+      <fb-ui-modal-header
+        slot="modal-header"
+        v-if="view.configureTime.show"
+        :variant="$windowSize.isExtraSmall() ? modalVariantTypes.PHONE : modalVariantTypes.DEFAULT"
+        @close="closeWindow"
+      >
+        <font-awesome-icon
+          slot="icon"
+          icon="clock"
+          class="fb-triggers-detail-default-conditions-container-add-or-edit__icon"
+        />
 
-      <template slot="heading">
-        {{ view.selectDevice.device.title }}
-      </template>
+        <template slot="heading">
+          {{ $t('triggers.headings.typeTime') }}
+        </template>
 
-      <template slot="description">
-        Facilis blanditiis, quibusdam corporis porro natus neque soluta nihil hic aliquam, suscipit,
-        consectetur omnis placeat architecto quae laboriosam. Id porro adipisci, alias.
-      </template>
-    </fb-ui-modal-header>
+        <template slot="description">
+          Facilis blanditiis, quibusdam corporis porro natus neque soluta nihil hic aliquam, suscipit,
+          consectetur omnis placeat architecto quae laboriosam. Id porro adipisci, alias.
+        </template>
 
-    <fb-ui-modal-header
-      v-if="view.selectSensor.show && view.selectSensor.device !== null"
-      slot="modal-header"
-      @close="closeWindow"
-    >
-      <font-awesome-icon
-        slot="icon"
-        :icon="view.selectSensor.device.icon"
-        class="fb-triggers-detail-default-conditions-container-add-or-edit__icon"
-      />
+        <fb-ui-button
+          slot="left-button"
+          :variant="buttonVariantTypes.LINK"
+          :size="sizeTypes.EXTRA_SMALL"
+          @click.prevent="cancelBtnCallback"
+          uppercase
+          name="close"
+        >
+          {{ cancelBtnLabel }}
+        </fb-ui-button>
 
-      <template slot="heading">
-        {{ view.selectSensor.device.title }}
-      </template>
+        <fb-ui-button
+          slot="right-button"
+          :variant="buttonVariantTypes.LINK"
+          :size="sizeTypes.EXTRA_SMALL"
+          @click.prevent="submitBtnCallback"
+          uppercase
+          name="submit"
+        >
+          {{ $t('application.buttons.done.title') }}
+        </fb-ui-button>
+      </fb-ui-modal-header>
 
-      <template slot="description">
-        Facilis blanditiis, quibusdam corporis porro natus neque soluta nihil hic aliquam, suscipit,
-        consectetur omnis placeat architecto quae laboriosam. Id porro adipisci, alias.
-      </template>
-    </fb-ui-modal-header>
+      <fb-ui-modal-header
+        slot="modal-header"
+        v-if="view.configureDate.show"
+        :variant="$windowSize.isExtraSmall() ? modalVariantTypes.PHONE : modalVariantTypes.DEFAULT"
+        @close="closeWindow"
+      >
+        <font-awesome-icon
+          slot="icon"
+          icon="calendar"
+          class="fb-triggers-detail-default-conditions-container-add-or-edit__icon"
+        />
 
-    <div
-      slot="form"
-      class="fb-triggers-detail-default-conditions-container-add-or-edit__content"
-    >
-      <fb-ui-transition-expand>
+        <template slot="heading">
+          {{ $t('triggers.headings.typeTime') }}
+        </template>
+
+        <template slot="description">
+          Facilis blanditiis, quibusdam corporis porro natus neque soluta nihil hic aliquam, suscipit,
+          consectetur omnis placeat architecto quae laboriosam. Id porro adipisci, alias.
+        </template>
+
+        <fb-ui-button
+          slot="left-button"
+          :variant="buttonVariantTypes.LINK"
+          :size="sizeTypes.EXTRA_SMALL"
+          @click.prevent="cancelBtnCallback"
+          uppercase
+          name="close"
+        >
+          {{ cancelBtnLabel }}
+        </fb-ui-button>
+
+        <fb-ui-button
+          slot="right-button"
+          :variant="buttonVariantTypes.LINK"
+          :size="sizeTypes.EXTRA_SMALL"
+          @click.prevent="submitBtnCallback"
+          uppercase
+          name="submit"
+        >
+          {{ $t('application.buttons.done.title') }}
+        </fb-ui-button>
+      </fb-ui-modal-header>
+
+      <fb-ui-modal-header
+        slot="modal-header"
+        v-if="view.selectDevice.show && view.selectDevice.device !== null"
+        :variant="$windowSize.isExtraSmall() ? modalVariantTypes.PHONE : modalVariantTypes.DEFAULT"
+        @close="closeWindow"
+      >
+        <font-awesome-icon
+          slot="icon"
+          :icon="view.selectDevice.device.icon"
+          class="fb-triggers-detail-default-conditions-container-add-or-edit__icon"
+        />
+
+        <template slot="heading">
+          {{ view.selectDevice.device.title }}
+        </template>
+
+        <template slot="description">
+          Facilis blanditiis, quibusdam corporis porro natus neque soluta nihil hic aliquam, suscipit,
+          consectetur omnis placeat architecto quae laboriosam. Id porro adipisci, alias.
+        </template>
+
+        <fb-ui-button
+          slot="left-button"
+          :variant="buttonVariantTypes.LINK"
+          :size="sizeTypes.EXTRA_SMALL"
+          @click.prevent="cancelBtnCallback"
+          uppercase
+          name="close"
+        >
+          {{ cancelBtnLabel }}
+        </fb-ui-button>
+
+        <fb-ui-button
+          slot="right-button"
+          :variant="buttonVariantTypes.LINK"
+          :size="sizeTypes.EXTRA_SMALL"
+          @click.prevent="submitBtnCallback"
+          uppercase
+          name="submit"
+        >
+          {{ $t('application.buttons.done.title') }}
+        </fb-ui-button>
+      </fb-ui-modal-header>
+
+      <fb-ui-modal-header
+        slot="modal-header"
+        v-if="view.selectSensor.show && view.selectSensor.device !== null"
+        :variant="$windowSize.isExtraSmall() ? modalVariantTypes.PHONE : modalVariantTypes.DEFAULT"
+        @close="closeWindow"
+      >
+        <font-awesome-icon
+          slot="icon"
+          :icon="view.selectSensor.device.icon"
+          class="fb-triggers-detail-default-conditions-container-add-or-edit__icon"
+        />
+
+        <template slot="heading">
+          {{ view.selectSensor.device.title }}
+        </template>
+
+        <template slot="description">
+          Facilis blanditiis, quibusdam corporis porro natus neque soluta nihil hic aliquam, suscipit,
+          consectetur omnis placeat architecto quae laboriosam. Id porro adipisci, alias.
+        </template>
+
+        <fb-ui-button
+          slot="left-button"
+          :variant="buttonVariantTypes.LINK"
+          :size="sizeTypes.EXTRA_SMALL"
+          @click.prevent="cancelBtnCallback"
+          uppercase
+          name="close"
+        >
+          {{ cancelBtnLabel }}
+        </fb-ui-button>
+
+        <fb-ui-button
+          slot="right-button"
+          :variant="buttonVariantTypes.LINK"
+          :size="sizeTypes.EXTRA_SMALL"
+          @click.prevent="submitBtnCallback"
+          uppercase
+          name="submit"
+        >
+          {{ $t('application.buttons.done.title') }}
+        </fb-ui-button>
+      </fb-ui-modal-header>
+
+      <div
+        slot="form"
+        class="fb-triggers-detail-default-conditions-container-add-or-edit__content"
+      >
         <div
           v-if="view.selectType.show"
           class="fb-triggers-detail-default-conditions-container-add-or-edit__type"
@@ -169,11 +375,11 @@
             <div class="fb-triggers-detail-default-conditions-container-add-or-edit__type-row-item">
               <fb-ui-button
                 :disabled="trigger.isTime"
-                block
-                variant="outline-primary"
-                size="lg"
-                name="condition"
+                :variant="buttonVariantTypes.OUTLINE_PRIMARY"
+                :size="sizeTypes.LARGE"
                 @click.prevent="openWindow(viewTypes.CONFIGURE_DATE)"
+                block
+                name="condition"
               >
                 <font-awesome-icon icon="calendar" />
                 {{ $t('triggers.buttons.addTypeDate.title') }}
@@ -183,11 +389,11 @@
             <div class="fb-triggers-detail-default-conditions-container-add-or-edit__type-row-item">
               <fb-ui-button
                 :disabled="trigger.isDate"
-                block
-                variant="outline-primary"
-                size="lg"
-                name="condition"
+                :variant="buttonVariantTypes.OUTLINE_PRIMARY"
+                :size="sizeTypes.LARGE"
                 @click.prevent="openWindow(viewTypes.CONFIGURE_TIME)"
+                block
+                name="condition"
               >
                 <font-awesome-icon icon="clock" />
                 {{ $t('triggers.buttons.addTypeTimeOfDay.title') }}
@@ -196,11 +402,11 @@
 
             <div class="fb-triggers-detail-default-conditions-container-add-or-edit__type-row-item">
               <fb-ui-button
-                block
-                variant="outline-primary"
-                size="lg"
-                name="condition"
+                :variant="buttonVariantTypes.OUTLINE_PRIMARY"
+                :size="sizeTypes.LARGE"
                 @click.prevent="openWindow(viewTypes.LIST_DEVICES)"
+                block
+                name="condition"
               >
                 <font-awesome-icon icon="plug" />
                 {{ $t('triggers.buttons.addTypeDeviceControlled.title') }}
@@ -209,11 +415,11 @@
 
             <div class="fb-triggers-detail-default-conditions-container-add-or-edit__type-row-item">
               <fb-ui-button
-                block
-                variant="outline-primary"
-                size="lg"
-                name="sensor"
+                :variant="buttonVariantTypes.OUTLINE_PRIMARY"
+                :size="sizeTypes.LARGE"
                 @click.prevent="openWindow(viewTypes.LIST_SENSORS)"
+                block
+                name="condition"
               >
                 <font-awesome-icon icon="thermometer-half" />
                 {{ $t('triggers.buttons.addTypeSensorDetect.title') }}
@@ -221,82 +427,72 @@
             </div>
           </div>
         </div>
-      </fb-ui-transition-expand>
 
-      <fb-ui-transition-expand>
         <triggers-list-devices
           v-if="view.listDevices.show"
           :type="selectDeviceViewTypes.DEVICES"
           :items="conditions"
           @select="listDevices"
         />
-      </fb-ui-transition-expand>
 
-      <fb-ui-transition-expand>
         <triggers-list-devices
           v-if="view.listSensors.show"
           :type="selectDeviceViewTypes.SENSORS"
           :items="conditions"
           @select="listSensors"
         />
-      </fb-ui-transition-expand>
 
-      <fb-ui-transition-expand>
         <triggers-select-condition-device
           v-if="view.selectDevice.show && Object.keys(form.model.devices).length > 0"
           v-model="form.model.devices"
           :device="view.selectDevice.device"
         />
-      </fb-ui-transition-expand>
 
-      <fb-ui-transition-expand>
         <triggers-select-condition-device
           v-if="view.selectSensor.show && Object.keys(form.model.devices).length > 0"
           v-model="form.model.devices"
           :device="view.selectSensor.device"
         />
-      </fb-ui-transition-expand>
 
-      <triggers-select-time
-        v-if="view.configureTime.show && Object.keys(form.model.time).length > 0"
-        v-model="form.model.time"
-      />
+        <triggers-select-time
+          v-if="view.configureTime.show && Object.keys(form.model.time).length > 0"
+          v-model="form.model.time"
+        />
 
-      <fb-ui-transition-expand>
         <triggers-select-date
           v-if="view.configureDate.show && Object.keys(form.model.date).length > 0"
           v-model="form.model.date"
         />
-      </fb-ui-transition-expand>
-    </div>
+      </div>
 
-    <template
-      v-if="view.selectType.show || view.listDevices.show || view.listSensors.show"
-      slot="modal-footer"
-    >
-      <fb-ui-button
-        v-if="view.listDevices.show || view.listSensors.show"
-        uppercase
-        variant="link"
-        size="lg"
-        name="close"
-        @click.prevent="openWindow(viewTypes.SELECT_TYPE)"
+      <template
+        slot="modal-footer"
+        v-if="view.selectType.show || view.listDevices.show || view.listSensors.show"
       >
-        {{ $t('application.buttons.back.title') }}
-      </fb-ui-button>
+        <fb-ui-button
+          v-if="view.listDevices.show || view.listSensors.show"
+          :variant="buttonVariantTypes.LINK"
+          :size="sizeTypes.LARGE"
+          @click.prevent="openWindow(viewTypes.SELECT_TYPE)"
+          uppercase
+          name="close"
+        >
+          {{ $t('application.buttons.back.title') }}
+        </fb-ui-button>
 
-      <fb-ui-button
-        v-else
-        uppercase
-        variant="link"
-        size="lg"
-        name="close"
-        @click.prevent="closeWindow"
-      >
-        {{ $t('application.buttons.close.title') }}
-      </fb-ui-button>
-    </template>
-  </fb-ui-modal-form>
+        <fb-ui-button
+          v-else
+          :variant="buttonVariantTypes.LINK"
+          :size="sizeTypes.LARGE"
+          @click.prevent="closeWindow"
+          uppercase
+          name="close"
+        >
+          {{ $t('application.buttons.close.title') }}
+        </fb-ui-button>
+      </template>
+    </fb-ui-modal-form>
+  </div>
 </template>
 
 <script lang="ts">
@@ -309,7 +505,14 @@ import {
   computed,
 } from '@vue/composition-api'
 
-import { FbFormResultType } from '@fastybird/web-ui-theme'
+import get from 'lodash/get'
+
+import {
+  FbSizeTypes,
+  FbFormResultType,
+  FbUiModalVariantType,
+  FbUiButtonVariantTypes,
+} from '@fastybird/web-ui-theme'
 
 import { TriggerInterface } from '~/models/triggers-node/triggers/types'
 import Condition from '~/models/triggers-node/conditions/Condition'
@@ -707,26 +910,54 @@ export default defineComponent({
           const condition = Condition.find(form.model.time.condition)
 
           if (condition !== null) {
-            await Condition.dispatch('edit', {
-              condition,
-              data: {
-                time: form.model.time.time,
-                days: form.model.time.days,
-              },
-            })
+            const errorMessage = context.root.$t('triggers.messages.conditionNotUpdated', {
+              trigger: props.trigger.name,
+            }).toString()
+
+            try {
+              await Condition.dispatch('edit', {
+                condition,
+                data: {
+                  time: form.model.time.time,
+                  days: form.model.time.days,
+                },
+              })
+            } catch (e) {
+              result = false
+
+              if (get(e, 'exception', null) !== null) {
+                context.root.handleException(e.exception, errorMessage)
+              } else {
+                context.root.$flashMessage(errorMessage, 'error')
+              }
+            }
           } else {
             result = false
           }
         } else {
-          await Condition.dispatch('add', {
-            trigger: props.trigger,
-            data: {
-              type: ConditionEntityTypeType.TIME,
-              enabled: true,
-              time: form.model.time.time,
-              days: form.model.time.days,
-            },
-          })
+          const errorMessage = context.root.$t('triggers.messages.conditionNotCreated', {
+            trigger: props.trigger.name,
+          }).toString()
+
+          try {
+            await Condition.dispatch('add', {
+              trigger: props.trigger,
+              data: {
+                type: ConditionEntityTypeType.TIME,
+                enabled: true,
+                time: form.model.time.time,
+                days: form.model.time.days,
+              },
+            })
+          } catch (e) {
+            result = false
+
+            if (get(e, 'exception', null) !== null) {
+              context.root.handleException(e.exception, errorMessage)
+            } else {
+              context.root.$flashMessage(errorMessage, 'error')
+            }
+          }
         }
       }
 
@@ -751,24 +982,52 @@ export default defineComponent({
           const condition = Condition.find(form.model.date.condition)
 
           if (condition !== null) {
-            await Condition.dispatch('edit', {
-              condition,
-              data: {
-                date: form.model.date.date,
-              },
-            })
+            const errorMessage = context.root.$t('triggers.messages.conditionNotUpdated', {
+              trigger: props.trigger.name,
+            }).toString()
+
+            try {
+              await Condition.dispatch('edit', {
+                condition,
+                data: {
+                  date: form.model.date.date,
+                },
+              })
+            } catch (e) {
+              result = false
+
+              if (get(e, 'exception', null) !== null) {
+                context.root.handleException(e.exception, errorMessage)
+              } else {
+                context.root.$flashMessage(errorMessage, 'error')
+              }
+            }
           } else {
             result = false
           }
         } else {
-          await Condition.dispatch('add', {
-            trigger: props.trigger,
-            data: {
-              type: ConditionEntityTypeType.DATE,
-              enabled: true,
-              date: form.model.date.date,
-            },
-          })
+          const errorMessage = context.root.$t('triggers.messages.conditionNotCreated', {
+            trigger: props.trigger.name,
+          }).toString()
+
+          try {
+            await Condition.dispatch('add', {
+              trigger: props.trigger,
+              data: {
+                type: ConditionEntityTypeType.DATE,
+                enabled: true,
+                date: form.model.date.date,
+              },
+            })
+          } catch (e) {
+            result = false
+
+            if (get(e, 'exception', null) !== null) {
+              context.root.handleException(e.exception, errorMessage)
+            } else {
+              context.root.$flashMessage(errorMessage, 'error')
+            }
+          }
         }
       }
 
@@ -830,13 +1089,27 @@ export default defineComponent({
               if (form.model.devices[key].type === ItemType.DEVICE_CONDITION) {
                 if (form.model.devices[key].selected) {
                   if (condition !== null) {
-                    await Condition.dispatch('edit', {
-                      condition,
-                      data: {
-                        operator: form.model.devices[key].operator,
-                        operand: form.model.devices[key].operand,
-                      },
-                    })
+                    const errorMessage = context.root.$t('triggers.messages.conditionNotUpdated', {
+                      trigger: props.trigger.name,
+                    }).toString()
+
+                    try {
+                      await Condition.dispatch('edit', {
+                        condition,
+                        data: {
+                          operator: form.model.devices[key].operator,
+                          operand: form.model.devices[key].operand,
+                        },
+                      })
+                    } catch (e) {
+                      result = false
+
+                      if (get(e, 'exception', null) !== null) {
+                        context.root.handleException(e.exception, errorMessage)
+                      } else {
+                        context.root.$flashMessage(errorMessage, 'error')
+                      }
+                    }
                   } else {
                     const property = DeviceProperty
                       .query()
@@ -846,36 +1119,78 @@ export default defineComponent({
                       .first()
 
                     if (property !== null) {
-                      await Condition.dispatch('add', {
-                        trigger: props.trigger,
-                        data: {
-                          type: ConditionEntityTypeType.DEVICE_PROPERTY,
-                          enabled: true,
-                          operator: form.model.devices[key].operator,
-                          operand: form.model.devices[key].operand,
-                          device: property.deviceBackward?.identifier,
-                          property: property.property,
-                        },
-                      })
+                      const errorMessage = context.root.$t('triggers.messages.conditionNotCreated', {
+                        trigger: props.trigger.name,
+                      }).toString()
+
+                      try {
+                        await Condition.dispatch('add', {
+                          trigger: props.trigger,
+                          data: {
+                            type: ConditionEntityTypeType.DEVICE_PROPERTY,
+                            enabled: true,
+                            operator: form.model.devices[key].operator,
+                            operand: form.model.devices[key].operand,
+                            device: property.deviceBackward?.identifier,
+                            property: property.property,
+                          },
+                        })
+                      } catch (e) {
+                        result = false
+
+                        if (get(e, 'exception', null) !== null) {
+                          context.root.handleException(e.exception, errorMessage)
+                        } else {
+                          context.root.$flashMessage(errorMessage, 'error')
+                        }
+                      }
                     } else {
                       result = false
                     }
                   }
                 } else {
-                  await Condition.dispatch('remove', {
-                    condition,
-                  })
+                  const errorMessage = context.root.$t('triggers.messages.conditionNotRemoved', {
+                    trigger: props.trigger.name,
+                  }).toString()
+
+                  try {
+                    await Condition.dispatch('remove', {
+                      condition,
+                    })
+                  } catch (e) {
+                    result = false
+
+                    if (get(e, 'exception', null) !== null) {
+                      context.root.handleException(e.exception, errorMessage)
+                    } else {
+                      context.root.$flashMessage(errorMessage, 'error')
+                    }
+                  }
                 }
               } else if (form.model.devices[key].type === ItemType.CHANNEL_CONDITION) {
                 if (form.model.devices[key].selected) {
                   if (condition !== null) {
-                    await Condition.dispatch('edit', {
-                      condition,
-                      data: {
-                        operator: form.model.devices[key].operator,
-                        operand: form.model.devices[key].operand,
-                      },
-                    })
+                    const errorMessage = context.root.$t('triggers.messages.conditionNotUpdated', {
+                      trigger: props.trigger.name,
+                    }).toString()
+
+                    try {
+                      await Condition.dispatch('edit', {
+                        condition,
+                        data: {
+                          operator: form.model.devices[key].operator,
+                          operand: form.model.devices[key].operand,
+                        },
+                      })
+                    } catch (e) {
+                      result = false
+
+                      if (get(e, 'exception', null) !== null) {
+                        context.root.handleException(e.exception, errorMessage)
+                      } else {
+                        context.root.$flashMessage(errorMessage, 'error')
+                      }
+                    }
                   } else {
                     const property = ChannelProperty
                       .query()
@@ -886,26 +1201,54 @@ export default defineComponent({
                       .first()
 
                     if (property !== null) {
-                      await Condition.dispatch('add', {
-                        trigger: props.trigger,
-                        data: {
-                          type: ConditionEntityTypeType.CHANNEL_PROPERTY,
-                          enabled: true,
-                          operator: form.model.devices[key].operator,
-                          operand: form.model.devices[key].operand,
-                          device: property.channelBackward?.deviceBackward?.identifier,
-                          channel: property.channelBackward?.channel,
-                          property: property.property,
-                        },
-                      })
+                      const errorMessage = context.root.$t('triggers.messages.conditionNotCreated', {
+                        trigger: props.trigger.name,
+                      }).toString()
+
+                      try {
+                        await Condition.dispatch('add', {
+                          trigger: props.trigger,
+                          data: {
+                            type: ConditionEntityTypeType.CHANNEL_PROPERTY,
+                            enabled: true,
+                            operator: form.model.devices[key].operator,
+                            operand: form.model.devices[key].operand,
+                            device: property.channelBackward?.deviceBackward?.identifier,
+                            channel: property.channelBackward?.channel,
+                            property: property.property,
+                          },
+                        })
+                      } catch (e) {
+                        result = false
+
+                        if (get(e, 'exception', null) !== null) {
+                          context.root.handleException(e.exception, errorMessage)
+                        } else {
+                          context.root.$flashMessage(errorMessage, 'error')
+                        }
+                      }
                     } else {
                       result = false
                     }
                   }
                 } else {
-                  await Condition.dispatch('remove', {
-                    condition,
-                  })
+                  const errorMessage = context.root.$t('triggers.messages.conditionNotRemoved', {
+                    trigger: props.trigger.name,
+                  }).toString()
+
+                  try {
+                    await Condition.dispatch('remove', {
+                      condition,
+                    })
+                  } catch (e) {
+                    result = false
+
+                    if (get(e, 'exception', null) !== null) {
+                      context.root.handleException(e.exception, errorMessage)
+                    } else {
+                      context.root.$flashMessage(errorMessage, 'error')
+                    }
+                  }
                 }
               }
             }
@@ -921,6 +1264,18 @@ export default defineComponent({
 
         timer = window.setInterval(error, 2000)
       }
+    }
+
+    function openedType(): string {
+      if (view.listDevices.show || view.listSensors.show) {
+        return 'list-devices'
+      } else if (view.selectDevice.show || view.selectSensor.show) {
+        return 'select-device'
+      } else if (view.configureTime.show || view.configureDate.show) {
+        return 'select-date-time'
+      }
+
+      return 'other'
     }
 
     function submitBtnCallback(): void {
@@ -940,29 +1295,17 @@ export default defineComponent({
         openWindow(ViewTypes.LIST_DEVICES)
       } else if (view.selectSensor.show) {
         openWindow(ViewTypes.LIST_SENSORS)
-      } else if (view.configureDate.show) {
-        openWindow(ViewTypes.SELECT_TYPE)
-      } else if (view.configureTime.show) {
-        openWindow(ViewTypes.SELECT_TYPE)
+      } else {
+        closeWindow()
       }
     }
 
-    const submitBtnLabel = computed<string>((): string => {
-      if (view.selectDevice.show) {
-        return hasConditionDevice.value ? context.root.$t('triggers.buttons.updateDevice.title').toString() : context.root.$t('triggers.buttons.addDevice.title').toString()
-      } else if (view.selectSensor.show) {
-        return hasConditionDevice.value ? context.root.$t('triggers.buttons.updateSensor.title').toString() : context.root.$t('triggers.buttons.addSensor.title').toString()
-      } else if (view.configureDate.show) {
-        return hasConditionDate.value ? context.root.$t('triggers.buttons.updateDate.title').toString() : context.root.$t('triggers.buttons.addDate.title').toString()
-      } else if (view.configureTime.show) {
-        return hasConditionTime.value ? context.root.$t('triggers.buttons.updateTime.title').toString() : context.root.$t('triggers.buttons.addTime.title').toString()
+    const cancelBtnLabel = computed<string>((): string => {
+      if (view.selectDevice.show || view.selectSensor.show) {
+        return context.root.$t('application.buttons.back.title').toString()
       }
 
-      return context.root.$t('application.buttons.save.title').toString()
-    })
-
-    const cancelBtnLabel = computed<string>((): string => {
-      return context.root.$t('application.buttons.back.title').toString()
+      return context.root.$t('application.buttons.close.title').toString()
     })
 
     return {
@@ -972,11 +1315,9 @@ export default defineComponent({
       formResult,
       view,
       form,
-      submitBtnLabel,
       cancelBtnLabel,
       viewTypes: ViewTypes,
       selectDeviceViewTypes: SelectViewType,
-      formResultTypes: FbFormResultType,
       cancelBtnCallback,
       submitBtnCallback,
       openWindow,
@@ -984,6 +1325,11 @@ export default defineComponent({
       listDevicesOrSensors,
       listDevices,
       listSensors,
+      openedType,
+      formResultTypes: FbFormResultType,
+      modalVariantTypes: FbUiModalVariantType,
+      sizeTypes: FbSizeTypes,
+      buttonVariantTypes: FbUiButtonVariantTypes,
     }
   },
 

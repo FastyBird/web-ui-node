@@ -29,8 +29,8 @@
             <fb-layout-navigation-item
               :link="localePath({ name: $routes.devices.list })"
               :label="$t('application.menu.devices')"
-              type="nuxt_link"
               @click="collapseMenu"
+              type="nuxt_link"
             >
               <font-awesome-icon
                 slot="icon"
@@ -40,8 +40,8 @@
             <fb-layout-navigation-item
               :link="localePath({ name: $routes.triggers.list })"
               :label="$t('application.menu.triggers')"
-              type="nuxt_link"
               @click="collapseMenu"
+              type="nuxt_link"
             >
               <font-awesome-icon
                 slot="icon"
@@ -69,8 +69,8 @@
           >
             <fb-layout-navigation-item
               :label="$t('application.userMenu.accountSettings')"
-              type="button"
               @click="openView(viewTypes.ACCOUNT_EDIT)"
+              type="button"
             >
               <font-awesome-icon
                 slot="icon"
@@ -79,8 +79,8 @@
             </fb-layout-navigation-item>
             <fb-layout-navigation-item
               :label="$t('application.userMenu.passwordChange')"
-              type="button"
               @click="openView(viewTypes.PASSWORD_EDIT)"
+              type="button"
             >
               <font-awesome-icon
                 slot="icon"
@@ -90,8 +90,8 @@
             <fb-layout-navigation-divider />
             <fb-layout-navigation-item
               :label="$t('application.userMenu.signOut')"
-              type="button"
               @click="signOut"
+              type="button"
             >
               <font-awesome-icon
                 slot="icon"
@@ -122,8 +122,8 @@
             <fb-layout-user-menu-divider />
             <fb-layout-user-menu-item
               :label="$t('application.userMenu.accountSettings')"
-              type="button"
               @click="openView(viewTypes.ACCOUNT_EDIT)"
+              type="button"
             >
               <font-awesome-icon
                 slot="icon"
@@ -132,8 +132,8 @@
             </fb-layout-user-menu-item>
             <fb-layout-user-menu-item
               :label="$t('application.userMenu.passwordChange')"
-              type="button"
               @click="openView(viewTypes.PASSWORD_EDIT)"
+              type="button"
             >
               <font-awesome-icon
                 slot="icon"
@@ -143,8 +143,8 @@
             <fb-layout-user-menu-divider />
             <fb-layout-user-menu-item
               :label="$t('application.userMenu.signOut')"
-              type="button"
               @click="signOut"
+              type="button"
             >
               <font-awesome-icon
                 slot="icon"
@@ -215,24 +215,24 @@
     </div>
 
     <fb-ui-modal-info
-      v-if="networkState === false"
+      v-if="!networkState"
       :enable-closing="false"
-      icon="plug"
+      class="fb-index__offline-info"
     >
-      <template slot="info">
-        <div class="text-center">
-          <font-awesome-icon
-            icon="power-off"
-            class="icon-5x text-danger"
-          />
-          <h3 class="text-danger">
-            {{ $t('application.headings.offlineState') }}
-          </h3>
-          <p>
-            {{ $t('application.messages.offlineState') }}
-          </p>
-        </div>
-      </template>
+      <div slot="info">
+        <font-awesome-icon
+          icon="power-off"
+          class="fb-index__offline-info-icon"
+        />
+
+        <h3>
+          {{ $t('application.headings.offlineState') }}
+        </h3>
+
+        <p>
+          {{ $t('application.messages.offlineState') }}
+        </p>
+      </div>
     </fb-ui-modal-info>
 
     <account-edit
@@ -251,6 +251,8 @@
       :heading="heading"
       :sub-heading="subHeading"
     />
+
+    <fb-layout-phone-menu />
   </div>
 </template>
 
@@ -268,7 +270,6 @@ import {
 
 import get from 'lodash/get'
 
-// @ts-ignore
 import Gravatar from 'vue-gravatar'
 
 import { version } from './../package.json'
@@ -333,7 +334,7 @@ export default defineComponent({
     Logo,
   },
 
-  setup(props: { }, context: SetupContext) {
+  setup(props: {}, context: SetupContext) {
     const view = reactive<IndexPageViewInterface>({
       accountEdit: {
         opened: false,

@@ -1,4 +1,4 @@
-@import "~@fastybird/web-ui-theme/src/assets/variables/colors";
+@import "~assets/scss/variables";
 
 .fb-sign {
   &__container {
@@ -16,9 +16,7 @@
 
   &__logo {
     display: block;
-    margin-left: auto;
-    margin-right: auto;
-    margin-bottom: 3rem;
+    margin: 0 auto $margin-lg auto;
     width: 15rem;
 
     svg {

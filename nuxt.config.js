@@ -24,7 +24,6 @@ const modules = [
   'cookie-universal-nuxt',
   'nuxt-i18n',
   'nuxt-fontawesome',
-  'vue-scrollto/nuxt',
   '@fastybird/vue-wamp-v1/@nuxt',
 ]
 
@@ -131,6 +130,7 @@ module.exports = {
     '@/plugins/backend',
     '@/plugins/icons.group',
     '@/plugins/vuex-orm-axios',
+    '@/plugins/window-size',
     {
       src: '@/plugins/vuex-orm-wamp',
       mode: 'client',
@@ -194,6 +194,7 @@ module.exports = {
           'faCubes',
           'faDesktop',
           'faEllipsisV',
+          'faEllipsisH',
           'faEnvelope',
           'faExclamationTriangle',
           'faFan',

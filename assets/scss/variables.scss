@@ -1,0 +1,69 @@
+$brand-primary:                         #d9230f;
+$brand-primary-contrast:                #ffffff;
+$brand-success:                         #469408;
+$brand-success-contrast:                #ffffff;
+$brand-info:                            #029acf;
+$brand-info-contrast:                   #ffffff;
+$brand-warning:                         #9b479f;
+$brand-warning-contrast:                #ffffff;
+$brand-danger:                          #d9831f;
+$brand-danger-contrast:                 #ffffff;
+
+$content-background-color:              #ffffff;
+
+$gray-base:                             #000;
+$gray-darker:                           #222;
+$gray-dark:                             #444;
+$gray:                                  #777;
+$gray-light:                            #808080;
+$gray-lighter:                          #ddd;
+
+$text-muted:                            $gray-light;
+$text-default:                          $gray;
+$text-primary:                          $brand-primary;
+$text-success:                          $brand-success;
+$text-info:                             $brand-info;
+$text-warning:                          $brand-warning;
+$text-danger:                           $brand-danger;
+
+$link-color:                            $brand-primary;
+$link-hover-color:                      $brand-primary;
+
+$font-size-sm:                          1.2rem;
+$font-size-md:                          1.3rem;
+$font-size-lg:                          1.8rem;
+
+$font-weight-light:                     300 !default;
+$font-weight-normal:                    400 !default;
+$font-weight-bold:                      700 !default;
+
+$line-height-sm:                        2rem / $font-size-sm;
+$line-height-md:                        2.5rem / $font-size-md;
+$line-height-lg:                        3rem / $font-size-lg;
+
+$heading-font-size-sm:                  1.3rem;
+$heading-font-size-md:                  1.5rem;
+$heading-font-size-lg:                  2rem;
+
+$heading-line-height-sm:                2rem / $heading-font-size-sm;
+$heading-line-height-md:                2.5rem / $heading-font-size-md;
+$heading-line-height-lg:                3rem / $heading-font-size-lg;
+
+$margin-xs:                             0.5rem;
+$margin-sm:                             1rem;
+$margin-md:                             1.5rem;
+$margin-lg:                             3rem;
+
+$padding-xs:                            0.5rem;
+$padding-sm:                            1rem;
+$padding-md:                            1.5rem;
+$padding-lg:                            3rem;
+
+$screen-xs-min:                         480px;
+$screen-sm-min:                         768px;
+$screen-md-min:                         992px;
+$screen-lg-min:                         1200px;
+
+$screen-xs-max:                         ($screen-sm-min - 1);
+$screen-sm-max:                         ($screen-md-min - 1);
+$screen-md-max:                         ($screen-lg-min - 1);

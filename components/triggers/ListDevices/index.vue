@@ -1,66 +1,69 @@
 <template>
-  <fb-ui-loading-box
-    v-if="fetchingDevices && devices.length === 0"
-    :text="$t('triggers.texts.loadingDevices')"
-  />
+  <div class="fb-triggers-list-devices__container">
+    <template v-if="fetchingDevices && devices.length === 0">
+      <fb-ui-loading-box :text="$t('triggers.texts.loadingDevices')" />
+    </template>
 
-  <fb-ui-no-results v-else-if="!fetchingDevices && devices.length === 0">
-    <font-awesome-icon
-      slot="icon"
-      icon="plug"
-    />
+    <template v-else-if="!fetchingDevices && devices.length === 0">
+      <fb-ui-no-results>
+        <font-awesome-icon
+          slot="icon"
+          icon="plug"
+        />
 
-    <font-awesome-icon
-      slot="second-icon"
-      icon="exclamation-triangle"
-    />
+        <font-awesome-icon
+          slot="second-icon"
+          icon="exclamation-triangle"
+        />
 
-    {{ $t('triggers.texts.noDevices') }}
-  </fb-ui-no-results>
+        {{ $t('triggers.texts.noDevices') }}
+      </fb-ui-no-results>
+    </template>
 
-  <div
-    v-else
-    class="fb-triggers-list-devices__container"
-  >
-    <list-item
-      v-for="device in devices"
-      :key="device.id"
-      :data-state="isSelected(device) ? 'on' : 'off'"
-      @click="$emit('select', device)"
+    <template
+      v-else
+      class="fb-triggers-list-devices__container"
     >
-      <template slot="icon">
-        <font-awesome-icon :icon="device.icon" />
-      </template>
-
-      <template slot="heading">
-        {{ device.title }}
-      </template>
-
-      <template
-        v-if="device.hasDescription"
-        slot="sub-heading"
+      <list-item
+        v-for="device in devices"
+        :key="device.id"
+        :data-state="isSelected(device) ? 'on' : 'off'"
+        @click="$emit('select', device)"
       >
-        {{ device.comment }}
-      </template>
+        <template slot="icon">
+          <font-awesome-icon :icon="device.icon" />
+        </template>
 
-      <template slot="detail">
-        <div class="fb-triggers-list-devices__buttons">
-          <div class="fb-triggers-list-devices__buttons-item">
-            <font-awesome-icon
-              v-if="isSelected(device)"
-              icon="check-circle"
-            />
-          </div>
+        <template slot="heading">
+          {{ device.title }}
+        </template>
 
-          <div class="fb-triggers-list-devices__buttons-item">
-            <font-awesome-icon
-              icon="chevron-right"
-              role="button"
-            />
+        <template
+          slot="sub-heading"
+          v-if="device.hasDescription"
+        >
+          {{ device.comment }}
+        </template>
+
+        <template slot="detail">
+          <div class="fb-triggers-list-devices__buttons">
+            <div class="fb-triggers-list-devices__buttons-item">
+              <font-awesome-icon
+                v-if="isSelected(device)"
+                icon="check-circle"
+              />
+            </div>
+
+            <div class="fb-triggers-list-devices__buttons-item">
+              <font-awesome-icon
+                icon="chevron-right"
+                role="button"
+              />
+            </div>
           </div>
-        </div>
-      </template>
-    </list-item>
+        </template>
+      </list-item>
+    </template>
   </div>
 </template>
 

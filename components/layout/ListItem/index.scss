@@ -1,17 +1,17 @@
-@import "~@fastybird/web-ui-theme/src/assets/variables/colors";
-@import "~@fastybird/web-ui-theme/src/assets/variables/screen";
-@import "~@fastybird/web-ui-theme/src/assets/mixins/utilities";
+@import "~assets/scss/variables";
+@import "~assets/scss/mixins";
 
 .fb-list-item {
   &__container {
     height: 5.5rem;
+    background-color: $content-background-color;
 
     &-default {
-      margin-top: $margin-xs;
-      margin-bottom: $margin-xs;
+      margin-top: $margin-sm;
+      margin-bottom: $margin-sm;
 
       @media (max-width: $screen-xs-max) {
-        margin: $margin-xs;
+        margin: $margin-sm;
       }
 
       border: 1px solid $gray-lighter;
@@ -56,20 +56,20 @@
     > h2 {
       margin: 0;
       line-height: 5.3rem;
-      font-size: 1.5rem;
+      font-size: $heading-font-size-md;
       font-weight: 500;
     }
 
     &-with-subheading {
       > h2 {
-        margin-top: 1rem;
-        line-height: 2rem;
-        font-size: 1.4rem;
+        margin-top: $margin-xs;
+        line-height: $heading-line-height-sm;
+        font-size: $heading-font-size-sm;
       }
 
       > small {
-        line-height: 1.3rem;
-        font-size: 1.05rem;
+        line-height: $line-height-sm;
+        font-size: $font-size-sm;
         display: block;
         text-overflow: ellipsis;
         overflow: hidden;
@@ -80,7 +80,6 @@
   }
 
   &__detail {
-    font-size: 1.75rem;
     line-height: 5.3rem;
     height: 100%;
     text-align: right;

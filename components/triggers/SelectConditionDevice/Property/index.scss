@@ -1,31 +1,76 @@
+@import "~assets/scss/variables";
+
 .fb-triggers-select-condition-device-property {
   &__container {
     width: 100%;
+  }
 
-    .fb-list-item__icon {
-      line-height: 1.5rem;
+  &__property {
+    margin: $margin-sm;
 
-      .fb-form-checkbox__container {
-        padding: 1.8rem 1rem;
+    .fb-list-item {
+      &__heading {
+        padding-left: $padding-md;
       }
-    }
 
-    .fb-form-field__container {
-      display: inline-block;
-
-      select {
-        padding: 0 !important;
+      &__content {
+        .fb-form-checkbox__container {
+          padding: 0;
+        }
       }
     }
   }
 
-  &__channel-property-combined-operand {
+  &__conditions {
+    .fb-triggers-select-condition-device-property__condition:first-child {
+      .fb-list-item__inner {
+        border-top: 1px solid $gray-lighter;
+      }
+    }
+  }
+
+  &__condition {
+    .fb-list-item {
+      &__heading {
+        padding-left: $padding-lg;
+      }
+
+      &__content {
+        padding-right: $padding-lg;
+        text-align: center;
+
+        .fb-form-radio {
+          &__indicator-label {
+            display: none;
+          }
+
+          &__container {
+            padding: 0;
+          }
+        }
+      }
+
+      &__content-large {
+        padding-right: $padding-lg;
+      }
+    }
+
     &-operator {
-      width: 5rem;
+      width: 6rem;
+      display: inline-block;
     }
 
     &-operand {
-      width: 13rem;
+      width: 8rem;
+      display: inline-block;
+
+      input {
+        text-align: right;
+      }
+
+      &-unit {
+        font-size: $font-size-sm;
+      }
     }
   }
 }

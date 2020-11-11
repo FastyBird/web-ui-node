@@ -17,17 +17,10 @@ interface DevicesRoutesInterface {
 interface ThingsRoutesInterface {
   list: string;
   detail: string;
-  routines: string;
   connect: string;
 }
 
 interface GroupsRoutesInterface {
-  list: string;
-  detail: string;
-  create: string;
-}
-
-interface RoutinesRoutesInterface {
   list: string;
   detail: string;
   create: string;
@@ -45,7 +38,6 @@ interface RoutesInterface {
   devices: DevicesRoutesInterface;
   things: ThingsRoutesInterface;
   groups: GroupsRoutesInterface;
-  routines: RoutinesRoutesInterface;
   triggers: TriggersRoutesInterface;
 }
 
@@ -83,18 +75,12 @@ const routesPlugin: Plugin = (context, inject): void => {
     things: {
       list: routes.THINGS_LIST_LINK,
       detail: routes.THINGS_THING_DETAIL_LINK,
-      routines: routes.THINGS_THING_ROUTINES_LINK,
       connect: routes.THINGS_THING_CONNECT_LINK,
     },
     groups: {
       list: routes.GROUPS_LIST_LINK,
       detail: routes.GROUPS_GROUP_DETAIL_LINK,
       create: routes.GROUPS_GROUP_CREATE_LINK,
-    },
-    routines: {
-      list: routes.ROUTINES_LIST_LINK,
-      detail: routes.ROUTINES_ROUTINE_DETAIL_LINK,
-      create: routes.ROUTINES_CREATE_LINK,
     },
     triggers: {
       list: routes.TRIGGERS_LIST_LINK,

@@ -1,28 +1,86 @@
-@import "~@fastybird/web-ui-theme/src/assets/variables/texts";
-@import "~@fastybird/web-ui-theme/src/assets/variables/screen";
-@import "~@fastybird/web-ui-theme/src/assets/mixins/utilities";
+@import "~assets/scss/variables";
+@import "~assets/scss/mixins";
 
 .fb-triggers-select-time {
   &__container {
+    h3 {
+      display: inline-block;
+      max-width: 100%;
+      margin: 0 0 $margin-sm $margin-sm;
+      font-size: $heading-font-size-md;
+    }
+
+    h3:first-child {
+      font-size: $heading-font-size-lg;
+      font-weight: normal;
+    }
+
+    .vue-scroll-picker-group {
+      display: flex;
+      background-color: $content-background-color;
+      border-top: 1px solid $gray-lighter;
+      border-bottom: 1px solid $gray-lighter;
+      margin-bottom: $margin-md;
+    }
+
     .vue-scroll-picker {
-      font-size: 2.4rem;
+      font-size: $font-size-md * 2;
     }
 
     .vue-scroll-picker-layer {
       div.top {
         background: linear-gradient(180deg, #fcfcfc 10%, rgba(255, 255, 255, 0.7));
       }
+
       div.bottom {
         background: linear-gradient(0deg, #fcfcfc 10%, rgba(255, 255, 255, 0.7));
       }
     }
 
-    h3 {
-      display: inline-block;
-      max-width: 100%;
-      margin: 0 0 $margin-sm $margin-sm;
-      font-weight: bold;
-      font-size: $font-size-base;
+    .fb-form-checkbox {
+      &__container {
+        padding: $padding-sm;
+
+        &[data-checked="true"] {
+          .fb-form-checkbox {
+            &__label {
+              background-color: $brand-primary;
+              color: $brand-primary-contrast;
+            }
+          }
+        }
+      }
+
+      &__label {
+        border: 1px solid $brand-primary;
+        line-height: 5rem;
+        width: 5rem;
+        height: 5rem;
+        text-align: center;
+        border-radius: 5rem;
+
+        @media (max-width: $screen-xs-max) {
+          width: 4rem;
+          height: 4rem;
+          border-radius: 4rem;
+          line-height: 4rem;
+        }
+      }
+
+      &__indicator {
+        display: none;
+      }
+
+      &__indicator-label {
+        margin: 0;
+        line-height: 5rem;
+        text-transform: lowercase;
+
+        @media (max-width: $screen-xs-max) {
+          line-height: 4rem;
+          font-size: $font-size-md;
+        }
+      }
     }
   }
 
@@ -30,6 +88,9 @@
     @include flexRow;
 
     margin: 0;
+    background-color: $content-background-color;
+    border-top: 1px solid $gray-lighter;
+    border-bottom: 1px solid $gray-lighter;
   }
 
   &__day {

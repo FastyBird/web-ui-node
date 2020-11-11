@@ -1,0 +1,9 @@
+@import "~assets/scss/variables";
+
+.fb-triggers-select-action-device {
+  &__container {
+    .fb-ui-items-container__heading {
+      padding-left: $padding-md;
+    }
+  }
+}

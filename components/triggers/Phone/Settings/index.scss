@@ -1,31 +1,26 @@
-@import "~@fastybird/web-ui-theme/src/assets/variables/colors";
-@import "~@fastybird/web-ui-theme/src/assets/variables/screen";
+@import "~assets/scss/variables";
 
 .fb-triggers-settings-trigger {
+  &__container {
+
+  }
+
+  &__heading {
+    font-size: $heading-font-size-md;
+    line-height: $heading-line-height-md;
+    border-bottom: 1px solid $gray-lighter;
+    padding-left: $padding-md;
+    margin: $margin-sm 0 0 0;
+  }
+
   &__item {
     &-action {
       padding-left: $padding-xs;
       padding-right: $padding-xs;
-
-      .fb-ui-switch-element__container {
-        margin-top: 0.9rem;
-      }
     }
 
     &-remove {
       color: $brand-danger;
-    }
-
-    .fb-ui-spinner__container {
-      vertical-align: middle;
-    }
-
-    .fb-ui-switch-element__container {
-      float: right;
-    }
-
-    .fb-settings-list-item__content {
-      line-height: 3.6rem;
     }
   }
 }

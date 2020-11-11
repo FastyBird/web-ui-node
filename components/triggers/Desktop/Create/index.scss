@@ -1,6 +1,5 @@
-@import "~@fastybird/web-ui-theme/src/assets/variables/colors";
-@import "~@fastybird/web-ui-theme/src/assets/variables/screen";
-@import "~@fastybird/web-ui-theme/src/assets/mixins/utilities";
+@import "~assets/scss/variables";
+@import "~assets/scss/mixins";
 
 .fb-triggers-desktop-create {
   &__container {
@@ -17,6 +16,30 @@
 
       .fb-ui-items-container__items {
         padding: 0;
+      }
+    }
+
+    &[data-type="select-device"].fb-ui-modal-window__container {
+      .fb-ui-modal-window__body {
+        padding: $padding-md 0;
+
+        .fb-ui-items-container {
+          &__heading {
+            padding-left: $padding-md;
+          }
+        }
+      }
+    }
+
+    &[data-type="list-devices"].fb-ui-modal-window__container {
+      .fb-ui-modal-window__body {
+        padding: 0 $padding-md;
+      }
+    }
+
+    &[data-type="select-date-time"].fb-ui-modal-window__container {
+      .fb-ui-modal-window__body {
+        padding: $padding-md 0;
       }
     }
   }
@@ -40,13 +63,15 @@
 
       .fb-ui-button[data-size="lg"] {
         text-align: center;
-        font-size: 1.8rem;
+        font-size: $font-size-lg;
+        line-height: $line-height-lg;
         overflow: hidden;
 
         svg {
           display: block;
           margin: 0 auto $margin-sm auto;
-          font-size: 2em;
+          font-size: $font-size-lg * 2;
+          line-height: $line-height-lg * 2;
         }
       }
     }

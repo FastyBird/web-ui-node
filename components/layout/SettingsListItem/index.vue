@@ -23,8 +23,8 @@
   <button
     v-else
     :class="[data.class, data.staticClass, 'fb-settings-list-item__container']"
-    role="button"
     @click.prevent="listeners['click']"
+    role="button"
   >
     <span
       v-if="parent._.get(scopedSlots, 'prefix', null) !== null"

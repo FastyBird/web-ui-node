@@ -1,6 +1,5 @@
-@import "~@fastybird/web-ui-theme/src/assets/variables/colors";
-@import "~@fastybird/web-ui-theme/src/assets/variables/screen";
-@import "~@fastybird/web-ui-theme/src/assets/mixins/utilities";
+@import "~assets/scss/variables";
+@import "~assets/scss/mixins";
 
 .fb-index {
   &__container {
@@ -15,7 +14,7 @@
 
   &__logo {
     text-align: center;
-    padding: 1rem 0;
+    padding: $padding-sm 0;
     height: 5rem;
     display: block;
 
@@ -30,7 +29,7 @@
       fill: $brand-primary-contrast;
 
       @media (min-width: $screen-sm-min) and (max-width: $screen-md-max) {
-        margin-left: 1rem;
+        margin-left: $margin-sm;
         height: 3.25rem;
       }
     }
@@ -57,6 +56,20 @@
   &__user-menu {
     @media (max-width: $screen-xs-max) {
       display: none;
+    }
+  }
+
+  &__offline-info {
+    text-align: center;
+
+    h3 {
+      color: $brand-danger;
+    }
+
+    &-icon {
+      color: $brand-danger;
+      font-size: 8rem;
+      margin: $margin-lg 0 $margin-md 0;
     }
   }
 }

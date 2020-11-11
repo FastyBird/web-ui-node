@@ -1,5 +1,5 @@
 <template>
-  <div class="fb-triggers-select-device__container">
+  <div class="fb-triggers-select-condition-device__container">
     <template v-for="channel in device.channels">
       <fb-ui-items-container :key="channel.id">
         <template slot="heading">
@@ -60,3 +60,7 @@ export default defineComponent({
 
 })
 </script>
+
+<style rel="stylesheet/scss" lang="scss">
+@import 'index';
+</style>

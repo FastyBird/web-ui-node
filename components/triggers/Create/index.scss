@@ -1,4 +1,4 @@
-@import "~@fastybird/web-ui-theme/src/assets/variables/screen";
+@import "~assets/scss/variables";
 
 .fb-triggers-create {
   &__items {
@@ -14,9 +14,12 @@
   }
 
   &__add-item {
-    &-row.fb-ui-button[data-size="lg"] {
-      margin-top: $margin-xs;
-      line-height: 2rem;
+    &-row {
+      &.fb-ui-button[data-size="lg"] {
+        margin-top: $margin-xs;
+        font-size: $font-size-lg;
+        line-height: $line-height-lg;
+      }
     }
   }
 }

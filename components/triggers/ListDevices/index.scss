@@ -1,16 +1,11 @@
-@import "~@fastybird/web-ui-theme/src/assets/variables/screen";
-@import "~@fastybird/web-ui-theme/src/assets/mixins/utilities";
+@import "~assets/scss/variables";
+@import "~assets/scss/mixins";
 
 .fb-triggers-list-devices {
   &__container {
     @media (min-width: $screen-sm-min) {
       max-height: 50vh;
       overflow-y: scroll;
-    }
-
-    @media (max-width: $screen-xs-max) {
-      margin-left: $margin-sm;
-      margin-right: $margin-sm;
     }
 
     .fb-list-item__container {
