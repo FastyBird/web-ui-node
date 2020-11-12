@@ -13,7 +13,7 @@
               {{ $t('triggers.buttons.addTypeDate.title') }}
             </fb-ui-button>
 
-            <fb-ui-divider type="horizontal">
+            <fb-ui-divider :type="dividerVariantTypes.HORIZONTAL">
               {{ $t('application.misc.or') }}
             </fb-ui-divider>
           </template>
@@ -28,7 +28,7 @@
               {{ $t('triggers.buttons.addTypeTimeOfDay.title') }}
             </fb-ui-button>
 
-            <fb-ui-divider type="horizontal">
+            <fb-ui-divider :type="dividerVariantTypes.HORIZONTAL">
               {{ $t('application.misc.or') }}
             </fb-ui-divider>
           </template>
@@ -42,7 +42,7 @@
             {{ $t('triggers.buttons.addTypeDeviceControlled.title') }}
           </fb-ui-button>
 
-          <fb-ui-divider type="horizontal">
+          <fb-ui-divider :type="dividerVariantTypes.HORIZONTAL">
             {{ $t('application.misc.or') }}
           </fb-ui-divider>
 
@@ -512,6 +512,7 @@ import {
   FbFormResultType,
   FbUiModalVariantType,
   FbUiButtonVariantTypes,
+  FbUiDividerVariantTypes,
 } from '@fastybird/web-ui-theme'
 
 import { TriggerInterface } from '~/models/triggers-node/triggers/types'
@@ -1330,6 +1331,7 @@ export default defineComponent({
       modalVariantTypes: FbUiModalVariantType,
       sizeTypes: FbSizeTypes,
       buttonVariantTypes: FbUiButtonVariantTypes,
+      dividerVariantTypes: FbUiDividerVariantTypes,
     }
   },
 

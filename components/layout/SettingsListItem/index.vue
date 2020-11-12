@@ -47,7 +47,13 @@
 <script lang="ts">
 import {
   defineComponent,
+  PropType,
 } from '@vue/composition-api'
+
+export enum SettingsItemType {
+  BUTTON = 'button',
+  DIV = 'div',
+}
 
 export default defineComponent({
 
@@ -56,12 +62,13 @@ export default defineComponent({
   props: {
 
     type: {
-      type: String,
-      default: 'div',
-      validator: (value: string): boolean => {
+      type: String as PropType<SettingsItemType>,
+      default: SettingsItemType.DIV,
+      validator: (value: SettingsItemType): boolean => {
         // The value must match one of these strings
         return [
-          'div', 'button',
+          SettingsItemType.DIV,
+          SettingsItemType.BUTTON,
         ].includes(value)
       },
     },

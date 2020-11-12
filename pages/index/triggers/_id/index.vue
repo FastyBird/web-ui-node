@@ -13,8 +13,8 @@
       <template v-else>
         <fb-layout-header-button
           v-if="!view.settings.opened"
+          :type="menuItemTypes.BUTTON"
           @click="closeView(viewTypes.DETAIL)"
-          type="button"
           small
           left
         >
@@ -26,8 +26,8 @@
         <fb-layout-header-button
           v-if="view.settings.opened"
           :label="$t('application.buttons.cancel.title')"
+          :type="menuItemTypes.BUTTON"
           @click="closeView(viewTypes.SETTINGS)"
-          type="button"
           small
           left
         />
@@ -35,8 +35,8 @@
         <fb-layout-header-button
           v-if="!view.settings.opened"
           :label="$t('application.buttons.edit.title')"
+          :type="menuItemTypes.BUTTON"
           @click="openView(viewTypes.SETTINGS)"
-          type="button"
           small
           right
         />
@@ -44,8 +44,8 @@
         <fb-layout-header-button
           v-if="view.settings.opened"
           :label="$t('application.buttons.done.title')"
+          :type="menuItemTypes.BUTTON"
           @click="submitUpdate"
-          type="button"
           small
           right
         />
@@ -54,7 +54,7 @@
 
         <fb-layout-header-button
           :link="localePath($routes.triggers.list)"
-          type="nuxt_link"
+          :type="menuItemTypes.NUXT_LINK"
           right
         >
           <template slot="icon">
@@ -109,6 +109,7 @@ import get from 'lodash/get'
 import {
   FbFormResultType,
   FbSizeTypes,
+  FbMenuItemType,
 } from '@fastybird/web-ui-theme'
 
 import {
@@ -352,6 +353,7 @@ export default defineComponent({
       closeView,
       submitUpdate,
       triggerRemoved,
+      menuItemTypes: FbMenuItemType,
     }
   },
 

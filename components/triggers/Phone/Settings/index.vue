@@ -62,7 +62,7 @@
 
       <settings-list-item
         @click="openWindow(viewTypes.REMOVE_CONFIRMATION)"
-        type="button"
+        :type="settingsItemType.BUTTON"
         class="fb-triggers-settings-trigger__item fb-triggers-settings-trigger__item-remove"
       >
         <fb-ui-spinner
@@ -116,6 +116,8 @@ import {
 
 import Trigger from '~/models/triggers-node/triggers/Trigger'
 import { TriggerInterface } from '~/models/triggers-node/triggers/types'
+
+import { SettingsItemType } from '~/components/layout/SettingsListItem/index.vue'
 
 const TriggersPhoneSettingsRemove = () => import('~/components/triggers/Settings/Remove/index.vue')
 
@@ -343,6 +345,7 @@ export default defineComponent({
       submit,
       sizeTypes: FbSizeTypes,
       switchVariantTypes: FbUiSwitchElementVariantTypes,
+      settingsItemType: SettingsItemType,
     }
   },
 
