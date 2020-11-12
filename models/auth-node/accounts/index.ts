@@ -154,6 +154,8 @@ const moduleActions: ActionTree<AccountState, any> = {
         apiOptions,
       )
 
+      commit('SET_FIRST_LOAD', true)
+
       return true
     } catch (e) {
       throw new ApiError(
@@ -552,12 +554,14 @@ const moduleActions: ActionTree<AccountState, any> = {
 }
 
 const moduleMutations: MutationTree<AccountState> = {
+  ['SET_FIRST_LOAD'](state: AccountState, action: boolean): void {
+    state.firstLoad = action
+  },
+
   ['SET_SEMAPHORE'](state: AccountState, action: SemaphoreAction): void {
     switch (action.type) {
       case SemaphoreType.FETCHING:
         state.semaphore.fetching.items = true
-
-        state.firstLoad = true
         break
 
       case SemaphoreType.GETTING:

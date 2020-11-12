@@ -253,6 +253,8 @@ const moduleActions: ActionTree<TriggerState, any> = {
         apiOptions,
       )
 
+      commit('SET_FIRST_LOAD', true)
+
       return true
     } catch (e) {
       throw new ApiError(
@@ -716,12 +718,14 @@ const moduleActions: ActionTree<TriggerState, any> = {
 }
 
 const moduleMutations: MutationTree<TriggerState> = {
+  ['SET_FIRST_LOAD'](state: TriggerState, action: boolean): void {
+    state.firstLoad = action
+  },
+
   ['SET_SEMAPHORE'](state: TriggerState, action: SemaphoreAction): void {
     switch (action.type) {
       case SemaphoreType.FETCHING:
         state.semaphore.fetching.items = true
-
-        state.firstLoad = true
         break
 
       case SemaphoreType.GETTING:

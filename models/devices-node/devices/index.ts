@@ -576,8 +576,6 @@ const moduleMutations: MutationTree<DeviceState> = {
     switch (action.type) {
       case SemaphoreType.FETCHING:
         state.semaphore.fetching.items = true
-
-        state.firstLoad = true
         break
 
       case SemaphoreType.GETTING:
