@@ -902,7 +902,7 @@
 
 "@fastybird/web-ui-theme@https://github.com/FastyBird/web-ui-theme.git":
   version "1.0.0"
-  resolved "https://github.com/FastyBird/web-ui-theme.git#5f87a6473980c721e9e0b8d33431d10bec39a6f1"
+  resolved "https://github.com/FastyBird/web-ui-theme.git#aa8049ba3e867731cd161b4e6231aac2112f4207"
   dependencies:
     body-scroll-lock "^3.0.0"
     lodash.get "^4.4.2"

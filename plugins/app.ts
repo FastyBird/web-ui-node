@@ -25,6 +25,7 @@ import FastyBirdTheme,
   FbUiModalHeaderIcon,
   FbUiModalWindow,
   FbUiNoResults,
+  FbUiPageLoading,
   FbUiResultErr,
   FbUiResultOk,
   FbUiSpinner,
@@ -115,6 +116,7 @@ Vue.component('FbUiModalHeader', FbUiModalHeader)
 Vue.component('FbUiModalHeaderIcon', FbUiModalHeaderIcon)
 Vue.component('FbUiModalWindow', FbUiModalWindow)
 Vue.component('FbUiNoResults', FbUiNoResults)
+Vue.component('FbUiPageLoading', FbUiPageLoading)
 Vue.component('FbUiResultErr', FbUiResultErr)
 Vue.component('FbUiResultOk', FbUiResultOk)
 Vue.component('FbUiSpinner', FbUiSpinner)

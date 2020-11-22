@@ -51,6 +51,7 @@
             :variant="buttonVariantTypes.PRIMARY"
             block
             uppercase
+            type="submit"
           >
             {{ $t('account.buttons.resetPassword.title') }}
           </fb-ui-button>

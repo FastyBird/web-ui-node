@@ -6,21 +6,23 @@
       ref="validator"
       v-slot="{ handleSubmit }"
     >
-      <form @submit.prevent="handleSubmit(handleSubmit)">
-        <validation-provider
-          v-slot="{ errors }"
-          name="uid"
-          rules="required"
-        >
-          <fb-form-input
-            v-model="form.model.uid"
-            :error="errors[0]"
-            :has-error="errors.length > 0"
-            :label="$t('account.fields.identity.uid.title')"
-            :required="true"
+      <form @submit.prevent="handleSubmit(handleSubmitForm)">
+        <fb-ui-content :mb="sizeTypes.MEDIUM">
+          <validation-provider
+            v-slot="{ errors }"
             name="uid"
-          />
-        </validation-provider>
+            rules="required"
+          >
+            <fb-form-input
+              v-model="form.model.uid"
+              :error="errors[0]"
+              :has-error="errors.length > 0"
+              :label="$t('account.fields.identity.uid.title')"
+              :required="true"
+              name="uid"
+            />
+          </validation-provider>
+        </fb-ui-content>
 
         <validation-provider
           v-slot="{ errors }"
@@ -55,6 +57,7 @@
           :variant="buttonVariantTypes.PRIMARY"
           block
           uppercase
+          type="submit"
         >
           {{ $t('account.buttons.signIn.title') }}
         </fb-ui-button>
@@ -80,6 +83,7 @@ import {
 
 import {
   FbFormInputTypeTypes,
+  FbSizeTypes,
   FbUiButtonVariantTypes,
 } from '@fastybird/web-ui-theme'
 
@@ -146,7 +150,7 @@ export default defineComponent({
     })
 
     // Submit form
-    function handleSubmit(): void {
+    function handleSubmitForm(): void {
       context.root.$bus.$emit('wait-page_reloading', 10)
 
       const errorMessage = context.root.$t('application.messages.requestError').toString()
@@ -195,7 +199,8 @@ export default defineComponent({
     return {
       validator,
       form,
-      handleSubmit,
+      handleSubmitForm,
+      sizeTypes: FbSizeTypes,
       buttonVariantTypes: FbUiButtonVariantTypes,
       formInputTypes: FbFormInputTypeTypes,
     }

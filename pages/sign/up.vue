@@ -2,15 +2,11 @@
   <div class="fb-sign-up-page__container">
     <account-sign-header :heading="$t('account.headings.signUp')" />
 
-    <p class="fb-sign-up-page__heading">
-      <em>Get started with a free account. 30 day free trial, unlimited devices, no credit card required.</em>
-    </p>
-
     <validation-observer
       ref="validator"
       v-slot="{ handleSubmit }"
     >
-      <form @submit.prevent="handleSubmit(handleSubmit)">
+      <form @submit.prevent="handleSubmit(handleSubmitForm)">
         <div class="fb-sign-up-page__name">
           <div class="fb-sign-up-page__name-field">
             <validation-provider
@@ -98,6 +94,7 @@
           :variant="buttonVariantTypes.PRIMARY"
           block
           uppercase
+          type="submit"
         >
           {{ $t('account.buttons.signUp.title') }}
         </fb-ui-button>
@@ -198,7 +195,7 @@ export default defineComponent({
     extend('email', email)
 
     // Submit form
-    function handleSubmit(): void {
+    function handleSubmitForm(): void {
       context.root.$bus.$emit('wait-page_reloading', 10)
 
       const errorMessage = context.root.$t('application.messages.requestError').toString()
@@ -228,7 +225,7 @@ export default defineComponent({
     return {
       validator,
       form,
-      handleSubmit,
+      handleSubmitForm,
       buttonVariantTypes: FbUiButtonVariantTypes,
       formInputTypes: FbFormInputTypeTypes,
     }
