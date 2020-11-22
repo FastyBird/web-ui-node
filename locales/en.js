@@ -9,7 +9,7 @@ export default {
   meta: {
     groups: {
       list: {
-        title: 'Things groups',
+        title: 'Devices groups',
       },
       detail: {
         title: 'Group: {group}',
@@ -40,31 +40,6 @@ export default {
         title: 'Add new trigger',
       },
     },
-    things: {
-      list: {
-        title: 'Registered things',
-      },
-      detail: {
-        title: 'Thing: {thing}',
-      },
-      routines: {
-        title: 'Thing routines: {thing}',
-      },
-      connect: {
-        title: 'Connect new thing',
-      },
-    },
-    routines: {
-      list: {
-        title: 'Configured routines',
-      },
-      detail: {
-        title: 'Routine: {routine}',
-      },
-      create: {
-        title: 'Add new routine',
-      },
-    },
   },
   application: {
     headings: {
@@ -80,6 +55,12 @@ export default {
       },
     },
     buttons: {
+      menu: {
+        title: 'Menu',
+      },
+      new: {
+        title: 'New',
+      },
       edit: {
         title: 'Edit',
       },
@@ -116,9 +97,6 @@ export default {
       update: {
         title: 'Update',
       },
-      things: {
-        title: 'Things',
-      },
       groups: {
         title: 'Groups',
       },
@@ -128,10 +106,13 @@ export default {
       rename: {
         title: 'Rename',
       },
+      configure: {
+        title: 'Configure',
+      },
     },
     tabs: {
-      dashboard: {
-        title: 'Dashboard',
+      home: {
+        title: 'Home',
       },
       devices: {
         title: 'Devices',
@@ -139,11 +120,8 @@ export default {
       triggers: {
         title: 'Triggers',
       },
-      things: {
-        title: 'Things',
-      },
-      routines: {
-        title: 'Routines',
+      groups: {
+        title: 'Groups',
       },
     },
     messages: {
@@ -158,8 +136,6 @@ export default {
       dashboard: 'Dashboard',
       devices: 'Devices',
       triggers: 'Triggers',
-      things: 'Things',
-      routines: 'Routines',
       administration: 'Administration',
       users: 'Users',
       access: 'Access rights',
@@ -360,7 +336,7 @@ export default {
       loadingGroups: 'Loading groups...',
       loadingGroup: 'Loading group...',
       noGroups: 'You don\'t have created any group',
-      noThings: 'This group is without assigned things',
+      noDevices: 'This group is without assigned devices',
     },
     fields: {
       title: {
@@ -403,10 +379,12 @@ export default {
       deviceParameterEdit: 'Device parameter settings',
       addNewDevice: 'Connect new device',
       syncDevices: 'Sync devices',
+      aboutDevice: 'About device',
+      channels: 'Device channels',
     },
     subHeadings: {
-      allDevices: 'No devices created. Continue with creating a new device | One device created. Continue with selecting one from the list column | {count} devices created. Continue with selecting one from the list column',
-      addNewDevice: 'Register new machine devices to the system',
+      allDevices: 'No devices registered | One device registered | {count} devices registered',
+      addNewDevice: 'Register new device to the system',
       syncDevices: 'Sync all devices with server',
     },
     messages: {
@@ -470,16 +448,16 @@ export default {
       },
       mqtt: {
         server: {
-          title: 'MQTT server address',
+          title: 'MQTT address',
         },
         port: {
-          title: 'MQTT server port',
+          title: 'MQTT port',
         },
         securedServer: {
-          title: 'MQTT server secured address',
+          title: 'MQTT secured address',
         },
         securedPort: {
-          title: 'MQTT server secured port',
+          title: 'MQTT secured port',
         },
       },
       search: {
@@ -544,24 +522,24 @@ export default {
     vendors: {
       global: {
         title: {
-          title: 'Thing name',
+          title: 'Device name',
           validation: {
-            required: 'Please fill in thing name',
+            required: 'Please fill in device name',
           },
         },
         comment: {
-          title: 'Thing description',
+          title: 'Device description',
         },
         username: {
-          title: 'Thing MQTT username',
+          title: 'Device MQTT username',
           validation: {
-            required: 'Please fill in your thing username',
+            required: 'Please fill in your device username',
           },
         },
         password: {
-          title: 'Thing MQTT password',
+          title: 'Device MQTT password',
           validation: {
-            required: 'Please fill in your thing password',
+            required: 'Please fill in your device password',
           },
         },
         mqttServer: {
@@ -572,7 +550,7 @@ export default {
         },
       },
       fastybird: {
-        things: {
+        devices: {
           fastybird_wifi_gw: {
             title: 'FastyBird WiFi Gateway',
           },
@@ -602,7 +580,7 @@ export default {
         led_mode: {
           button: 'Status indicator mode',
           heading: 'Status indicator mode',
-          description: 'Define how the thing status indicator should operate. Indicator could be turned off to not disturb you.',
+          description: 'Define how the device status indicator should operate. Indicator could be turned off to not disturb you.',
           values: {
             wifi_status: 'Wifi status',
             always_on: 'Always on',
@@ -718,7 +696,7 @@ export default {
         led_mode: {
           button: 'Status indicator mode',
           heading: 'Status indicator mode',
-          description: 'Define how the thing status indicator should operate. Indicator could be turned off to not disturb you.',
+          description: 'Define how the device status indicator should operate. Indicator could be turned off to not disturb you.',
           values: {
             wifi_status: 'Wifi status',
             always_on: 'Always on',
@@ -824,7 +802,7 @@ export default {
         sensor_save_interval: {
           button: 'Sensors save every',
           heading: 'Sensors save every',
-          description: 'Save aggregated data to thing memory after these many reports. Set it to 0 to disable this feature',
+          description: 'Save aggregated data to device memory after these many reports. Set it to 0 to disable this feature',
         },
         sensor_power_units: {
           button: 'Power unit',
@@ -902,11 +880,21 @@ export default {
       automaticTrigger: 'Automatic trigger',
       manualTrigger: 'Manual trigger',
       scheduledTrigger: '{days}, {time}',
+      configureDate: 'Configure condition date',
+      configureTime: 'Configure condition time',
     },
     subHeadings: {
-      allTriggers: 'No triggers created. Continue with creating a new trigger | One trigger created. Continue with selecting one from the list column | {count} triggers created. Continue with selecting one from the list column',
+      allTriggers: 'No triggers created | One trigger created | {count} triggers created',
       addNewTrigger: 'Create new automation or manual trigger',
       syncTriggers: 'Sync all triggers with server',
+      createDateScheduledTrigger: 'Date scheduled',
+      createTimeScheduledTrigger: 'Time scheduled',
+      createDeviceControlTrigger: 'Device watchdog',
+      createSensorTrigger: 'Sensors watchdog',
+      createManualTrigger: 'Manually controlled',
+      selectDevice: 'Choose one from devices bellow',
+      configureDate: 'Select date & time',
+      configureTime: 'Select time and days of the week',
     },
     messages: {
       triggerNotRenamed: 'Trigger {trigger} couldn\'t be renamed.',
@@ -1019,129 +1007,6 @@ export default {
       above: '{property} value is above {value}',
       eq: '{property} value is equal to {value}',
       below: '{property} value is below {value}',
-    },
-  },
-  things: {
-    headings: {
-      allThings: 'All things',
-      sensors: 'Sensor|Sensors',
-      actors: 'Actor|Actors',
-      lights: 'Light|Lights',
-      switches: 'Switch|Switches',
-      calibrate: 'Calibrate energy sensors',
-      clearCounter: 'Clear counter',
-      credentials: 'Thing connection credentials',
-      remove: 'Remove thing',
-      rename: 'Rename thing',
-      settings: 'Thing settings',
-      generalSettings: 'General settings',
-      moduleSensorSettings: 'Thing sensor settings',
-      moduleTimeSettings: 'Thing time settings',
-      manufacturerAndNetwork: 'Manufacturer & Network info',
-      selectTriggerThing: 'Things',
-      newAction: 'Add new action when...',
-      removeAction: 'Remove action',
-      buttonActionPressed: 'Button pressed',
-      buttonActionClicked: 'Button clicked',
-      buttonActionDblClicked: 'Button double-clicked',
-    },
-    subHeadings: {
-      allThings: 'no things | one thing | {count} things',
-    },
-    messages: {
-      notEdited: 'Thing {thing} couldn\'t be updated, please try again later.',
-      commandNotAccepted: 'Last command was not accepted by thing <strong>{thing}</strong>.',
-      notOnline: 'Thing <strong>{thing}</strong> is not connected to server.',
-      notSupported: 'This function is not supported by <strong>{thing}</strong>.',
-      confirmClearCounter: 'Clear total consumption counter for thing {thing} ?',
-      confirmRemove: 'Are you sure to remove thing {thing} ?',
-      notRemoved: 'Thing {thing} couldn\'t be removed, please try again later.',
-      notRenamed: 'Thing {thing} couldn\'t be renamed, please try again later.',
-      triggerNotCreated: 'Configured action couldn\'t be created, please try again later.',
-      actionNotRemoved: 'Selected action couldn\'t be removed, please try again later.',
-      confirmRemoveAction: 'Are you sure to remove thing {thing} action ?',
-    },
-    texts: {
-      loadingThings: 'Loading things...',
-      loadingThing: 'Loading thing...',
-      noThings: 'You don\'t have assigned any thing',
-      noProperties: 'This thing is without controllable properties',
-      notFound: 'Thing was not found, please try reload page.',
-      wifi: {
-        name: 'Wifi name',
-        ip: 'IP address',
-      },
-      hardware: {
-        model: 'Model',
-        manufacturer: 'Manufacturer',
-      },
-      noThingsActions: 'You don\'t have assigned any action to this thing',
-      loadingTriggers: 'Loading details...',
-    },
-    fields: {
-      wifi: {
-        name: {
-          title: 'Wifi SSID name',
-          validation: {
-            required: 'Please fill in wifi SSID name',
-          },
-        },
-        password: {
-          title: 'Password for wifi access',
-          placeholder: 'Leave blank if your wifi is without password',
-        },
-      },
-    },
-    buttons: {
-      remove: {
-        title: 'Remove thing',
-      },
-      rename: {
-        title: 'Rename thing',
-      },
-      credentials: {
-        title: 'Connection credentials',
-      },
-      timeConfiguration: {
-        title: 'Time settings',
-        description: 'Configure thing timezone etc.',
-      },
-      sensorConfiguration: {
-        title: 'Sensor settings',
-        description: 'Configure thing sensors etc.',
-      },
-      energyCalibration: {
-        title: 'Calibrate energy',
-      },
-      press: {
-        title: 'Button is pressed',
-      },
-      click: {
-        title: 'Button is clicked',
-      },
-      dblClick: {
-        title: 'Button is double-clicked',
-      },
-      addTriggerAction: {
-        title: 'Add action',
-      },
-      addNew: {
-        title: 'Connect new thing',
-      },
-      search: {
-        title: 'Start searching',
-      },
-      addThing: {
-        title: 'Add thing',
-      },
-      updateThing: {
-        title: 'Update thing',
-      },
-    },
-    triggers: {
-      toggle: 'Toggle {property} state',
-      on: 'Turn {property} on',
-      off: 'Turn {property} off',
     },
   },
 }

@@ -66,7 +66,7 @@
               <fb-ui-switch-element
                 :status="form.model.enabled"
                 :variant="switchVariantTypes.PRIMARY"
-                @change="toggle"
+                @change="handleToggle"
               />
             </div>
 
@@ -77,7 +77,7 @@
               <fb-ui-button
                 :size="sizeTypes.SMALL"
                 :variant="buttonVariantTypes.LINK"
-                @click="remove"
+                @click="handleRemove"
               >
                 {{ $t('application.buttons.remove.title') }}
               </fb-ui-button>
@@ -128,7 +128,7 @@
                 v-for="(row, index) in condition.days"
                 :key="index"
               >
-                {{ translateDay(row) }}<template v-if="index < (condition.days.length - 1)">, </template>
+                {{ handleTranslateDay(row) }}<template v-if="index < (condition.days.length - 1)">, </template>
               </span>
             </template>
             <span v-else>all week</span>
@@ -141,7 +141,7 @@
               <fb-ui-switch-element
                 :status="form.model.enabled"
                 :variant="switchVariantTypes.PRIMARY"
-                @change="toggle"
+                @change="handleToggle"
               />
             </div>
 
@@ -152,7 +152,7 @@
               <fb-ui-button
                 :size="sizeTypes.SMALL"
                 :variant="buttonVariantTypes.LINK"
-                @click="remove"
+                @click="handleRemove"
               >
                 {{ $t('application.buttons.remove.title') }}
               </fb-ui-button>
@@ -201,17 +201,15 @@ import { AccountInterface } from '~/models/auth-node/accounts/types'
 
 import { ListItemSizeTypes } from '~/components/layout/ListItem/index.vue'
 
-interface TriggersDetailDefaultConditionsContainerConditionFormModelInterface {
-  enabled: boolean
+interface TriggersListConditionFormInterface {
+  model: {
+    enabled: boolean
+  }
 }
 
-interface TriggersDetailDefaultConditionsContainerConditionFormInterface {
-  model: TriggersDetailDefaultConditionsContainerConditionFormModelInterface
-}
-
-interface TriggersDetailDefaultConditionsContainerConditionPropsInterface {
-  trigger: TriggerInterface,
-  condition: ConditionInterface,
+interface TriggersListConditionPropsInterface {
+  trigger: TriggerInterface
+  condition: ConditionInterface
 }
 
 export default defineComponent({
@@ -232,8 +230,8 @@ export default defineComponent({
 
   },
 
-  setup(props: TriggersDetailDefaultConditionsContainerConditionPropsInterface, context: SetupContext) {
-    const form = reactive<TriggersDetailDefaultConditionsContainerConditionFormInterface>({
+  setup(props: TriggersListConditionPropsInterface, context: SetupContext) {
+    const form = reactive<TriggersListConditionFormInterface>({
       model: {
         enabled: props.condition.enabled,
       },
@@ -244,12 +242,15 @@ export default defineComponent({
     let device = computed<DeviceInterface | null>((): DeviceInterface | null => {
       return null
     })
+
     let channel = computed<ChannelInterface | null>((): ChannelInterface | null => {
       return null
     })
+
     let property = computed<DevicePropertyInterface | ChannelPropertyInterface | null>((): DevicePropertyInterface | ChannelPropertyInterface | null => {
       return null
     })
+
     let fetchingDevices = computed<boolean>((): boolean => false)
 
     if (props.condition.isDeviceProperty || props.condition.isChannelProperty) {
@@ -300,8 +301,7 @@ export default defineComponent({
       return context.root.$store.getters['session/getAccount']()
     })
 
-    // Submit toggle state
-    async function toggle(): Promise<void> {
+    async function handleToggle(): Promise<void> {
       const errorMessage = context.root.$t('triggers.messages.conditionNotUpdated', {
         trigger: props.trigger.name,
       }).toString()
@@ -322,7 +322,7 @@ export default defineComponent({
       }
     }
 
-    async function remove(): Promise<void> {
+    async function handleRemove(): Promise<void> {
       const errorMessage = context.root.$t('triggers.messages.conditionNotRemoved', {
         trigger: props.trigger.name,
       }).toString()
@@ -340,7 +340,7 @@ export default defineComponent({
       }
     }
 
-    function translateDay(day: number): string {
+    function handleTranslateDay(day: number): string {
       switch (day) {
         case 1:
           return context.root.$t('application.days.mon.short').toString()
@@ -369,9 +369,9 @@ export default defineComponent({
       windowSize,
       fetchingDevices,
       account,
-      toggle,
-      remove,
-      translateDay,
+      handleToggle,
+      handleRemove,
+      handleTranslateDay,
       listSizeTypes: ListItemSizeTypes,
       sizeTypes: FbSizeTypes,
       buttonVariantTypes: FbUiButtonVariantTypes,

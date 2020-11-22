@@ -10,7 +10,7 @@ export interface PropertyInterface {
   name: string | null
   settable: boolean
   queryable: boolean
-  datatype: PropertyDatatypeType
+  datatype: PropertyDatatypeTypes
   unit: string | null
   format: string | null
 
@@ -25,6 +25,12 @@ export interface PropertyInterface {
   relationshipNames: Array<string>
 
   hardware: HardwareInterface | null
+
+  isAnalogSensor: boolean
+  isBinarySensor: boolean
+  isAnalogActor: boolean
+  isBinaryActor: boolean
+  isSwitch: boolean
 
   isInteger: boolean
   isFloat: boolean
@@ -47,7 +53,7 @@ export interface PropertyInterface {
 // ENTITY TYPES
 // ============
 
-export enum PropertyDatatypeType {
+export enum PropertyDatatypeTypes {
   INTEGER = 'integer',
   FLOAT = 'float',
   BOOLEAN = 'boolean',
@@ -64,4 +70,18 @@ export enum PropertyCommandState {
 export enum PropertyCommandResult {
   OK = 'ok',
   ERR = 'err',
+}
+
+export enum SensorNameTypes {
+  SENSOR = 'sensor',
+  AIR_QUALITY = 'air_quality',
+  LIGHT_LEVEL = 'light_level',
+  NOISE_LEVEL = 'noise_level',
+  TEMPERATURE = 'temperature',
+  HUMIDITY = 'humidity',
+}
+
+export enum ActorNameTypes {
+  ACTOR = 'actor',
+  SWITCH = 'switch',
 }

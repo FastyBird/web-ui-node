@@ -1,124 +1,95 @@
 <template>
-  <validation-observer
-    ref="validator"
-    v-slot="{ handleSubmit }"
-  >
-    <fb-ui-modal-form
-      :transparent-bg="transparentBg"
-      :lock-submit-button="form.result !== formResultTypes.NONE"
-      :state="form.result"
-      @submit="handleSubmit(submit)"
-      @cancel="close"
-      @close="close"
+  <validation-observer ref="validator">
+    <fb-ui-content
+      v-if="parameter.isNumber"
+      :mb="sizeTypes.LARGE"
     >
-      <fb-ui-modal-header-icon slot="icon">
-        <font-awesome-icon icon="cogs" />
-      </fb-ui-modal-header-icon>
-
-      <template slot="header">
-        {{ $t('devices.headings.deviceParameterEdit') }}
-      </template>
-
-      <template slot="form">
-        <p
-          v-if="!device.isReady"
-          class="alert alert-warning"
-          role="alert"
+      <validation-provider
+        v-slot="{ errors }"
+        :name="parameter.configuration"
+        :rules="`required|numeric|between:${parameter.min},${parameter.max}`"
+      >
+        <fb-form-input
+          v-model="form.model.value"
+          :error="errors[0]"
+          :has-error="errors.length > 0"
+          :name="parameter.configuration"
+          :label="parameter.title"
+          :required="true"
+          :tab-index="2"
+          :type="formInputTypes.NUMBER"
         >
-          This device is offline. Therefore you can't edit its setting
-        </p>
+          <template
+            slot="help-line"
+            v-if="parameter.description !== null && errors.length === 0"
+          >
+            {{ parameter.description }}
+          </template>
+        </fb-form-input>
+      </validation-provider>
+    </fb-ui-content>
 
-        <fb-ui-content
-          v-if="parameter.isNumber"
+    <fb-ui-content
+      v-if="parameter.isText"
+      :mb="sizeTypes.LARGE"
+    >
+      <validation-provider
+        v-slot="{ errors }"
+        :name="parameter.configuration"
+        rules="required"
+      >
+        <fb-form-input
+          v-model="form.model.value"
+          :error="errors[0]"
+          :has-error="errors.length > 0"
+          :name="parameter.configuration"
+          :label="parameter.title"
+          :required="true"
+          :tab-index="2"
+          :type="formInputTypes.TEXT"
           mb="lg"
         >
-          <validation-provider
-            v-slot="{ errors }"
-            :name="parameter.configuration"
-            :rules="`required|numeric|between:${parameter.min},${parameter.max}`"
+          <template
+            slot="help-line"
+            v-if="parameter.description !== null && errors.length === 0"
           >
-            <fb-form-input
-              v-model="form.model.value"
-              :error="errors[0]"
-              :has-error="errors.length > 0"
-              :name="parameter.configuration"
-              :label="parameter.title"
-              :required="true"
-              :tab-index="2"
-              type="number"
-            >
-              <template
-                v-if="parameter.description !== null && errors.length === 0"
-                slot="help-line"
-              >
-                {{ parameter.description }}
-              </template>
-            </fb-form-input>
-          </validation-provider>
-        </fb-ui-content>
+            {{ parameter.description }}
+          </template>
+        </fb-form-input>
+      </validation-provider>
+    </fb-ui-content>
 
-        <fb-ui-content
-          v-if="parameter.isText"
-          mb="lg"
+    <fb-ui-content
+      v-if="parameter.isSelect"
+      :mb="sizeTypes.LARGE"
+    >
+      <fb-form-select
+        v-model="form.model.value"
+        :items="parameter.selectValues"
+        :name="parameter.configuration"
+        :label="parameter.title"
+        :tab-index="2"
+        :required="true"
+      >
+        <template
+          slot="help-line"
+          v-if="parameter.description !== null"
         >
-          <validation-provider
-            v-slot="{ errors }"
-            :name="parameter.configuration"
-            rules="required"
-          >
-            <fb-form-input
-              v-model="form.model.value"
-              :error="errors[0]"
-              :has-error="errors.length > 0"
-              :name="parameter.configuration"
-              :label="parameter.title"
-              :required="true"
-              :tab-index="2"
-              type="text"
-              mb="lg"
-            >
-              <template
-                v-if="parameter.description !== null && errors.length === 0"
-                slot="help-line"
-              >
-                {{ parameter.description }}
-              </template>
-            </fb-form-input>
-          </validation-provider>
-        </fb-ui-content>
-
-        <fb-ui-content
-          v-if="parameter.isSelect"
-          mb="lg"
-        >
-          <fb-form-select
-            v-model="form.model.value"
-            :items="parameter.selectValues"
-            :name="parameter.configuration"
-            :label="parameter.title"
-            :tab-index="2"
-            :required="true"
-          >
-            <template
-              v-if="parameter.description !== null"
-              slot="help-line"
-            >
-              {{ parameter.description }}
-            </template>
-          </fb-form-select>
-        </fb-ui-content>
-      </template>
-    </fb-ui-modal-form>
+          {{ parameter.description }}
+        </template>
+      </fb-form-select>
+    </fb-ui-content>
   </validation-observer>
 </template>
 
 <script lang="ts">
 import {
   defineComponent,
-  onMounted,
   PropType,
   reactive,
+  ref,
   SetupContext,
+  watch,
 } from '@vue/composition-api'
 
 import get from 'lodash/get'
@@ -127,30 +98,28 @@ import {
   ValidationObserver,
   extend,
 } from 'vee-validate'
-import {
-  numeric,
-  between,
-} from 'vee-validate/dist/rules'
 
-import { FbFormResultType } from '@fastybird/web-ui-theme'
+import {
+  FbFormInputTypeTypes,
+  FbFormResultTypes,
+  FbSizeTypes,
+} from '@fastybird/web-ui-theme'
 
 import { DeviceInterface } from '~/models/devices-node/devices/types'
 import DeviceConfiguration from '~/models/devices-node/device-configuration/DeviceConfiguration'
 import { DeviceConfigurationInterface } from '~/models/devices-node/device-configuration/types'
 
-interface DevicesSettingsDeviceParameterEditFormModelInterface {
-  value: any
-}
-
 interface DevicesSettingsDeviceParameterEditFormInterface {
-  model: DevicesSettingsDeviceParameterEditFormModelInterface,
-  result: string | boolean | null
+  model: {
+    value: any
+  }
 }
 
 interface DevicesSettingsDeviceParameterEditPropsInterface {
   device: DeviceInterface
   parameter: DeviceConfigurationInterface
-  transparentBg: boolean
+  remoteFormSubmit: boolean
+  remoteFormResult: FbFormResultTypes
 }
 
 export default defineComponent({
@@ -169,9 +138,14 @@ export default defineComponent({
       required: true,
     },
 
-    transparentBg: {
+    remoteFormSubmit: {
       type: Boolean,
       default: false,
+    },
+
+    remoteFormResult: {
+      type: String as PropType<FbFormResultTypes>,
+      default: FbFormResultTypes.NONE,
     },
 
   },
@@ -182,11 +156,12 @@ export default defineComponent({
   },
 
   setup(props: DevicesSettingsDeviceParameterEditPropsInterface, context: SetupContext) {
+    const validator = ref<InstanceType<typeof ValidationObserver>>(null)
+
     const form = reactive<DevicesSettingsDeviceParameterEditFormInterface>({
       model: {
         value: props.parameter.value === null ? props.parameter.default : props.parameter.value,
       },
-      result: FbFormResultType.NONE,
     })
 
     extend('required', {
@@ -199,80 +174,76 @@ export default defineComponent({
       computesRequired: true,
     })
 
-    extend('numeric', numeric)
+    // extend('numeric', numeric)
 
-    extend('between', between)
+    // extend('between', between)
 
-    // Processing timer
     let timer: number
 
-    onMounted((): void => {
-      context.emit('loaded')
-    })
+    function clearResult(): void {
+      window.clearTimeout(timer)
 
-    // Close form window
-    function close(event?: MouseEvent): void {
-      event && event.preventDefault()
-
-      window.clearInterval(timer)
-
-      context.emit('close')
+      context.emit('update:remoteFormResult', FbFormResultTypes.NONE)
     }
 
-    // Form could not be submitted
-    function error() {
-      window.clearInterval(timer)
+    watch(
+      (): boolean => props.remoteFormSubmit,
+      (val): void => {
+        if (val) {
+          context.emit('update:remoteFormSubmit', false)
 
-      form.result = FbFormResultType.NONE
-    }
+          if (!props.device.isReady) {
+            context.root.$flashMessage(context.root.$t('devices.messages.notOnline', {
+              device: props.device.title,
+            }).toString(), 'error')
 
-    // Submit form
-    async function submit(event?: MouseEvent): Promise<void> {
-      event && event.preventDefault()
+            return
+          }
 
-      // Check if device is connected to cloud
-      if (!props.device.isReady) {
-        context.root.$flashMessage(context.root.$t('devices.messages.notOnline', {
-          device: props.device.title,
-        }).toString(), 'error')
+          if (validator.value !== null) {
+            validator.value
+              .validate()
+              .then(async(success: boolean): Promise<void> => {
+                if (success) {
+                  const errorMessage = context.root.$t('devices.messages.parameterNotUpdated', {
+                    parameter: props.parameter.title,
+                  }).toString()
 
-        return
-      }
+                  context.emit('update:remoteFormResult', FbFormResultTypes.WORKING)
 
-      const errorMessage = context.root.$t('devices.messages.parameterNotUpdated', {
-        parameter: props.parameter.title,
-      }).toString()
+                  try {
+                    await DeviceConfiguration.dispatch('edit', {
+                      device: props.device,
+                      parameter: props.parameter,
+                      value: form.model.value,
+                    })
 
-      form.result = FbFormResultType.WORKING
+                    context.emit('update:remoteFormResult', FbFormResultTypes.OK)
 
-      try {
-        await DeviceConfiguration.dispatch('edit', {
-          device: props.device,
-          parameter: props.parameter,
-          value: form.model.value,
-        })
+                    timer = window.setTimeout(clearResult, 2000)
+                  } catch (e) {
+                    if (get(e, 'exception', null) !== null) {
+                      context.root.handleException(e.exception, errorMessage)
+                    } else {
+                      context.root.$flashMessage(errorMessage, 'error')
+                    }
 
-        form.result = FbFormResultType.OK
+                    context.emit('update:remoteFormResult', FbFormResultTypes.ERROR)
 
-        timer = window.setInterval(close, 2000)
-      } catch (e) {
-        if (get(e, 'exception', null) !== null) {
-          context.root.handleException(e.exception, errorMessage)
-        } else {
-          context.root.$flashMessage(errorMessage, 'error')
+                    timer = window.setTimeout(clearResult, 2000)
+                  }
+                }
+              })
+          }
         }
-
-        form.result = FbFormResultType.ERROR
-
-        timer = window.setInterval(error, 2000)
-      }
-    }
+      },
+    )
 
     return {
+      validator,
       form,
-      close,
-      submit,
-      formResultTypes: FbFormResultType,
+      sizeTypes: FbSizeTypes,
+      formInputTypes: FbFormInputTypeTypes,
     }
   },
 

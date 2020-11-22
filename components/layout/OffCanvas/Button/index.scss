@@ -1,0 +1,18 @@
+.fb-off-canvas-button {
+  &__container {
+    background-color: transparent;
+    background-image: none;
+    border: none;
+    display: block;
+    float: left;
+    height: 50px;
+    line-height: 50px;
+    outline: none;
+    overflow: hidden;
+    padding: 0;
+    position: relative;
+    width: 50px;
+    text-align: center;
+    font-size: 200%;
+  }
+}

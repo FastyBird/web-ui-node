@@ -21,14 +21,14 @@ interface SessionState {
   data: DataState,
 }
 
-export enum SemaphoreType {
+export enum SemaphoreTypes {
   FETCHING = 'fetching',
   CREATING = 'creating',
   UPDATING = 'updating',
 }
 
 interface SemaphoreAction {
-  type: SemaphoreType
+  type: SemaphoreTypes
 }
 
 interface SessionAction {
@@ -86,15 +86,15 @@ const moduleGetters: GetterTree<SessionState, any> = {
     return state.data.accountId !== null
   },
 
-  getSemaphoreState: state => (type: SemaphoreType): boolean => {
+  getSemaphoreState: state => (type: SemaphoreTypes): boolean => {
     switch (type) {
-      case SemaphoreType.FETCHING:
+      case SemaphoreTypes.FETCHING:
         return state.semaphore.fetching
 
-      case SemaphoreType.CREATING:
+      case SemaphoreTypes.CREATING:
         return state.semaphore.creating
 
-      case SemaphoreType.UPDATING:
+      case SemaphoreTypes.UPDATING:
         return state.semaphore.updating
     }
 
@@ -135,15 +135,15 @@ const moduleMutations: MutationTree<SessionState> = {
 
   ['SESSION_SET_SEMAPHORE'](state: SessionState, action: SemaphoreAction): void {
     switch (action.type) {
-      case SemaphoreType.FETCHING:
+      case SemaphoreTypes.FETCHING:
         state.semaphore.fetching = true
         break
 
-      case SemaphoreType.CREATING:
+      case SemaphoreTypes.CREATING:
         state.semaphore.creating = true
         break
 
-      case SemaphoreType.UPDATING:
+      case SemaphoreTypes.UPDATING:
         state.semaphore.updating = true
         break
     }
@@ -151,15 +151,15 @@ const moduleMutations: MutationTree<SessionState> = {
 
   ['SESSION_CLEAR_SEMAPHORE'](state: SessionState, action: SemaphoreAction): void {
     switch (action.type) {
-      case SemaphoreType.FETCHING:
+      case SemaphoreTypes.FETCHING:
         state.semaphore.fetching = false
         break
 
-      case SemaphoreType.CREATING:
+      case SemaphoreTypes.CREATING:
         state.semaphore.creating = false
         break
 
-      case SemaphoreType.UPDATING:
+      case SemaphoreTypes.UPDATING:
         state.semaphore.updating = false
         break
     }

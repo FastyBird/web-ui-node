@@ -2,27 +2,72 @@
 
 .fb-triggers-detail-default-actions-container-add-or-edit {
   &__container {
-    .fb-ui-modal-window {
-      &__body {
-        .fb-ui-items-container__items {
-          padding: 0;
+    &[data-variant="phone"],
+    &[data-variant="tablet"] {
+      .fb-triggers-select-action-device {
+        &__container {
+          margin-left: -$margin-sm;
+          margin-right: -$margin-sm;
+
+          .fb-ui-items-container {
+            &__items {
+              padding-left: 0;
+              padding-right: 0;
+            }
+          }
         }
       }
 
-      &__footer {
-        padding: 0 $padding-sm $padding-md $padding-sm;
+      .fb-ui-modal-form__result {
+        left: -$margin-sm;
+        right: -$margin-sm;
+      }
+
+      &[data-type="list-devices"] {
+        .fb-ui-modal-window__body {
+          padding: 0;
+        }
+
+        .fb-scroll-shadow__inner {
+          padding: $padding-sm;
+        }
       }
     }
 
-    &[data-type="select-device"].fb-ui-modal-window__container {
-      .fb-ui-modal-window__body {
-        padding: $padding-md 0;
-      }
-    }
+    &[data-variant="default"] {
+      .fb-triggers-select-action-device {
+        &__container {
+          .fb-ui-items-container {
+            &__heading {
+              padding-left: 0;
+            }
 
-    &[data-type="list-devices"].fb-ui-modal-window__container {
-      .fb-ui-modal-window__body {
-        padding: 0 $padding-sm;
+            &__items {
+              padding-left: 0;
+              padding-right: 0;
+
+              .fb-triggers-select-action-device-property {
+                &__conditions {
+                  margin-left: -$margin-md;
+                  margin-right: -$margin-md;
+
+                  .fb-list-item__heading {
+                    margin-left: $margin-sm;
+                  }
+
+                  .fb-list-item__content {
+                    margin-right: $margin-sm;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
+      .fb-ui-modal-form__result {
+        left: -$margin-md;
+        right: -$margin-md;
       }
     }
   }
@@ -34,5 +79,6 @@
 
   &__content {
     min-height: 10rem;
+    height: 100%;
   }
 }

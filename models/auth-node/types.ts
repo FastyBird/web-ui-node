@@ -1,20 +1,20 @@
 import { TJsonaModel } from 'jsona/lib/JsonaTypes'
 
 import {
-  AccountEntityTypeType,
-  AccountStateType,
+  AccountEntityTypes,
+  AccountStateTypes,
 } from '~/models/auth-node/accounts/types'
-import { EmailEntityTypeType } from '~/models/auth-node/emails/types'
+import { EmailEntityTypes } from '~/models/auth-node/emails/types'
 import {
-  IdentityEntityTypeType,
-  IdentityStateType,
+  IdentityEntityTypes,
+  IdentityStateTypes,
 } from '~/models/auth-node/identities/types'
 
 export interface AccountJsonModelInterface extends TJsonaModel {
   id: string,
-  type: AccountEntityTypeType,
+  type: AccountEntityTypes,
 
-  state: AccountStateType,
+  state: AccountStateTypes,
 
   lastVisit: string | null,
   registered: string | null,
@@ -22,14 +22,14 @@ export interface AccountJsonModelInterface extends TJsonaModel {
 
 export interface EmailJsonModelInterface extends TJsonaModel {
   id: string,
-  type: EmailEntityTypeType,
+  type: EmailEntityTypes,
 }
 
 export interface IdentityJsonModelInterface extends TJsonaModel {
   id: string,
-  type: IdentityEntityTypeType,
+  type: IdentityEntityTypes,
 
-  state: IdentityStateType,
+  state: IdentityStateTypes,
 }
 
 export const ModuleOriginType = 'com.fastybird.auth-node'

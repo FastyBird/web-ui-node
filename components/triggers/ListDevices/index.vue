@@ -4,66 +4,56 @@
       <fb-ui-loading-box :text="$t('triggers.texts.loadingDevices')" />
     </template>
 
-    <template v-else-if="!fetchingDevices && devices.length === 0">
-      <fb-ui-no-results>
-        <font-awesome-icon
-          slot="icon"
-          icon="plug"
-        />
-
-        <font-awesome-icon
-          slot="second-icon"
-          icon="exclamation-triangle"
-        />
-
-        {{ $t('triggers.texts.noDevices') }}
-      </fb-ui-no-results>
-    </template>
-
-    <template
-      v-else
-      class="fb-triggers-list-devices__container"
+    <no-results
+      v-else-if="!fetchingDevices && devices.length === 0"
+      icon="plug"
     >
-      <list-item
-        v-for="device in devices"
-        :key="device.id"
-        :data-state="isSelected(device) ? 'on' : 'off'"
-        @click="$emit('select', device)"
-      >
-        <template slot="icon">
-          <font-awesome-icon :icon="device.icon" />
-        </template>
+      {{ $t('triggers.texts.noDevices') }}
+    </no-results>
 
-        <template slot="heading">
-          {{ device.title }}
-        </template>
-
-        <template
-          slot="sub-heading"
-          v-if="device.hasDescription"
+    <scroll-shadow v-else>
+      <div class="fb-triggers-list-devices__items">
+        <list-item
+          v-for="device in devices"
+          :key="device.id"
+          :data-state="isSelected(device) ? 'on' : 'off'"
+          @click="handleSelect(device)"
         >
-          {{ device.comment }}
-        </template>
+          <template slot="icon">
+            <font-awesome-icon :icon="device.icon" />
+          </template>
 
-        <template slot="detail">
-          <div class="fb-triggers-list-devices__buttons">
-            <div class="fb-triggers-list-devices__buttons-item">
-              <font-awesome-icon
-                v-if="isSelected(device)"
-                icon="check-circle"
-              />
-            </div>
+          <template slot="heading">
+            {{ device.title }}
+          </template>
 
-            <div class="fb-triggers-list-devices__buttons-item">
-              <font-awesome-icon
-                icon="chevron-right"
-                role="button"
-              />
+          <template
+            slot="sub-heading"
+            v-if="device.hasDescription"
+          >
+            {{ device.comment }}
+          </template>
+
+          <template slot="detail">
+            <div class="fb-triggers-list-devices__buttons">
+              <div class="fb-triggers-list-devices__buttons-item">
+                <font-awesome-icon
+                  v-if="isSelected(device)"
+                  icon="check-circle"
+                />
+              </div>
+
+              <div class="fb-triggers-list-devices__buttons-item">
+                <font-awesome-icon
+                  icon="chevron-right"
+                  role="button"
+                />
+              </div>
             </div>
-          </div>
-        </template>
-      </list-item>
-    </template>
+          </template>
+        </list-item>
+      </div>
+    </scroll-shadow>
   </div>
 </template>
 
@@ -72,7 +62,6 @@ import {
   computed,
   defineComponent,
   onBeforeMount,
-  onMounted,
   PropType,
   SetupContext,
 } from '@vue/composition-api'
@@ -89,7 +78,7 @@ export enum ViewType {
   DEVICES = 'devices',
 }
 
-interface TriggersSelectDevicePropsInterface {
+interface TriggersListDevicesPropsInterface {
   type: ViewType
   items: Array<ActionInterface | ConditionInterface>
 }
@@ -114,7 +103,7 @@ export default defineComponent({
 
   },
 
-  setup(props: TriggersSelectDevicePropsInterface, context: SetupContext) {
+  setup(props: TriggersListDevicesPropsInterface, context: SetupContext) {
     const devices = computed<Array<DeviceInterface>>((): Array<DeviceInterface> => {
       if (props.type === ViewType.ACTORS) {
         return Device
@@ -151,6 +140,14 @@ export default defineComponent({
 
     const fetchingDevices = computed<boolean>((): boolean => Device.getters('fetching')())
 
+    function isSelected(device: DeviceInterface): boolean {
+      return typeof props.items.find((item: ActionInterface | ConditionInterface): boolean => item.device === device.identifier) !== 'undefined'
+    }
+
+    function handleSelect(device: DeviceInterface): void {
+      context.emit('select', device)
+    }
+
     onBeforeMount(async(): Promise<void> => {
       if (!Device.getters('firstLoadFinished')()) {
         try {
@@ -163,18 +160,11 @@ export default defineComponent({
       }
     })
 
-    onMounted((): void => {
-      context.emit('loaded')
-    })
-
-    function isSelected(device: DeviceInterface): boolean {
-      return typeof props.items.find((item: ActionInterface | ConditionInterface): boolean => item.device === device.identifier) !== 'undefined'
-    }
-
     return {
       devices,
       fetchingDevices,
       isSelected,
+      handleSelect,
     }
   },
 

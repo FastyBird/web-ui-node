@@ -14,17 +14,6 @@
       flex-direction: row;
       align-items: center;
     }
-
-    &-empty {
-      .fb-list-layout__items {
-        flex-direction: row;
-        align-items: center;
-
-        .fb-ui-no-results__container {
-          margin: 0 auto;
-        }
-      }
-    }
   }
 
   &__loading {
@@ -33,25 +22,5 @@
     flex: 0 0 50%;
     max-width: 50%;
     margin: 0 auto;
-  }
-
-  &__detail-info {
-    display: flex;
-    align-items: center;
-    height: 100%;
-
-    .fb-ui-content {
-      flex: 1 0 0;
-
-      .fb-ui-media-item__container {
-        margin-bottom: $margin-sm;
-
-        .fb-ui-media-item__left {
-          font-size: $font-size-md * 2;
-          line-height: 2.5rem;
-          margin-top: $margin-sm;
-        }
-      }
-    }
   }
 }

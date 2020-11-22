@@ -1,135 +1,130 @@
 <template>
-  <validation-observer
-    ref="validator"
-    v-slot="{ handleSubmit }"
-  >
-    <form @submit="handleSubmit(submit)">
-      <fb-ui-content mb="sm">
-        <validation-provider
-          v-slot="{ errors }"
-          name="username"
-          rules="required"
-        >
-          <fb-form-input
-            ref="username"
-            v-model="form.model.username"
-            :error="errors[0]"
-            :has-error="errors.length > 0"
-            :label="$t('devices.fields.username.title')"
-            :required="true"
-            name="username"
-            readonly
-            :tab-index="2"
-          >
-            <template slot="right-addon">
-              <font-awesome-icon
-                icon="clipboard"
-                class="fb-devices-connect-credentials__copy-button"
-                @click="copyToClipboard('username')"
-              />
-            </template>
-          </fb-form-input>
-        </validation-provider>
-      </fb-ui-content>
-
-      <fb-ui-content mb="sm">
-        <validation-provider
-          v-slot="{ errors }"
-          name="password"
-          rules="required"
-        >
-          <fb-form-input
-            ref="password"
-            v-model="form.model.password"
-            :error="errors[0]"
-            :has-error="errors.length > 0"
-            :label="$t('devices.fields.password.title')"
-            :required="true"
-            name="password"
-            mb="sm"
-            :tab-index="3"
-          >
-            <template slot="right-addon">
-              <font-awesome-icon
-                icon="clipboard"
-                class="fb-devices-connect-credentials__copy-button"
-                @click="copyToClipboard('password')"
-              />
-            </template>
-          </fb-form-input>
-        </validation-provider>
-      </fb-ui-content>
-
-      <fb-ui-content mb="sm">
+  <validation-observer ref="validator">
+    <fb-ui-content :mb="sizeTypes.SMALL">
+      <validation-provider
+        v-slot="{ errors }"
+        name="username"
+        rules="required"
+      >
         <fb-form-input
-          ref="clientId"
-          :value="device.identifier"
-          :label="$t('devices.fields.clientId.title')"
-          :tab-index="4"
-          name="clientId"
+          ref="username"
+          v-model="form.model.username"
+          :error="errors[0]"
+          :has-error="errors.length > 0"
+          :label="$t('devices.fields.username.title')"
+          :required="true"
+          :tab-index="2"
+          name="username"
           readonly
+        >
+          <template slot="right-addon">
+            <font-awesome-icon
+              @click="handleCopyToClipboard('username')"
+              icon="clipboard"
+              class="fb-devices-connect-credentials__copy-button"
+            />
+          </template>
+        </fb-form-input>
+      </validation-provider>
+    </fb-ui-content>
+
+    <fb-ui-content :mb="sizeTypes.SMALL">
+      <validation-provider
+        v-slot="{ errors }"
+        name="password"
+        rules="required"
+      >
+        <fb-form-input
+          ref="password"
+          v-model="form.model.password"
+          :error="errors[0]"
+          :has-error="errors.length > 0"
+          :label="$t('devices.fields.password.title')"
+          :required="true"
+          :tab-index="3"
+          name="password"
           mb="sm"
         >
           <template slot="right-addon">
             <font-awesome-icon
+              @click="handleCopyToClipboard('password')"
               icon="clipboard"
               class="fb-devices-connect-credentials__copy-button"
-              @click="copyToClipboard('clientId')"
             />
           </template>
         </fb-form-input>
-      </fb-ui-content>
+      </validation-provider>
+    </fb-ui-content>
 
-      <hr>
-
-      <div class="fb-devices-connect-credentials__row">
-        <div>
-          <fb-form-input
-            :value="mqtt.server"
-            :label="$t('devices.fields.mqtt.server.title')"
-            :readonly="true"
-            name="server"
-            :tab-index="8"
+    <fb-ui-content :mb="sizeTypes.SMALL">
+      <fb-form-input
+        ref="clientId"
+        :value="device.identifier"
+        :label="$t('devices.fields.clientId.title')"
+        :tab-index="4"
+        name="clientId"
+        readonly
+        mb="sm"
+      >
+        <template slot="right-addon">
+          <font-awesome-icon
+            @click="handleCopyToClipboard('clientId')"
+            icon="clipboard"
+            class="fb-devices-connect-credentials__copy-button"
           />
-        </div>
+        </template>
+      </fb-form-input>
+    </fb-ui-content>
 
-        <div>
-          <fb-form-input
-            :value="mqtt.port"
-            :label="$t('devices.fields.mqtt.port.title')"
-            :readonly="true"
-            name="port"
-            :tab-index="9"
-          />
-        </div>
+    <hr>
+
+    <div class="fb-devices-connect-credentials__row">
+      <div>
+        <fb-form-input
+          :value="mqtt.server"
+          :label="$t('devices.fields.mqtt.server.title')"
+          :readonly="true"
+          :tab-index="5"
+          name="server"
+        />
       </div>
 
-      <fb-ui-divider>
-        {{ $t('application.misc.or') }}
-      </fb-ui-divider>
-
-      <div class="fb-devices-connect-credentials__row">
-        <div>
-          <fb-form-input
-            :value="mqtt.securedServer"
-            :label="$t('devices.fields.mqtt.securedServer.title')"
-            :readonly="true"
-            name="secured_server"
-            :tab-index="10"
-          />
-        </div>
-
-        <div>
-          <fb-form-input
-            :value="mqtt.securedPort"
-            :label="$t('devices.fields.mqtt.securedPort.title')"
-            :readonly="true"
-            name="secured_port"
-            :tab-index="11"
-          />
-        </div>
+      <div>
+        <fb-form-input
+          :value="mqtt.port"
+          :label="$t('devices.fields.mqtt.port.title')"
+          :readonly="true"
+          :tab-index="6"
+          name="port"
+        />
       </div>
-    </form>
+    </div>
+
+    <fb-ui-divider>
+      {{ $t('application.misc.or') }}
+    </fb-ui-divider>
+
+    <div class="fb-devices-connect-credentials__row">
+      <div>
+        <fb-form-input
+          :value="mqtt.securedServer"
+          :label="$t('devices.fields.mqtt.securedServer.title')"
+          :readonly="true"
+          :tab-index="7"
+          name="secured_server"
+        />
+      </div>
+
+      <div>
+        <fb-form-input
+          :value="mqtt.securedPort"
+          :label="$t('devices.fields.mqtt.securedPort.title')"
+          :readonly="true"
+          :tab-index="8"
+          name="secured_port"
+        />
+      </div>
+    </div>
   </validation-observer>
 </template>
 
@@ -151,7 +146,11 @@ import {
 } from 'vee-validate'
 
 import uuid from 'uuid'
-import { FbFormInput } from '@fastybird/web-ui-theme'
+
+import {
+  FbFormInput,
+  FbSizeTypes,
+} from '@fastybird/web-ui-theme'
 
 import {
   MQTT_SERVER_ADDRESS,
@@ -162,13 +161,13 @@ import {
 import { DeviceInterface } from '~/models/devices-node/devices/types'
 
 import Account from '~/models/auth-node/accounts/Account'
-import { AccountEntityTypeType } from '~/models/auth-node/accounts/types'
+import { AccountEntityTypes } from '~/models/auth-node/accounts/types'
 import Identity from '~/models/auth-node/identities/Identity'
-import { IdentityEntityTypeType } from '~/models/auth-node/identities/types'
+import { IdentityEntityTypes } from '~/models/auth-node/identities/types'
 
 interface DevicesConnectCredentialsPropsPropsInterface {
   device: DeviceInterface
-  remoteSubmit: boolean
+  remoteFormSubmit: boolean
 }
 
 function generatePassword(): string {
@@ -194,7 +193,7 @@ export default defineComponent({
       required: true,
     },
 
-    remoteSubmit: {
+    remoteFormSubmit: {
       type: Boolean,
       default: false,
     },
@@ -245,45 +244,7 @@ export default defineComponent({
       computesRequired: true,
     })
 
-    function submit(): void {
-      context.emit('update:remoteSubmit', false)
-
-      if (validator.value !== null) {
-        validator.value
-          .validate()
-          .then(async(success: boolean): Promise<void> => {
-            if (success) {
-              let account = Account.find(props.device.id)
-
-              if (account === null) {
-                account = await Account.dispatch('add', {
-                  id: props.device.id,
-                  draft: true,
-                  data: {
-                    type: AccountEntityTypeType.MACHINE,
-                  },
-                })
-              }
-
-              if (account !== null) {
-                await Identity.dispatch('add', {
-                  account,
-                  draft: true,
-                  data: {
-                    type: IdentityEntityTypeType.MACHINE,
-                    uid: form.model.username,
-                    password: form.model.password,
-                  },
-                })
-              }
-
-              context.emit('saved')
-            }
-          })
-      }
-    }
-
-    function copyToClipboard(field: string): void {
+    function handleCopyToClipboard(field: string): void {
       let input = null
 
       switch (field) {
@@ -308,17 +269,51 @@ export default defineComponent({
 
       if (input !== null) {
         input.select()
-        input.setSelectionRange(0, 99999) // For mobile devices
+        input.setSelectionRange(0, 99999)
 
         document.execCommand('copy')
       }
     }
 
     watch(
-      (): boolean => props.remoteSubmit,
+      (): boolean => props.remoteFormSubmit,
       (val): void => {
         if (val) {
-          submit()
+          context.emit('update:remoteFormSubmit', false)
+
+          if (validator.value !== null) {
+            validator.value
+              .validate()
+              .then(async(success: boolean): Promise<void> => {
+                if (success) {
+                  let account = Account.find(props.device.id)
+
+                  if (account === null) {
+                    account = await Account.dispatch('add', {
+                      id: props.device.id,
+                      draft: true,
+                      data: {
+                        type: AccountEntityTypes.MACHINE,
+                      },
+                    })
+                  }
+
+                  if (account !== null) {
+                    await Identity.dispatch('add', {
+                      account,
+                      draft: true,
+                      data: {
+                        type: IdentityEntityTypes.MACHINE,
+                        uid: form.model.username,
+                        password: form.model.password,
+                      },
+                    })
+                  }
+
+                  context.emit('saved')
+                }
+              })
+          }
         }
       },
     )
@@ -329,14 +324,14 @@ export default defineComponent({
       password,
       clientId,
       form,
-      submit,
-      copyToClipboard,
+      handleCopyToClipboard,
       mqtt: {
         server: MQTT_SERVER_ADDRESS,
         port: MQTT_SERVER_PORT,
         securedServer: MQTT_SERVER_ADDRESS,
         securedPort: MQTT_SERVER_SECURED_PORT,
       },
+      sizeTypes: FbSizeTypes,
     }
   },
 

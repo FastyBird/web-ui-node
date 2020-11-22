@@ -6,19 +6,26 @@
     height: 5.5rem;
     background-color: $content-background-color;
 
-    &-default {
-      margin-top: $margin-sm;
-      margin-bottom: $margin-sm;
-
-      @media (max-width: $screen-xs-max) {
-        margin: $margin-sm;
+    &-with-icon {
+      .fb-list-item {
+        &__heading {
+          padding-left: 0;
+        }
       }
+    }
+
+    &[data-variant="default"] {
+      margin-bottom: $margin-sm;
 
       border: 1px solid $gray-lighter;
       @include border-radius(0.5rem);
+
+      &:last-child {
+        margin-bottom: 0;
+      }
     }
 
-    &-list {
+    &[data-variant="list"] {
       .fb-list-item {
         &__inner {
           border-bottom: 1px solid $gray-lighter;
@@ -48,6 +55,7 @@
   &__heading {
     height: 100%;
     overflow: hidden;
+    padding-left: $padding-sm;
 
     -webkit-box-flex: 0;
     -ms-flex: 4 0 0;
@@ -65,6 +73,7 @@
         margin-top: $margin-xs;
         line-height: $heading-line-height-sm;
         font-size: $heading-font-size-sm;
+        font-weight: 550;
       }
 
       > small {

@@ -8,21 +8,21 @@ import {
 
 import {
   DeviceInterface,
-  DeviceEntityTypeType,
+  DeviceEntityTypes,
 } from '~/models/devices-node/devices/types'
 import {
   ChannelPropertyInterface,
-  ChannelPropertyEntityTypeType,
+  ChannelPropertyEntityTypes,
 } from '~/models/devices-node/channel-properties/types'
 import {
   ChannelConfigurationInterface,
-  ChannelConfigurationEntityTypeType,
+  ChannelConfigurationEntityTypes,
 } from '~/models/devices-node/channel-configuration/types'
 
 // STORE
 // =====
 
-export enum SemaphoreType {
+export enum SemaphoreTypes {
   FETCHING = 'fetching',
   GETTING = 'getting',
   CREATING = 'creating',
@@ -35,7 +35,7 @@ export enum SemaphoreType {
 
 export interface ChannelInterface {
   id: string
-  type: ChannelEntityTypeType
+  type: ChannelEntityTypes
 
   channel: string
   name: string | null
@@ -59,7 +59,7 @@ export interface ChannelInterface {
 // ENTITY TYPES
 // ============
 
-export enum ChannelEntityTypeType {
+export enum ChannelEntityTypes {
   CHANNEL = 'devices-node/channel',
 }
 
@@ -76,7 +76,7 @@ interface ChannelAttributesResponseInterface {
 
 interface ChannelDeviceRelationshipResponseInterface extends TJsonApiRelationshipData {
   id: string
-  type: DeviceEntityTypeType
+  type: DeviceEntityTypes
 }
 
 interface ChannelDeviceRelationshipsResponseInterface extends TJsonApiRelation {
@@ -85,7 +85,7 @@ interface ChannelDeviceRelationshipsResponseInterface extends TJsonApiRelation {
 
 interface ChannelPropertyRelationshipResponseInterface extends TJsonApiRelationshipData {
   id: string
-  type: ChannelPropertyEntityTypeType
+  type: ChannelPropertyEntityTypes
 }
 
 interface ChannelPropertiesRelationshipsResponseInterface extends TJsonApiRelation {
@@ -94,7 +94,7 @@ interface ChannelPropertiesRelationshipsResponseInterface extends TJsonApiRelati
 
 interface ChannelConfigurationRelationshipResponseInterface extends TJsonApiRelationshipData {
   id: string
-  type: ChannelConfigurationEntityTypeType
+  type: ChannelConfigurationEntityTypes
 }
 
 interface ChannelConfigurationRelationshipsResponseInterface extends TJsonApiRelation {
@@ -109,7 +109,7 @@ interface ChannelRelationshipsResponseInterface extends TJsonApiRelationships {
 
 export interface ChannelDataResponseInterface extends TJsonApiData {
   id: string
-  type: ChannelEntityTypeType
+  type: ChannelEntityTypes
   attributes: ChannelAttributesResponseInterface
   relationships: ChannelRelationshipsResponseInterface
 }
@@ -129,4 +129,16 @@ export enum RoutingKeys {
   CREATED = 'fb.bus.node.entity.created.channel',
   UPDATED = 'fb.bus.node.entity.updated.channel',
   DELETED = 'fb.bus.node.entity.deleted.channel',
+}
+
+export enum CommandRoutingKeys {
+  RESET = 'fb.bus.node.cmd.channel.reset',
+}
+
+// UPDATE ENTITY INTERFACES
+// ========================
+
+export interface ChannelUpdateInterface {
+  name?: string | null
+  comment?: string | null
 }

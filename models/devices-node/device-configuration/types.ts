@@ -11,7 +11,7 @@ export interface ValuesItemInterface {
 
 export interface DeviceConfigurationInterface {
   id: string
-  type: DeviceConfigurationEntityTypeType
+  type: DeviceConfigurationEntityTypes
 
   configuration: string
   name: string | null
@@ -49,7 +49,7 @@ export interface DeviceConfigurationInterface {
 // ENTITY TYPES
 // ============
 
-export enum DeviceConfigurationEntityTypeType {
+export enum DeviceConfigurationEntityTypes {
   BOOLEAN = 'devices-node/device-configuration-boolean',
   NUMBER = 'devices-node/device-configuration-number',
   SELECT = 'devices-node/device-configuration-select',

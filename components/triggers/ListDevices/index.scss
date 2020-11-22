@@ -3,10 +3,8 @@
 
 .fb-triggers-list-devices {
   &__container {
-    @media (min-width: $screen-sm-min) {
-      max-height: 50vh;
-      overflow-y: scroll;
-    }
+    height: 100%;
+    overflow: hidden;
 
     .fb-list-item__container {
       margin-left: 0;
@@ -17,6 +15,10 @@
       display: block;
       margin: 0 auto;
     }
+  }
+
+  &__items {
+
   }
 
   &__buttons {

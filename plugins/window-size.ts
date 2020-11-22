@@ -26,6 +26,7 @@ interface WindowSizeInterface {
     isSmall(): boolean
     isMedium(): boolean
     isLarge(): boolean
+    isExtraLarge(): boolean
 }
 
 class WindowSize implements WindowSizeInterface {
@@ -53,6 +54,10 @@ class WindowSize implements WindowSizeInterface {
 
     isLarge(): boolean {
       return this.store.state.app.windowSize === FbSizeTypes.LARGE
+    }
+
+    isExtraLarge(): boolean {
+      return this.store.state.app.windowSize === FbSizeTypes.EXTRA_LARGE
     }
 }
 

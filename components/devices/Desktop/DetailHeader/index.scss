@@ -1,0 +1,9 @@
+@import "~assets/scss/variables";
+
+.fb-devices-desktop-detail-header {
+  &__container {
+    .fb-desktop-detail-heading__buttons {
+      padding-right: $padding-sm;
+    }
+  }
+}

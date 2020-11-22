@@ -19,7 +19,7 @@ import {
   CreateDateConditionInterface,
   CreateDevicePropertyConditionInterface,
   CreateTimeConditionInterface,
-  SemaphoreType,
+  SemaphoreTypes,
   UpdateChannelPropertyConditionInterface,
   UpdateDateConditionInterface,
   UpdateDevicePropertyConditionInterface,
@@ -55,7 +55,7 @@ interface ConditionState {
 }
 
 interface SemaphoreCondition {
-  type: SemaphoreType
+  type: SemaphoreTypes
   id: string
 }
 
@@ -89,7 +89,7 @@ const moduleActions: ActionTree<ConditionState, any> = {
     }
 
     commit('SET_SEMAPHORE', {
-      type: SemaphoreType.GETTING,
+      type: SemaphoreTypes.GETTING,
       id: payload.id,
     })
 
@@ -108,7 +108,7 @@ const moduleActions: ActionTree<ConditionState, any> = {
       )
     } finally {
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.GETTING,
+        type: SemaphoreTypes.GETTING,
         id: payload.id,
       })
     }
@@ -119,7 +119,7 @@ const moduleActions: ActionTree<ConditionState, any> = {
     const draft = typeof payload.draft !== 'undefined' ? payload.draft : false
 
     commit('SET_SEMAPHORE', {
-      type: SemaphoreType.CREATING,
+      type: SemaphoreTypes.CREATING,
       id,
     })
 
@@ -128,16 +128,16 @@ const moduleActions: ActionTree<ConditionState, any> = {
         data: Object.assign({}, payload.data, { id, draft, triggerId: payload.trigger.id }),
       })
     } catch (e) {
+      commit('CLEAR_SEMAPHORE', {
+        type: SemaphoreTypes.CREATING,
+        id,
+      })
+
       throw new OrmError(
         'triggers-node.conditions.create.failed',
         e,
         'Create new condition failed.',
       )
-    } finally {
-      commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.CREATING,
-        id,
-      })
     }
 
     const createdEntity = Condition.find(id)
@@ -146,7 +146,7 @@ const moduleActions: ActionTree<ConditionState, any> = {
       await Condition.delete(id)
 
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.CREATING,
+        type: SemaphoreTypes.CREATING,
         id,
       })
 
@@ -155,7 +155,7 @@ const moduleActions: ActionTree<ConditionState, any> = {
 
     if (draft) {
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.CREATING,
+        type: SemaphoreTypes.CREATING,
         id,
       })
 
@@ -182,7 +182,7 @@ const moduleActions: ActionTree<ConditionState, any> = {
         )
       } finally {
         commit('CLEAR_SEMAPHORE', {
-          type: SemaphoreType.CREATING,
+          type: SemaphoreTypes.CREATING,
           id,
         })
       }
@@ -199,7 +199,7 @@ const moduleActions: ActionTree<ConditionState, any> = {
     }
 
     commit('SET_SEMAPHORE', {
-      type: SemaphoreType.UPDATING,
+      type: SemaphoreTypes.UPDATING,
       id: payload.condition.id,
     })
 
@@ -209,16 +209,16 @@ const moduleActions: ActionTree<ConditionState, any> = {
         data: payload.data,
       })
     } catch (e) {
+      commit('CLEAR_SEMAPHORE', {
+        type: SemaphoreTypes.UPDATING,
+        id: payload.condition.id,
+      })
+
       throw new OrmError(
         'triggers-node.conditions.update.failed',
         e,
         'Edit condition failed.',
       )
-    } finally {
-      commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.UPDATING,
-        id: payload.condition.id,
-      })
     }
 
     const updatedEntity = Condition.find(payload.condition.id)
@@ -233,7 +233,7 @@ const moduleActions: ActionTree<ConditionState, any> = {
       })
 
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.UPDATING,
+        type: SemaphoreTypes.UPDATING,
         id: payload.condition.id,
       })
 
@@ -242,7 +242,7 @@ const moduleActions: ActionTree<ConditionState, any> = {
 
     if (updatedEntity.draft) {
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.UPDATING,
+        type: SemaphoreTypes.UPDATING,
         id: payload.condition.id,
       })
 
@@ -274,7 +274,7 @@ const moduleActions: ActionTree<ConditionState, any> = {
         )
       } finally {
         commit('CLEAR_SEMAPHORE', {
-          type: SemaphoreType.UPDATING,
+          type: SemaphoreTypes.UPDATING,
           id: payload.condition.id,
         })
       }
@@ -291,7 +291,7 @@ const moduleActions: ActionTree<ConditionState, any> = {
     }
 
     commit('SET_SEMAPHORE', {
-      type: SemaphoreType.UPDATING,
+      type: SemaphoreTypes.UPDATING,
       id: payload.condition.id,
     })
 
@@ -299,7 +299,7 @@ const moduleActions: ActionTree<ConditionState, any> = {
 
     if (entityToSave === null) {
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.UPDATING,
+        type: SemaphoreTypes.UPDATING,
         id: payload.condition.id,
       })
 
@@ -324,7 +324,7 @@ const moduleActions: ActionTree<ConditionState, any> = {
       )
     } finally {
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.UPDATING,
+        type: SemaphoreTypes.UPDATING,
         id: payload.condition.id,
       })
     }
@@ -340,28 +340,28 @@ const moduleActions: ActionTree<ConditionState, any> = {
     }
 
     commit('SET_SEMAPHORE', {
-      type: SemaphoreType.DELETING,
+      type: SemaphoreTypes.DELETING,
       id: payload.condition.id,
     })
 
     try {
       await Condition.delete(payload.condition.id)
     } catch (e) {
+      commit('CLEAR_SEMAPHORE', {
+        type: SemaphoreTypes.DELETING,
+        id: payload.condition.id,
+      })
+
       throw new OrmError(
         'triggers-node.conditions.delete.failed',
         e,
         'Delete condition failed.',
       )
-    } finally {
-      commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.DELETING,
-        id: payload.condition.id,
-      })
     }
 
     if (payload.condition.draft) {
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.DELETING,
+        type: SemaphoreTypes.DELETING,
         id: payload.condition.id,
       })
 
@@ -392,7 +392,7 @@ const moduleActions: ActionTree<ConditionState, any> = {
         )
       } finally {
         commit('CLEAR_SEMAPHORE', {
-          type: SemaphoreType.DELETING,
+          type: SemaphoreTypes.DELETING,
           id: payload.condition.id,
         })
       }
@@ -407,35 +407,35 @@ const moduleActions: ActionTree<ConditionState, any> = {
 const moduleMutations: MutationTree<ConditionState> = {
   ['SET_SEMAPHORE'](state: ConditionState, action: SemaphoreCondition): void {
     switch (action.type) {
-      case SemaphoreType.FETCHING:
+      case SemaphoreTypes.FETCHING:
         state.semaphore.fetching.items.push(action.id)
 
         // Make all keys uniq
         state.semaphore.fetching.items = uniq(state.semaphore.fetching.items)
         break
 
-      case SemaphoreType.GETTING:
+      case SemaphoreTypes.GETTING:
         state.semaphore.fetching.item.push(action.id)
 
         // Make all keys uniq
         state.semaphore.fetching.item = uniq(state.semaphore.fetching.item)
         break
 
-      case SemaphoreType.CREATING:
+      case SemaphoreTypes.CREATING:
         state.semaphore.creating.push(action.id)
 
         // Make all keys uniq
         state.semaphore.creating = uniq(state.semaphore.creating)
         break
 
-      case SemaphoreType.UPDATING:
+      case SemaphoreTypes.UPDATING:
         state.semaphore.updating.push(action.id)
 
         // Make all keys uniq
         state.semaphore.updating = uniq(state.semaphore.updating)
         break
 
-      case SemaphoreType.DELETING:
+      case SemaphoreTypes.DELETING:
         state.semaphore.deleting.push(action.id)
 
         // Make all keys uniq
@@ -446,7 +446,7 @@ const moduleMutations: MutationTree<ConditionState> = {
 
   ['CLEAR_SEMAPHORE'](state: ConditionState, action: SemaphoreCondition): void {
     switch (action.type) {
-      case SemaphoreType.FETCHING:
+      case SemaphoreTypes.FETCHING:
         // Process all semaphore items
         state.semaphore.fetching.items
           .forEach((item: string, index: number): void => {
@@ -458,7 +458,7 @@ const moduleMutations: MutationTree<ConditionState> = {
           })
         break
 
-      case SemaphoreType.GETTING:
+      case SemaphoreTypes.GETTING:
         // Process all semaphore items
         state.semaphore.fetching.item
           .forEach((item: string, index: number): void => {
@@ -470,7 +470,7 @@ const moduleMutations: MutationTree<ConditionState> = {
           })
         break
 
-      case SemaphoreType.CREATING:
+      case SemaphoreTypes.CREATING:
         // Process all semaphore items
         state.semaphore.creating
           .forEach((item: string, index: number): void => {
@@ -482,7 +482,7 @@ const moduleMutations: MutationTree<ConditionState> = {
           })
         break
 
-      case SemaphoreType.UPDATING:
+      case SemaphoreTypes.UPDATING:
         // Process all semaphore items
         state.semaphore.updating
           .forEach((item: string, index: number): void => {
@@ -494,7 +494,7 @@ const moduleMutations: MutationTree<ConditionState> = {
           })
         break
 
-      case SemaphoreType.DELETING:
+      case SemaphoreTypes.DELETING:
         // Process all semaphore items
         state.semaphore.deleting
           .forEach((item: string, index: number): void => {

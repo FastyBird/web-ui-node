@@ -29,11 +29,6 @@ import { DeviceInterface } from '~/models/devices-node/devices/types'
 
 import TriggersSelectActionDeviceProperty from '~/components/triggers/SelectActionDevice/Property/index.vue'
 
-interface TriggersSelectDeviceInterface {
-  value: Array<{ selected: boolean, operation: string | boolean | null }>
-  device: DeviceInterface
-}
-
 export default defineComponent({
 
   name: 'TriggersSelectActionDevice',

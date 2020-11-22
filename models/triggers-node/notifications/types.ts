@@ -8,13 +8,13 @@ import {
 
 import {
   TriggerInterface,
-  TriggerEntityTypeType,
+  TriggerEntityTypes,
 } from '~/models/triggers-node/triggers/types'
 
 // STORE
 // =====
 
-export enum SemaphoreType {
+export enum SemaphoreTypes {
   FETCHING = 'fetching',
   GETTING = 'getting',
   CREATING = 'creating',
@@ -27,7 +27,7 @@ export enum SemaphoreType {
 
 export interface NotificationInterface {
   id: string
-  type: NotificationEntityTypeType
+  type: NotificationEntityTypes
 
   draft: boolean
 
@@ -54,7 +54,7 @@ export interface NotificationInterface {
 // ENTITY TYPES
 // ============
 
-export enum NotificationEntityTypeType {
+export enum NotificationEntityTypes {
   EMAIL = 'triggers-node/notification-email',
   SMS = 'triggers-node/notification-sms',
 }
@@ -74,7 +74,7 @@ interface NotificationAttributesResponseInterface {
 
 interface NotificationTriggerRelationshipResponseInterface extends TJsonApiRelationshipData {
   id: string
-  type: TriggerEntityTypeType
+  type: TriggerEntityTypes
 }
 
 interface NotificationTriggerRelationshipsResponseInterface extends TJsonApiRelation {
@@ -87,7 +87,7 @@ interface NotificationRelationshipsResponseInterface extends TJsonApiRelationshi
 
 export interface NotificationDataResponseInterface extends TJsonApiData {
   id: string
-  type: NotificationEntityTypeType
+  type: NotificationEntityTypes
   attributes: NotificationAttributesResponseInterface
   relationships: NotificationRelationshipsResponseInterface
 }
@@ -121,7 +121,7 @@ export interface CreateEmailNotificationInterface extends NotificationCreateInte
 }
 
 export interface NotificationCreateInterface {
-  type: NotificationEntityTypeType
+  type: NotificationEntityTypes
 
   enabled: boolean
 }

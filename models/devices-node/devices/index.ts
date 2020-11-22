@@ -20,13 +20,13 @@ import {
 import Device from '~/models/devices-node/devices/Device'
 import {
   DeviceCreateInterface,
-  DeviceEntityTypeType,
+  DeviceEntityTypes,
   DeviceInterface,
   DeviceResponseInterface,
   DevicesResponseInterface,
   DeviceUpdateInterface,
   RoutingKeys,
-  SemaphoreType,
+  SemaphoreTypes,
 } from '~/models/devices-node/devices/types'
 import Channel from '~/models/devices-node/channels/Channel'
 
@@ -61,7 +61,7 @@ interface DeviceState {
 }
 
 interface SemaphoreAction {
-  type: SemaphoreType
+  type: SemaphoreTypes
   id?: string
 }
 
@@ -113,7 +113,7 @@ const moduleActions: ActionTree<DeviceState, any> = {
     }
 
     commit('SET_SEMAPHORE', {
-      type: SemaphoreType.GETTING,
+      type: SemaphoreTypes.GETTING,
       id: payload.id,
     })
 
@@ -140,7 +140,7 @@ const moduleActions: ActionTree<DeviceState, any> = {
       )
     } finally {
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.GETTING,
+        type: SemaphoreTypes.GETTING,
         id: payload.id,
       })
     }
@@ -152,7 +152,7 @@ const moduleActions: ActionTree<DeviceState, any> = {
     }
 
     commit('SET_SEMAPHORE', {
-      type: SemaphoreType.FETCHING,
+      type: SemaphoreTypes.FETCHING,
     })
 
     try {
@@ -188,7 +188,7 @@ const moduleActions: ActionTree<DeviceState, any> = {
       )
     } finally {
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.FETCHING,
+        type: SemaphoreTypes.FETCHING,
       })
     }
   },
@@ -198,7 +198,7 @@ const moduleActions: ActionTree<DeviceState, any> = {
     const draft = typeof payload.draft !== 'undefined' ? payload.draft : false
 
     commit('SET_SEMAPHORE', {
-      type: SemaphoreType.CREATING,
+      type: SemaphoreTypes.CREATING,
       id,
     })
 
@@ -207,16 +207,16 @@ const moduleActions: ActionTree<DeviceState, any> = {
         data: Object.assign({}, payload.data, { id, draft }),
       })
     } catch (e) {
+      commit('CLEAR_SEMAPHORE', {
+        type: SemaphoreTypes.CREATING,
+        id,
+      })
+
       throw new OrmError(
         'devices-node.devices.create.failed',
         e,
         'Create new device failed.',
       )
-    } finally {
-      commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.CREATING,
-        id,
-      })
     }
 
     const createdEntity = Device.find(id)
@@ -225,7 +225,7 @@ const moduleActions: ActionTree<DeviceState, any> = {
       await Device.delete(id)
 
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.CREATING,
+        type: SemaphoreTypes.CREATING,
         id,
       })
 
@@ -234,7 +234,7 @@ const moduleActions: ActionTree<DeviceState, any> = {
 
     if (draft) {
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.CREATING,
+        type: SemaphoreTypes.CREATING,
         id,
       })
 
@@ -261,7 +261,7 @@ const moduleActions: ActionTree<DeviceState, any> = {
         )
       } finally {
         commit('CLEAR_SEMAPHORE', {
-          type: SemaphoreType.CREATING,
+          type: SemaphoreTypes.CREATING,
           id,
         })
       }
@@ -278,7 +278,7 @@ const moduleActions: ActionTree<DeviceState, any> = {
     }
 
     commit('SET_SEMAPHORE', {
-      type: SemaphoreType.UPDATING,
+      type: SemaphoreTypes.UPDATING,
       id: payload.device.id,
     })
 
@@ -293,11 +293,6 @@ const moduleActions: ActionTree<DeviceState, any> = {
         e,
         'Edit device failed.',
       )
-    } finally {
-      commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.UPDATING,
-        id: payload.device.id,
-      })
     }
 
     const updatedEntity = Device.find(payload.device.id)
@@ -310,7 +305,7 @@ const moduleActions: ActionTree<DeviceState, any> = {
       })
 
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.UPDATING,
+        type: SemaphoreTypes.UPDATING,
         id: payload.device.id,
       })
 
@@ -319,7 +314,7 @@ const moduleActions: ActionTree<DeviceState, any> = {
 
     if (updatedEntity.draft) {
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.UPDATING,
+        type: SemaphoreTypes.UPDATING,
         id: payload.device.id,
       })
 
@@ -349,7 +344,7 @@ const moduleActions: ActionTree<DeviceState, any> = {
         )
       } finally {
         commit('CLEAR_SEMAPHORE', {
-          type: SemaphoreType.UPDATING,
+          type: SemaphoreTypes.UPDATING,
           id: payload.device.id,
         })
       }
@@ -366,7 +361,7 @@ const moduleActions: ActionTree<DeviceState, any> = {
     }
 
     commit('SET_SEMAPHORE', {
-      type: SemaphoreType.UPDATING,
+      type: SemaphoreTypes.UPDATING,
       id: payload.device.id,
     })
 
@@ -374,7 +369,7 @@ const moduleActions: ActionTree<DeviceState, any> = {
 
     if (entityToSave === null) {
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.UPDATING,
+        type: SemaphoreTypes.UPDATING,
         id: payload.device.id,
       })
 
@@ -399,7 +394,7 @@ const moduleActions: ActionTree<DeviceState, any> = {
       )
     } finally {
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.UPDATING,
+        type: SemaphoreTypes.UPDATING,
         id: payload.device.id,
       })
     }
@@ -415,28 +410,28 @@ const moduleActions: ActionTree<DeviceState, any> = {
     }
 
     commit('SET_SEMAPHORE', {
-      type: SemaphoreType.DELETING,
+      type: SemaphoreTypes.DELETING,
       id: payload.device.id,
     })
 
     try {
       await Device.delete(payload.device.id)
     } catch (e) {
+      commit('CLEAR_SEMAPHORE', {
+        type: SemaphoreTypes.DELETING,
+        id: payload.device.id,
+      })
+
       throw new OrmError(
         'devices-node.devices.delete.failed',
         e,
         'Delete device failed.',
       )
-    } finally {
-      commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.DELETING,
-        id: payload.device.id,
-      })
     }
 
     if (payload.device.draft) {
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.DELETING,
+        type: SemaphoreTypes.DELETING,
         id: payload.device.id,
       })
 
@@ -465,14 +460,14 @@ const moduleActions: ActionTree<DeviceState, any> = {
         )
       } finally {
         commit('CLEAR_SEMAPHORE', {
-          type: SemaphoreType.DELETING,
+          type: SemaphoreTypes.DELETING,
           id: payload.device.id,
         })
       }
     }
   },
 
-  async socketData({ commit }, payload: { origin: string, routingKey: string, data: string }): Promise<boolean> {
+  async socketData({ state, commit }, payload: { origin: string, routingKey: string, data: string }): Promise<boolean> {
     if (payload.origin !== ModuleOriginType) {
       return false
     }
@@ -495,7 +490,7 @@ const moduleActions: ActionTree<DeviceState, any> = {
 
       if (payload.routingKey === RoutingKeys.DELETED) {
         commit('SET_SEMAPHORE', {
-          type: SemaphoreType.DELETING,
+          type: SemaphoreTypes.DELETING,
           id: body.id,
         })
 
@@ -509,18 +504,22 @@ const moduleActions: ActionTree<DeviceState, any> = {
           )
         } finally {
           commit('CLEAR_SEMAPHORE', {
-            type: SemaphoreType.DELETING,
+            type: SemaphoreTypes.DELETING,
             id: body.id,
           })
         }
       } else {
+        if (payload.routingKey === RoutingKeys.UPDATED && state.semaphore.updating.includes(body.id)) {
+          return true
+        }
+
         commit('SET_SEMAPHORE', {
-          type: payload.routingKey === RoutingKeys.UPDATED ? SemaphoreType.UPDATING : SemaphoreType.CREATING,
+          type: payload.routingKey === RoutingKeys.UPDATED ? SemaphoreTypes.UPDATING : SemaphoreTypes.CREATING,
           id: body.id,
         })
 
         const entityData: { [index: string]: any } = {
-          type: body.type === Type.PHYSICAL ? DeviceEntityTypeType.PHYSICAL : 'unknown',
+          type: body.type === Type.PHYSICAL ? DeviceEntityTypes.PHYSICAL : 'unknown',
         }
 
         Object.keys(body)
@@ -548,7 +547,7 @@ const moduleActions: ActionTree<DeviceState, any> = {
           )
         } finally {
           commit('CLEAR_SEMAPHORE', {
-            type: payload.routingKey === RoutingKeys.UPDATED ? SemaphoreType.UPDATING : SemaphoreType.CREATING,
+            type: payload.routingKey === RoutingKeys.UPDATED ? SemaphoreTypes.UPDATING : SemaphoreTypes.CREATING,
             id: body.id,
           })
         }
@@ -574,32 +573,32 @@ const moduleMutations: MutationTree<DeviceState> = {
 
   ['SET_SEMAPHORE'](state: DeviceState, action: SemaphoreAction): void {
     switch (action.type) {
-      case SemaphoreType.FETCHING:
+      case SemaphoreTypes.FETCHING:
         state.semaphore.fetching.items = true
         break
 
-      case SemaphoreType.GETTING:
+      case SemaphoreTypes.GETTING:
         state.semaphore.fetching.item.push(get(action, 'id', 'notValid'))
 
         // Make all keys uniq
         state.semaphore.fetching.item = uniq(state.semaphore.fetching.item)
         break
 
-      case SemaphoreType.CREATING:
+      case SemaphoreTypes.CREATING:
         state.semaphore.creating.push(get(action, 'id', 'notValid'))
 
         // Make all keys uniq
         state.semaphore.creating = uniq(state.semaphore.creating)
         break
 
-      case SemaphoreType.UPDATING:
+      case SemaphoreTypes.UPDATING:
         state.semaphore.updating.push(get(action, 'id', 'notValid'))
 
         // Make all keys uniq
         state.semaphore.updating = uniq(state.semaphore.updating)
         break
 
-      case SemaphoreType.DELETING:
+      case SemaphoreTypes.DELETING:
         state.semaphore.deleting.push(get(action, 'id', 'notValid'))
 
         // Make all keys uniq
@@ -610,11 +609,11 @@ const moduleMutations: MutationTree<DeviceState> = {
 
   ['CLEAR_SEMAPHORE'](state: DeviceState, action: SemaphoreAction): void {
     switch (action.type) {
-      case SemaphoreType.FETCHING:
+      case SemaphoreTypes.FETCHING:
         state.semaphore.fetching.items = false
         break
 
-      case SemaphoreType.GETTING:
+      case SemaphoreTypes.GETTING:
         // Process all semaphore items
         state.semaphore.fetching.item
           .forEach((item: string, index: number): void => {
@@ -626,7 +625,7 @@ const moduleMutations: MutationTree<DeviceState> = {
           })
         break
 
-      case SemaphoreType.CREATING:
+      case SemaphoreTypes.CREATING:
         // Process all semaphore items
         state.semaphore.creating
           .forEach((item: string, index: number): void => {
@@ -638,7 +637,7 @@ const moduleMutations: MutationTree<DeviceState> = {
           })
         break
 
-      case SemaphoreType.UPDATING:
+      case SemaphoreTypes.UPDATING:
         // Process all semaphore items
         state.semaphore.updating
           .forEach((item: string, index: number): void => {
@@ -650,7 +649,7 @@ const moduleMutations: MutationTree<DeviceState> = {
           })
         break
 
-      case SemaphoreType.DELETING:
+      case SemaphoreTypes.DELETING:
         // Process all semaphore items
         state.semaphore.deleting
           .forEach((item: string, index: number): void => {

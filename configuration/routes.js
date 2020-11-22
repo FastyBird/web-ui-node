@@ -41,6 +41,5 @@ export const TRIGGERS_HASH_SETTINGS = '#settings'
 export const TRIGGERS_HASH_CREATE = '#create'
 
 export const USERS_LIST_LINK = 'index-users'
-export const USERS_USER_DETAIL_LINK = 'index-users-id'
-
-export const ACCESS_RIGHTS_LIST_LINK = 'index-accessRights'
+export const USERS_DETAIL_LINK = 'index-users-id'
+export const USERS_CREATE_LINK = 'index-triggers-create'

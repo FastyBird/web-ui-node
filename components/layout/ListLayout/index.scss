@@ -51,7 +51,13 @@
     flex-direction: column;
     min-height: 0; /* IMPORTANT: you need this for non-chrome browsers */
     max-height: 100%;
-    overflow: auto;
+    overflow-y: auto;
+    -ms-overflow-style: none;  /* Internet Explorer 10+ */
+    scrollbar-width: none;  /* Firefox */
+
+    &::-webkit-scrollbar {
+      display: none;  /* Safari and Chrome */
+    }
   }
 
   &__detail {

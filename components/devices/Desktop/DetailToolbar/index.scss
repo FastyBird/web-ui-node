@@ -1,0 +1,28 @@
+@import "~assets/scss/variables";
+
+.fb-devices-desktop-detail-toolbar {
+  &__container {
+    .fb-ui-button[data-variant="link"]:hover,
+    .fb-ui-button[data-variant="link"]:focus,
+    .fb-ui-button[data-variant="link"]:active,
+    .fb-ui-button[data-variant="link-default"]:hover,
+    .fb-ui-button[data-variant="link-default"]:focus,
+    .fb-ui-button[data-variant="link-default"]:active {
+      text-decoration: none;
+    }
+  }
+
+  &__paging {
+    display: inline-block;
+    line-height: 2.5rem;
+    padding: 0 $padding-sm;
+
+    &-page {
+      font-weight: 800;
+    }
+
+    &-total {
+      font-weight: 800;
+    }
+  }
+}

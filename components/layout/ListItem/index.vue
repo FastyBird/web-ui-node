@@ -1,6 +1,7 @@
 <template functional>
   <div
-    :class="[data.class, data.staticClass, 'fb-list-item__container', `fb-list-item__container-${props.variant}`]"
+    :data-variant="props.variant"
+    :class="[data.class, data.staticClass, 'fb-list-item__container', {'fb-list-item__container-with-icon': parent._.get(scopedSlots, 'icon', null) !== null}]"
     @click="() => { parent._.get(listeners, 'click', null) !== null ? listeners['click']() : () => {} }"
   >
     <div class="fb-list-item__inner">
@@ -37,7 +38,7 @@
       </div>
 
       <div
-        v-else
+        v-else-if="showDetail"
         class="fb-list-item__detail"
       >
         <font-awesome-icon
@@ -75,6 +76,11 @@ export default defineComponent({
           ListItemSizeTypes.LIST,
         ].includes(value)
       },
+    },
+
+    showDetail: {
+      type: Boolean,
+      default: true,
     },
 
   },

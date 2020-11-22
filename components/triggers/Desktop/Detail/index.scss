@@ -1,0 +1,14 @@
+@import "~assets/scss/mixins";
+
+.fb-triggers-desktop-detail {
+  &__container {
+    @include flexColumn;
+
+    height: 100%;
+    overflow: hidden;
+  }
+
+  &__detail {
+    flex-grow: 1;
+  }
+}

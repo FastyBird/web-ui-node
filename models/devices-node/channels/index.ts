@@ -4,10 +4,12 @@ import {
   MutationTree,
 } from 'vuex'
 import { Item } from '@vuex-orm/core'
+import { RpCallResponse } from '@fastybird/vue-wamp-v1'
 import Jsona from 'jsona'
 // @ts-ignore
 import Ajv from 'ajv'
 import { AxiosResponse } from 'axios'
+import get from 'lodash/get'
 import uniq from 'lodash/uniq'
 import metadata from '@fastybird/node-metadata/resources/schemas/devices-node/entity.channel.json'
 import { Entity } from '@fastybird/node-metadata/types/devices-node.entity.channel'
@@ -16,12 +18,14 @@ import Device from '~/models/devices-node/devices/Device'
 import { DeviceInterface } from '~/models/devices-node/devices/types'
 import Channel from '~/models/devices-node/channels/Channel'
 import {
-  ChannelEntityTypeType,
+  ChannelEntityTypes,
   ChannelInterface,
   ChannelResponseInterface,
   ChannelsResponseInterface,
+  ChannelUpdateInterface,
+  CommandRoutingKeys,
   RoutingKeys,
-  SemaphoreType,
+  SemaphoreTypes,
 } from '~/models/devices-node/channels/types'
 
 import {
@@ -59,7 +63,7 @@ interface FirstLoadAction {
 }
 
 interface SemaphoreAction {
-  type: SemaphoreType
+  type: SemaphoreTypes
   id: string
 }
 
@@ -111,7 +115,7 @@ const moduleActions: ActionTree<ChannelState, any> = {
     }
 
     commit('SET_SEMAPHORE', {
-      type: SemaphoreType.GETTING,
+      type: SemaphoreTypes.GETTING,
       id: payload.id,
     })
 
@@ -130,19 +134,19 @@ const moduleActions: ActionTree<ChannelState, any> = {
       )
     } finally {
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.GETTING,
+        type: SemaphoreTypes.GETTING,
         id: payload.id,
       })
     }
   },
 
   async fetch({ state, commit }, payload: { device: DeviceInterface }): Promise<boolean> {
-    if (state.semaphore.fetching.items.includes(payload.device.id)) {
+    if (state.semaphore.fetching.items.includes(payload.device.id) || payload.device.draft) {
       return false
     }
 
     commit('SET_SEMAPHORE', {
-      type: SemaphoreType.FETCHING,
+      type: SemaphoreTypes.FETCHING,
       id: payload.device.id,
     })
 
@@ -165,13 +169,13 @@ const moduleActions: ActionTree<ChannelState, any> = {
       )
     } finally {
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.FETCHING,
+        type: SemaphoreTypes.FETCHING,
         id: payload.device.id,
       })
     }
   },
 
-  async edit({ state, commit }, payload: { channel: ChannelInterface, name?: string | null, comment?: string | null }): Promise<Item<Channel>> {
+  async edit({ state, commit }, payload: { channel: ChannelInterface, data: ChannelUpdateInterface }): Promise<Item<Channel>> {
     if (state.semaphore.updating.includes(payload.channel.id)) {
       throw new Error('devices-node.channels.update.inProgress')
     }
@@ -181,26 +185,26 @@ const moduleActions: ActionTree<ChannelState, any> = {
     }
 
     commit('SET_SEMAPHORE', {
-      type: SemaphoreType.UPDATING,
+      type: SemaphoreTypes.UPDATING,
       id: payload.channel.id,
     })
 
     try {
       await Channel.update({
         where: payload.channel.id,
-        data: payload,
+        data: payload.data,
       })
     } catch (e) {
+      commit('CLEAR_SEMAPHORE', {
+        type: SemaphoreTypes.UPDATING,
+        id: payload.channel.id,
+      })
+
       throw new OrmError(
         'devices-node.channels.edit.failed',
         e,
         'Edit channel failed.',
       )
-    } finally {
-      commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.UPDATING,
-        id: payload.channel.id,
-      })
     }
 
     const updatedEntity = Channel.find(payload.channel.id)
@@ -215,7 +219,7 @@ const moduleActions: ActionTree<ChannelState, any> = {
       })
 
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.UPDATING,
+        type: SemaphoreTypes.UPDATING,
         id: payload.channel.id,
       })
 
@@ -248,13 +252,43 @@ const moduleActions: ActionTree<ChannelState, any> = {
       )
     } finally {
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.UPDATING,
+        type: SemaphoreTypes.UPDATING,
         id: payload.channel.id,
       })
     }
   },
 
-  async socketData({ commit }, payload: { origin: string, routingKey: string, data: string }): Promise<boolean> {
+  transmitCommand(store, payload: { channel: ChannelInterface, command: CommandRoutingKeys }): Promise<boolean> {
+    if (!Channel.query().where('id', payload.channel.id).exists()) {
+      throw new Error('devices-node.channel.transmit.failed')
+    }
+
+    const device = Device.find(payload.channel.deviceId)
+
+    if (device === null) {
+      throw new Error('devices-node.channel.transmit.failed')
+    }
+
+    return new Promise((resolve, reject) => {
+      Channel.wamp().call({
+        routing_key: payload.command,
+        device: device.identifier,
+        channel: payload.channel.channel,
+      })
+        .then((response: RpCallResponse): void => {
+          if (get(response.data, 'response') === 'accepted') {
+            resolve(true)
+          } else {
+            reject(new Error('devices-node.channel.transmit.failed'))
+          }
+        })
+        .catch((): void => {
+          reject(new Error('devices-node.channel.transmit.failed'))
+        })
+    })
+  },
+
+  async socketData({ state, commit }, payload: { origin: string, routingKey: string, data: string }): Promise<boolean> {
     if (payload.origin !== ModuleOriginType) {
       return false
     }
@@ -277,7 +311,7 @@ const moduleActions: ActionTree<ChannelState, any> = {
 
       if (payload.routingKey === RoutingKeys.DELETED) {
         commit('SET_SEMAPHORE', {
-          type: SemaphoreType.DELETING,
+          type: SemaphoreTypes.DELETING,
           id: body.id,
         })
 
@@ -291,18 +325,22 @@ const moduleActions: ActionTree<ChannelState, any> = {
           )
         } finally {
           commit('CLEAR_SEMAPHORE', {
-            type: SemaphoreType.DELETING,
+            type: SemaphoreTypes.DELETING,
             id: body.id,
           })
         }
       } else {
+        if (payload.routingKey === RoutingKeys.UPDATED && state.semaphore.updating.includes(body.id)) {
+          return true
+        }
+
         commit('SET_SEMAPHORE', {
-          type: payload.routingKey === RoutingKeys.UPDATED ? SemaphoreType.UPDATING : SemaphoreType.CREATING,
+          type: payload.routingKey === RoutingKeys.UPDATED ? SemaphoreTypes.UPDATING : SemaphoreTypes.CREATING,
           id: body.id,
         })
 
         const entityData: { [index: string]: any } = {
-          type: ChannelEntityTypeType.CHANNEL,
+          type: ChannelEntityTypes.CHANNEL,
         }
 
         Object.keys(body)
@@ -340,7 +378,7 @@ const moduleActions: ActionTree<ChannelState, any> = {
           )
         } finally {
           commit('CLEAR_SEMAPHORE', {
-            type: payload.routingKey === RoutingKeys.UPDATED ? SemaphoreType.UPDATING : SemaphoreType.CREATING,
+            type: payload.routingKey === RoutingKeys.UPDATED ? SemaphoreTypes.UPDATING : SemaphoreTypes.CREATING,
             id: body.id,
           })
         }
@@ -367,35 +405,35 @@ const moduleMutations: MutationTree<ChannelState> = {
 
   ['SET_SEMAPHORE'](state: ChannelState, action: SemaphoreAction): void {
     switch (action.type) {
-      case SemaphoreType.FETCHING:
+      case SemaphoreTypes.FETCHING:
         state.semaphore.fetching.items.push(action.id)
 
         // Make all keys uniq
         state.semaphore.fetching.items = uniq(state.semaphore.fetching.items)
         break
 
-      case SemaphoreType.GETTING:
+      case SemaphoreTypes.GETTING:
         state.semaphore.fetching.item.push(action.id)
 
         // Make all keys uniq
         state.semaphore.fetching.item = uniq(state.semaphore.fetching.item)
         break
 
-      case SemaphoreType.CREATING:
+      case SemaphoreTypes.CREATING:
         state.semaphore.creating.push(action.id)
 
         // Make all keys uniq
         state.semaphore.creating = uniq(state.semaphore.creating)
         break
 
-      case SemaphoreType.UPDATING:
+      case SemaphoreTypes.UPDATING:
         state.semaphore.updating.push(action.id)
 
         // Make all keys uniq
         state.semaphore.updating = uniq(state.semaphore.updating)
         break
 
-      case SemaphoreType.DELETING:
+      case SemaphoreTypes.DELETING:
         state.semaphore.deleting.push(action.id)
 
         // Make all keys uniq
@@ -406,7 +444,7 @@ const moduleMutations: MutationTree<ChannelState> = {
 
   ['CLEAR_SEMAPHORE'](state: ChannelState, action: SemaphoreAction): void {
     switch (action.type) {
-      case SemaphoreType.FETCHING:
+      case SemaphoreTypes.FETCHING:
         // Process all semaphore items
         state.semaphore.fetching.items
           .forEach((item: string, index: number): void => {
@@ -418,7 +456,7 @@ const moduleMutations: MutationTree<ChannelState> = {
           })
         break
 
-      case SemaphoreType.GETTING:
+      case SemaphoreTypes.GETTING:
         // Process all semaphore items
         state.semaphore.fetching.item
           .forEach((item: string, index: number): void => {
@@ -430,7 +468,7 @@ const moduleMutations: MutationTree<ChannelState> = {
           })
         break
 
-      case SemaphoreType.CREATING:
+      case SemaphoreTypes.CREATING:
         // Process all semaphore items
         state.semaphore.creating
           .forEach((item: string, index: number): void => {
@@ -442,7 +480,7 @@ const moduleMutations: MutationTree<ChannelState> = {
           })
         break
 
-      case SemaphoreType.UPDATING:
+      case SemaphoreTypes.UPDATING:
         // Process all semaphore items
         state.semaphore.updating
           .forEach((item: string, index: number): void => {
@@ -454,7 +492,7 @@ const moduleMutations: MutationTree<ChannelState> = {
           })
         break
 
-      case SemaphoreType.DELETING:
+      case SemaphoreTypes.DELETING:
         // Process all semaphore items
         state.semaphore.deleting
           .forEach((item: string, index: number): void => {

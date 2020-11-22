@@ -14,12 +14,6 @@ interface DevicesRoutesInterface {
   connect: string;
 }
 
-interface ThingsRoutesInterface {
-  list: string;
-  detail: string;
-  connect: string;
-}
-
 interface GroupsRoutesInterface {
   list: string;
   detail: string;
@@ -32,13 +26,19 @@ interface TriggersRoutesInterface {
   create: string;
 }
 
+interface UsersRoutesInterface {
+  list: string;
+  detail: string;
+  create: string;
+}
+
 interface RoutesInterface {
   home: string;
   account: AccountRoutesInterface;
   devices: DevicesRoutesInterface;
-  things: ThingsRoutesInterface;
   groups: GroupsRoutesInterface;
   triggers: TriggersRoutesInterface;
+  users: UsersRoutesInterface;
 }
 
 declare module 'vue/types/vue' {
@@ -72,11 +72,6 @@ const routesPlugin: Plugin = (context, inject): void => {
       detail: routes.DEVICES_DETAIL_LINK,
       connect: routes.DEVICES_CONNECT_LINK,
     },
-    things: {
-      list: routes.THINGS_LIST_LINK,
-      detail: routes.THINGS_THING_DETAIL_LINK,
-      connect: routes.THINGS_THING_CONNECT_LINK,
-    },
     groups: {
       list: routes.GROUPS_LIST_LINK,
       detail: routes.GROUPS_GROUP_DETAIL_LINK,
@@ -86,6 +81,11 @@ const routesPlugin: Plugin = (context, inject): void => {
       list: routes.TRIGGERS_LIST_LINK,
       detail: routes.TRIGGERS_DETAIL_LINK,
       create: routes.TRIGGERS_CREATE_LINK,
+    },
+    users: {
+      list: routes.USERS_LIST_LINK,
+      detail: routes.USERS_DETAIL_LINK,
+      create: routes.USERS_CREATE_LINK,
     },
   })
 }

@@ -7,28 +7,92 @@
   }
 
   &__container {
-    .fb-ui-modal-window {
-      &__body {
-        .fb-ui-items-container__items {
-          padding: 0;
+    &[data-variant="phone"],
+    &[data-variant="tablet"] {
+      .fb-triggers-select-date,
+      .fb-triggers-select-time {
+        &__container {
+          margin-left: -$margin-sm;
+          margin-right: -$margin-sm;
         }
       }
 
-      &__footer {
-        padding: 0 $padding-sm $padding-md $padding-sm;
+      .fb-triggers-select-condition-device {
+        &__container {
+          margin-left: -$margin-sm;
+          margin-right: -$margin-sm;
+
+          .fb-ui-items-container {
+            &__items {
+              padding-left: 0;
+              padding-right: 0;
+            }
+          }
+        }
+      }
+
+      .fb-ui-modal-form__result {
+        left: -$margin-sm;
+        right: -$margin-sm;
+      }
+
+      &[data-type="list-devices"] {
+        .fb-ui-modal-window__body {
+          padding: 0;
+        }
+
+        .fb-scroll-shadow__inner {
+          padding: $padding-sm;
+        }
       }
     }
 
-    &[data-type="list-devices"].fb-ui-modal-window__container {
-      .fb-ui-modal-window__body {
-        padding: 0 $padding-sm;
-      }
-    }
+    &[data-variant="default"] {
+      .fb-triggers-select-condition-device {
+        &__container {
+          .fb-ui-items-container {
+            &__heading {
+              padding-left: 0;
+            }
 
-    &[data-type="select-device"].fb-ui-modal-window__container,
-    &[data-type="select-date-time"].fb-ui-modal-window__container {
-      .fb-ui-modal-window__body {
-        padding: $padding-sm 0;
+            &__items {
+              padding-left: 0;
+              padding-right: 0;
+
+              .fb-triggers-select-condition-device-property {
+                &__conditions {
+                  margin-left: -$margin-md;
+                  margin-right: -$margin-md;
+
+                  .fb-list-item__heading {
+                    margin-left: $margin-sm;
+                  }
+
+                  .fb-list-item__content {
+                    margin-right: $margin-sm;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
+      .fb-triggers-select-date,
+      .fb-triggers-select-time {
+        &__container {
+          margin-left: -$margin-md;
+          margin-right: -$margin-md;
+
+          h3 {
+            margin-left: $margin-md;
+          }
+        }
+      }
+
+      .fb-ui-modal-form__result {
+        left: -$margin-md;
+        right: -$margin-md;
       }
     }
   }
@@ -40,11 +104,13 @@
 
   &__content {
     min-height: 10rem;
+    height: 100%;
   }
 
   &__type {
     &-row {
       @include flexRow;
+      flex-wrap: wrap;
 
       &-item {
         -webkit-box-flex: 0;

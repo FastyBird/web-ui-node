@@ -4,10 +4,14 @@
   </h3>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import {
+  defineComponent,
+} from '@vue/composition-api'
 
-  name: 'SignHeader',
+export default defineComponent({
+
+  name: 'AccountSignHeader',
 
   props: {
 
@@ -18,9 +22,9 @@ export default {
 
   },
 
-}
+})
 </script>
 
 <style rel="stylesheet/scss" lang="scss">
-  @import 'index';
+@import 'index';
 </style>

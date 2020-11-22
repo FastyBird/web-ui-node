@@ -25,16 +25,11 @@ import {
   PropType,
 } from '@vue/composition-api'
 
-import { ConditionOperatorType } from '~/models/triggers-node/types'
+import { ConditionOperatorTypes } from '~/models/triggers-node/types'
 
 import { DeviceInterface } from '~/models/devices-node/devices/types'
 
 import TriggersSelectConditionDeviceProperty from '~/components/triggers/SelectConditionDevice/Property/index.vue'
-
-interface TriggersSelectDeviceInterface {
-  value: Array<{ selected: boolean, operator: ConditionOperatorType, operand: string | boolean | null }>
-  device: DeviceInterface
-}
 
 export default defineComponent({
 
@@ -43,7 +38,7 @@ export default defineComponent({
   props: {
 
     value: {
-      type: Object as PropType<Array<{ selected: boolean, operator: ConditionOperatorType, operand: string | boolean | null }>>,
+      type: Object as PropType<Array<{ selected: boolean, operator: ConditionOperatorTypes, operand: string | boolean | null }>>,
       required: true,
     },
 

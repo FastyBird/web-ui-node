@@ -1,63 +1,42 @@
 <template>
-  <validation-observer
-    ref="validator"
-    v-slot="{ handleSubmit }"
-  >
-    <fb-ui-modal-form
-      :transparent-bg="transparentBg"
-      :lock-submit-button="form.result !== formResultTypes.NONE"
-      :state="form.result"
-      @submit="handleSubmit(submit)"
-      @cancel="close"
-      @close="close"
-    >
-      <fb-ui-modal-header-icon slot="icon">
-        <font-awesome-icon icon="pencil-alt" />
-      </fb-ui-modal-header-icon>
-
-      <template slot="header">
-        {{ $t('devices.headings.renameDevice') }}
-      </template>
-
-      <template slot="form">
-        <fb-ui-content mb="lg">
-          <validation-provider
-            v-slot="{ errors }"
-            name="deviceName"
-            rules="required"
-          >
-            <fb-form-input
-              v-model="form.model.name"
-              :error="errors[0]"
-              :has-error="errors.length > 0"
-              :label="$t('devices.fields.deviceName.title')"
-              :placeholder="$t('devices.fields.deviceName.placeholder')"
-              :required="true"
-              :tab-index="2"
-              name="deviceName"
-            />
-          </validation-provider>
-        </fb-ui-content>
-
-        <fb-form-text-area
-          v-model="form.model.comment"
-          :label="$t('devices.fields.deviceComment.title')"
-          :placeholder="$t('devices.fields.deviceComment.placeholder')"
-          :tab-index="3"
-          name="deviceComment"
+  <validation-observer ref="validator">
+    <fb-ui-content :mb="sizeTypes.LARGE">
+      <validation-provider
+        v-slot="{ errors }"
+        name="deviceName"
+        rules="required"
+      >
+        <fb-form-input
+          v-model="form.model.name"
+          :error="errors[0]"
+          :has-error="errors.length > 0"
+          :label="$t('devices.fields.deviceName.title')"
+          :placeholder="$t('devices.fields.deviceName.placeholder')"
+          :required="true"
+          :tab-index="2"
+          name="deviceName"
         />
-      </template>
-    </fb-ui-modal-form>
+      </validation-provider>
+    </fb-ui-content>
+
+    <fb-form-text-area
+      v-model="form.model.comment"
+      :label="$t('devices.fields.deviceComment.title')"
+      :placeholder="$t('devices.fields.deviceComment.placeholder')"
+      :tab-index="3"
+      name="deviceComment"
+    />
   </validation-observer>
 </template>
 
 <script lang="ts">
 import {
   defineComponent,
-  onMounted,
   PropType,
   reactive,
+  ref,
   SetupContext,
+  watch,
 } from '@vue/composition-api'
 
 import get from 'lodash/get'
@@ -68,24 +47,26 @@ import {
   localize,
 } from 'vee-validate'
 
-import { FbFormResultType } from '@fastybird/web-ui-theme'
+import {
+  FbFormResultTypes,
+  FbSizeTypes,
+} from '@fastybird/web-ui-theme'
 
 import Device from '~/models/devices-node/devices/Device'
 import { DeviceInterface } from '~/models/devices-node/devices/types'
 
-interface DevicesSettingsRenameFormModelInterface {
-  name: string
-  comment: string | null
-}
-
 interface DevicesSettingsRenameFormInterface {
-  model: DevicesSettingsRenameFormModelInterface,
-  result: string | boolean | null
+  model: {
+    name: string | null
+    comment: string | null
+  }
 }
 
 interface DevicesSettingsDeviceRenamePropsInterface {
   device: DeviceInterface
-  transparentBg: boolean
+  remoteFormSubmit: boolean
+  remoteFormResult: FbFormResultTypes
+  remoteFormReset: boolean
 }
 
 export default defineComponent({
@@ -99,7 +80,17 @@ export default defineComponent({
       required: true,
     },
 
-    transparentBg: {
+    remoteFormSubmit: {
+      type: Boolean,
+      default: false,
+    },
+
+    remoteFormResult: {
+      type: String as PropType<FbFormResultTypes>,
+      default: FbFormResultTypes.NONE,
+    },
+
+    remoteFormReset: {
       type: Boolean,
       default: false,
     },
@@ -112,12 +103,13 @@ export default defineComponent({
   },
 
   setup(props: DevicesSettingsDeviceRenamePropsInterface, context: SetupContext) {
+    const validator = ref<InstanceType<typeof ValidationObserver>>(null)
+
     const form = reactive<DevicesSettingsRenameFormInterface>({
       model: {
         name: props.device.title,
         comment: props.device.comment,
       },
-      result: FbFormResultType.NONE,
     })
 
     localize({
@@ -140,69 +132,77 @@ export default defineComponent({
       computesRequired: true,
     })
 
-    // Processing timer
     let timer: number
 
-    onMounted((): void => {
-      context.emit('loaded')
-    })
+    function clearResult(): void {
+      window.clearTimeout(timer)
 
-    // Close form window
-    function close(event?: MouseEvent): void {
-      event && event.preventDefault()
-
-      window.clearInterval(timer)
-
-      context.emit('close')
+      context.emit('update:remoteFormResult', FbFormResultTypes.NONE)
     }
 
-    // Form could not be submitted
-    function error(): void {
-      window.clearInterval(timer)
+    watch(
+      (): boolean => props.remoteFormSubmit,
+      (val): void => {
+        if (val) {
+          context.emit('update:remoteFormSubmit', false)
 
-      form.result = FbFormResultType.NONE
-    }
+          if (validator.value !== null) {
+            validator.value
+              .validate()
+              .then(async(success: boolean): Promise<void> => {
+                if (success) {
+                  const errorMessage = context.root.$t('devices.messages.deviceNotRenamed', {
+                    device: props.device.title,
+                  }).toString()
 
-    // Submit form
-    async function submit(event?: MouseEvent): Promise<void> {
-      event && event.preventDefault()
+                  context.emit('update:remoteFormResult', FbFormResultTypes.WORKING)
 
-      const errorMessage = context.root.$t('devices.messages.deviceNotRenamed', {
-        device: props.device.title,
-      }).toString()
+                  try {
+                    await Device.dispatch('edit', {
+                      device: props.device,
+                      data: {
+                        name: form.model.name,
+                        comment: form.model.comment,
+                      },
+                    })
 
-      form.result = FbFormResultType.WORKING
+                    context.emit('update:remoteFormResult', FbFormResultTypes.OK)
 
-      try {
-        await Device.dispatch('edit', {
-          device: props.device,
-          data: {
-            name: form.model.name,
-            comment: form.model.comment,
-          },
-        })
+                    timer = window.setTimeout(clearResult, 2000)
+                  } catch (e) {
+                    if (get(e, 'exception', null) !== null) {
+                      context.root.handleException(e.exception, errorMessage)
+                    } else {
+                      context.root.$flashMessage(errorMessage, 'error')
+                    }
 
-        form.result = FbFormResultType.OK
+                    context.emit('update:remoteFormResult', FbFormResultTypes.ERROR)
 
-        timer = window.setInterval(close, 2000)
-      } catch (e) {
-        if (get(e, 'exception', null) !== null) {
-          context.root.handleException(e.exception, errorMessage)
-        } else {
-          context.root.$flashMessage(errorMessage, 'error')
+                    timer = window.setTimeout(clearResult, 2000)
+                  }
+                }
+              })
+          }
         }
+      },
+    )
 
-        form.result = FbFormResultType.ERROR
+    watch(
+      (): boolean => props.remoteFormReset,
+      (val): void => {
+        context.emit('update:remoteFormReset', false)
 
-        timer = window.setInterval(error, 2000)
-      }
-    }
+        if (val) {
+          form.model.name = props.device.name
+          form.model.comment = props.device.comment
+        }
+      },
+    )
 
     return {
+      validator,
       form,
-      close,
-      submit,
-      formResultTypes: FbFormResultType,
+      sizeTypes: FbSizeTypes,
     }
   },
 

@@ -6,9 +6,9 @@ import {
 import Device from '~/models/devices-node/devices/Device'
 import { DeviceInterface } from '~/models/devices-node/devices/types'
 import {
-  FirmwareEntityTypeType,
+  FirmwareEntityTypes,
   FirmwareInterface,
-  FirmwareManufacturerType,
+  FirmwareManufacturerTypes,
 } from '~/models/devices-node/firmwares/types'
 
 // ENTITY MODEL
@@ -21,11 +21,11 @@ export default class Firmware extends Model implements FirmwareInterface {
   static fields(): Fields {
     return {
       id: this.string(''),
-      type: this.string(FirmwareEntityTypeType.FIRMWARE),
+      type: this.string(FirmwareEntityTypes.FIRMWARE),
 
       // Common firmware
       name: this.string(null).nullable(),
-      manufacturer: this.string(FirmwareManufacturerType.GENERIC),
+      manufacturer: this.string(FirmwareManufacturerTypes.GENERIC),
       version: this.string(null).nullable(),
 
       // Relations
@@ -39,10 +39,10 @@ export default class Firmware extends Model implements FirmwareInterface {
   }
 
   id!: string
-  type!: FirmwareEntityTypeType
+  type!: FirmwareEntityTypes
 
   name!: string | null
-  manufacturer!: FirmwareManufacturerType
+  manufacturer!: FirmwareManufacturerTypes
   version!: string | null
 
   relationshipNames!: Array<string>

@@ -6,10 +6,10 @@ import {
 import Trigger from '~/models/triggers-node/triggers/Trigger'
 import { TriggerInterface } from '~/models/triggers-node/triggers/types'
 import {
-  ConditionEntityTypeType,
+  ConditionEntityTypes,
   ConditionInterface,
 } from '~/models/triggers-node/conditions/types'
-import { ConditionOperatorType } from '~/models/triggers-node/types'
+import { ConditionOperatorTypes } from '~/models/triggers-node/types'
 
 // ENTITY MODEL
 // ============
@@ -51,13 +51,13 @@ export default class Condition extends Model implements ConditionInterface {
   }
 
   id!: string
-  type!: ConditionEntityTypeType
+  type!: ConditionEntityTypes
 
   draft!: boolean
 
   enabled!: boolean
 
-  operator!: ConditionOperatorType
+  operator!: ConditionOperatorTypes
   operand!: string
   device!: string
   channel!: string
@@ -76,18 +76,18 @@ export default class Condition extends Model implements ConditionInterface {
   triggerId!: string
 
   get isDeviceProperty(): boolean {
-    return this.type === ConditionEntityTypeType.DEVICE_PROPERTY
+    return this.type === ConditionEntityTypes.DEVICE_PROPERTY
   }
 
   get isChannelProperty(): boolean {
-    return this.type === ConditionEntityTypeType.CHANNEL_PROPERTY
+    return this.type === ConditionEntityTypes.CHANNEL_PROPERTY
   }
 
   get isTime(): boolean {
-    return this.type === ConditionEntityTypeType.TIME
+    return this.type === ConditionEntityTypes.TIME
   }
 
   get isDate(): boolean {
-    return this.type === ConditionEntityTypeType.DATE
+    return this.type === ConditionEntityTypes.DATE
   }
 }

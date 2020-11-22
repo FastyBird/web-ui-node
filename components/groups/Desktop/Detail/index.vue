@@ -181,7 +181,7 @@ export default {
       if (Object.prototype.hasOwnProperty.call(this.view.items, view)) {
         switch (view) {
           case this.view.items.detail.name:
-            if (this.windowSize === 'xs') {
+            if (this.viewSize === 'xs') {
               this.$router.push(this.localePath({
                 name: this.$routes.groups.detail,
                 params: {
@@ -197,7 +197,7 @@ export default {
             break
 
           case this.view.items.settings.name:
-            if (this.windowSize === 'xs') {
+            if (this.viewSize === 'xs') {
               this.$router.push(this.localePath({
                 name: this.$routes.groups.detail,
                 params: {
@@ -221,7 +221,7 @@ export default {
     },
 
     /**
-     * Calculate viewport size after window resizing
+     * Calculate viewport size after view resizing
      *
      * @private
      */

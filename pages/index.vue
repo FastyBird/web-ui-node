@@ -4,7 +4,7 @@
       <fb-layout-sidebar
         slot="sidebar"
         :collapsed="menuCollapsed"
-        @collapse="collapseMenu"
+        @collapse="handleCollapseMenu"
       >
         <nuxt-link
           slot="header"
@@ -29,7 +29,7 @@
             <fb-layout-navigation-item
               :link="localePath({ name: $routes.devices.list })"
               :label="$t('application.menu.devices')"
-              @click="collapseMenu"
+              @click="handleCollapseMenu"
               type="nuxt_link"
             >
               <font-awesome-icon
@@ -40,7 +40,7 @@
             <fb-layout-navigation-item
               :link="localePath({ name: $routes.triggers.list })"
               :label="$t('application.menu.triggers')"
-              @click="collapseMenu"
+              @click="handleCollapseMenu"
               type="nuxt_link"
             >
               <font-awesome-icon
@@ -52,7 +52,7 @@
 
           <fb-layout-navigation :name="$t('application.menu.administration')">
             <fb-layout-navigation-item
-              :link="localePath({ name: $routes.home })"
+              :link="localePath({ name: $routes.users.list })"
               :label="$t('application.menu.users')"
               type="nuxt_link"
             >
@@ -69,7 +69,7 @@
           >
             <fb-layout-navigation-item
               :label="$t('application.userMenu.accountSettings')"
-              @click="openView(viewTypes.ACCOUNT_EDIT)"
+              @click="handleOpenView(viewTypes.ACCOUNT_EDIT)"
               type="button"
             >
               <font-awesome-icon
@@ -79,7 +79,7 @@
             </fb-layout-navigation-item>
             <fb-layout-navigation-item
               :label="$t('application.userMenu.passwordChange')"
-              @click="openView(viewTypes.PASSWORD_EDIT)"
+              @click="handleOpenView(viewTypes.PASSWORD_EDIT)"
               type="button"
             >
               <font-awesome-icon
@@ -90,7 +90,7 @@
             <fb-layout-navigation-divider />
             <fb-layout-navigation-item
               :label="$t('application.userMenu.signOut')"
-              @click="signOut"
+              @click="handleSignOut"
               type="button"
             >
               <font-awesome-icon
@@ -122,7 +122,7 @@
             <fb-layout-user-menu-divider />
             <fb-layout-user-menu-item
               :label="$t('application.userMenu.accountSettings')"
-              @click="openView(viewTypes.ACCOUNT_EDIT)"
+              @click="handleOpenView(viewTypes.ACCOUNT_EDIT)"
               type="button"
             >
               <font-awesome-icon
@@ -132,7 +132,7 @@
             </fb-layout-user-menu-item>
             <fb-layout-user-menu-item
               :label="$t('application.userMenu.passwordChange')"
-              @click="openView(viewTypes.PASSWORD_EDIT)"
+              @click="handleOpenView(viewTypes.PASSWORD_EDIT)"
               type="button"
             >
               <font-awesome-icon
@@ -143,7 +143,7 @@
             <fb-layout-user-menu-divider />
             <fb-layout-user-menu-item
               :label="$t('application.userMenu.signOut')"
-              @click="signOut"
+              @click="handleSignOut"
               type="button"
             >
               <font-awesome-icon
@@ -160,7 +160,7 @@
           slot="header"
           :menu-hidden="menuHidden"
           :menu-collapsed="menuCollapsed"
-          @toggleMenu="toggleMenu"
+          @handleToggleMenu="handleToggleMenu"
         >
           <nuxt-link
             slot="logo"
@@ -178,13 +178,13 @@
         <template slot="footer">
           <fb-layout-tabs :collapsed="tabsHidden">
             <fb-layout-tabs-item
-              :label="$t('application.tabs.dashboard.title')"
+              :label="$t('application.tabs.home.title')"
               :link="localePath({ name: $routes.home })"
               type="nuxt_link"
             >
               <font-awesome-icon
                 slot="icon"
-                icon="tachometer-alt"
+                icon="home"
               />
             </fb-layout-tabs-item>
             <fb-layout-tabs-item
@@ -235,15 +235,16 @@
       </div>
     </fb-ui-modal-info>
 
-    <account-edit
-      v-if="view.accountEdit.opened && account !== null"
-      @close="closeView(viewTypes.ACCOUNT_EDIT)"
+    <account-desktop-settings-account
+      v-if="view.accountEdit.opened"
+      :account="account"
+      @close="handleCloseView(viewTypes.ACCOUNT_EDIT)"
     />
 
-    <password-edit
-      v-if="view.passwordEdit.opened && account !== null"
+    <account-desktop-settings-password
+      v-if="view.passwordEdit.opened"
       :identity="systemIdentity"
-      @close="closeView(viewTypes.PASSWORD_EDIT)"
+      @close="handleCloseView(viewTypes.PASSWORD_EDIT)"
     />
 
     <fb-layout-header-heading
@@ -251,6 +252,13 @@
       :heading="heading"
       :sub-heading="subHeading"
     />
+
+    <fb-layout-header-icon
+      v-if="isMounted && headingIcon !== null"
+      right
+    >
+      <font-awesome-icon :icon="headingIcon" />
+    </fb-layout-header-icon>
 
     <fb-layout-phone-menu />
   </div>
@@ -270,7 +278,10 @@ import {
 
 import get from 'lodash/get'
 
+// @ts-ignore
 import Gravatar from 'vue-gravatar'
+
+import { FbSizeTypes } from '@fastybird/web-ui-theme'
 
 import { version } from './../package.json'
 
@@ -285,13 +296,11 @@ import Device from '~/models/devices-node/devices/Device'
 
 import Trigger from '~/models/triggers-node/triggers/Trigger'
 
-// @ts-ignore
-import Logo from '~/assets/images/fastybird_row.svg?inline'
+import AccountDesktopSettingsAccount from '~/components/account/Desktop/Settings/Account/index.vue'
+import AccountDesktopSettingsPassword from '~/components/account/Desktop/Settings/Password/index.vue'
 
 // @ts-ignore
-const AccountEdit = () => import('~/components/account/AccountEdit')
-// @ts-ignore
-const PasswordEdit = () => import('~/components/account/PasswordEdit')
+import Logo from '~/assets/images/fastybird_row.svg?inline'
 
 enum ViewTypes {
   ACCOUNT_EDIT = 'accountEdit',
@@ -328,8 +337,8 @@ export default defineComponent({
   components: {
     Gravatar,
 
-    AccountEdit,
-    PasswordEdit,
+    AccountDesktopSettingsAccount,
+    AccountDesktopSettingsPassword,
 
     Logo,
   },
@@ -375,6 +384,8 @@ export default defineComponent({
 
     const subHeading = computed<string | null>((): string | null => context.root.$store.state.app.heading.subHeading)
 
+    const headingIcon = computed<string | null>((): string | null => context.root.$store.state.app.heading.icon)
+
     const isMounted = ref<boolean>(false)
 
     function wampOnMessage(data: string): void {
@@ -405,31 +416,31 @@ export default defineComponent({
       if (!document.hidden) {
         if (matchMedia('(max-width: 575px)').matches) {
           context.root.$store.dispatch('app/setWindowSize', {
-            size: 'xs',
+            size: FbSizeTypes.EXTRA_SMALL,
           }, {
             root: true,
           })
         } else if (matchMedia('(max-width: 767px)').matches) {
           context.root.$store.dispatch('app/setWindowSize', {
-            size: 'sm',
+            size: FbSizeTypes.SMALL,
           }, {
             root: true,
           })
         } else if (matchMedia('(max-width: 991px)').matches) {
           context.root.$store.dispatch('app/setWindowSize', {
-            size: 'md',
+            size: FbSizeTypes.MEDIUM,
           }, {
             root: true,
           })
         } else if (matchMedia('(max-width: 1199px)').matches) {
           context.root.$store.dispatch('app/setWindowSize', {
-            size: 'lg',
+            size: FbSizeTypes.LARGE,
           }, {
             root: true,
           })
         } else {
           context.root.$store.dispatch('app/setWindowSize', {
-            size: 'xl',
+            size: FbSizeTypes.EXTRA_LARGE,
           }, {
             root: true,
           })
@@ -464,10 +475,50 @@ export default defineComponent({
       })
     }
 
+    function handleSignOut(): void {
+      context.root.$bus.$emit('wait-page_reloading', true)
+
+      context.root.$cookies.remove('token')
+      context.root.$cookies.remove('refresh_token')
+
+      context.root.$wamp.close()
+
+      // Process cleanup
+      context.root.$store.dispatch('entities/deleteAll')
+
+      Account.dispatch('reset')
+      Device.dispatch('reset')
+      Trigger.dispatch('reset')
+
+      context.root.$store.dispatch('session/clear')
+
+      context.root.$bus.$emit('user_signed-out', true)
+    }
+
+    function handleToggleMenu(): void {
+      menuCollapsed.value = !menuCollapsed.value
+    }
+
+    function handleCollapseMenu(): void {
+      menuCollapsed.value = true
+    }
+
+    function handleOpenView(type: ViewTypes): void {
+      handleCollapseMenu()
+
+      view[type].opened = true
+    }
+
+    function handleCloseView(type: ViewTypes): void {
+      view[type].opened = false
+    }
+
     onMounted((): void => {
       isMounted.value = true
 
       context.root.$bus.$emit('wait-page_reloading', false)
+
+      context.root.$bus.$on('toggle-menu', handleToggleMenu)
 
       if (networkState.value) {
         context.root.$wamp.open()
@@ -489,6 +540,8 @@ export default defineComponent({
     })
 
     onBeforeUnmount((): void => {
+      context.root.$bus.$off('toggle-menu', handleToggleMenu)
+
       window.removeEventListener('visibilitychange', windowResizeHandler)
       window.removeEventListener('DOMContentLoaded', windowResizeHandler)
       window.removeEventListener('resize', windowResizeHandler)
@@ -502,44 +555,6 @@ export default defineComponent({
       context.root.$wamp.unsubscribe(config.IO_SOCKET_TOPIC_EXCHANGE, wampOnMessage)
     })
 
-    function signOut(): void {
-      context.root.$bus.$emit('wait-page_reloading', true)
-
-      context.root.$cookies.remove('token')
-      context.root.$cookies.remove('refresh_token')
-
-      context.root.$wamp.close()
-
-      // Process cleanup
-      context.root.$store.dispatch('entities/deleteAll')
-
-      Account.dispatch('reset')
-      Device.dispatch('reset')
-      Trigger.dispatch('reset')
-
-      context.root.$store.dispatch('session/clear')
-
-      context.root.$bus.$emit('user_signed-out', true)
-    }
-
-    function toggleMenu(): void {
-      menuCollapsed.value = !menuCollapsed.value
-    }
-
-    function collapseMenu(): void {
-      menuCollapsed.value = true
-    }
-
-    function openView(type: ViewTypes): void {
-      collapseMenu()
-
-      view[type].opened = true
-    }
-
-    function closeView(type: ViewTypes): void {
-      view[type].opened = false
-    }
-
     watch(
       (): boolean => networkState.value,
       (val: boolean): void => {
@@ -551,7 +566,6 @@ export default defineComponent({
 
     return {
       view,
-      viewTypes: ViewTypes,
       isMounted,
       menuCollapsed,
       application,
@@ -562,11 +576,13 @@ export default defineComponent({
       tabsHidden,
       heading,
       subHeading,
-      signOut,
-      toggleMenu,
-      collapseMenu,
-      openView,
-      closeView,
+      headingIcon,
+      handleSignOut,
+      handleToggleMenu,
+      handleCollapseMenu,
+      handleOpenView,
+      handleCloseView,
+      viewTypes: ViewTypes,
     }
   },
 

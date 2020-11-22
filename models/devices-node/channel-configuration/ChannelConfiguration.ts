@@ -7,7 +7,7 @@ import capitalize from 'lodash/capitalize'
 import Channel from '~/models/devices-node/channels/Channel'
 import { ChannelInterface } from '~/models/devices-node/channels/types'
 import {
-  ChannelConfigurationEntityTypeType,
+  ChannelConfigurationEntityTypes,
   ChannelConfigurationInterface,
   ValuesItemInterface,
 } from '~/models/devices-node/channel-configuration/types'
@@ -52,7 +52,7 @@ export default class ChannelConfiguration extends Model implements ChannelConfig
   }
 
   id!: string
-  type!: ChannelConfigurationEntityTypeType
+  type!: ChannelConfigurationEntityTypes
 
   configuration!: string
   name!: string | null
@@ -74,19 +74,19 @@ export default class ChannelConfiguration extends Model implements ChannelConfig
   channelId!: string
 
   get isBoolean(): boolean {
-    return this.type === ChannelConfigurationEntityTypeType.BOOLEAN
+    return this.type === ChannelConfigurationEntityTypes.BOOLEAN
   }
 
   get isNumber(): boolean {
-    return this.type === ChannelConfigurationEntityTypeType.NUMBER
+    return this.type === ChannelConfigurationEntityTypes.NUMBER
   }
 
   get isSelect(): boolean {
-    return this.type === ChannelConfigurationEntityTypeType.SELECT
+    return this.type === ChannelConfigurationEntityTypes.SELECT
   }
 
   get isText(): boolean {
-    return this.type === ChannelConfigurationEntityTypeType.TEXT
+    return this.type === ChannelConfigurationEntityTypes.TEXT
   }
 
   get title(): string {

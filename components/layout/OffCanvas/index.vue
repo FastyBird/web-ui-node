@@ -1,14 +1,14 @@
 <template>
   <div
     ref="root"
-    class="fb-off-canvas__container"
     @keyup.esc="close"
+    class="fb-off-canvas__container"
   >
     <transition name="off-canvas-overlay">
       <div
         v-if="show"
-        class="fb-off-canvas__overlay"
         @click.prevent="close"
+        class="fb-off-canvas__overlay"
       />
     </transition>
 

@@ -5,70 +5,63 @@
         {{ $tc('triggers.headings.actions', actions.length, { count: actions.length }) }}
       </template>
 
-      <fb-ui-no-results v-if="actions.length === 0">
-        <font-awesome-icon
-          slot="icon"
-          icon="magic"
-        />
-
-        <font-awesome-icon
-          slot="second-icon"
-          icon="plus"
-        />
-
+      <no-results
+        v-if="actions.length === 0"
+        icon="plug"
+      >
         {{ $t('triggers.texts.noActions') }}
-      </fb-ui-no-results>
+      </no-results>
 
-      <template v-else>
-        <swipe-list
-          ref="list"
-          :items="actions"
-          :disabled="!$windowSize.isExtraSmall()"
-          class="fb-triggers-detail-default-actions-container__items"
-        >
-          <template v-slot="{ item }">
+      <swipe-list
+        ref="list"
+        v-else
+        :items="actions"
+        :disabled="!$windowSize.isExtraSmall()"
+        class="fb-triggers-detail-default-actions-container__items"
+      >
+        <template v-slot="{ item }">
+          <div
+            :key="item.id"
+            class="fb-triggers-detail-default-actions-container__item"
+          >
             <div
-              :key="item.id"
-              class="fb-triggers-detail-default-actions-container__item"
+              v-if="editMode"
+              class="fb-triggers-detail-default-actions-container__item-buttons"
             >
-              <div
-                v-if="editMode"
-                class="fb-triggers-detail-default-actions-container__item-buttons"
+              <fb-ui-button
+                :variant="buttonVariantTypes.LINK"
+                :size="sizeTypes.EXTRA_SMALL"
+                @click.prevent="handleOpenRemoveConfirmation(item)"
               >
-                <fb-ui-button
-                  :variant="buttonVariantTypes.LINK"
-                  :size="sizeTypes.EXTRA_SMALL"
-                  @click.prevent="openRemoveConfirmation(item)"
-                >
-                  <font-awesome-icon icon="minus-circle" />
-                </fb-ui-button>
-              </div>
-
-              <div class="fb-triggers-detail-default-actions-container__item-detail">
-                <triggers-list-action
-                  :trigger="trigger"
-                  :action="item"
-                />
-              </div>
+                <font-awesome-icon icon="minus-circle" />
+              </fb-ui-button>
             </div>
-          </template>
 
-          <template v-slot:right="{ item }">
-            <div
-              @click.prevent="openRemoveConfirmation(item)"
-              class="fb-triggers-detail-default-actions-container__item-remove"
-            >
-              <font-awesome-icon icon="trash" />
+            <div class="fb-triggers-detail-default-actions-container__item-detail">
+              <triggers-list-action
+                :trigger="trigger"
+                :action="item"
+              />
             </div>
-          </template>
-        </swipe-list>
-      </template>
+          </div>
+        </template>
+
+        <template v-slot:right="{ item }">
+          <div
+            @click.prevent="handleOpenRemoveConfirmation(item)"
+            class="fb-triggers-detail-default-actions-container__item-remove"
+          >
+            <font-awesome-icon icon="trash" />
+          </div>
+        </template>
+      </swipe-list>
 
       <template slot="buttons">
         <fb-ui-button
-          :variant="buttonVariantTypes.LINK"
+          v-if="editMode || $windowSize.isExtraSmall()"
+          :variant="$windowSize.isExtraSmall() ? buttonVariantTypes.LINK : buttonVariantTypes.OUTLINE_PRIMARY"
           :size="sizeTypes.EXTRA_SMALL"
-          @click.prevent="openWindow(viewTypes.ADD_OR_EDIT)"
+          @click.prevent="handleOpenWindow(windowScreenTypes.ADD_OR_EDIT)"
         >
           <font-awesome-icon icon="plus" />
           {{ $t('application.buttons.add.title') }}
@@ -77,16 +70,16 @@
     </fb-ui-items-container>
 
     <triggers-detail-default-actions-container-add-or-edit
-      v-if="view.addOrEdit.show"
+      v-if="windowScreen.addOrEdit.opened"
       :trigger="trigger"
       :actions="actions"
-      @close="closeWindow(viewTypes.ADD_OR_EDIT)"
+      @close="handleCloseWindow(windowScreenTypes.ADD_OR_EDIT)"
     />
 
     <fb-ui-confirmation-window
-      v-if="view.removeConfirmation.show"
-      @confirmed="removeAction"
-      @close="closeWindow(viewTypes.REMOVE_CONFIRMATION)"
+      v-if="windowScreen.removeConfirmation.opened"
+      @confirmed="handleRemove"
+      @close="handleCloseWindow(windowScreenTypes.REMOVE_CONFIRMATION)"
     >
       <font-awesome-icon
         slot="icon"
@@ -119,6 +112,7 @@ import {
   SetupContext,
 } from '@vue/composition-api'
 
+// @ts-ignore
 import { SwipeList } from 'vue-swipe-actions'
 
 import get from 'lodash/get'
@@ -135,26 +129,21 @@ import Action from '~/models/triggers-node/actions/Action'
 import { ActionInterface } from '~/models/triggers-node/actions/types'
 
 import TriggersListAction from '~/components/triggers/ListAction/index.vue'
-import TriggersDetailDefaultActionsContainerAddOrEdit
-  from '~/components/triggers/Detail/Default/ActionsContainer/AddOrEdit/index.vue'
+import TriggersDetailDefaultActionsContainerAddOrEdit from '~/components/triggers/Detail/Default/ActionsContainer/AddOrEdit/index.vue'
 
-enum ViewTypes {
+enum WindowScreenTypes {
   ADD_OR_EDIT = 'addOrEdit',
   REMOVE_CONFIRMATION = 'removeConfirmation',
 }
 
-interface TriggersDetailDefaultActionsContainerViewRemoveConfirmationInterface {
-  show: boolean
-  action: string | null
-}
-
-interface TriggersDetailDefaultActionsContainerViewAddOrEditInterface {
-  show: boolean
-}
-
-interface TriggersDetailDefaultActionsContainerViewInterface {
-  addOrEdit: TriggersDetailDefaultActionsContainerViewAddOrEditInterface
-  removeConfirmation: TriggersDetailDefaultActionsContainerViewRemoveConfirmationInterface
+interface TriggersDetailDefaultActionsContainerWindowInterface {
+  addOrEdit: {
+    opened: boolean
+  }
+  removeConfirmation: {
+    opened: boolean
+    action: string | null
+  }
 }
 
 interface TriggersDetailDefaultActionsContainerPropsInterface {
@@ -188,12 +177,12 @@ export default defineComponent({
   },
 
   setup(props: TriggersDetailDefaultActionsContainerPropsInterface, context: SetupContext) {
-    const view = reactive<TriggersDetailDefaultActionsContainerViewInterface>({
+    const windowScreen = reactive<TriggersDetailDefaultActionsContainerWindowInterface>({
       addOrEdit: {
-        show: false,
+        opened: false,
       },
       removeConfirmation: {
-        show: false,
+        opened: false,
         action: null,
       },
     })
@@ -208,27 +197,25 @@ export default defineComponent({
 
     const windowSize = computed<string>((): string => context.root.$store.state.app.windowSize)
 
-    // Open info window
-    function openWindow(type: ViewTypes): void {
-      view[type].show = true
+    function handleOpenWindow(type: WindowScreenTypes): void {
+      windowScreen[type].opened = true
     }
 
-    // Close opened window
-    function closeWindow(type: ViewTypes): void {
-      view[type].show = false
+    function handleCloseWindow(type: WindowScreenTypes): void {
+      windowScreen[type].opened = false
     }
 
-    function openRemoveConfirmation(action: ActionInterface): void {
-      view.removeConfirmation.action = action.id
+    function handleOpenRemoveConfirmation(action: ActionInterface): void {
+      windowScreen.removeConfirmation.action = action.id
 
-      openWindow(ViewTypes.REMOVE_CONFIRMATION)
+      handleOpenWindow(WindowScreenTypes.REMOVE_CONFIRMATION)
     }
 
-    async function removeAction(): Promise<void> {
-      closeWindow(ViewTypes.REMOVE_CONFIRMATION)
+    async function handleRemove(): Promise<void> {
+      handleCloseWindow(WindowScreenTypes.REMOVE_CONFIRMATION)
 
-      if (view.removeConfirmation.action !== null) {
-        const action = Action.find(view.removeConfirmation.action)
+      if (windowScreen.removeConfirmation.action !== null) {
+        const action = Action.find(windowScreen.removeConfirmation.action)
 
         if (action !== null) {
           const errorMessage = context.root.$t('triggers.messages.actionNotRemoved', {
@@ -249,18 +236,18 @@ export default defineComponent({
         }
       }
 
-      view.removeConfirmation.action = null
+      windowScreen.removeConfirmation.action = null
     }
 
     return {
-      view,
-      viewTypes: ViewTypes,
+      windowScreen,
       actions,
       windowSize,
-      openWindow,
-      closeWindow,
-      openRemoveConfirmation,
-      removeAction,
+      handleOpenWindow,
+      handleCloseWindow,
+      handleOpenRemoveConfirmation,
+      handleRemove,
+      windowScreenTypes: WindowScreenTypes,
       sizeTypes: FbSizeTypes,
       buttonVariantTypes: FbUiButtonVariantTypes,
     }

@@ -1,7 +1,7 @@
 <template>
-  <device-detail-default
+  <devices-detail-default
     :device="device"
-    @editChannel="openChannelSettings"
+    :edit-mode="editMode"
   />
 </template>
 
@@ -9,17 +9,11 @@
 import {
   defineComponent,
   PropType,
-  SetupContext,
 } from '@vue/composition-api'
 
 import { DeviceInterface } from '~/models/devices-node/devices/types'
-import { ChannelInterface } from '~/models/devices-node/channels/types'
 
-import DeviceDetailDefault from '~/components/devices/Detail/Default/index.vue'
-
-interface DevicesDetailPropsInterface {
-  device: DeviceInterface
-}
+import DevicesDetailDefault from '~/components/devices/Detail/Default/index.vue'
 
 export default defineComponent({
 
@@ -32,20 +26,15 @@ export default defineComponent({
       required: true,
     },
 
+    editMode: {
+      type: Boolean,
+      default: false,
+    },
+
   },
 
   components: {
-    DeviceDetailDefault,
-  },
-
-  setup(props: DevicesDetailPropsInterface, context: SetupContext) {
-    function openChannelSettings(device: DeviceInterface, channel: ChannelInterface) {
-      context.emit('editChannel', device, channel)
-    }
-
-    return {
-      openChannelSettings,
-    }
+    DevicesDetailDefault,
   },
 
 })

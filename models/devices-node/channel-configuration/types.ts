@@ -11,7 +11,7 @@ export interface ValuesItemInterface {
 
 export interface ChannelConfigurationInterface {
   id: string
-  type: ChannelConfigurationEntityTypeType
+  type: ChannelConfigurationEntityTypes
 
   configuration: string
   name: string | null
@@ -49,7 +49,7 @@ export interface ChannelConfigurationInterface {
 // ENTITY TYPES
 // ============
 
-export enum ChannelConfigurationEntityTypeType {
+export enum ChannelConfigurationEntityTypes {
   BOOLEAN = 'devices-node/channel-configuration-boolean',
   NUMBER = 'devices-node/channel-configuration-number',
   SELECT = 'devices-node/channel-configuration-select',

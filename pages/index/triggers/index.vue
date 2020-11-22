@@ -1,8 +1,24 @@
 <template>
-  <div
-    :class="['fb-triggers-list-view__container', {'fb-triggers-list-view__container-loading': (isLoading)}, {'fb-triggers-list-view__container-empty': (noResults)}]"
-  >
+  <div :class="['fb-triggers-list-view__container', {'fb-triggers-list-view__container-loading': (isLoading)}]">
     <client-only>
+      <fb-layout-header-menu-button
+        :label="$t('application.buttons.menu.title')"
+        @toggleMenu="$bus.$emit('toggle-menu')"
+        type="button"
+        small
+        left
+      />
+
+      <fb-layout-header-button
+        :label="$t('application.buttons.new.title')"
+        @click="handleOpenView(viewTypes.TYPE)"
+        type="button"
+        small
+        right
+      />
+
+      <fb-layout-header-spacer small />
+
       <fb-ui-loading-box
         v-if="isLoading"
         class="fb-triggers-list-view__loading"
@@ -12,150 +28,40 @@
         </p>
       </fb-ui-loading-box>
 
-      <list-layout
+      <triggers-list-triggers
         v-else
-        :search-placeholder="$t('triggers.fields.search.placeholder')"
+        :active-item="openedDetail"
+        @open="handleOpenDetail"
+        v-slot="{ previous, next, page, total }"
       >
-        <fb-ui-no-results
-          slot="items"
-          v-if="noResults"
-        >
-          <font-awesome-icon
-            slot="icon"
-            icon="magic"
-          />
-
-          <font-awesome-icon
-            slot="second-icon"
-            icon="exclamation-triangle"
-          />
-
-          {{ $t('triggers.texts.noTriggers') }}
-        </fb-ui-no-results>
-
-        <template v-else>
-          <list-item
-            slot="items"
-            v-for="trigger in triggers"
-            :key="trigger.id"
-            :variant="listItemTypes.LIST"
-            @click="openDetail(trigger.id)"
-          >
-            <font-awesome-icon
-              slot="icon"
-              :icon="trigger.icon"
-            />
-
-            <template slot="heading">
-              {{ trigger.name }}
-            </template>
-
-            <template slot="sub-heading">
-              {{ trigger.description }}
-            </template>
-          </list-item>
-        </template>
-
-        <div
-          slot="detail"
+        <triggers-desktop-info
           v-if="!view.detail.opened || openedDetail === null"
-          class="fb-triggers-list-view__detail-info"
-        >
-          <fb-ui-content ml="md">
-            <fb-ui-media-item>
-              <font-awesome-icon
-                slot="left"
-                icon="magic"
-              />
+          :total="total"
+          @create="handleOpenView(viewTypes.CREATE)"
+          @synchronise="handleSynchroniseTriggers"
+        />
 
-              <template slot="heading">
-                {{ $t('triggers.headings.allTriggers') }}
-              </template>
-
-              <template slot="description">
-                {{ $tc('triggers.subHeadings.allTriggers', triggers.length, { count: triggers.length }) }}
-              </template>
-            </fb-ui-media-item>
-
-            <fb-ui-media-item>
-              <font-awesome-icon
-                slot="left"
-                icon="plus"
-              />
-
-              <template slot="heading">
-                {{ $t('triggers.headings.addNewTrigger') }}
-              </template>
-
-              <template slot="description">
-                {{ $t('triggers.subHeadings.addNewTrigger') }}
-              </template>
-
-              <fb-ui-button
-                slot="action"
-                :variant="buttonVariantTypes.OUTLINE_PRIMARY"
-                @click.prevent="openView(viewTypes.CREATE)"
-              >
-                {{ $t('triggers.buttons.addNew.title') }}
-              </fb-ui-button>
-            </fb-ui-media-item>
-
-            <fb-ui-media-item>
-              <font-awesome-icon
-                slot="left"
-                icon="sync-alt"
-              />
-
-              <template slot="heading">
-                {{ $t('triggers.headings.syncTriggers') }}
-              </template>
-
-              <template slot="description">
-                {{ $t('triggers.subHeadings.syncTriggers') }}
-              </template>
-
-              <fb-ui-button
-                slot="action"
-                :variant="buttonVariantTypes.OUTLINE_DEFAULT"
-                @click.prevent="synchroniseTriggers"
-              >
-                {{ $t('triggers.buttons.sync.title') }}
-              </fb-ui-button>
-            </fb-ui-media-item>
-          </fb-ui-content>
-        </div>
-
-        <template v-if="view.detail.opened && openedDetail !== null">
-          <triggers-desktop-detail-toolbar
-            slot="toolbar"
-            :trigger="openedDetail"
-            :edit-mode="editMode"
-            :page="view.detail.index + 1"
-            :total="triggers.length"
-            @close="closeView(viewTypes.DETAIL)"
-            @toggleEdit="toggleEditMode"
-            @previous="openPreviousItem"
-            @next="openNextItem"
-          />
-
-          <triggers-desktop-detail-header
-            slot="heading"
-            :trigger="openedDetail"
-            :edit-mode="editMode"
-          />
-
-          <triggers-detail
-            slot="detail"
-            :trigger="openedDetail"
-            :edit-mode="editMode"
-            @close="closeView(viewTypes.DETAIL)"
-          />
-        </template>
-      </list-layout>
+        <triggers-desktop-detail
+          v-else
+          :id="openedDetail"
+          :page="page"
+          :total="total"
+          @close="handleCloseDetail"
+          @previous="handleOpenPreviousItem(previous)"
+          @next="handleOpenNextItem(next)"
+          @removed="handleCloseDetail"
+        />
+      </triggers-list-triggers>
 
       <triggers-desktop-create
         v-if="view.create.opened && !$windowSize.isExtraSmall()"
-        @close="closeView(viewTypes.CREATE)"
+        @close="handleCloseView(viewTypes.CREATE)"
+        @created="(id) => {handleCloseView(viewTypes.CREATE); handleOpenDetail(id)}"
+      />
+
+      <triggers-phone-select-type
+        v-if="view.type.opened"
+        @close="handleCloseView(viewTypes.TYPE)"
       />
 
       <fb-ui-loading-box
@@ -174,7 +80,6 @@
 import {
   computed,
   defineComponent,
-  onBeforeMount,
   onMounted,
   reactive,
   ref,
@@ -182,11 +87,8 @@ import {
   watch,
 } from '@vue/composition-api'
 
-import { orderBy } from 'natural-orderby'
-
 import {
   FbSizeTypes,
-  FbUiButtonVariantTypes,
 } from '@fastybird/web-ui-theme'
 
 import {
@@ -195,14 +97,14 @@ import {
 } from '~/configuration/routes'
 
 import Trigger from '~/models/triggers-node/triggers/Trigger'
-import { TriggerInterface } from '~/models/triggers-node/triggers/types'
 
-import TriggersDetail from '~/components/triggers/Detail/index.vue'
+import TriggersListTriggers from '~/components/triggers/ListTriggers/index.vue'
+
+import TriggersDesktopDetail from '~/components/triggers/Desktop/Detail/index.vue'
 import TriggersDesktopCreate from '~/components/triggers/Desktop/Create/index.vue'
-import TriggersDesktopDetailHeader from '~/components/triggers/Desktop/DetailHeader/index.vue'
-import TriggersDesktopDetailToolbar from '~/components/triggers/Desktop/DetailToolbar/index.vue'
+import TriggersDesktopInfo from '~/components/triggers/Desktop/Info/index.vue'
 
-import { ListItemSizeTypes } from '~/components/layout/ListItem/index.vue'
+import TriggersPhoneSelectType from '~/components/triggers/Phone/SelectType/index.vue'
 
 enum ViewTypes {
   CREATE = 'create',
@@ -210,25 +112,16 @@ enum ViewTypes {
   TYPE = 'type',
 }
 
-interface TriggersIndexPageViewCreateInterface {
-  opened: boolean
-  type: string | null
-}
-
-interface TriggersIndexPageViewDetailInterface {
-  opened: boolean
-  id: string | null,
-  index: number,
-}
-
-interface TriggersIndexPageViewTypeInterface {
-  opened: boolean
-}
-
 interface TriggersIndexPageViewInterface {
-  create: TriggersIndexPageViewCreateInterface
-  detail: TriggersIndexPageViewDetailInterface
-  type: TriggersIndexPageViewTypeInterface
+  create: {
+    opened: boolean
+  }
+  detail: {
+    opened: boolean
+  }
+  type: {
+    opened: boolean
+  }
 }
 
 export default defineComponent({
@@ -238,92 +131,51 @@ export default defineComponent({
   transition: 'fade',
 
   components: {
-    TriggersDetail,
+    TriggersListTriggers,
+    TriggersDesktopDetail,
     TriggersDesktopCreate,
-    TriggersDesktopDetailHeader,
-    TriggersDesktopDetailToolbar,
+    TriggersDesktopInfo,
+    TriggersPhoneSelectType,
   },
 
   setup(props: {}, context: SetupContext) {
+    const isMounted = ref<boolean>(false)
+
     const view = reactive<TriggersIndexPageViewInterface>({
       type: {
         opened: false,
       },
       create: {
         opened: false,
-        type: null,
       },
       detail: {
         opened: false,
-        id: null,
-        index: 0,
       },
     })
 
-    const isMounted = ref<boolean>(false)
-
-    const editMode = ref<boolean>(false)
-
     const windowSize = computed<string>((): string => context.root.$store.state.app.windowSize)
-
-    const triggers = computed<Array<TriggerInterface>>((): Array<TriggerInterface> => {
-      return orderBy(
-        Trigger
-          .query()
-          .with('actions')
-          .with('conditions')
-          .with('notifications')
-          .where('isForChannel', false)
-          .where('draft', false)
-          .orderBy('name')
-          .get(),
-        [
-          v => v.name,
-          v => v.comment,
-        ],
-        ['asc'],
-      )
-    })
 
     const fetchingTriggers = computed<boolean>((): boolean => Trigger.getters('fetching')())
 
-    const isLoading = computed<boolean>((): boolean => fetchingTriggers.value && triggers.value.length === 0)
+    const triggersCount = computed<number>((): number => Trigger.query().count())
 
-    const noResults = computed<boolean>((): boolean => !fetchingTriggers.value && triggers.value.length === 0)
+    const isLoading = computed<boolean>((): boolean => fetchingTriggers.value)
 
-    const openedDetail = computed<TriggerInterface | null>((): TriggerInterface | null => {
-      if (view.detail.opened && view.detail.id !== null) {
-        return Trigger.find(view.detail.id)
-      }
-
-      return null
-    })
+    const openedDetail = ref<string | null>(null)
 
     context.root.$store.dispatch('app/setHeading', {
       heading: context.root.$t('triggers.headings.allTriggers'),
-      subHeading: context.root.$tc('triggers.subHeadings.allTriggers', triggers.value.length, { count: triggers.value.length }),
+      subHeading: context.root.$tc('triggers.subHeadings.allTriggers', triggersCount.value, { count: triggersCount.value }),
+      icon: 'magic',
     }, {
       root: true,
     })
 
-    function toggleEditMode(): void {
-      editMode.value = !editMode.value
-    }
-
-    function disableEditMode(): void {
-      editMode.value = false
-    }
-
-    // Close opened view
-    function closeView(type: ViewTypes) {
+    function handleCloseView(type: ViewTypes) {
       if (Object.prototype.hasOwnProperty.call(view, type)) {
         switch (type) {
           case ViewTypes.DETAIL:
             view.detail.opened = false
-            view.detail.id = null
-
-            // Force close edit mode
-            disableEditMode()
 
             context.root.$router.push(context.root.localePath(context.root.$routes.triggers.list))
             break
@@ -341,40 +193,32 @@ export default defineComponent({
       }
     }
 
-    // Open selected view
-    function openView(type: ViewTypes, id?: string) {
+    function handleOpenView(type: ViewTypes) {
       if (Object.prototype.hasOwnProperty.call(view, type)) {
         switch (type) {
           case ViewTypes.DETAIL:
-            if (context.root.$windowSize.isExtraSmall()) {
-              if (typeof id !== 'undefined') {
+            if (openedDetail.value) {
+              if (context.root.$windowSize.isExtraSmall()) {
                 context.root.$router.push(context.root.localePath({
                   name: context.root.$routes.triggers.detail,
                   params: {
-                    id,
+                    id: openedDetail.value,
                   },
                 }))
+              } else {
+                context.root.$router.push(context.root.localePath({
+                  name: context.root.$routes.triggers.list,
+                  hash: `${TRIGGERS_HASH_DETAIL}-${openedDetail.value}`,
+                }))
               }
-
-              return
-            } else {
-              // Force close edit mode
-              disableEditMode()
-
-              context.root.$router.push(context.root.localePath({
-                name: context.root.$routes.triggers.list,
-                hash: `${TRIGGERS_HASH_DETAIL}-${id}`,
-              }))
             }
             break
 
           case ViewTypes.CREATE:
             if (context.root.$windowSize.isExtraSmall()) {
-              context.root.$bus.$emit('wait-page_reloading', 10)
+              handleCloseView(ViewTypes.CREATE)
 
-              context.root.$router.push(context.root.localePath(context.root.$routes.triggers.create))
-
-              return
+              context.root.$router.push(context.root.localePath(context.root.$routes.triggers.list))
             } else {
               context.root.$router.push(context.root.localePath({
                 name: context.root.$routes.triggers.list,
@@ -385,66 +229,48 @@ export default defineComponent({
         }
 
         view[type].opened = true
-
-        if (
-          type === ViewTypes.DETAIL &&
-          typeof id !== 'undefined'
-        ) {
-          view[type].id = id
-
-          const index = triggers.value.findIndex(item => item.id === id)
-
-          if (index === -1) {
-            closeView(type)
-          }
-
-          view[type].index = index
-        }
       }
     }
 
-    function openDetail(id: string): void {
-      openView(ViewTypes.DETAIL, id)
+    function handleCloseDetail(): void {
+      openedDetail.value = null
+
+      handleCloseView(ViewTypes.DETAIL)
     }
 
-    function openPreviousItem(): void {
-      const newIndex = view.detail.index - 1
+    function handleOpenDetail(id: string): void {
+      if (Trigger.query().where('id', id).exists()) {
+        openedDetail.value = id
 
-      if (newIndex >= 0) {
-        openDetail(triggers.value[newIndex].id)
+        handleOpenView(ViewTypes.DETAIL)
       }
     }
 
-    function openNextItem(): void {
-      const newIndex = view.detail.index + 1
-
-      if (newIndex <= triggers.value.length) {
-        openDetail(triggers.value[newIndex].id)
+    function handleOpenPreviousItem(id: string | null): void {
+      if (id !== null) {
+        handleOpenDetail(id)
       }
     }
 
-    // Check route and if is needed open detail window
+    function handleOpenNextItem(id: string | null): void {
+      if (id !== null) {
+        handleOpenDetail(id)
+      }
+    }
+
     function checkRoute() {
       if (context.root.$route.hash !== '') {
         if (context.root.$route.hash.includes(TRIGGERS_HASH_DETAIL)) {
-          openView(ViewTypes.DETAIL, context.root.$route.hash.substring(TRIGGERS_HASH_DETAIL.length + 1))
+          handleOpenDetail(context.root.$route.hash.substring(TRIGGERS_HASH_DETAIL.length + 1))
         } else if (context.root.$route.hash.includes(TRIGGERS_HASH_CREATE)) {
-          openView(ViewTypes.CREATE)
+          handleOpenView(ViewTypes.CREATE)
         }
       }
     }
 
-    onBeforeMount((): void => {
-      if (
-        !fetchingTriggers.value &&
-        !Trigger.getters('firstLoadFinished')()
-      ) {
-        Trigger.dispatch('fetch')
-          .catch(() => {
-            context.root.$nuxt.error({ statusCode: 503, message: 'Something went wrong' })
-          })
-      }
-    })
+    function handleSynchroniseTriggers(): void {
+      // TODO: do sync here
+    }
 
     onMounted((): void => {
       if (!fetchingTriggers.value) {
@@ -456,24 +282,22 @@ export default defineComponent({
       isMounted.value = true
     })
 
-    function synchroniseTriggers(): void {
-      // do sync here
-    }
-
     watch(
       (): string => windowSize.value,
       (val): void => {
         if (val === FbSizeTypes.EXTRA_SMALL && isMounted.value) {
-          if (view.detail.opened && view.detail.id !== null) {
+          if (view.detail.opened && openedDetail.value !== null) {
             context.root.$router.push(context.root.localePath({
               name: context.root.$routes.triggers.detail,
               params: {
-                id: view.detail.id,
+                id: openedDetail.value,
               },
             }))
           } else if (view.create.opened) {
+            handleCloseView(ViewTypes.CREATE)
+
             context.root.$router.push(context.root.localePath({
-              name: context.root.$routes.triggers.create,
+              name: context.root.$routes.triggers.list,
             }))
           }
         }
@@ -490,44 +314,30 @@ export default defineComponent({
     )
 
     watch(
-      () => triggers.value,
+      () => triggersCount.value,
       (val): void => {
         context.root.$store.dispatch('app/setHeading', {
           heading: context.root.$t('triggers.headings.allTriggers'),
-          subHeading: context.root.$tc('triggers.subHeadings.allTriggers', val.length, { count: val.length }),
+          subHeading: context.root.$tc('triggers.subHeadings.allTriggers', val, { count: val }),
+          icon: 'magic',
         }, {
           root: true,
         })
       },
     )
 
-    watch(
-      () => context.root.$route,
-      (): void => {
-        if (isMounted.value) {
-          checkRoute()
-        }
-      },
-    )
-
     return {
       view,
-      viewTypes: ViewTypes,
-      isMounted,
-      editMode,
-      triggers,
       isLoading,
-      noResults,
       openedDetail,
-      openDetail,
-      openView,
-      closeView,
-      synchroniseTriggers,
-      toggleEditMode,
-      openPreviousItem,
-      openNextItem,
-      listItemTypes: ListItemSizeTypes,
-      buttonVariantTypes: FbUiButtonVariantTypes,
+      handleOpenDetail,
+      handleCloseDetail,
+      handleOpenView,
+      handleCloseView,
+      handleSynchroniseTriggers,
+      handleOpenPreviousItem,
+      handleOpenNextItem,
+      viewTypes: ViewTypes,
     }
   },
 

@@ -5,7 +5,7 @@ import {
 import get from 'lodash/get'
 
 import {
-  TriggerEntityTypeType,
+  TriggerEntityTypes,
   TriggerInterface,
 } from './types'
 
@@ -13,12 +13,12 @@ import Action from '~/models/triggers-node/actions/Action'
 import { ActionInterface } from '~/models/triggers-node/actions/types'
 import Condition from '~/models/triggers-node/conditions/Condition'
 import {
-  ConditionEntityTypeType,
+  ConditionEntityTypes,
   ConditionInterface,
 } from '~/models/triggers-node/conditions/types'
 import Notification from '~/models/triggers-node/notifications/Notification'
 import { NotificationInterface } from '~/models/triggers-node/notifications/types'
-import { ConditionOperatorType } from '~/models/triggers-node/types'
+import { ConditionOperatorTypes } from '~/models/triggers-node/types'
 
 // ENTITY MODEL
 // ============
@@ -57,7 +57,7 @@ export default class Trigger extends Model implements TriggerInterface {
   }
 
   id!: string
-  type!: TriggerEntityTypeType
+  type!: TriggerEntityTypes
 
   draft!: boolean
 
@@ -73,7 +73,7 @@ export default class Trigger extends Model implements TriggerInterface {
   conditions!: Array<ConditionInterface>
   notifications!: Array<NotificationInterface>
 
-  operator!: ConditionOperatorType
+  operator!: ConditionOperatorTypes
   operand!: string
   device!: string
   channel!: string
@@ -87,22 +87,18 @@ export default class Trigger extends Model implements TriggerInterface {
     return 'magic'
   }
 
-  get hasDescription(): boolean {
-    if (this.isTime && (this.comment === null || this.comment === '')) {
-      return true
+  get description(): string {
+    if (this.comment !== null && this.comment !== '') {
+      return this.comment
     }
 
-    return this.comment !== null && this.comment !== ''
-  }
-
-  get description(): string {
     if (this.isTime) {
       let days: Array<string> = []
 
       const schedule = Condition
         .query()
         .where('triggerId', this.id)
-        .where('type', ConditionEntityTypeType.TIME)
+        .where('type', ConditionEntityTypes.TIME)
         .first()
 
       if (schedule !== null) {
@@ -151,30 +147,26 @@ export default class Trigger extends Model implements TriggerInterface {
       }
     }
 
-    if (this.comment !== null && this.comment !== '') {
-      return this.comment
-    }
-
     return this.isAutomatic ? Trigger.store().$i18n.t('triggers.headings.automaticTrigger').toString() : Trigger.store().$i18n.t('triggers.headings.manualTrigger').toString()
   }
 
   get isAutomatic(): boolean {
-    return this.type === TriggerEntityTypeType.AUTOMATIC
+    return this.type === TriggerEntityTypes.AUTOMATIC
   }
 
   get isManual(): boolean {
-    return this.type === TriggerEntityTypeType.MANUAL
+    return this.type === TriggerEntityTypes.MANUAL
   }
 
   get isForChannel(): boolean {
-    return this.type === TriggerEntityTypeType.CHANNEL_PROPERTY
+    return this.type === TriggerEntityTypes.CHANNEL_PROPERTY
   }
 
   get isDate(): boolean {
     return Condition
       .query()
       .where('triggerId', this.id)
-      .where('type', ConditionEntityTypeType.DATE)
+      .where('type', ConditionEntityTypes.DATE)
       .exists()
   }
 
@@ -182,7 +174,7 @@ export default class Trigger extends Model implements TriggerInterface {
     return Condition
       .query()
       .where('triggerId', this.id)
-      .where('type', ConditionEntityTypeType.TIME)
+      .where('type', ConditionEntityTypes.TIME)
       .exists()
   }
 }

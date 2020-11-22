@@ -3,43 +3,118 @@
 
 .fb-triggers-desktop-create {
   &__container {
-    .fb-ui-modal-window__footer {
-      .fb-ui-button[data-variant="link"] {
-        color: $text-muted !important;
+    &[data-variant="tablet"] {
+      .fb-triggers-create-general {
+        &__general {
+          margin-bottom: $margin-sm;
+        }
+
+        &__items-container {
+          margin-left: -$margin-sm;
+          margin-right: -$margin-sm;
+        }
       }
-    }
 
-    .fb-ui-modal-window__body {
-      .fb-ui-items-container__heading {
-        padding-left: 0;
-      }
+      .fb-triggers-select-condition-device,
+      .fb-triggers-select-action-device {
+        &__container {
+          margin-left: -$margin-sm;
+          margin-right: -$margin-sm;
 
-      .fb-ui-items-container__items {
-        padding: 0;
-      }
-    }
-
-    &[data-type="select-device"].fb-ui-modal-window__container {
-      .fb-ui-modal-window__body {
-        padding: $padding-md 0;
-
-        .fb-ui-items-container {
-          &__heading {
-            padding-left: $padding-md;
+          .fb-ui-items-container {
+            &__items {
+              padding-left: 0;
+              padding-right: 0;
+            }
           }
+        }
+      }
+
+      .fb-triggers-select-date,
+      .fb-triggers-select-time {
+        &__container {
+          margin-left: -$margin-sm;
+          margin-right: -$margin-sm;
+        }
+      }
+
+      &[data-type="list-devices"] {
+        .fb-ui-modal-window__body {
+          padding: 0;
+        }
+
+        .fb-scroll-shadow__inner {
+          padding: $padding-sm;
         }
       }
     }
 
-    &[data-type="list-devices"].fb-ui-modal-window__container {
-      .fb-ui-modal-window__body {
-        padding: 0 $padding-md;
-      }
-    }
+    &[data-variant="default"] {
+      .fb-triggers-create-general {
+        &__general {
+          margin-bottom: $margin-sm;
+        }
 
-    &[data-type="select-date-time"].fb-ui-modal-window__container {
-      .fb-ui-modal-window__body {
-        padding: $padding-md 0;
+        &__items-container {
+          .fb-ui-items-container {
+            &__heading {
+              padding-left: 0;
+            }
+
+            &__buttons {
+              padding-right: 0;
+            }
+
+            &__items {
+              padding-left: 0;
+              padding-right: 0;
+            }
+          }
+        }
+      }
+
+      .fb-triggers-select-condition-device,
+      .fb-triggers-select-action-device {
+        &__container {
+          .fb-ui-items-container {
+            &__heading {
+              padding-left: 0;
+            }
+
+            &__items {
+              padding-left: 0;
+              padding-right: 0;
+
+              .fb-triggers-select-condition-device-property,
+              .fb-triggers-select-action-device-property {
+                &__conditions {
+                  margin-left: -$margin-md;
+                  margin-right: -$margin-md;
+
+                  .fb-list-item__heading {
+                    margin-left: $margin-sm;
+                  }
+
+                  .fb-list-item__content {
+                    margin-right: $margin-sm;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
+      .fb-triggers-select-date,
+      .fb-triggers-select-time {
+        &__container {
+          margin-left: -$margin-md;
+          margin-right: -$margin-md;
+
+          h3 {
+            margin-left: $margin-md;
+          }
+        }
       }
     }
   }
@@ -51,6 +126,9 @@
 
   &__select-type {
     @include flexRow;
+    flex-wrap: wrap;
+
+    padding: $padding-xs;
 
     &-item {
       -webkit-box-flex: 0;

@@ -2,8 +2,6 @@
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
-  -ms-flex-wrap: wrap;
-  flex-wrap: wrap;
   flex-direction: row;
 }
 
@@ -39,4 +37,9 @@
 @mixin border-left-radius($radius) {
   border-bottom-left-radius: $radius;
   border-top-left-radius: $radius;
+}
+
+@mixin box-shadow($shadow...) {
+  -webkit-box-shadow: $shadow; // iOS <4.3 & Android <4.1
+  box-shadow: $shadow;
 }

@@ -8,7 +8,7 @@ import Device from '~/models/devices-node/devices/Device'
 import { DeviceInterface } from '~/models/devices-node/devices/types'
 import {
   DeviceConfigurationInterface,
-  DeviceConfigurationEntityTypeType,
+  DeviceConfigurationEntityTypes,
   ValuesItemInterface,
 } from '~/models/devices-node/device-configuration/types'
 import Hardware from '~/models/devices-node/hardwares/Hardware'
@@ -52,7 +52,7 @@ export default class DeviceConfiguration extends Model implements DeviceConfigur
   }
 
   id!: string
-  type!: DeviceConfigurationEntityTypeType
+  type!: DeviceConfigurationEntityTypes
 
   configuration!: string
   name!: string | null
@@ -74,19 +74,19 @@ export default class DeviceConfiguration extends Model implements DeviceConfigur
   deviceId!: string
 
   get isBoolean(): boolean {
-    return this.type === DeviceConfigurationEntityTypeType.BOOLEAN
+    return this.type === DeviceConfigurationEntityTypes.BOOLEAN
   }
 
   get isNumber(): boolean {
-    return this.type === DeviceConfigurationEntityTypeType.NUMBER
+    return this.type === DeviceConfigurationEntityTypes.NUMBER
   }
 
   get isSelect(): boolean {
-    return this.type === DeviceConfigurationEntityTypeType.SELECT
+    return this.type === DeviceConfigurationEntityTypes.SELECT
   }
 
   get isText(): boolean {
-    return this.type === DeviceConfigurationEntityTypeType.TEXT
+    return this.type === DeviceConfigurationEntityTypes.TEXT
   }
 
   get title(): string {

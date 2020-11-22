@@ -1,5 +1,5 @@
 <template>
-  <trigger-detail-default
+  <triggers-detail-default
     :trigger="trigger"
     :edit-mode="editMode"
   />
@@ -13,7 +13,7 @@ import {
 
 import { TriggerInterface } from '~/models/triggers-node/triggers/types'
 
-import TriggerDetailDefault from '~/components/triggers/Detail/Default/index.vue'
+import TriggersDetailDefault from '~/components/triggers/Detail/Default/index.vue'
 
 export default defineComponent({
 
@@ -34,7 +34,7 @@ export default defineComponent({
   },
 
   components: {
-    TriggerDetailDefault,
+    TriggersDetailDefault,
   },
 
 })

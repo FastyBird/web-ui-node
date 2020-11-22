@@ -1,51 +1,58 @@
 <template>
-  <settings-list-item
-    v-if="parameter.isBoolean"
-    data-style="single-row"
+  <list-item
+    :variant="listItemTypes.DEFAULT"
+    :data-style="parameter.isBoolean ? 'single-row' : 'multi-row'"
+    @click="handleClick"
   >
     <fb-ui-switch-element
-      slot="suffix"
-      :ref="parameter.name"
+      slot="detail"
+      ref="switchReference"
+      v-if="parameter.isBoolean"
       :status="parameter.value"
       :disabled="!device.isReady"
-      variant="primary"
-      @change="$emit('submit')"
-    />
-    {{ parameter.title }}
-  </settings-list-item>
-
-  <settings-list-item
-    v-else
-    type="button"
-    data-style="multi-row"
-    @click="$emit('openForm')"
-  >
-    <fb-ui-spinner
-      v-if="loading"
-      slot="prefix"
-      size="sm"
-    />
-    <font-awesome-icon
-      slot="suffix"
-      icon="angle-right"
+      :variant="switchVariantTypes.PRIMARY"
+      @change="handleToggle"
     />
 
-    {{ parameter.title }}
-    <small>
+    <template slot="heading">
+      {{ parameter.title }}
+    </template>
+
+    <template
+      slot="sub-heading"
+      v-if="!parameter.isBoolean"
+    >
       {{ $t('application.states.actual') }}:
       <strong>{{ parameter.formattedValue }}</strong>
-    </small>
-  </settings-list-item>
+    </template>
+  </list-item>
 </template>
 
 <script lang="ts">
 import {
   defineComponent,
   PropType,
+  SetupContext,
 } from '@vue/composition-api'
 
+import {
+  FbUiSwitchElement,
+  FbUiSwitchElementVariantTypes,
+} from '@fastybird/web-ui-theme'
+
 import { DeviceInterface } from '~/models/devices-node/devices/types'
+import { ChannelInterface } from '~/models/devices-node/channels/types'
+import ChannelConfiguration from '~/models/devices-node/channel-configuration/ChannelConfiguration'
 import { ChannelConfigurationInterface } from '~/models/devices-node/channel-configuration/types'
+
+import { ListItemSizeTypes } from '~/components/layout/ListItem/index.vue'
+
+interface DevicesSettingsChannelParameterPropsInterface {
+  device: DeviceInterface
+  channel: ChannelInterface
+  parameter: ChannelConfigurationInterface
+  switchReference: InstanceType<typeof FbUiSwitchElement>
+}
 
 export default defineComponent({
 
@@ -58,16 +65,52 @@ export default defineComponent({
       required: true,
     },
 
+    channel: {
+      type: Object as PropType<ChannelInterface>,
+      required: true,
+    },
+
     parameter: {
       type: Object as PropType<ChannelConfigurationInterface>,
       required: true,
     },
 
-    loading: {
-      type: Boolean,
-      default: false,
+    switchReference: {
+      type: Object as PropType<InstanceType<typeof FbUiSwitchElement>>,
+      default: null,
     },
 
+  },
+
+  setup(props: DevicesSettingsChannelParameterPropsInterface, context: SetupContext) {
+    async function handleToggle(): Promise<void> {
+      if (props.device.isReady) {
+        context.root.$flashMessage(context.root.$t('devices.messages.notOnline', {
+          device: props.device.title,
+        }).toString(), 'error')
+
+        return
+      }
+
+      await ChannelConfiguration.dispatch('edit', {
+        channel: props.channel,
+        parameter: props.parameter,
+        value: !props.parameter.value,
+      })
+    }
+
+    function handleClick(): void {
+      if (props.parameter.isBoolean) {
+        context.emit('edit')
+      }
+    }
+
+    return {
+      handleToggle,
+      handleClick,
+      listItemTypes: ListItemSizeTypes,
+      switchVariantTypes: FbUiSwitchElementVariantTypes,
+    }
   },
 
 })

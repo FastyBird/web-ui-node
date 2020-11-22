@@ -1,105 +1,82 @@
 <template>
-  <validation-observer
-    v-if="identity !== null"
-    ref="validator"
-    v-slot="{ handleSubmit }"
-  >
-    <fb-ui-modal-form
-      :transparent-bg="transparentBg"
-      :lock-submit-button="form.result !== formResultTypes.NONE"
-      :state="form.result"
-      @submit="handleSubmit(submit)"
-      @cancel="close"
-      @close="close"
-    >
-      <fb-ui-modal-header-icon slot="icon">
-        <font-awesome-icon icon="key" />
-      </fb-ui-modal-header-icon>
+  <validation-observer ref="validator">
+    <fb-ui-content :mb="sizeTypes.LARGE">
+      <fb-form-input
+        v-model="form.model.username"
+        :label="$t('devices.fields.username.title')"
+        :readonly="true"
+        :tab-index="2"
+        name="username"
+      />
+    </fb-ui-content>
 
-      <template slot="header">
-        {{ $t('devices.headings.credentials') }}
-      </template>
+    <fb-ui-content :mb="sizeTypes.LARGE">
+      <validation-provider
+        v-slot="{ errors }"
+        name="password"
+        rules="required"
+      >
+        <fb-form-input
+          v-model="form.model.password"
+          :error="errors[0]"
+          :has-error="errors.length > 0"
+          :label="$t('devices.fields.password.title')"
+          :required="true"
+          :tab-index="3"
+          name="password"
+        />
+      </validation-provider>
+    </fb-ui-content>
 
-      <template slot="form">
-        <fb-ui-content mb="lg">
-          <fb-form-input
-            v-model="form.model.username"
-            :label="$t('devices.fields.username.title')"
-            :readonly="true"
-            :tab-index="2"
-            name="username"
-          />
-        </fb-ui-content>
+    <hr>
 
-        <fb-ui-content mb="lg">
-          <validation-provider
-            v-slot="{ errors }"
-            name="password"
-            rules="required"
-          >
-            <fb-form-input
-              v-model="form.model.password"
-              :error="errors[0]"
-              :has-error="errors.length > 0"
-              :label="$t('devices.fields.password.title')"
-              :required="true"
-              :tab-index="3"
-              name="password"
-            />
-          </validation-provider>
-        </fb-ui-content>
+    <div class="fb-devices-settings-device-credentials__server">
+      <div>
+        <fb-form-input
+          v-model="form.model.mqtt.server"
+          :label="$t('devices.fields.mqtt.server.title')"
+          :readonly="true"
+          :tab-index="8"
+          name="server"
+        />
+      </div>
 
-        <hr>
+      <div>
+        <fb-form-input
+          v-model="form.model.mqtt.port"
+          :label="$t('devices.fields.mqtt.port.title')"
+          :readonly="true"
+          :tab-index="9"
+          name="port"
+        />
+      </div>
+    </div>
 
-        <div class="fb-devices-settings-device-credentials__server">
-          <div>
-            <fb-form-input
-              v-model="form.model.mqtt.server"
-              :label="$t('devices.fields.mqtt.server.title')"
-              :readonly="true"
-              :tab-index="8"
-              name="server"
-            />
-          </div>
+    <fb-ui-divider>
+      {{ $t('application.misc.or') }}
+    </fb-ui-divider>
 
-          <div>
-            <fb-form-input
-              v-model="form.model.mqtt.port"
-              :label="$t('devices.fields.mqtt.port.title')"
-              :readonly="true"
-              :tab-index="9"
-              name="port"
-            />
-          </div>
-        </div>
+    <div class="fb-devices-settings-device-credentials__server">
+      <div>
+        <fb-form-input
+          v-model="form.model.mqtt.server"
+          :label="$t('devices.fields.mqtt.server.title')"
+          :readonly="true"
+          :tab-index="10"
+          name="secured_server"
+        />
+      </div>
 
-        <fb-ui-divider>
-          {{ $t('application.misc.or') }}
-        </fb-ui-divider>
-
-        <div class="fb-devices-settings-device-credentials__server">
-          <div>
-            <fb-form-input
-              v-model="form.model.mqtt.server"
-              :label="$t('devices.fields.mqtt.server.title')"
-              :readonly="true"
-              :tab-index="10"
-              name="secured_server"
-            />
-          </div>
-
-          <div>
-            <fb-form-input
-              v-model="form.model.mqtt.securedPort"
-              :label="$t('devices.fields.mqtt.securedPort.title')"
-              :readonly="true"
-              :tab-index="11"
-              name="secured_port"
-            />
-          </div>
-        </div>
-      </template>
-    </fb-ui-modal-form>
+      <div>
+        <fb-form-input
+          v-model="form.model.mqtt.securedPort"
+          :label="$t('devices.fields.mqtt.securedPort.title')"
+          :readonly="true"
+          :tab-index="11"
+          name="secured_port"
+        />
+      </div>
+    </div>
   </validation-observer>
 </template>
 
@@ -108,9 +85,9 @@ import {
   computed,
   defineComponent,
   onBeforeMount,
-  onMounted,
   PropType,
   reactive,
+  ref,
   SetupContext,
   watch,
 } from '@vue/composition-api'
@@ -123,12 +100,15 @@ import {
   localize,
 } from 'vee-validate'
 
-import { FbFormResultType } from '@fastybird/web-ui-theme'
+import {
+  FbFormResultTypes,
+  FbSizeTypes,
+} from '@fastybird/web-ui-theme'
 
 import { DeviceInterface } from '~/models/devices-node/devices/types'
 import Identity from '~/models/auth-node/identities/Identity'
 import {
-  IdentityEntityTypeType,
+  IdentityEntityTypes,
   IdentityInterface,
 } from '~/models/auth-node/identities/types'
 
@@ -140,26 +120,23 @@ import {
 import Account from '~/models/auth-node/accounts/Account'
 import { AccountInterface } from '~/models/auth-node/accounts/types'
 
-interface DevicesSettingsDeviceCredentialsFormModelMqttInterface {
-  server: string
-  port: string
-  securedPort: string
-}
-
-interface DevicesSettingsDeviceCredentialsFormModelInterface {
-  username: string
-  password: string
-  mqtt: DevicesSettingsDeviceCredentialsFormModelMqttInterface
-}
-
 interface DevicesSettingsDeviceCredentialsFormInterface {
-  model: DevicesSettingsDeviceCredentialsFormModelInterface,
-  result: string | boolean | null
+  model: {
+    username: string
+    password: string
+    mqtt: {
+      server: string
+      port: string
+      securedPort: string
+    }
+  }
 }
 
 interface DevicesSettingsDeviceCredentialsPropsInterface {
   device: DeviceInterface
-  transparentBg: boolean
+  remoteFormSubmit: boolean
+  remoteFormResult: FbFormResultTypes
+  remoteFormReset: boolean
 }
 
 export default defineComponent({
@@ -173,7 +150,17 @@ export default defineComponent({
       required: true,
     },
 
-    transparentBg: {
+    remoteFormSubmit: {
+      type: Boolean,
+      default: false,
+    },
+
+    remoteFormResult: {
+      type: String as PropType<FbFormResultTypes>,
+      default: FbFormResultTypes.NONE,
+    },
+
+    remoteFormReset: {
       type: Boolean,
       default: false,
     },
@@ -186,6 +173,8 @@ export default defineComponent({
   },
 
   setup(props: DevicesSettingsDeviceCredentialsPropsInterface, context: SetupContext) {
+    const validator = ref<InstanceType<typeof ValidationObserver>>(null)
+
     const fetchingAccounts = computed<boolean>((): boolean => Account.getters('fetching')())
     const fetchingAccount = computed<boolean>((): boolean => Account.getters('getting')(props.device.id))
     const accountsFirstLoadFinished = computed<boolean>((): boolean => Account.getters('firstLoadFinished')())
@@ -195,7 +184,7 @@ export default defineComponent({
 
     const account = computed<AccountInterface | null>((): AccountInterface | null => Account.find(props.device.id))
 
-    const identity = computed<IdentityInterface | null>((): IdentityInterface | null => Identity.query().where('accountId', props.device.id).where('type', IdentityEntityTypeType.MACHINE).first())
+    const identity = computed<IdentityInterface | null>((): IdentityInterface | null => Identity.query().where('accountId', props.device.id).where('type', IdentityEntityTypes.MACHINE).first())
 
     const form = reactive<DevicesSettingsDeviceCredentialsFormInterface>({
       model: {
@@ -207,7 +196,6 @@ export default defineComponent({
           securedPort: `${MQTT_SERVER_SECURED_PORT}`,
         },
       },
-      result: FbFormResultType.NONE,
     })
 
     localize({
@@ -230,8 +218,13 @@ export default defineComponent({
       computesRequired: true,
     })
 
-    // Processing timer
     let timer: number
+
+    function clearResult(): void {
+      window.clearTimeout(timer)
+
+      context.emit('update:remoteFormResult', FbFormResultTypes.NONE)
+    }
 
     onBeforeMount(async(): Promise<void> => {
       if (
@@ -265,62 +258,66 @@ export default defineComponent({
       }
     })
 
-    onMounted((): void => {
-      if (identity.value !== null) {
-        context.emit('loaded')
-      }
-    })
+    watch(
+      (): boolean => props.remoteFormSubmit,
+      (val): void => {
+        if (val) {
+          context.emit('update:remoteFormSubmit', false)
 
-    // Close form window
-    function close(event?: MouseEvent): void {
-      event && event.preventDefault()
+          if (validator.value !== null) {
+            validator.value
+              .validate()
+              .then(async(success: boolean): Promise<void> => {
+                if (success) {
+                  const errorMessage = context.root.$t('devices.messages.credentialsNotUpdated', {
+                    device: props.device.title,
+                  }).toString()
 
-      window.clearInterval(timer)
+                  context.emit('update:remoteFormResult', FbFormResultTypes.WORKING)
 
-      context.emit('close')
-    }
+                  try {
+                    await Identity.dispatch('edit', {
+                      identity: identity.value,
+                      data: {
+                        password: {
+                          current: identity.value !== null ? identity.value.password : '',
+                          new: form.model.password,
+                        },
+                      },
+                    })
 
-    // Form could not be submitted
-    function error(): void {
-      window.clearInterval(timer)
+                    context.emit('update:remoteFormResult', FbFormResultTypes.OK)
 
-      form.result = FbFormResultType.NONE
-    }
+                    timer = window.setTimeout(clearResult, 2000)
+                  } catch (e) {
+                    if (get(e, 'exception', null) !== null) {
+                      context.root.handleException(e.exception, errorMessage)
+                    } else {
+                      context.root.$flashMessage(errorMessage, 'error')
+                    }
 
-    // Submit form
-    async function submit(event?: MouseEvent): Promise<void> {
-      event && event.preventDefault()
+                    context.emit('update:remoteFormResult', FbFormResultTypes.ERROR)
 
-      const errorMessage = context.root.$t('devices.messages.credentialsNotUpdated', {
-        device: props.device.title,
-      }).toString()
-
-      form.result = FbFormResultType.WORKING
-
-      try {
-        await Identity.dispatch('edit', {
-          identity,
-          password: {
-            current: identity.value !== null ? identity.value.password : '',
-            new: form.model.password,
-          },
-        })
-
-        form.result = FbFormResultType.OK
-
-        timer = window.setInterval(close, 2000)
-      } catch (e) {
-        if (get(e, 'exception', null) !== null) {
-          context.root.handleException(e.exception, errorMessage)
-        } else {
-          context.root.$flashMessage(errorMessage, 'error')
+                    timer = window.setTimeout(clearResult, 2000)
+                  }
+                }
+              })
+          }
         }
+      },
+    )
 
-        form.result = FbFormResultType.ERROR
+    watch(
+      (): boolean => props.remoteFormReset,
+      (val): void => {
+        context.emit('update:remoteFormReset', false)
 
-        timer = window.setInterval(error, 2000)
-      }
-    }
+        if (val && identity.value !== null) {
+          form.model.username = identity.value.uid
+          form.model.password = identity.value.password
+        }
+      },
+    )
 
     watch(
       (): IdentityInterface | null => identity.value,
@@ -328,18 +325,15 @@ export default defineComponent({
         if (val !== null) {
           form.model.username = val.uid
           form.model.password = val.password
-
-          context.emit('loaded')
         }
       },
     )
 
     return {
+      validator,
       identity,
       form,
-      close,
-      submit,
-      formResultTypes: FbFormResultType,
+      sizeTypes: FbSizeTypes,
     }
   },
 

@@ -1,0 +1,49 @@
+@import "~assets/scss/variables";
+@import "~assets/scss/mixins";
+
+.fb-triggers-list-triggers {
+  &__container {
+    &-empty {
+      .fb-list-layout__items {
+        flex-direction: row;
+        align-items: center;
+
+        .fb-ui-no-results__container {
+          margin: 0 auto;
+        }
+      }
+    }
+  }
+
+  &__item {
+    &-edit,
+    &-remove {
+      @include flexRow;
+      align-items: center;
+      cursor: pointer;
+      left: 0;
+      padding: 0 $padding-md;
+    }
+
+    &-remove {
+      background-color: $brand-danger;
+      color: $brand-danger-contrast;
+      font-size: $font-size-lg;
+    }
+
+    &-edit {
+      background-color: $brand-primary;
+      color: $brand-primary-contrast;
+      font-size: $font-size-lg;
+    }
+  }
+
+  &__remove {
+    &-icon {
+      color: $brand-danger;
+      font-size: 8rem;
+      margin: $margin-lg 0 $margin-md 0;
+    }
+  }
+}
+

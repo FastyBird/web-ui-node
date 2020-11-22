@@ -1,0 +1,33 @@
+@import "~assets/scss/variables.scss";
+
+.fb-triggers-create-general {
+  &__container {
+
+  }
+
+  &__general {
+    display: block;
+
+    > span {
+      display: block;
+    }
+  }
+
+  &__items {
+    &-container {
+      overflow: auto;
+    }
+
+    margin-bottom: 0;
+  }
+
+  &__add-item {
+    &-row {
+      &.fb-ui-button[data-size="lg"] {
+        padding: 0;
+        font-size: $font-size-lg;
+        line-height: 5.3rem
+      }
+    }
+  }
+}

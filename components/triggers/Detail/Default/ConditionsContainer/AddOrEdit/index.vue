@@ -1,12 +1,12 @@
 <template>
   <div class="fb-triggers-detail-default-conditions-container-add-or-edit__outer">
-    <template v-if="view.selectType.show && $windowSize.isExtraSmall()">
+    <template v-if="windowScreen.selectType.opened && $windowSize.isExtraSmall()">
       <fb-layout-phone-menu-content>
         <div class="fb-triggers-detail-default-conditions-container-add-or-edit__select-type">
           <template v-if="!trigger.isTime">
             <fb-ui-button
               :variant="buttonVariantTypes.LINK"
-              @click.prevent="openWindow(viewTypes.CONFIGURE_DATE)"
+              @click.prevent="handleOpenWindow(windowScreenTypes.CONFIGURE_DATE)"
               block
               name="condition"
             >
@@ -21,7 +21,7 @@
           <template v-if="!trigger.isDate">
             <fb-ui-button
               :variant="buttonVariantTypes.LINK"
-              @click.prevent="openWindow(viewTypes.CONFIGURE_TIME)"
+              @click.prevent="handleOpenWindow(windowScreenTypes.CONFIGURE_TIME)"
               block
               name="action"
             >
@@ -35,7 +35,7 @@
 
           <fb-ui-button
             :variant="buttonVariantTypes.LINK"
-            @click.prevent="openWindow(viewTypes.LIST_DEVICES)"
+            @click.prevent="handleOpenWindow(windowScreenTypes.LIST_DEVICES)"
             block
             name="action"
           >
@@ -48,7 +48,7 @@
 
           <fb-ui-button
             :variant="buttonVariantTypes.LINK"
-            @click.prevent="openWindow(viewTypes.LIST_SENSORS)"
+            @click.prevent="handleOpenWindow(windowScreenTypes.LIST_SENSORS)"
             block
             name="action"
           >
@@ -65,7 +65,7 @@
         <fb-ui-button
           :variant="buttonVariantTypes.LINK"
           :size="sizeTypes.LARGE"
-          @click.prevent="closeWindow"
+          @click.prevent="handleCloseWindow"
           block
           name="close"
         >
@@ -79,20 +79,25 @@
       :lock-submit-button="formResult !== formResultTypes.NONE"
       :state="formResult"
       :submit-btn-text="$t('application.buttons.done.title')"
-      :cancel-btn-text="cancelBtnLabel"
-      :variant="$windowSize.isExtraSmall() ? modalVariantTypes.PHONE : modalVariantTypes.DEFAULT"
-      :submit-btn-show="!view.listDevices.show"
-      :data-type="openedType()"
-      @submit="submitBtnCallback"
-      @cancel="cancelBtnCallback"
-      @close="closeWindow"
+      :submit-btn-show="!windowScreen.listDevices.opened"
+      :cancel-btn-text="cancelBtnText"
+      :variant="modalVariant"
+      :data-type="openedType"
+      @submit="handleSubmit"
+      @cancel="handleCancel"
+      @close="handleCloseWindow"
       class="fb-triggers-detail-default-conditions-container-add-or-edit__container"
     >
       <fb-ui-modal-header
         slot="modal-header"
-        v-if="view.selectType.show"
-        :variant="$windowSize.isExtraSmall() ? modalVariantTypes.PHONE : modalVariantTypes.DEFAULT"
-        @close="closeWindow"
+        v-if="windowScreen.selectType.opened"
+        :variant="modalVariant"
+        :ok-btn-text="$t('application.buttons.done.title')"
+        :ok-btn-show="!windowScreen.listDevices.opened"
+        :cancel-btn-text="cancelBtnText"
+        @submit="handleSubmit"
+        @cancel="handleCancel"
+        @close="handleCloseWindow"
       >
         <font-awesome-icon
           slot="icon"
@@ -108,24 +113,18 @@
           Facilis blanditiis, quibusdam corporis porro natus neque soluta nihil hic aliquam, suscipit,
           consectetur omnis placeat architecto quae laboriosam. Id porro adipisci, alias.
         </template>
-
-        <fb-ui-button
-          slot="left-button"
-          :variant="buttonVariantTypes.LINK"
-          :size="sizeTypes.EXTRA_SMALL"
-          @click.prevent="cancelBtnCallback"
-          uppercase
-          name="close"
-        >
-          {{ cancelBtnLabel }}
-        </fb-ui-button>
       </fb-ui-modal-header>
 
       <fb-ui-modal-header
         slot="modal-header"
-        v-if="view.listDevices.show"
-        :variant="$windowSize.isExtraSmall() ? modalVariantTypes.PHONE : modalVariantTypes.DEFAULT"
-        @close="closeWindow"
+        v-if="windowScreen.listDevices.opened"
+        :variant="modalVariant"
+        :ok-btn-text="$t('application.buttons.done.title')"
+        :ok-btn-show="!windowScreen.listDevices.opened"
+        :cancel-btn-text="cancelBtnText"
+        @submit="handleSubmit"
+        @cancel="handleCancel"
+        @close="handleCloseWindow"
       >
         <font-awesome-icon
           slot="icon"
@@ -141,24 +140,18 @@
           Facilis blanditiis, quibusdam corporis porro natus neque soluta nihil hic aliquam, suscipit,
           consectetur omnis placeat architecto quae laboriosam. Id porro adipisci, alias.
         </template>
-
-        <fb-ui-button
-          slot="left-button"
-          :variant="buttonVariantTypes.LINK"
-          :size="sizeTypes.EXTRA_SMALL"
-          @click.prevent="cancelBtnCallback"
-          uppercase
-          name="close"
-        >
-          {{ cancelBtnLabel }}
-        </fb-ui-button>
       </fb-ui-modal-header>
 
       <fb-ui-modal-header
         slot="modal-header"
-        v-if="view.listSensors.show"
-        :variant="$windowSize.isExtraSmall() ? modalVariantTypes.PHONE : modalVariantTypes.DEFAULT"
-        @close="closeWindow"
+        v-if="windowScreen.listSensors.opened"
+        :variant="modalVariant"
+        :ok-btn-text="$t('application.buttons.done.title')"
+        :ok-btn-show="!windowScreen.listDevices.opened"
+        :cancel-btn-text="cancelBtnText"
+        @submit="handleSubmit"
+        @cancel="handleCancel"
+        @close="handleCloseWindow"
       >
         <font-awesome-icon
           slot="icon"
@@ -174,24 +167,18 @@
           Facilis blanditiis, quibusdam corporis porro natus neque soluta nihil hic aliquam, suscipit,
           consectetur omnis placeat architecto quae laboriosam. Id porro adipisci, alias.
         </template>
-
-        <fb-ui-button
-          slot="left-button"
-          :variant="buttonVariantTypes.LINK"
-          :size="sizeTypes.EXTRA_SMALL"
-          @click.prevent="cancelBtnCallback"
-          uppercase
-          name="close"
-        >
-          {{ cancelBtnLabel }}
-        </fb-ui-button>
       </fb-ui-modal-header>
 
       <fb-ui-modal-header
         slot="modal-header"
-        v-if="view.configureTime.show"
-        :variant="$windowSize.isExtraSmall() ? modalVariantTypes.PHONE : modalVariantTypes.DEFAULT"
-        @close="closeWindow"
+        v-if="windowScreen.configureTime.opened"
+        :variant="modalVariant"
+        :ok-btn-text="$t('application.buttons.done.title')"
+        :ok-btn-show="!windowScreen.listDevices.opened"
+        :cancel-btn-text="cancelBtnText"
+        @submit="handleSubmit"
+        @cancel="handleCancel"
+        @close="handleCloseWindow"
       >
         <font-awesome-icon
           slot="icon"
@@ -207,35 +194,18 @@
           Facilis blanditiis, quibusdam corporis porro natus neque soluta nihil hic aliquam, suscipit,
           consectetur omnis placeat architecto quae laboriosam. Id porro adipisci, alias.
         </template>
-
-        <fb-ui-button
-          slot="left-button"
-          :variant="buttonVariantTypes.LINK"
-          :size="sizeTypes.EXTRA_SMALL"
-          @click.prevent="cancelBtnCallback"
-          uppercase
-          name="close"
-        >
-          {{ cancelBtnLabel }}
-        </fb-ui-button>
-
-        <fb-ui-button
-          slot="right-button"
-          :variant="buttonVariantTypes.LINK"
-          :size="sizeTypes.EXTRA_SMALL"
-          @click.prevent="submitBtnCallback"
-          uppercase
-          name="submit"
-        >
-          {{ $t('application.buttons.done.title') }}
-        </fb-ui-button>
       </fb-ui-modal-header>
 
       <fb-ui-modal-header
         slot="modal-header"
-        v-if="view.configureDate.show"
-        :variant="$windowSize.isExtraSmall() ? modalVariantTypes.PHONE : modalVariantTypes.DEFAULT"
-        @close="closeWindow"
+        v-if="windowScreen.configureDate.opened"
+        :variant="modalVariant"
+        :ok-btn-text="$t('application.buttons.done.title')"
+        :ok-btn-show="!windowScreen.listDevices.opened"
+        :cancel-btn-text="cancelBtnText"
+        @submit="handleSubmit"
+        @cancel="handleCancel"
+        @close="handleCloseWindow"
       >
         <font-awesome-icon
           slot="icon"
@@ -251,116 +221,60 @@
           Facilis blanditiis, quibusdam corporis porro natus neque soluta nihil hic aliquam, suscipit,
           consectetur omnis placeat architecto quae laboriosam. Id porro adipisci, alias.
         </template>
-
-        <fb-ui-button
-          slot="left-button"
-          :variant="buttonVariantTypes.LINK"
-          :size="sizeTypes.EXTRA_SMALL"
-          @click.prevent="cancelBtnCallback"
-          uppercase
-          name="close"
-        >
-          {{ cancelBtnLabel }}
-        </fb-ui-button>
-
-        <fb-ui-button
-          slot="right-button"
-          :variant="buttonVariantTypes.LINK"
-          :size="sizeTypes.EXTRA_SMALL"
-          @click.prevent="submitBtnCallback"
-          uppercase
-          name="submit"
-        >
-          {{ $t('application.buttons.done.title') }}
-        </fb-ui-button>
       </fb-ui-modal-header>
 
       <fb-ui-modal-header
         slot="modal-header"
-        v-if="view.selectDevice.show && view.selectDevice.device !== null"
-        :variant="$windowSize.isExtraSmall() ? modalVariantTypes.PHONE : modalVariantTypes.DEFAULT"
-        @close="closeWindow"
+        v-if="windowScreen.selectDevice.opened && windowScreen.selectDevice.device !== null"
+        :variant="modalVariant"
+        :ok-btn-text="$t('application.buttons.done.title')"
+        :ok-btn-show="!windowScreen.listDevices.opened"
+        :cancel-btn-text="cancelBtnText"
+        @submit="handleSubmit"
+        @cancel="handleCancel"
+        @close="handleCloseWindow"
       >
         <font-awesome-icon
           slot="icon"
-          :icon="view.selectDevice.device.icon"
+          :icon="windowScreen.selectDevice.device.icon"
           class="fb-triggers-detail-default-conditions-container-add-or-edit__icon"
         />
 
         <template slot="heading">
-          {{ view.selectDevice.device.title }}
+          {{ windowScreen.selectDevice.device.title }}
         </template>
 
         <template slot="description">
           Facilis blanditiis, quibusdam corporis porro natus neque soluta nihil hic aliquam, suscipit,
           consectetur omnis placeat architecto quae laboriosam. Id porro adipisci, alias.
         </template>
-
-        <fb-ui-button
-          slot="left-button"
-          :variant="buttonVariantTypes.LINK"
-          :size="sizeTypes.EXTRA_SMALL"
-          @click.prevent="cancelBtnCallback"
-          uppercase
-          name="close"
-        >
-          {{ cancelBtnLabel }}
-        </fb-ui-button>
-
-        <fb-ui-button
-          slot="right-button"
-          :variant="buttonVariantTypes.LINK"
-          :size="sizeTypes.EXTRA_SMALL"
-          @click.prevent="submitBtnCallback"
-          uppercase
-          name="submit"
-        >
-          {{ $t('application.buttons.done.title') }}
-        </fb-ui-button>
       </fb-ui-modal-header>
 
       <fb-ui-modal-header
         slot="modal-header"
-        v-if="view.selectSensor.show && view.selectSensor.device !== null"
-        :variant="$windowSize.isExtraSmall() ? modalVariantTypes.PHONE : modalVariantTypes.DEFAULT"
-        @close="closeWindow"
+        v-if="windowScreen.selectSensor.opened && windowScreen.selectSensor.device !== null"
+        :variant="modalVariant"
+        :ok-btn-text="$t('application.buttons.done.title')"
+        :ok-btn-show="!windowScreen.listDevices.opened"
+        :cancel-btn-text="cancelBtnText"
+        @submit="handleSubmit"
+        @cancel="handleCancel"
+        @close="handleCloseWindow"
       >
         <font-awesome-icon
           slot="icon"
-          :icon="view.selectSensor.device.icon"
+          :icon="windowScreen.selectSensor.device.icon"
           class="fb-triggers-detail-default-conditions-container-add-or-edit__icon"
         />
 
         <template slot="heading">
-          {{ view.selectSensor.device.title }}
+          {{ windowScreen.selectSensor.device.title }}
         </template>
 
         <template slot="description">
           Facilis blanditiis, quibusdam corporis porro natus neque soluta nihil hic aliquam, suscipit,
           consectetur omnis placeat architecto quae laboriosam. Id porro adipisci, alias.
         </template>
-
-        <fb-ui-button
-          slot="left-button"
-          :variant="buttonVariantTypes.LINK"
-          :size="sizeTypes.EXTRA_SMALL"
-          @click.prevent="cancelBtnCallback"
-          uppercase
-          name="close"
-        >
-          {{ cancelBtnLabel }}
-        </fb-ui-button>
-
-        <fb-ui-button
-          slot="right-button"
-          :variant="buttonVariantTypes.LINK"
-          :size="sizeTypes.EXTRA_SMALL"
-          @click.prevent="submitBtnCallback"
-          uppercase
-          name="submit"
-        >
-          {{ $t('application.buttons.done.title') }}
-        </fb-ui-button>
       </fb-ui-modal-header>
 
       <div
@@ -368,7 +282,7 @@
         class="fb-triggers-detail-default-conditions-container-add-or-edit__content"
       >
         <div
-          v-if="view.selectType.show"
+          v-if="windowScreen.selectType.opened"
           class="fb-triggers-detail-default-conditions-container-add-or-edit__type"
         >
           <div class="fb-triggers-detail-default-conditions-container-add-or-edit__type-row">
@@ -377,7 +291,7 @@
                 :disabled="trigger.isTime"
                 :variant="buttonVariantTypes.OUTLINE_PRIMARY"
                 :size="sizeTypes.LARGE"
-                @click.prevent="openWindow(viewTypes.CONFIGURE_DATE)"
+                @click.prevent="handleOpenWindow(windowScreenTypes.CONFIGURE_DATE)"
                 block
                 name="condition"
               >
@@ -391,7 +305,7 @@
                 :disabled="trigger.isDate"
                 :variant="buttonVariantTypes.OUTLINE_PRIMARY"
                 :size="sizeTypes.LARGE"
-                @click.prevent="openWindow(viewTypes.CONFIGURE_TIME)"
+                @click.prevent="handleOpenWindow(windowScreenTypes.CONFIGURE_TIME)"
                 block
                 name="condition"
               >
@@ -404,7 +318,7 @@
               <fb-ui-button
                 :variant="buttonVariantTypes.OUTLINE_PRIMARY"
                 :size="sizeTypes.LARGE"
-                @click.prevent="openWindow(viewTypes.LIST_DEVICES)"
+                @click.prevent="handleOpenWindow(windowScreenTypes.LIST_DEVICES)"
                 block
                 name="condition"
               >
@@ -417,7 +331,7 @@
               <fb-ui-button
                 :variant="buttonVariantTypes.OUTLINE_PRIMARY"
                 :size="sizeTypes.LARGE"
-                @click.prevent="openWindow(viewTypes.LIST_SENSORS)"
+                @click.prevent="handleOpenWindow(windowScreenTypes.LIST_SENSORS)"
                 block
                 name="condition"
               >
@@ -429,51 +343,51 @@
         </div>
 
         <triggers-list-devices
-          v-if="view.listDevices.show"
+          v-if="windowScreen.listDevices.opened"
           :type="selectDeviceViewTypes.DEVICES"
           :items="conditions"
-          @select="listDevices"
+          @select="handleListDevices"
         />
 
         <triggers-list-devices
-          v-if="view.listSensors.show"
+          v-if="windowScreen.listSensors.opened"
           :type="selectDeviceViewTypes.SENSORS"
           :items="conditions"
-          @select="listSensors"
+          @select="handleListSensors"
         />
 
         <triggers-select-condition-device
-          v-if="view.selectDevice.show && Object.keys(form.model.devices).length > 0"
+          v-if="windowScreen.selectDevice.opened && Object.keys(form.model.devices).length > 0"
           v-model="form.model.devices"
-          :device="view.selectDevice.device"
+          :device="windowScreen.selectDevice.device"
         />
 
         <triggers-select-condition-device
-          v-if="view.selectSensor.show && Object.keys(form.model.devices).length > 0"
+          v-if="windowScreen.selectSensor.opened && Object.keys(form.model.devices).length > 0"
           v-model="form.model.devices"
-          :device="view.selectSensor.device"
+          :device="windowScreen.selectSensor.device"
         />
 
         <triggers-select-time
-          v-if="view.configureTime.show && Object.keys(form.model.time).length > 0"
+          v-if="windowScreen.configureTime.opened && Object.keys(form.model.time).length > 0"
           v-model="form.model.time"
         />
 
         <triggers-select-date
-          v-if="view.configureDate.show && Object.keys(form.model.date).length > 0"
+          v-if="windowScreen.configureDate.opened && Object.keys(form.model.date).length > 0"
           v-model="form.model.date"
         />
       </div>
 
       <template
         slot="modal-footer"
-        v-if="view.selectType.show || view.listDevices.show || view.listSensors.show"
+        v-if="windowScreen.selectType.opened || windowScreen.listDevices.opened || windowScreen.listSensors.opened"
       >
         <fb-ui-button
-          v-if="view.listDevices.show || view.listSensors.show"
+          v-if="windowScreen.listDevices.opened || windowScreen.listSensors.opened"
           :variant="buttonVariantTypes.LINK"
           :size="sizeTypes.LARGE"
-          @click.prevent="openWindow(viewTypes.SELECT_TYPE)"
+          @click.prevent="handleOpenWindow(windowScreenTypes.SELECT_TYPE)"
           uppercase
           name="close"
         >
@@ -484,7 +398,7 @@
           v-else
           :variant="buttonVariantTypes.LINK"
           :size="sizeTypes.LARGE"
-          @click.prevent="closeWindow"
+          @click.prevent="handleCloseWindow"
           uppercase
           name="close"
         >
@@ -509,8 +423,8 @@ import get from 'lodash/get'
 
 import {
   FbSizeTypes,
-  FbFormResultType,
-  FbUiModalVariantType,
+  FbFormResultTypes,
+  FbUiModalVariantTypes,
   FbUiButtonVariantTypes,
   FbUiDividerVariantTypes,
 } from '@fastybird/web-ui-theme'
@@ -518,21 +432,21 @@ import {
 import { TriggerInterface } from '~/models/triggers-node/triggers/types'
 import Condition from '~/models/triggers-node/conditions/Condition'
 import {
-  ConditionEntityTypeType,
+  ConditionEntityTypes,
   ConditionInterface,
 } from '~/models/triggers-node/conditions/types'
-import { ConditionOperatorType } from '~/models/triggers-node/types'
+import { ConditionOperatorTypes } from '~/models/triggers-node/types'
 
 import { DeviceInterface } from '~/models/devices-node/devices/types'
 import DeviceProperty from '~/models/devices-node/device-properties/DeviceProperty'
 import ChannelProperty from '~/models/devices-node/channel-properties/ChannelProperty'
 
-import TriggersListDevices, { ViewType as SelectViewType } from '~/components/triggers/ListDevices/index.vue'
+import TriggersListDevices, { ViewType as SelectViewTypes } from '~/components/triggers/ListDevices/index.vue'
 import TriggersSelectConditionDevice from '~/components/triggers/SelectConditionDevice/index.vue'
 import TriggersSelectDate from '~/components/triggers/SelectDate/index.vue'
 import TriggersSelectTime from '~/components/triggers/SelectTime/index.vue'
 
-enum ViewTypes {
+enum WindowScreenTypes {
   SELECT_TYPE = 'selectType',
   SELECT_DEVICE = 'selectDevice',
   SELECT_SENSOR = 'selectSensor',
@@ -547,75 +461,55 @@ enum ItemType {
   CHANNEL_CONDITION = 'channelCondition',
 }
 
-interface TriggersDetailDefaultConditionsContainerAddOrEditFormModelDeviceInterface {
-  selected: boolean
-  operator: ConditionOperatorType
-  operand: string | boolean | null
-  type: ItemType
-  condition: string | null
-}
-
-interface TriggersDetailDefaultConditionsContainerAddOrEditFormModelTimeInterface {
-  selected: boolean
-  time: string
-  days: Array<number>
-  condition: string | null
-}
-
-interface TriggersDetailDefaultConditionsContainerAddOrEditFormModelDateInterface {
-  selected: boolean
-  date: string
-  condition: string | null
-}
-
-interface TriggersDetailDefaultConditionsContainerAddOrEditFormModelInterface {
-  devices?: { [key: string]: TriggersDetailDefaultConditionsContainerAddOrEditFormModelDeviceInterface }
-  time?: TriggersDetailDefaultConditionsContainerAddOrEditFormModelTimeInterface
-  date?: TriggersDetailDefaultConditionsContainerAddOrEditFormModelDateInterface
-}
-
 interface TriggersDetailDefaultConditionsContainerAddOrEditFormInterface {
-  model: TriggersDetailDefaultConditionsContainerAddOrEditFormModelInterface
+  model: {
+    devices?: {
+      [key: string]: {
+        selected: boolean
+        operator: ConditionOperatorTypes
+        operand: string | boolean | null
+        type: ItemType
+        condition: string | null
+      }
+    }
+    time?: {
+      selected: boolean
+      time: string
+      days: Array<number>
+      condition: string | null
+    }
+    date?: {
+      selected: boolean
+      date: string
+      condition: string | null
+    }
+  }
 }
 
-interface TriggersDetailDefaultConditionsAddOrEditViewSelectTypeInterface {
-  show: boolean
-}
-
-interface TriggersDetailDefaultConditionsAddOrEditViewListDevicesInterface {
-  show: boolean
-}
-
-interface TriggersDetailDefaultConditionsAddOrEditViewListSensorsInterface {
-  show: boolean
-}
-
-interface TriggersDetailDefaultConditionsAddOrEditViewSelectDeviceInterface {
-  show: boolean
-  device: DeviceInterface | null
-}
-
-interface TriggersDetailDefaultConditionsAddOrEditViewSelectSensorInterface {
-  show: boolean
-  device: DeviceInterface | null
-}
-
-interface TriggersDetailDefaultConditionsAddOrEditViewConfigureTimeInterface {
-  show: boolean
-}
-
-interface TriggersDetailDefaultConditionsAddOrEditViewConfigureDateInterface {
-  show: boolean
-}
-
-interface TriggersDetailDefaultConditionsAddOrEditViewInterface {
-  selectType: TriggersDetailDefaultConditionsAddOrEditViewSelectTypeInterface
-  listDevices: TriggersDetailDefaultConditionsAddOrEditViewListDevicesInterface
-  listSensors: TriggersDetailDefaultConditionsAddOrEditViewListSensorsInterface
-  selectDevice: TriggersDetailDefaultConditionsAddOrEditViewSelectDeviceInterface
-  selectSensor: TriggersDetailDefaultConditionsAddOrEditViewSelectSensorInterface
-  configureTime: TriggersDetailDefaultConditionsAddOrEditViewConfigureTimeInterface
-  configureDate: TriggersDetailDefaultConditionsAddOrEditViewConfigureDateInterface
+interface TriggersDetailDefaultConditionsAddOrEditWindowInterface {
+  selectType: {
+    opened: boolean
+  }
+  listDevices: {
+    opened: boolean
+  }
+  listSensors: {
+    opened: boolean
+  }
+  selectDevice: {
+    opened: boolean
+    device: DeviceInterface | null
+  }
+  selectSensor: {
+    opened: boolean
+    device: DeviceInterface | null
+  }
+  configureTime: {
+    opened: boolean
+  }
+  configureDate: {
+    opened: boolean
+  }
 }
 
 interface TriggersDetailDefaultConditionsContainerAddOrEditPropsInterface {
@@ -653,31 +547,31 @@ export default defineComponent({
     const hasConditionTime = ref<boolean>(false)
     const hasConditionDevice = ref<boolean>(false)
 
-    const formResult = ref<FbFormResultType>(FbFormResultType.NONE)
+    const formResult = ref<FbFormResultTypes>(FbFormResultTypes.NONE)
 
-    const view = reactive<TriggersDetailDefaultConditionsAddOrEditViewInterface>({
+    const windowScreen = reactive<TriggersDetailDefaultConditionsAddOrEditWindowInterface>({
       selectType: {
-        show: true,
+        opened: true,
       },
       listDevices: {
-        show: false,
+        opened: false,
       },
       listSensors: {
-        show: false,
+        opened: false,
       },
       selectDevice: {
-        show: false,
+        opened: false,
         device: null,
       },
       selectSensor: {
-        show: false,
+        opened: false,
         device: null,
       },
       configureTime: {
-        show: false,
+        opened: false,
       },
       configureDate: {
-        show: false,
+        opened: false,
       },
     })
 
@@ -685,18 +579,28 @@ export default defineComponent({
       model: {},
     })
 
-    // Processing timer
+    const openedType = computed<string>((): string => {
+      if (windowScreen.listDevices.opened) {
+        return 'list-devices'
+      }
+
+      if (windowScreen.configureDate.opened || windowScreen.configureTime.opened) {
+        return 'configure-date-time'
+      }
+
+      return 'select-device'
+    })
+
     let timer: number
 
-    // Open info window
-    function openWindow(type: ViewTypes): void {
-      if (type === ViewTypes.CONFIGURE_TIME) {
+    function handleOpenWindow(type: WindowScreenTypes): void {
+      if (type === WindowScreenTypes.CONFIGURE_TIME) {
         form.model.devices = {}
 
         const condition = Condition
           .query()
           .where('triggerId', props.trigger.id)
-          .where('type', ConditionEntityTypeType.TIME)
+          .where('type', ConditionEntityTypes.TIME)
           .first()
 
         if (condition !== null) {
@@ -722,11 +626,11 @@ export default defineComponent({
             },
           })
         }
-      } else if (type === ViewTypes.CONFIGURE_DATE) {
+      } else if (type === WindowScreenTypes.CONFIGURE_DATE) {
         const condition = Condition
           .query()
           .where('triggerId', props.trigger.id)
-          .where('type', ConditionEntityTypeType.DATE)
+          .where('type', ConditionEntityTypes.DATE)
           .first()
 
         if (condition !== null) {
@@ -752,41 +656,40 @@ export default defineComponent({
         }
       }
 
-      view[type].show = true
+      windowScreen[type].opened = true
 
-      Object.keys(view)
+      Object.keys(windowScreen)
         .forEach((key: string): void => {
           if (
             (
-              key === ViewTypes.SELECT_TYPE ||
-              key === ViewTypes.SELECT_DEVICE ||
-              key === ViewTypes.SELECT_SENSOR ||
-              key === ViewTypes.LIST_DEVICES ||
-              key === ViewTypes.LIST_SENSORS ||
-              key === ViewTypes.CONFIGURE_TIME ||
-              key === ViewTypes.CONFIGURE_DATE
+              key === WindowScreenTypes.SELECT_TYPE ||
+              key === WindowScreenTypes.SELECT_DEVICE ||
+              key === WindowScreenTypes.SELECT_SENSOR ||
+              key === WindowScreenTypes.LIST_DEVICES ||
+              key === WindowScreenTypes.LIST_SENSORS ||
+              key === WindowScreenTypes.CONFIGURE_TIME ||
+              key === WindowScreenTypes.CONFIGURE_DATE
             ) &&
             type !== key
           ) {
-            view[key].show = false
+            windowScreen[key].opened = false
           }
         })
     }
 
-    // Close opened window
-    function closeWindow(): void {
-      Object.keys(view)
+    function handleCloseWindow(): void {
+      Object.keys(windowScreen)
         .forEach((key: string): void => {
           if (
-            key === ViewTypes.SELECT_TYPE ||
-            key === ViewTypes.SELECT_DEVICE ||
-            key === ViewTypes.SELECT_SENSOR ||
-            key === ViewTypes.LIST_DEVICES ||
-            key === ViewTypes.LIST_SENSORS ||
-            key === ViewTypes.CONFIGURE_TIME ||
-            key === ViewTypes.CONFIGURE_DATE
+            key === WindowScreenTypes.SELECT_TYPE ||
+            key === WindowScreenTypes.SELECT_DEVICE ||
+            key === WindowScreenTypes.SELECT_SENSOR ||
+            key === WindowScreenTypes.LIST_DEVICES ||
+            key === WindowScreenTypes.LIST_SENSORS ||
+            key === WindowScreenTypes.CONFIGURE_TIME ||
+            key === WindowScreenTypes.CONFIGURE_DATE
           ) {
-            view[key].show = false
+            windowScreen[key].opened = false
           }
         })
 
@@ -806,7 +709,7 @@ export default defineComponent({
                 form.model.devices[property.id] = {
                   selected: false,
                   type: ItemType.CHANNEL_CONDITION,
-                  operator: ConditionOperatorType.STATE_VALUE_EQUAL,
+                  operator: ConditionOperatorTypes.STATE_VALUE_EQUAL,
                   operand: null,
                   condition: null,
                 }
@@ -820,7 +723,7 @@ export default defineComponent({
             form.model.devices[property.id] = {
               selected: false,
               type: ItemType.DEVICE_CONDITION,
-              operator: ConditionOperatorType.STATE_VALUE_EQUAL,
+              operator: ConditionOperatorTypes.STATE_VALUE_EQUAL,
               operand: null,
               condition: null,
             }
@@ -878,31 +781,30 @@ export default defineComponent({
         })
     }
 
-    function listDevices(device: DeviceInterface): void {
+    function handleListDevices(device: DeviceInterface): void {
       listDevicesOrSensors(device)
 
-      view[ViewTypes.SELECT_DEVICE].device = device
+      windowScreen[WindowScreenTypes.SELECT_DEVICE].device = device
 
-      openWindow(ViewTypes.SELECT_DEVICE)
+      handleOpenWindow(WindowScreenTypes.SELECT_DEVICE)
     }
 
-    function listSensors(device: DeviceInterface): void {
+    function handleListSensors(device: DeviceInterface): void {
       listDevicesOrSensors(device)
 
-      view[ViewTypes.SELECT_SENSOR].device = device
+      windowScreen[WindowScreenTypes.SELECT_SENSOR].device = device
 
-      openWindow(ViewTypes.SELECT_SENSOR)
+      handleOpenWindow(WindowScreenTypes.SELECT_SENSOR)
     }
 
-    // Form could not be submitted
     function error(): void {
       window.clearInterval(timer)
 
-      formResult.value = FbFormResultType.NONE
+      formResult.value = FbFormResultTypes.NONE
     }
 
     async function submitTime(): Promise<void> {
-      formResult.value = FbFormResultType.WORKING
+      formResult.value = FbFormResultTypes.WORKING
 
       let result = true
 
@@ -944,7 +846,7 @@ export default defineComponent({
             await Condition.dispatch('add', {
               trigger: props.trigger,
               data: {
-                type: ConditionEntityTypeType.TIME,
+                type: ConditionEntityTypes.TIME,
                 enabled: true,
                 time: form.model.time.time,
                 days: form.model.time.days,
@@ -963,18 +865,18 @@ export default defineComponent({
       }
 
       if (result) {
-        formResult.value = FbFormResultType.OK
+        formResult.value = FbFormResultTypes.OK
 
-        timer = window.setInterval(closeWindow, 2000)
+        timer = window.setInterval(handleCloseWindow, 2000)
       } else {
-        formResult.value = FbFormResultType.ERROR
+        formResult.value = FbFormResultTypes.ERROR
 
         timer = window.setInterval(error, 2000)
       }
     }
 
     async function submitDate(): Promise<void> {
-      formResult.value = FbFormResultType.WORKING
+      formResult.value = FbFormResultTypes.WORKING
 
       let result = true
 
@@ -1015,7 +917,7 @@ export default defineComponent({
             await Condition.dispatch('add', {
               trigger: props.trigger,
               data: {
-                type: ConditionEntityTypeType.DATE,
+                type: ConditionEntityTypes.DATE,
                 enabled: true,
                 date: form.model.date.date,
               },
@@ -1033,18 +935,18 @@ export default defineComponent({
       }
 
       if (result) {
-        formResult.value = FbFormResultType.OK
+        formResult.value = FbFormResultTypes.OK
 
-        timer = window.setInterval(closeWindow, 2000)
+        timer = window.setInterval(handleCloseWindow, 2000)
       } else {
-        formResult.value = FbFormResultType.ERROR
+        formResult.value = FbFormResultTypes.ERROR
 
         timer = window.setInterval(error, 2000)
       }
     }
 
     function submitDeviceOrSensor(): void {
-      formResult.value = FbFormResultType.WORKING
+      formResult.value = FbFormResultTypes.WORKING
 
       let result = true
 
@@ -1065,7 +967,7 @@ export default defineComponent({
         if (!isValid) {
           context.root.$flashMessage(context.root.$t('triggers.messages.atLeastOneConditionProperty').toString(), 'error')
 
-          formResult.value = FbFormResultType.NONE
+          formResult.value = FbFormResultTypes.NONE
 
           return
         }
@@ -1128,7 +1030,7 @@ export default defineComponent({
                         await Condition.dispatch('add', {
                           trigger: props.trigger,
                           data: {
-                            type: ConditionEntityTypeType.DEVICE_PROPERTY,
+                            type: ConditionEntityTypes.DEVICE_PROPERTY,
                             enabled: true,
                             operator: form.model.devices[key].operator,
                             operand: form.model.devices[key].operand,
@@ -1210,7 +1112,7 @@ export default defineComponent({
                         await Condition.dispatch('add', {
                           trigger: props.trigger,
                           data: {
-                            type: ConditionEntityTypeType.CHANNEL_PROPERTY,
+                            type: ConditionEntityTypes.CHANNEL_PROPERTY,
                             enabled: true,
                             operator: form.model.devices[key].operator,
                             operand: form.model.devices[key].operand,
@@ -1257,56 +1159,44 @@ export default defineComponent({
       }
 
       if (result) {
-        formResult.value = FbFormResultType.OK
+        formResult.value = FbFormResultTypes.OK
 
-        timer = window.setInterval(closeWindow, 2000)
+        timer = window.setInterval(handleCloseWindow, 2000)
       } else {
-        formResult.value = FbFormResultType.ERROR
+        formResult.value = FbFormResultTypes.ERROR
 
         timer = window.setInterval(error, 2000)
       }
     }
 
-    function openedType(): string {
-      if (view.listDevices.show || view.listSensors.show) {
-        return 'list-devices'
-      } else if (view.selectDevice.show || view.selectSensor.show) {
-        return 'select-device'
-      } else if (view.configureTime.show || view.configureDate.show) {
-        return 'select-date-time'
-      }
-
-      return 'other'
-    }
-
-    function submitBtnCallback(): void {
-      if (view.selectDevice.show) {
+    function handleSubmit(): void {
+      if (windowScreen.selectDevice.opened) {
         submitDeviceOrSensor()
-      } else if (view.selectSensor.show) {
+      } else if (windowScreen.selectSensor.opened) {
         submitDeviceOrSensor()
-      } else if (view.configureDate.show) {
+      } else if (windowScreen.configureDate.opened) {
         submitDate()
-      } else if (view.configureTime.show) {
+      } else if (windowScreen.configureTime.opened) {
         submitTime()
       }
     }
 
-    function cancelBtnCallback(): void {
-      if (view.selectDevice.show) {
-        openWindow(ViewTypes.LIST_DEVICES)
-      } else if (view.selectSensor.show) {
-        openWindow(ViewTypes.LIST_SENSORS)
+    function handleCancel(): void {
+      if (windowScreen.selectDevice.opened) {
+        handleOpenWindow(WindowScreenTypes.LIST_DEVICES)
+      } else if (windowScreen.selectSensor.opened) {
+        handleOpenWindow(WindowScreenTypes.LIST_SENSORS)
       } else {
-        closeWindow()
+        handleCloseWindow()
       }
     }
 
-    const cancelBtnLabel = computed<string>((): string => {
-      if (view.selectDevice.show || view.selectSensor.show) {
+    const cancelBtnText = computed<string>((): string => {
+      if (windowScreen.selectDevice.opened || windowScreen.selectSensor.opened) {
         return context.root.$t('application.buttons.back.title').toString()
       }
 
-      return context.root.$t('application.buttons.close.title').toString()
+      return context.root.$t('application.buttons.cancel.title').toString()
     })
 
     return {
@@ -1314,21 +1204,20 @@ export default defineComponent({
       hasConditionTime,
       hasConditionDevice,
       formResult,
-      view,
+      windowScreen,
       form,
-      cancelBtnLabel,
-      viewTypes: ViewTypes,
-      selectDeviceViewTypes: SelectViewType,
-      cancelBtnCallback,
-      submitBtnCallback,
-      openWindow,
-      closeWindow,
-      listDevicesOrSensors,
-      listDevices,
-      listSensors,
+      cancelBtnText,
       openedType,
-      formResultTypes: FbFormResultType,
-      modalVariantTypes: FbUiModalVariantType,
+      handleCancel,
+      handleSubmit,
+      handleOpenWindow,
+      handleCloseWindow,
+      handleListDevices,
+      handleListSensors,
+      modalVariant: context.root.$windowSize.isExtraSmall() ? FbUiModalVariantTypes.PHONE : (!context.root.$windowSize.isExtraLarge() ? FbUiModalVariantTypes.TABLET : FbUiModalVariantTypes.DEFAULT),
+      windowScreenTypes: WindowScreenTypes,
+      selectDeviceViewTypes: SelectViewTypes,
+      formResultTypes: FbFormResultTypes,
       sizeTypes: FbSizeTypes,
       buttonVariantTypes: FbUiButtonVariantTypes,
       dividerVariantTypes: FbUiDividerVariantTypes,

@@ -1,0 +1,44 @@
+@import "~assets/scss/variables";
+@import "~assets/scss/mixins";
+
+.fb-account-settings-account {
+  &__columns {
+    @include flexRow;
+  }
+
+  &__column {
+    -webkit-box-flex: 0;
+    -ms-flex: 0 0 50%;
+    flex: 0 0 50%;
+    max-width: 50%;
+
+    &:first-child {
+      padding-right: $padding-sm;
+    }
+
+    &:last-child {
+      padding-left: $padding-sm;
+    }
+  }
+
+  &__name-column {
+    -webkit-box-flex: 0;
+    -ms-flex: 0 0 33.333333%;
+    flex: 0 0 33.333333%;
+    width: 20%;
+    max-width: 33.333333%;
+
+    padding-left: $padding-sm;
+    padding-right: $padding-sm;
+
+    &:first-child {
+      padding-left: 0;
+      padding-right: $padding-sm;
+    }
+
+    &:last-child {
+      padding-left: $padding-sm;
+      padding-right: 0;
+    }
+  }
+}

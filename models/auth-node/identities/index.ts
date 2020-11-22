@@ -22,12 +22,12 @@ import Identity from '~/models/auth-node/identities/Identity'
 import {
   IdentitiesResponseInterface,
   IdentityCreateInterface,
-  IdentityEntityTypeType,
+  IdentityEntityTypes,
   IdentityInterface,
   IdentityResponseInterface,
   IdentityUpdateInterface,
   RoutingKeys,
-  SemaphoreType,
+  SemaphoreTypes,
 } from '~/models/auth-node/identities/types'
 
 import {
@@ -65,7 +65,7 @@ interface FirstLoadAction {
 }
 
 interface SemaphoreAction {
-  type: SemaphoreType
+  type: SemaphoreTypes
   id: string
 }
 
@@ -117,7 +117,7 @@ const moduleActions: ActionTree<IdentityState, any> = {
     }
 
     commit('SET_SEMAPHORE', {
-      type: SemaphoreType.GETTING,
+      type: SemaphoreTypes.GETTING,
       id: payload.id,
     })
 
@@ -136,7 +136,7 @@ const moduleActions: ActionTree<IdentityState, any> = {
       )
     } finally {
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.GETTING,
+        type: SemaphoreTypes.GETTING,
         id: payload.id,
       })
     }
@@ -148,7 +148,7 @@ const moduleActions: ActionTree<IdentityState, any> = {
     }
 
     commit('SET_SEMAPHORE', {
-      type: SemaphoreType.FETCHING,
+      type: SemaphoreTypes.FETCHING,
       id: payload.account.id,
     })
 
@@ -171,7 +171,7 @@ const moduleActions: ActionTree<IdentityState, any> = {
       )
     } finally {
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.FETCHING,
+        type: SemaphoreTypes.FETCHING,
         id: payload.account.id,
       })
     }
@@ -182,7 +182,7 @@ const moduleActions: ActionTree<IdentityState, any> = {
     const draft = typeof payload.draft !== 'undefined' ? payload.draft : false
 
     commit('SET_SEMAPHORE', {
-      type: SemaphoreType.CREATING,
+      type: SemaphoreTypes.CREATING,
       id,
     })
 
@@ -191,16 +191,16 @@ const moduleActions: ActionTree<IdentityState, any> = {
         data: Object.assign({}, payload.data, { id, draft, accountId: payload.account.id }),
       })
     } catch (e) {
+      commit('CLEAR_SEMAPHORE', {
+        type: SemaphoreTypes.CREATING,
+        id,
+      })
+
       throw new OrmError(
         'auth-node.identities.create.failed',
         e,
         'Create new identity failed.',
       )
-    } finally {
-      commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.CREATING,
-        id,
-      })
     }
 
     const createdEntity = Identity.find(id)
@@ -209,7 +209,7 @@ const moduleActions: ActionTree<IdentityState, any> = {
       await Identity.delete(id)
 
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.CREATING,
+        type: SemaphoreTypes.CREATING,
         id,
       })
 
@@ -218,7 +218,7 @@ const moduleActions: ActionTree<IdentityState, any> = {
 
     if (draft) {
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.CREATING,
+        type: SemaphoreTypes.CREATING,
         id,
       })
 
@@ -244,7 +244,7 @@ const moduleActions: ActionTree<IdentityState, any> = {
         )
       } finally {
         commit('CLEAR_SEMAPHORE', {
-          type: SemaphoreType.CREATING,
+          type: SemaphoreTypes.CREATING,
           id,
         })
       }
@@ -257,11 +257,11 @@ const moduleActions: ActionTree<IdentityState, any> = {
     }
 
     if (!Identity.query().where('id', payload.identity.id).exists()) {
-      throw new Error('auth-node.identities.update.inProgress')
+      throw new Error('auth-node.identities.update.inProgress2')
     }
 
     commit('SET_SEMAPHORE', {
-      type: SemaphoreType.UPDATING,
+      type: SemaphoreTypes.UPDATING,
       id: payload.identity.id,
     })
 
@@ -277,7 +277,7 @@ const moduleActions: ActionTree<IdentityState, any> = {
       })
 
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.UPDATING,
+        type: SemaphoreTypes.UPDATING,
         id: payload.identity.id,
       })
 
@@ -286,7 +286,7 @@ const moduleActions: ActionTree<IdentityState, any> = {
 
     if (updatedEntity.draft) {
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.UPDATING,
+        type: SemaphoreTypes.UPDATING,
         id: payload.identity.id,
       })
 
@@ -299,15 +299,10 @@ const moduleActions: ActionTree<IdentityState, any> = {
             stuff: Object.assign({}, {
               type: payload.identity.type,
               id: payload.identity.id,
-              password: {
-                current: payload.data.password.current,
-                new: payload.data.password.new,
-              },
+              password: payload.data.password.new,
             }),
           }),
-          {
-            save: false,
-          },
+          apiOptions,
         )
 
         return Identity.find(payload.identity.id)
@@ -319,7 +314,7 @@ const moduleActions: ActionTree<IdentityState, any> = {
         )
       } finally {
         commit('CLEAR_SEMAPHORE', {
-          type: SemaphoreType.UPDATING,
+          type: SemaphoreTypes.UPDATING,
           id: payload.identity.id,
         })
       }
@@ -336,7 +331,7 @@ const moduleActions: ActionTree<IdentityState, any> = {
     }
 
     commit('SET_SEMAPHORE', {
-      type: SemaphoreType.UPDATING,
+      type: SemaphoreTypes.UPDATING,
       id: payload.identity.id,
     })
 
@@ -344,7 +339,7 @@ const moduleActions: ActionTree<IdentityState, any> = {
 
     if (entityToSave === null) {
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.UPDATING,
+        type: SemaphoreTypes.UPDATING,
         id: payload.identity.id,
       })
 
@@ -369,7 +364,7 @@ const moduleActions: ActionTree<IdentityState, any> = {
       )
     } finally {
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.UPDATING,
+        type: SemaphoreTypes.UPDATING,
         id: payload.identity.id,
       })
     }
@@ -385,28 +380,28 @@ const moduleActions: ActionTree<IdentityState, any> = {
     }
 
     commit('SET_SEMAPHORE', {
-      type: SemaphoreType.DELETING,
+      type: SemaphoreTypes.DELETING,
       id: payload.identity.id,
     })
 
     try {
       await Identity.delete(payload.identity.id)
     } catch (e) {
+      commit('CLEAR_SEMAPHORE', {
+        type: SemaphoreTypes.DELETING,
+        id: payload.identity.id,
+      })
+
       throw new OrmError(
         'auth-node.identities.delete.failed',
         e,
         'Delete identity failed.',
       )
-    } finally {
-      commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.DELETING,
-        id: payload.identity.id,
-      })
     }
 
     if (payload.identity.draft) {
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.DELETING,
+        type: SemaphoreTypes.DELETING,
         id: payload.identity.id,
       })
 
@@ -437,14 +432,14 @@ const moduleActions: ActionTree<IdentityState, any> = {
         )
       } finally {
         commit('CLEAR_SEMAPHORE', {
-          type: SemaphoreType.DELETING,
+          type: SemaphoreTypes.DELETING,
           id: payload.identity.id,
         })
       }
     }
   },
 
-  async socketData({ commit }, payload: { origin: string, routingKey: string, data: string }): Promise<boolean> {
+  async socketData({ state, commit }, payload: { origin: string, routingKey: string, data: string }): Promise<boolean> {
     if (payload.origin !== ModuleOriginType) {
       return false
     }
@@ -467,7 +462,7 @@ const moduleActions: ActionTree<IdentityState, any> = {
 
       if (payload.routingKey === RoutingKeys.DELETED) {
         commit('SET_SEMAPHORE', {
-          type: SemaphoreType.DELETING,
+          type: SemaphoreTypes.DELETING,
           id: body.id,
         })
 
@@ -481,18 +476,22 @@ const moduleActions: ActionTree<IdentityState, any> = {
           )
         } finally {
           commit('CLEAR_SEMAPHORE', {
-            type: SemaphoreType.DELETING,
+            type: SemaphoreTypes.DELETING,
             id: body.id,
           })
         }
       } else {
+        if (payload.routingKey === RoutingKeys.UPDATED && state.semaphore.updating.includes(body.id)) {
+          return true
+        }
+
         commit('SET_SEMAPHORE', {
-          type: payload.routingKey === RoutingKeys.UPDATED ? SemaphoreType.UPDATING : SemaphoreType.CREATING,
+          type: payload.routingKey === RoutingKeys.UPDATED ? SemaphoreTypes.UPDATING : SemaphoreTypes.CREATING,
           id: body.id,
         })
 
         const entityData: { [index: string]: any } = {
-          type: body.type === Type.USER ? IdentityEntityTypeType.USER : IdentityEntityTypeType.MACHINE,
+          type: body.type === Type.USER ? IdentityEntityTypes.USER : IdentityEntityTypes.MACHINE,
         }
 
         Object.keys(body)
@@ -501,7 +500,7 @@ const moduleActions: ActionTree<IdentityState, any> = {
 
             if (kebabName === 'account') {
               entityData.accountId = body[attrName]
-            } else {
+            } else if (kebabName !== 'type') {
               entityData[kebabName] = body[attrName]
             }
           })
@@ -526,7 +525,7 @@ const moduleActions: ActionTree<IdentityState, any> = {
           )
         } finally {
           commit('CLEAR_SEMAPHORE', {
-            type: payload.routingKey === RoutingKeys.UPDATED ? SemaphoreType.UPDATING : SemaphoreType.CREATING,
+            type: payload.routingKey === RoutingKeys.UPDATED ? SemaphoreTypes.UPDATING : SemaphoreTypes.CREATING,
             id: body.id,
           })
         }
@@ -553,35 +552,35 @@ const moduleMutations: MutationTree<IdentityState> = {
 
   ['SET_SEMAPHORE'](state: IdentityState, action: SemaphoreAction): void {
     switch (action.type) {
-      case SemaphoreType.GETTING:
+      case SemaphoreTypes.GETTING:
         state.semaphore.fetching.item.push(action.id)
 
         // Make all keys uniq
         state.semaphore.fetching.item = uniq(state.semaphore.fetching.item)
         break
 
-      case SemaphoreType.FETCHING:
+      case SemaphoreTypes.FETCHING:
         state.semaphore.fetching.items.push(action.id)
 
         // Make all keys uniq
         state.semaphore.fetching.items = uniq(state.semaphore.fetching.items)
         break
 
-      case SemaphoreType.CREATING:
+      case SemaphoreTypes.CREATING:
         state.semaphore.creating.push(action.id)
 
         // Make all keys uniq
         state.semaphore.creating = uniq(state.semaphore.creating)
         break
 
-      case SemaphoreType.UPDATING:
+      case SemaphoreTypes.UPDATING:
         state.semaphore.updating.push(action.id)
 
         // Make all keys uniq
         state.semaphore.updating = uniq(state.semaphore.updating)
         break
 
-      case SemaphoreType.DELETING:
+      case SemaphoreTypes.DELETING:
         state.semaphore.deleting.push(action.id)
 
         // Make all keys uniq
@@ -592,7 +591,7 @@ const moduleMutations: MutationTree<IdentityState> = {
 
   ['CLEAR_SEMAPHORE'](state: IdentityState, action: SemaphoreAction): void {
     switch (action.type) {
-      case SemaphoreType.GETTING:
+      case SemaphoreTypes.GETTING:
         // Process all semaphore items
         state.semaphore.fetching.item
           .forEach((item: string, index: number): void => {
@@ -604,7 +603,7 @@ const moduleMutations: MutationTree<IdentityState> = {
           })
         break
 
-      case SemaphoreType.FETCHING:
+      case SemaphoreTypes.FETCHING:
         // Process all semaphore items
         state.semaphore.fetching.items
           .forEach((item: string, index: number): void => {
@@ -616,7 +615,7 @@ const moduleMutations: MutationTree<IdentityState> = {
           })
         break
 
-      case SemaphoreType.CREATING:
+      case SemaphoreTypes.CREATING:
         // Process all semaphore items
         state.semaphore.creating
           .forEach((item: string, index: number): void => {
@@ -628,7 +627,7 @@ const moduleMutations: MutationTree<IdentityState> = {
           })
         break
 
-      case SemaphoreType.UPDATING:
+      case SemaphoreTypes.UPDATING:
         // Process all semaphore items
         state.semaphore.updating
           .forEach((item: string, index: number): void => {
@@ -640,7 +639,7 @@ const moduleMutations: MutationTree<IdentityState> = {
           })
         break
 
-      case SemaphoreType.DELETING:
+      case SemaphoreTypes.DELETING:
         // Process all semaphore items
         state.semaphore.deleting
           .forEach((item: string, index: number): void => {

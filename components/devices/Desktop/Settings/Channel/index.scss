@@ -1,0 +1,35 @@
+@import "~assets/scss/variables";
+
+.fb-devices-desktop-settings-channel {
+  &__item {
+    &-action {
+      padding-left: $padding-xs;
+      padding-right: $padding-xs;
+
+      .fb-ui-switch-element__container {
+        margin-top: 0.9rem;
+      }
+    }
+
+    .fb-ui-spinner__container {
+      vertical-align: middle;
+    }
+
+    .fb-ui-switch-element__container {
+      float: right;
+    }
+
+    &-single-row {
+      .fb-settings-list-item__content {
+        line-height: 3.6rem;
+      }
+    }
+
+    &-multi-row {
+      small {
+        display: block;
+        font-size: 80%;
+      }
+    }
+  }
+}

@@ -72,6 +72,7 @@ import { version } from './../package.json'
 
 import * as config from '~/configuration'
 
+// @ts-ignore
 import Logo from '~/assets/images/fastybird_bird.svg?inline'
 
 interface SignPageApplicationInterface {

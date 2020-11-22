@@ -1,21 +1,12 @@
-@import "~@fastybird/web-ui-theme/src/assets/variables/colors";
-@import "~@fastybird/web-ui-theme/src/assets/variables/screen";
+@import "~assets/scss/variables";
 
 .fb-devices-desktop-connect {
   &__container {
-    .fb-ui-modal-window__footer {
-      .fb-ui-button[data-variant="link"] {
-        color: $text-muted !important;
-      }
-    }
-
-    .fb-ui-modal-window__body {
-      .fb-ui-items-container__heading {
-        padding-left: 0;
-      }
-
-      .fb-ui-items-container__items {
-        padding: 0;
+    &[data-variant="tablet"] {
+      &.fb-ui-modal-window__container {
+        .fb-ui-modal-window__body {
+          padding: $padding-sm;
+        }
       }
     }
   }
@@ -25,9 +16,16 @@
     margin-bottom: $margin-sm;
   }
 
+  &__step-1,
+  &__step-2,
+  &__step-3 {
+
+  }
+
   &__step-4,
   &__step-5 {
     text-align: center;
+    padding-top: $padding-lg;
 
     svg {
       display: inline-block;

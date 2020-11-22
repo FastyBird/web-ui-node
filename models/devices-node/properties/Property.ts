@@ -6,7 +6,7 @@ import {
 import {
   PropertyCommandResult,
   PropertyCommandState,
-  PropertyDatatypeType,
+  PropertyDatatypeTypes,
   PropertyInterface,
 } from '~/models/devices-node/properties/types'
 import { HardwareInterface } from '~/models/devices-node/hardwares/types'
@@ -42,7 +42,7 @@ export default class Property extends Model implements PropertyInterface {
   name!: string | null
   settable!: boolean
   queryable!: boolean
-  datatype!: PropertyDatatypeType
+  datatype!: PropertyDatatypeTypes
   unit!: string | null
   format!: string | null
 
@@ -58,32 +58,56 @@ export default class Property extends Model implements PropertyInterface {
 
   hardware!: HardwareInterface | null
 
+  get isAnalogSensor(): boolean {
+    return !this.isSettable &&
+      [PropertyDatatypeTypes.INTEGER, PropertyDatatypeTypes.FLOAT].includes(this.datatype)
+  }
+
+  get isBinarySensor(): boolean {
+    return !this.isSettable &&
+      [PropertyDatatypeTypes.BOOLEAN].includes(this.datatype)
+  }
+
+  get isAnalogActor(): boolean {
+    return this.isSettable &&
+      [PropertyDatatypeTypes.INTEGER, PropertyDatatypeTypes.FLOAT].includes(this.datatype)
+  }
+
+  get isBinaryActor(): boolean {
+    return this.isSettable &&
+      [PropertyDatatypeTypes.BOOLEAN].includes(this.datatype)
+  }
+
+  get isSwitch(): boolean {
+    return this.property === 'switch'
+  }
+
   get isInteger(): boolean {
-    return this.datatype === PropertyDatatypeType.INTEGER
+    return this.datatype === PropertyDatatypeTypes.INTEGER
   }
 
   get isFloat(): boolean {
-    return this.datatype === PropertyDatatypeType.FLOAT
+    return this.datatype === PropertyDatatypeTypes.FLOAT
   }
 
   get isNumber(): boolean {
-    return this.datatype === PropertyDatatypeType.INTEGER || this.datatype === PropertyDatatypeType.FLOAT
+    return this.datatype === PropertyDatatypeTypes.INTEGER || this.datatype === PropertyDatatypeTypes.FLOAT
   }
 
   get isBoolean(): boolean {
-    return this.datatype === PropertyDatatypeType.BOOLEAN
+    return this.datatype === PropertyDatatypeTypes.BOOLEAN
   }
 
   get isString(): boolean {
-    return this.datatype === PropertyDatatypeType.STRING
+    return this.datatype === PropertyDatatypeTypes.STRING
   }
 
   get isEnum(): boolean {
-    return this.datatype === PropertyDatatypeType.ENUM
+    return this.datatype === PropertyDatatypeTypes.ENUM
   }
 
   get isColor(): boolean {
-    return this.datatype === PropertyDatatypeType.COLOR
+    return this.datatype === PropertyDatatypeTypes.COLOR
   }
 
   get isSettable(): boolean {

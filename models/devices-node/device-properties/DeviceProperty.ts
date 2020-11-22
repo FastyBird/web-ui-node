@@ -6,7 +6,7 @@ import { DeviceInterface } from '~/models/devices-node/devices/types'
 import Hardware from '~/models/devices-node/hardwares/Hardware'
 import {
   DevicePropertyInterface,
-  DevicePropertyEntityTypeType,
+  DevicePropertyEntityTypes,
 } from '~/models/devices-node/device-properties/types'
 import Property from '~/models/devices-node/properties/Property'
 import { HardwareInterface } from '~/models/devices-node/hardwares/types'
@@ -20,7 +20,7 @@ export default class DeviceProperty extends Property implements DevicePropertyIn
 
   static fields(): Fields {
     return Object.assign(Property.fields(), {
-      type: this.string(DevicePropertyEntityTypeType.PROPERTY),
+      type: this.string(DevicePropertyEntityTypes.PROPERTY),
 
       device: this.belongsTo(Device, 'id'),
       deviceBackward: this.hasOne(Device, 'id', 'deviceId'),
@@ -29,7 +29,7 @@ export default class DeviceProperty extends Property implements DevicePropertyIn
     })
   }
 
-  type!: DevicePropertyEntityTypeType
+  type!: DevicePropertyEntityTypes
 
   device!: DeviceInterface | null
   deviceBackward!: DeviceInterface | null

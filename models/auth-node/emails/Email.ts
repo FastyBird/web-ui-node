@@ -7,7 +7,7 @@ import Account from '~/models/auth-node/accounts/Account'
 import { AccountInterface } from '~/models/auth-node/accounts/types'
 import {
   EmailInterface,
-  EmailEntityTypeType,
+  EmailEntityTypes,
 } from '~/models/auth-node/emails/types'
 
 export default class Email extends Model implements EmailInterface {
@@ -37,7 +37,7 @@ export default class Email extends Model implements EmailInterface {
   }
 
   id!: string
-  type!: EmailEntityTypeType
+  type!: EmailEntityTypes
 
   draft!: boolean
 

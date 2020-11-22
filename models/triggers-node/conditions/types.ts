@@ -8,14 +8,14 @@ import {
 
 import {
   TriggerInterface,
-  TriggerEntityTypeType,
+  TriggerEntityTypes,
 } from '~/models/triggers-node/triggers/types'
-import { ConditionOperatorType } from '~/models/triggers-node/types'
+import { ConditionOperatorTypes } from '~/models/triggers-node/types'
 
 // STORE
 // =====
 
-export enum SemaphoreType {
+export enum SemaphoreTypes {
   FETCHING = 'fetching',
   GETTING = 'getting',
   CREATING = 'creating',
@@ -28,14 +28,14 @@ export enum SemaphoreType {
 
 export interface ConditionInterface {
   id: string
-  type: ConditionEntityTypeType
+  type: ConditionEntityTypes
 
   draft: boolean
 
   enabled: boolean
 
   // Device & Channel property conditions specific
-  operator?: ConditionOperatorType
+  operator?: ConditionOperatorTypes
   operand?: string
   device?: string
   channel?: string
@@ -65,7 +65,7 @@ export interface ConditionInterface {
 // ENTITY TYPES
 // ============
 
-export enum ConditionEntityTypeType {
+export enum ConditionEntityTypes {
   TIME = 'triggers-node/condition-time',
   DATE = 'triggers-node/condition-date',
   DEVICE_PROPERTY = 'triggers-node/condition-device-property',
@@ -79,7 +79,7 @@ interface ConditionAttributesResponseInterface {
   enabled: boolean
 
   // Device & Channel property conditions specific
-  operator?: ConditionOperatorType
+  operator?: ConditionOperatorTypes
   operand?: string
   device?: string
   channel?: string
@@ -95,7 +95,7 @@ interface ConditionAttributesResponseInterface {
 
 interface ConditionTriggerRelationshipResponseInterface extends TJsonApiRelationshipData {
   id: string
-  type: TriggerEntityTypeType
+  type: TriggerEntityTypes
 }
 
 interface ConditionTriggerRelationshipsResponseInterface extends TJsonApiRelation {
@@ -108,7 +108,7 @@ interface ConditionRelationshipsResponseInterface extends TJsonApiRelationships 
 
 export interface ConditionDataResponseInterface extends TJsonApiData {
   id: string
-  type: ConditionEntityTypeType
+  type: ConditionEntityTypes
   attributes: ConditionAttributesResponseInterface
   relationships: ConditionRelationshipsResponseInterface
 }
@@ -134,14 +134,14 @@ export enum RoutingKeys {
 // ========================
 
 export interface CreateDevicePropertyConditionInterface extends ConditionCreateInterface {
-  operator: ConditionOperatorType
+  operator: ConditionOperatorTypes
   operand: string
   device: string
   property: string
 }
 
 export interface CreateChannelPropertyConditionInterface extends ConditionCreateInterface {
-  operator: ConditionOperatorType
+  operator: ConditionOperatorTypes
   operand: string
   device: string
   channel: string
@@ -158,7 +158,7 @@ export interface CreateTimeConditionInterface extends ConditionCreateInterface {
 }
 
 export interface ConditionCreateInterface {
-  type: ConditionEntityTypeType
+  type: ConditionEntityTypes
 
   enabled: boolean
 }
@@ -167,12 +167,12 @@ export interface ConditionCreateInterface {
 // ========================
 
 export interface UpdateDevicePropertyConditionInterface extends ConditionUpdateInterface {
-  operator?: ConditionOperatorType
+  operator?: ConditionOperatorTypes
   operand?: string
 }
 
 export interface UpdateChannelPropertyConditionInterface extends ConditionUpdateInterface {
-  operator?: ConditionOperatorType
+  operator?: ConditionOperatorTypes
   operand?: string
 }
 

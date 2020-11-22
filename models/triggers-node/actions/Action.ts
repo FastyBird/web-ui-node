@@ -6,7 +6,7 @@ import {
 import Trigger from '~/models/triggers-node/triggers/Trigger'
 import { TriggerInterface } from '~/models/triggers-node/triggers/types'
 import {
-  ActionEntityTypeType,
+  ActionEntityTypes,
   ActionInterface,
 } from '~/models/triggers-node/actions/types'
 
@@ -42,7 +42,7 @@ export default class Action extends Model implements ActionInterface {
   }
 
   id!: string
-  type!: ActionEntityTypeType
+  type!: ActionEntityTypes
 
   draft!: boolean
 
@@ -61,10 +61,10 @@ export default class Action extends Model implements ActionInterface {
   triggerId!: string
 
   get isDeviceProperty(): boolean {
-    return this.type === ActionEntityTypeType.DEVICE_PROPERTY
+    return this.type === ActionEntityTypes.DEVICE_PROPERTY
   }
 
   get isChannelProperty(): boolean {
-    return this.type === ActionEntityTypeType.CHANNEL_PROPERTY
+    return this.type === ActionEntityTypes.CHANNEL_PROPERTY
   }
 }

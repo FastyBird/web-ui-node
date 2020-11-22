@@ -1,0 +1,25 @@
+@import "~assets/scss/variables";
+@import "~assets/scss/mixins";
+
+.fb-triggers-desktop-info {
+  &__container {
+    @include flexRow;
+
+    align-items: center;
+    height: 100%;
+
+    .fb-ui-content {
+      flex: 1 0 0;
+
+      .fb-ui-media-item__container {
+        margin-bottom: $margin-sm;
+
+        .fb-ui-media-item__left {
+          font-size: $font-size-md * 2;
+          line-height: 2.5rem;
+          margin-top: $margin-sm;
+        }
+      }
+    }
+  }
+}

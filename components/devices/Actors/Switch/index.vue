@@ -1,6 +1,6 @@
 <template>
   <div
-    :data-state="state ? 'on' : 'off'"
+    :data-device-state="state ? 'on' : 'off'"
     class="fb-devices-switch__container"
     role="button"
   >
@@ -8,8 +8,8 @@
       v-if="command === null"
       :status="value"
       :disabled="!state"
-      variant="primary"
-      @change="toggleState"
+      :variant="switchVariantTypes.PRIMARY"
+      @change="handleToggleState"
     />
 
     <div
@@ -19,12 +19,12 @@
       <font-awesome-icon
         v-show="command === false"
         icon="ban"
-        class="pos-r fb-devices-switch__result-err"
+        class="fb-devices-switch__result-err"
       />
       <font-awesome-icon
         v-show="command === true"
         icon="check"
-        class="pos-r fb-devices-switch__result-ok"
+        class="fb-devices-switch__result-ok"
       />
     </div>
 
@@ -33,8 +33,8 @@
       class="fb-devices-switch__loading"
     >
       <fb-ui-spinner
-        variant="primary"
-        size="sm"
+        :variant="spinnerVariantTypes.PRIMARY"
+        :size="sizeTypes.SMALL"
       />
     </div>
   </div>
@@ -50,14 +50,20 @@ import {
 } from '@vue/composition-api'
 
 import {
+  FbSizeTypes,
+  FbUiSpinnerVariantTypes,
+  FbUiSwitchElementVariantTypes,
+} from '@fastybird/web-ui-theme'
+
+import {
   DeviceInterface,
-  DeviceStateType,
+  DeviceStateTypes,
 } from '~/models/devices-node/devices/types'
 import ChannelProperty from '~/models/devices-node/channel-properties/ChannelProperty'
 import { ChannelPropertyInterface } from '~/models/devices-node/channel-properties/types'
 
 interface DevicesActorsSwitchPropsInterface {
-  device: DeviceInterface,
+  device: DeviceInterface
   property: ChannelPropertyInterface
 }
 
@@ -82,9 +88,8 @@ export default defineComponent({
   setup(props: DevicesActorsSwitchPropsInterface, context: SetupContext) {
     const command = ref<boolean | string | null>(null)
 
-    const state = computed<boolean>((): boolean => props.device.state === DeviceStateType.READY)
+    const state = computed<boolean>((): boolean => props.device.state === DeviceStateTypes.READY)
 
-    // Get channel state property value
     const value = computed<boolean>((): boolean => {
       if (props.property.isBoolean) {
         return props.property.expected !== null ? !!props.property.expected : !!props.property.value
@@ -95,24 +100,20 @@ export default defineComponent({
       return false
     })
 
-    // Processing timer
     let timer: number
 
     function resetCommand(): void {
       command.value = null
 
-      window.clearInterval(timer)
+      window.clearTimeout(timer)
     }
 
-    // Toggle channel button state
-    function toggleState(): void {
-      // Check if some command on channel is in progress
+    function handleToggleState(): void {
       if (command.value !== null) {
         return
       }
 
-      // Check if device is connected to server & ready
-      if (props.device.state !== DeviceStateType.READY) {
+      if (props.device.state !== DeviceStateTypes.READY) {
         context.root.$flashMessage(context.root.$t('devices.messages.notOnline', {
           device: props.device.title,
         }).toString(), 'error')
@@ -145,7 +146,7 @@ export default defineComponent({
         .then((): void => {
           command.value = true
 
-          timer = window.setInterval(resetCommand, 500)
+          timer = window.setTimeout(resetCommand, 500)
         })
         .catch((): void => {
           command.value = false
@@ -154,7 +155,7 @@ export default defineComponent({
             device: props.device.title,
           }).toString(), 'error')
 
-          timer = window.setInterval(resetCommand, 500)
+          timer = window.setTimeout(resetCommand, 500)
         })
     }
 
@@ -162,8 +163,10 @@ export default defineComponent({
       command,
       state,
       value,
-      toggleState,
-      resetCommand,
+      handleToggleState,
+      switchVariantTypes: FbUiSwitchElementVariantTypes,
+      spinnerVariantTypes: FbUiSpinnerVariantTypes,
+      sizeTypes: FbSizeTypes,
     }
   },
 

@@ -9,6 +9,7 @@ interface AppState {
   heading: {
     heading: string | null,
     subHeading: string | null,
+    icon: string | null,
   }
 }
 
@@ -21,6 +22,7 @@ const moduleState: AppState = {
   heading: {
     heading: null,
     subHeading: null,
+    icon: null,
   },
 }
 
@@ -56,10 +58,11 @@ const moduleActions: ActionTree<AppState, any> = {
     })
   },
 
-  setHeading({ commit }, payload: { heading: boolean, subHeading: boolean }): void {
+  setHeading({ commit }, payload: { heading: string, subHeading: string | null, icon: string | null }): void {
     commit('SET_HEADING', {
       heading: payload.heading,
       subHeading: payload.subHeading,
+      icon: payload.icon,
     })
   },
 
@@ -90,14 +93,16 @@ const moduleMutations: MutationTree<AppState> = {
     state.hideTabs = action.hideTabs
   },
 
-  ['SET_HEADING'](state: AppState, action: { heading: string | null, subHeading: string | null }): void {
+  ['SET_HEADING'](state: AppState, action: { heading: string, subHeading: string | null, icon: string | null }): void {
     state.heading.heading = action.heading
     state.heading.subHeading = action.subHeading
+    state.heading.icon = action.icon
   },
 
   ['RESET_HEADING'](state: AppState): void {
     state.heading.heading = null
     state.heading.subHeading = null
+    state.heading.icon = null
   },
 
   ['RESET_STATE'](state: AppState): void {

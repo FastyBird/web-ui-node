@@ -5,7 +5,7 @@
   >
     <list-item
       :variant="listItemTypes.DEFAULT"
-      @click="toggleState"
+      @click="handleToggleState"
       class="fb-triggers-select-action-device-property__property"
     >
       <template slot="heading">
@@ -22,7 +22,7 @@
 
     <div class="fb-triggers-select-action-device-property__actions">
       <fb-form-radio-buttons-group
-        ref="actionsGroup"
+        ref="actionsGroupElement"
         v-if="property.isEnum"
         v-model="form.model.operation"
         :size="sizeTypes.SMALL"
@@ -47,7 +47,7 @@
           <template slot="detail">
             <fb-form-radio-button
               :label="item"
-              :group="actionsGroup"
+              :group="actionsGroupElement"
               :id="`value-${item}`"
               name="value"
             >
@@ -65,7 +65,7 @@
       <list-item
         v-else-if="property.isBoolean"
         :variant="listItemTypes.LIST"
-        @click="propertyChanged"
+        @click="handlePropertyChanged"
         class="fb-triggers-select-action-device-property__action"
       >
         <template slot="heading">
@@ -77,7 +77,7 @@
             :status="form.model.operation"
             :disabled="!form.model.selected"
             :variant="switchVariantTypes.PRIMARY"
-            @change="propertyChanged"
+            @change="handlePropertyChanged"
           />
         </template>
       </list-item>
@@ -133,6 +133,13 @@ import { ChannelPropertyInterface } from '~/models/devices-node/channel-properti
 
 import { ListItemSizeTypes } from '~/components/layout/ListItem/index.vue'
 
+interface TriggersSelectActionDevicePropertyFormInterface {
+  model: {
+    selected: boolean
+    operation: string | boolean | null
+  }
+}
+
 interface TriggersSelectActionDevicePropertyValueInterface {
   selected: boolean
   operation: string | boolean | null
@@ -141,13 +148,6 @@ interface TriggersSelectActionDevicePropertyValueInterface {
 interface TriggersSelectActionDevicePropertyPropsInterface {
   value: TriggersSelectActionDevicePropertyValueInterface
   property: DevicePropertyInterface | ChannelPropertyInterface
-}
-
-interface TriggersSelectActionDevicePropertyFormInterface {
-  model: {
-    selected: boolean
-    operation: string | boolean | null
-  }
 }
 
 export default defineComponent({
@@ -171,17 +171,13 @@ export default defineComponent({
   setup(props: TriggersSelectActionDevicePropertyPropsInterface, context: SetupContext) {
     const isMounted = ref<boolean>(false)
 
-    const actionsGroup = ref<InstanceType<typeof FbFormRadioButtonsGroup> | null>(null)
+    const actionsGroupElement = ref<InstanceType<typeof FbFormRadioButtonsGroup> | null>(null)
 
     const form = reactive<TriggersSelectActionDevicePropertyFormInterface>({
       model: {
         selected: props.value.selected,
         operation: props.value.operation,
       },
-    })
-
-    onMounted((): void => {
-      isMounted.value = true
     })
 
     function emitUpdate(): void {
@@ -196,13 +192,13 @@ export default defineComponent({
       })
     }
 
-    function propertyChanged(): void {
+    function handlePropertyChanged(): void {
       form.model.operation = !form.model.operation
 
       emitUpdate()
     }
 
-    function toggleState(event: MouseEvent): void {
+    function handleToggleState(event: MouseEvent): void {
       const path = context.root.getEventElementsPath(event)
 
       const isFormElement = path.find((pathItem): boolean => {
@@ -221,6 +217,10 @@ export default defineComponent({
 
       form.model.selected = !form.model.selected
     }
+
+    onMounted((): void => {
+      isMounted.value = true
+    })
 
     watch(
       () => form.model.operation,
@@ -246,9 +246,9 @@ export default defineComponent({
 
     return {
       form,
-      propertyChanged,
-      toggleState,
-      actionsGroup,
+      actionsGroupElement,
+      handlePropertyChanged,
+      handleToggleState,
       listItemTypes: ListItemSizeTypes,
       sizeTypes: FbSizeTypes,
       switchVariantTypes: FbUiSwitchElementVariantTypes,

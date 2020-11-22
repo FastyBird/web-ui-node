@@ -20,13 +20,13 @@ import {
 import Email from '~/models/auth-node/emails/Email'
 import {
   EmailCreateInterface,
-  EmailEntityTypeType,
+  EmailEntityTypes,
   EmailInterface,
   EmailResponseInterface,
   EmailsResponseInterface,
   EmailUpdateInterface,
   RoutingKeys,
-  SemaphoreType,
+  SemaphoreTypes,
 } from '~/models/auth-node/emails/types'
 
 import {
@@ -64,7 +64,7 @@ interface FirstLoadAction {
 }
 
 interface SemaphoreAction {
-  type: SemaphoreType
+  type: SemaphoreTypes
   id: string
 }
 
@@ -116,7 +116,7 @@ const moduleActions: ActionTree<EmailState, any> = {
     }
 
     commit('SET_SEMAPHORE', {
-      type: SemaphoreType.GETTING,
+      type: SemaphoreTypes.GETTING,
       id: payload.id,
     })
 
@@ -135,7 +135,7 @@ const moduleActions: ActionTree<EmailState, any> = {
       )
     } finally {
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.GETTING,
+        type: SemaphoreTypes.GETTING,
         id: payload.id,
       })
     }
@@ -147,7 +147,7 @@ const moduleActions: ActionTree<EmailState, any> = {
     }
 
     commit('SET_SEMAPHORE', {
-      type: SemaphoreType.FETCHING,
+      type: SemaphoreTypes.FETCHING,
       id: payload.account.id,
     })
 
@@ -170,7 +170,7 @@ const moduleActions: ActionTree<EmailState, any> = {
       )
     } finally {
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.FETCHING,
+        type: SemaphoreTypes.FETCHING,
         id: payload.account.id,
       })
     }
@@ -181,7 +181,7 @@ const moduleActions: ActionTree<EmailState, any> = {
     const draft = typeof payload.draft !== 'undefined' ? payload.draft : false
 
     commit('SET_SEMAPHORE', {
-      type: SemaphoreType.CREATING,
+      type: SemaphoreTypes.CREATING,
       id,
     })
 
@@ -190,16 +190,16 @@ const moduleActions: ActionTree<EmailState, any> = {
         data: Object.assign({}, payload.data, { id, draft, accountId: payload.account.id }),
       })
     } catch (e) {
+      commit('CLEAR_SEMAPHORE', {
+        type: SemaphoreTypes.CREATING,
+        id,
+      })
+
       throw new OrmError(
         'auth-node.emails.create.failed',
         e,
         'Create new email failed.',
       )
-    } finally {
-      commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.CREATING,
-        id,
-      })
     }
 
     const createdEntity = Email.find(id)
@@ -208,7 +208,7 @@ const moduleActions: ActionTree<EmailState, any> = {
       await Email.delete(id)
 
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.CREATING,
+        type: SemaphoreTypes.CREATING,
         id,
       })
 
@@ -217,7 +217,7 @@ const moduleActions: ActionTree<EmailState, any> = {
 
     if (draft) {
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.CREATING,
+        type: SemaphoreTypes.CREATING,
         id,
       })
 
@@ -244,7 +244,7 @@ const moduleActions: ActionTree<EmailState, any> = {
         )
       } finally {
         commit('CLEAR_SEMAPHORE', {
-          type: SemaphoreType.CREATING,
+          type: SemaphoreTypes.CREATING,
           id,
         })
       }
@@ -261,7 +261,7 @@ const moduleActions: ActionTree<EmailState, any> = {
     }
 
     commit('SET_SEMAPHORE', {
-      type: SemaphoreType.UPDATING,
+      type: SemaphoreTypes.UPDATING,
       id: payload.email.id,
     })
 
@@ -271,16 +271,16 @@ const moduleActions: ActionTree<EmailState, any> = {
         data: payload,
       })
     } catch (e) {
+      commit('CLEAR_SEMAPHORE', {
+        type: SemaphoreTypes.UPDATING,
+        id: payload.email.id,
+      })
+
       throw new OrmError(
         'auth-node.emails.update.failed',
         e,
         'Edit email failed.',
       )
-    } finally {
-      commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.UPDATING,
-        id: payload.email.id,
-      })
     }
 
     const updatedEntity = Email.find(payload.email.id)
@@ -295,7 +295,7 @@ const moduleActions: ActionTree<EmailState, any> = {
       })
 
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.UPDATING,
+        type: SemaphoreTypes.UPDATING,
         id: payload.email.id,
       })
 
@@ -304,7 +304,7 @@ const moduleActions: ActionTree<EmailState, any> = {
 
     if (updatedEntity.draft) {
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.UPDATING,
+        type: SemaphoreTypes.UPDATING,
         id: payload.email.id,
       })
 
@@ -336,7 +336,7 @@ const moduleActions: ActionTree<EmailState, any> = {
         )
       } finally {
         commit('CLEAR_SEMAPHORE', {
-          type: SemaphoreType.UPDATING,
+          type: SemaphoreTypes.UPDATING,
           id: payload.email.id,
         })
       }
@@ -353,7 +353,7 @@ const moduleActions: ActionTree<EmailState, any> = {
     }
 
     commit('SET_SEMAPHORE', {
-      type: SemaphoreType.UPDATING,
+      type: SemaphoreTypes.UPDATING,
       id: payload.email.id,
     })
 
@@ -361,7 +361,7 @@ const moduleActions: ActionTree<EmailState, any> = {
 
     if (entityToSave === null) {
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.UPDATING,
+        type: SemaphoreTypes.UPDATING,
         id: payload.email.id,
       })
 
@@ -386,7 +386,7 @@ const moduleActions: ActionTree<EmailState, any> = {
       )
     } finally {
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.UPDATING,
+        type: SemaphoreTypes.UPDATING,
         id: payload.email.id,
       })
     }
@@ -402,28 +402,28 @@ const moduleActions: ActionTree<EmailState, any> = {
     }
 
     commit('SET_SEMAPHORE', {
-      type: SemaphoreType.DELETING,
+      type: SemaphoreTypes.DELETING,
       id: payload.email.id,
     })
 
     try {
       await Email.delete(payload.email.id)
     } catch (e) {
+      commit('CLEAR_SEMAPHORE', {
+        type: SemaphoreTypes.DELETING,
+        id: payload.email.id,
+      })
+
       throw new OrmError(
         'auth-node.emails.delete.failed',
         e,
         'Delete email failed.',
       )
-    } finally {
-      commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.DELETING,
-        id: payload.email.id,
-      })
     }
 
     if (payload.email.draft) {
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.DELETING,
+        type: SemaphoreTypes.DELETING,
         id: payload.email.id,
       })
 
@@ -454,14 +454,14 @@ const moduleActions: ActionTree<EmailState, any> = {
         )
       } finally {
         commit('CLEAR_SEMAPHORE', {
-          type: SemaphoreType.DELETING,
+          type: SemaphoreTypes.DELETING,
           id: payload.email.id,
         })
       }
     }
   },
 
-  async socketData({ commit }, payload: { origin: string, routingKey: string, data: string }): Promise<boolean> {
+  async socketData({ state, commit }, payload: { origin: string, routingKey: string, data: string }): Promise<boolean> {
     if (payload.origin !== ModuleOriginType) {
       return false
     }
@@ -484,7 +484,7 @@ const moduleActions: ActionTree<EmailState, any> = {
 
       if (payload.routingKey === RoutingKeys.DELETED) {
         commit('SET_SEMAPHORE', {
-          type: SemaphoreType.DELETING,
+          type: SemaphoreTypes.DELETING,
           id: body.id,
         })
 
@@ -498,18 +498,22 @@ const moduleActions: ActionTree<EmailState, any> = {
           )
         } finally {
           commit('CLEAR_SEMAPHORE', {
-            type: SemaphoreType.DELETING,
+            type: SemaphoreTypes.DELETING,
             id: body.id,
           })
         }
       } else {
+        if (payload.routingKey === RoutingKeys.UPDATED && state.semaphore.updating.includes(body.id)) {
+          return true
+        }
+
         commit('SET_SEMAPHORE', {
-          type: payload.routingKey === RoutingKeys.UPDATED ? SemaphoreType.UPDATING : SemaphoreType.CREATING,
+          type: payload.routingKey === RoutingKeys.UPDATED ? SemaphoreTypes.UPDATING : SemaphoreTypes.CREATING,
           id: body.id,
         })
 
         const entityData: { [index: string]: any } = {
-          type: EmailEntityTypeType.EMAIL,
+          type: EmailEntityTypes.EMAIL,
         }
 
         Object.keys(body)
@@ -518,7 +522,7 @@ const moduleActions: ActionTree<EmailState, any> = {
 
             if (kebabName === 'account') {
               entityData.accountId = body[attrName]
-            } else {
+            } else if (kebabName !== 'type') {
               entityData[kebabName] = body[attrName]
             }
           })
@@ -543,7 +547,7 @@ const moduleActions: ActionTree<EmailState, any> = {
           )
         } finally {
           commit('CLEAR_SEMAPHORE', {
-            type: payload.routingKey === RoutingKeys.UPDATED ? SemaphoreType.UPDATING : SemaphoreType.CREATING,
+            type: payload.routingKey === RoutingKeys.UPDATED ? SemaphoreTypes.UPDATING : SemaphoreTypes.CREATING,
             id: body.id,
           })
         }
@@ -570,35 +574,35 @@ const moduleMutations: MutationTree<EmailState> = {
 
   ['SET_SEMAPHORE'](state: EmailState, action: SemaphoreAction): void {
     switch (action.type) {
-      case SemaphoreType.GETTING:
+      case SemaphoreTypes.GETTING:
         state.semaphore.fetching.item.push(action.id)
 
         // Make all keys uniq
         state.semaphore.fetching.item = uniq(state.semaphore.fetching.item)
         break
 
-      case SemaphoreType.FETCHING:
+      case SemaphoreTypes.FETCHING:
         state.semaphore.fetching.items.push(action.id)
 
         // Make all keys uniq
         state.semaphore.fetching.items = uniq(state.semaphore.fetching.items)
         break
 
-      case SemaphoreType.CREATING:
+      case SemaphoreTypes.CREATING:
         state.semaphore.creating.push(action.id)
 
         // Make all keys uniq
         state.semaphore.creating = uniq(state.semaphore.creating)
         break
 
-      case SemaphoreType.UPDATING:
+      case SemaphoreTypes.UPDATING:
         state.semaphore.updating.push(action.id)
 
         // Make all keys uniq
         state.semaphore.updating = uniq(state.semaphore.updating)
         break
 
-      case SemaphoreType.DELETING:
+      case SemaphoreTypes.DELETING:
         state.semaphore.deleting.push(action.id)
 
         // Make all keys uniq
@@ -609,7 +613,7 @@ const moduleMutations: MutationTree<EmailState> = {
 
   ['CLEAR_SEMAPHORE'](state: EmailState, action: SemaphoreAction): void {
     switch (action.type) {
-      case SemaphoreType.GETTING:
+      case SemaphoreTypes.GETTING:
         // Process all semaphore items
         state.semaphore.fetching.item
           .forEach((item: string, index: number): void => {
@@ -621,7 +625,7 @@ const moduleMutations: MutationTree<EmailState> = {
           })
         break
 
-      case SemaphoreType.FETCHING:
+      case SemaphoreTypes.FETCHING:
         // Process all semaphore items
         state.semaphore.fetching.items
           .forEach((item: string, index: number): void => {
@@ -633,7 +637,7 @@ const moduleMutations: MutationTree<EmailState> = {
           })
         break
 
-      case SemaphoreType.CREATING:
+      case SemaphoreTypes.CREATING:
         // Process all semaphore items
         state.semaphore.creating
           .forEach((item: string, index: number): void => {
@@ -645,7 +649,7 @@ const moduleMutations: MutationTree<EmailState> = {
           })
         break
 
-      case SemaphoreType.UPDATING:
+      case SemaphoreTypes.UPDATING:
         // Process all semaphore items
         state.semaphore.updating
           .forEach((item: string, index: number): void => {
@@ -657,7 +661,7 @@ const moduleMutations: MutationTree<EmailState> = {
           })
         break
 
-      case SemaphoreType.DELETING:
+      case SemaphoreTypes.DELETING:
         // Process all semaphore items
         state.semaphore.deleting
           .forEach((item: string, index: number): void => {

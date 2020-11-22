@@ -7,18 +7,18 @@ import {
 } from 'jsona/lib/JsonaTypes'
 
 import {
-  DeviceEntityTypeType,
+  DeviceEntityTypes,
   DeviceInterface,
 } from '~/models/devices-node/devices/types'
 import {
-  PropertyDatatypeType,
+  PropertyDatatypeTypes,
   PropertyInterface,
 } from '~/models/devices-node/properties/types'
 
 // STORE
 // =====
 
-export enum SemaphoreType {
+export enum SemaphoreTypes {
   FETCHING = 'fetching',
   GETTING = 'getting',
   CREATING = 'creating',
@@ -30,7 +30,7 @@ export enum SemaphoreType {
 // ================
 
 export interface DevicePropertyInterface extends PropertyInterface {
-  type: DevicePropertyEntityTypeType
+  type: DevicePropertyEntityTypes
 
   device: DeviceInterface | null
   deviceBackward: DeviceInterface | null
@@ -43,7 +43,7 @@ export interface DevicePropertyInterface extends PropertyInterface {
 // ENTITY TYPES
 // ============
 
-export enum DevicePropertyEntityTypeType {
+export enum DevicePropertyEntityTypes {
   PROPERTY = 'devices-node/device-property',
 }
 
@@ -56,7 +56,7 @@ interface DevicePropertyAttributesResponseInterface {
   settable: boolean
   queryable: boolean
 
-  datatype: PropertyDatatypeType | null
+  datatype: PropertyDatatypeTypes | null
   unit: string | null
   format: string | null
 
@@ -67,7 +67,7 @@ interface DevicePropertyAttributesResponseInterface {
 
 interface DeviceRelationshipResponseInterface extends TJsonApiRelationshipData {
   id: string
-  type: DeviceEntityTypeType
+  type: DeviceEntityTypes
 }
 
 interface DeviceRelationshipsResponseInterface extends TJsonApiRelation {
@@ -80,7 +80,7 @@ interface DevicePropertyRelationshipsResponseInterface extends TJsonApiRelations
 
 export interface DevicePropertyDataResponseInterface extends TJsonApiData {
   id: string
-  type: DevicePropertyEntityTypeType
+  type: DevicePropertyEntityTypes
   attributes: DevicePropertyAttributesResponseInterface
   relationships: DevicePropertyRelationshipsResponseInterface
 }

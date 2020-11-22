@@ -16,7 +16,8 @@
     }
 
     .vue-scroll-picker-group {
-      display: flex;
+      @include flexRow;
+
       background-color: $content-background-color;
       border-top: 1px solid $gray-lighter;
       border-bottom: 1px solid $gray-lighter;
@@ -39,7 +40,7 @@
 
     .fb-form-checkbox {
       &__container {
-        padding: $padding-sm;
+        padding: $padding-sm 0;
 
         &[data-checked="true"] {
           .fb-form-checkbox {
@@ -95,9 +96,9 @@
 
   &__day {
     -webkit-box-flex: 0;
-    -ms-flex: 0 0 14.2%;
-    flex: 0 0 14.2%;
-    max-width: 14.2%;
+    -ms-flex: 0 0 14.1%;
+    flex: 0 0 14.1%;
+    max-width: 14.1%;
 
     text-align: center;
   }

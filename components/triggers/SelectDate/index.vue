@@ -48,15 +48,6 @@ import 'vue-scroll-picker/dist/style.css'
 
 import get from 'lodash/get'
 
-interface TriggersSelectDatePropsInterfaceValueInterface {
-  selected: boolean
-  date: string
-}
-
-interface TriggersSelectDatePropsInterface {
-  value: TriggersSelectDatePropsInterfaceValueInterface
-}
-
 interface TriggersSelectDateFormInterface {
   model: {
     day: number
@@ -68,6 +59,15 @@ interface TriggersSelectDateFormInterface {
   }
 }
 
+interface TriggersSelectDateValueInterface {
+  selected: boolean
+  date: string
+}
+
+interface TriggersSelectDatePropsInterface {
+  value: TriggersSelectDateValueInterface
+}
+
 export default defineComponent({
 
   name: 'TriggersSelectDate',
@@ -75,7 +75,7 @@ export default defineComponent({
   props: {
 
     value: {
-      type: Object as PropType<TriggersSelectDatePropsInterfaceValueInterface>,
+      type: Object as PropType<TriggersSelectDateValueInterface>,
       default: null,
     },
 
@@ -140,10 +140,6 @@ export default defineComponent({
       { value: 'p', name: 'p.m.' },
     ]
 
-    onMounted((): void => {
-      isMounted.value = true
-    })
-
     function emitUpdate(): void {
       let date
 
@@ -158,6 +154,10 @@ export default defineComponent({
         date: date.toISOString(),
       }))
     }
+
+    onMounted((): void => {
+      isMounted.value = true
+    })
 
     watch(
       () => form.model.day,

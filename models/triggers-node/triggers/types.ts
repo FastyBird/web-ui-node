@@ -8,25 +8,25 @@ import {
 
 import {
   ActionInterface,
-  ActionEntityTypeType,
+  ActionEntityTypes,
   ActionCreateInterface,
 } from '~/models/triggers-node/actions/types'
 import {
   NotificationInterface,
-  NotificationEntityTypeType,
+  NotificationEntityTypes,
   NotificationCreateInterface,
 } from '~/models/triggers-node/notifications/types'
 import {
   ConditionInterface,
-  ConditionEntityTypeType,
+  ConditionEntityTypes,
   ConditionCreateInterface,
 } from '~/models/triggers-node/conditions/types'
-import { ConditionOperatorType } from '~/models/triggers-node/types'
+import { ConditionOperatorTypes } from '~/models/triggers-node/types'
 
 // STORE
 // =====
 
-export enum SemaphoreType {
+export enum SemaphoreTypes {
   FETCHING = 'fetching',
   GETTING = 'getting',
   CREATING = 'creating',
@@ -39,7 +39,7 @@ export enum SemaphoreType {
 
 export interface TriggerInterface {
   id: string
-  type: TriggerEntityTypeType
+  type: TriggerEntityTypes
 
   draft: boolean
 
@@ -53,7 +53,7 @@ export interface TriggerInterface {
   device: string
   channel: string
   property: string
-  operator: ConditionOperatorType
+  operator: ConditionOperatorTypes
   operand: string
 
   // Relations
@@ -66,7 +66,6 @@ export interface TriggerInterface {
   // Entity transformers
   isEnabled: boolean
   icon: string
-  hasDescription: boolean
   description: string
 
   isAutomatic: boolean
@@ -79,7 +78,7 @@ export interface TriggerInterface {
 // ENTITY TYPES
 // ============
 
-export enum TriggerEntityTypeType {
+export enum TriggerEntityTypes {
   AUTOMATIC = 'triggers-node/trigger-automatic',
   MANUAL = 'triggers-node/trigger-manual',
   CHANNEL_PROPERTY = 'triggers-node/trigger-channel-property',
@@ -98,13 +97,13 @@ interface TriggerAttributesResponseInterface {
   device?: string
   channel?: string
   property?: string
-  operator?: ConditionOperatorType
+  operator?: ConditionOperatorTypes
   operand?: string
 }
 
 interface TriggerConditionRelationshipResponseInterface extends TJsonApiRelationshipData {
   id: string
-  type: ConditionEntityTypeType
+  type: ConditionEntityTypes
 }
 
 interface TriggerConditionsRelationshipsResponseInterface extends TJsonApiRelation {
@@ -113,7 +112,7 @@ interface TriggerConditionsRelationshipsResponseInterface extends TJsonApiRelati
 
 interface TriggerNotificationRelationshipResponseInterface extends TJsonApiRelationshipData {
   id: string
-  type: NotificationEntityTypeType
+  type: NotificationEntityTypes
 }
 
 interface TriggerNotificationsRelationshipsResponseInterface extends TJsonApiRelation {
@@ -122,7 +121,7 @@ interface TriggerNotificationsRelationshipsResponseInterface extends TJsonApiRel
 
 interface TriggerActionRelationshipResponseInterface extends TJsonApiRelationshipData {
   id: string
-  type: ActionEntityTypeType
+  type: ActionEntityTypes
 }
 
 interface TriggerActionsRelationshipsResponseInterface extends TJsonApiRelation {
@@ -144,7 +143,7 @@ interface TriggerRelationshipsResponseInterface extends TJsonApiRelationships {
 
 export interface TriggerDataResponseInterface extends TJsonApiData {
   id: string
-  type: TriggerEntityTypeType
+  type: TriggerEntityTypes
   attributes: TriggerAttributesResponseInterface
   relationships: TriggerRelationshipsResponseInterface | ChannelPropertyTriggerRelationshipsResponseInterface | AutomaticTriggerRelationshipsResponseInterface
 }
@@ -186,7 +185,7 @@ export interface CreateAutomaticTriggerInterface extends TriggerCreateInterface 
 }
 
 export interface TriggerCreateInterface {
-  type: TriggerEntityTypeType
+  type: TriggerEntityTypes
 
   name: string
   comment: string | null

@@ -7,18 +7,18 @@ import {
 } from 'jsona/lib/JsonaTypes'
 
 import {
-  ChannelEntityTypeType,
+  ChannelEntityTypes,
   ChannelInterface,
 } from '~/models/devices-node/channels/types'
 import {
-  PropertyDatatypeType,
+  PropertyDatatypeTypes,
   PropertyInterface,
 } from '~/models/devices-node/properties/types'
 
 // STORE
 // =====
 
-export enum SemaphoreType {
+export enum SemaphoreTypes {
   FETCHING = 'fetching',
   GETTING = 'getting',
   CREATING = 'creating',
@@ -30,7 +30,7 @@ export enum SemaphoreType {
 // ================
 
 export interface ChannelPropertyInterface extends PropertyInterface {
-  type: ChannelPropertyEntityTypeType
+  type: ChannelPropertyEntityTypes
 
   channel: ChannelInterface | null
   channelBackward: ChannelInterface | null
@@ -43,7 +43,7 @@ export interface ChannelPropertyInterface extends PropertyInterface {
 // ENTITY TYPES
 // ============
 
-export enum ChannelPropertyEntityTypeType {
+export enum ChannelPropertyEntityTypes {
   PROPERTY = 'devices-node/channel-property',
 }
 
@@ -56,7 +56,7 @@ interface ChannelPropertyAttributesResponseInterface {
   settable: boolean
   queryable: boolean
 
-  datatype: PropertyDatatypeType | null
+  datatype: PropertyDatatypeTypes | null
   unit: string | null
   format: string | null
 
@@ -67,7 +67,7 @@ interface ChannelPropertyAttributesResponseInterface {
 
 interface ChannelRelationshipResponseInterface extends TJsonApiRelationshipData {
   id: string
-  type: ChannelEntityTypeType
+  type: ChannelEntityTypes
 }
 
 interface ChannelRelationshipsResponseInterface extends TJsonApiRelation {
@@ -80,7 +80,7 @@ interface ChannelPropertyRelationshipsResponseInterface extends TJsonApiRelation
 
 export interface ChannelPropertyDataResponseInterface extends TJsonApiData {
   id: string
-  type: ChannelPropertyEntityTypeType
+  type: ChannelPropertyEntityTypes
   attributes: ChannelPropertyAttributesResponseInterface
   relationships: ChannelPropertyRelationshipsResponseInterface
 }

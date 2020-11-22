@@ -3,20 +3,25 @@
     :lock-submit-button="formResult !== formResultTypes.NONE"
     :state="formResult"
     :submit-btn-text="$t('application.buttons.done.title')"
+    :submit-btn-show="!windowScreen.listDevices.opened"
     :cancel-btn-text="cancelBtnText"
-    :variant="$windowSize.isExtraSmall() ? modalVariantTypes.PHONE : modalVariantTypes.DEFAULT"
-    :submit-btn-show="!view.listDevices.show"
-    :data-type="openedType()"
-    @submit="submitDevice"
-    @cancel="cancelBtnCallback"
-    @close="closeWindow"
+    :variant="modalVariant"
+    :data-type="openedType"
+    @submit="handleSubmit"
+    @cancel="handleCancel"
+    @close="handleCloseWindow"
     class="fb-triggers-detail-default-actions-container-add-or-edit__container"
   >
     <fb-ui-modal-header
       slot="modal-header"
-      v-if="view.listDevices.show"
-      :variant="$windowSize.isExtraSmall() ? modalVariantTypes.PHONE : modalVariantTypes.DEFAULT"
-      @close="closeWindow"
+      v-if="windowScreen.listDevices.opened"
+      :variant="modalVariant"
+      :ok-btn-text="$t('application.buttons.done.title')"
+      :ok-btn-show="!windowScreen.listDevices.opened"
+      :cancel-btn-text="cancelBtnText"
+      @submit="handleSubmit"
+      @cancel="handleCancel"
+      @close="handleCloseWindow"
     >
       <font-awesome-icon
         slot="icon"
@@ -32,61 +37,33 @@
         Facilis blanditiis, quibusdam corporis porro natus neque soluta nihil hic aliquam, suscipit,
         consectetur omnis placeat architecto quae laboriosam. Id porro adipisci, alias.
       </template>
-
-      <fb-ui-button
-        slot="left-button"
-        :variant="buttonVariantTypes.LINK"
-        :size="sizeTypes.EXTRA_SMALL"
-        @click.prevent="cancelBtnCallback"
-        uppercase
-        name="close"
-      >
-        {{ cancelBtnText }}
-      </fb-ui-button>
     </fb-ui-modal-header>
 
     <fb-ui-modal-header
       slot="modal-header"
-      v-if="view.selectDevice.show && view.selectDevice.device !== null"
-      :variant="$windowSize.isExtraSmall() ? modalVariantTypes.PHONE : modalVariantTypes.DEFAULT"
-      @close="closeWindow"
+      v-if="windowScreen.selectDevice.opened && windowScreen.selectDevice.device !== null"
+      :variant="modalVariant"
+      :ok-btn-text="$t('application.buttons.done.title')"
+      :ok-btn-show="!windowScreen.listDevices.opened"
+      :cancel-btn-text="cancelBtnText"
+      @submit="handleSubmit"
+      @cancel="handleCancel"
+      @close="handleCloseWindow"
     >
       <font-awesome-icon
         slot="icon"
-        :icon="view.selectDevice.device.icon"
+        :icon="windowScreen.selectDevice.device.icon"
         class="fb-triggers-detail-default-actions-container-add-or-edit__icon"
       />
 
       <template slot="heading">
-        {{ view.selectDevice.device.title }}
+        {{ windowScreen.selectDevice.device.title }}
       </template>
 
       <template slot="description">
         Facilis blanditiis, quibusdam corporis porro natus neque soluta nihil hic aliquam, suscipit,
         consectetur omnis placeat architecto quae laboriosam. Id porro adipisci, alias.
       </template>
-
-      <fb-ui-button
-        slot="left-button"
-        :variant="buttonVariantTypes.LINK"
-        :size="sizeTypes.EXTRA_SMALL"
-        @click.prevent="cancelBtnCallback"
-        uppercase
-        name="close"
-      >
-        {{ cancelBtnText }}
-      </fb-ui-button>
-
-      <fb-ui-button
-        slot="right-button"
-        :variant="buttonVariantTypes.LINK"
-        :size="sizeTypes.EXTRA_SMALL"
-        @click.prevent="submitDevice"
-        uppercase
-        name="submit"
-      >
-        {{ $t('application.buttons.done.title') }}
-      </fb-ui-button>
     </fb-ui-modal-header>
 
     <div
@@ -94,16 +71,16 @@
       class="fb-triggers-detail-default-actions-container-add-or-edit__content"
     >
       <triggers-list-devices
-        v-if="view.listDevices.show"
+        v-if="windowScreen.listDevices.opened"
         :type="selectDeviceViewTypes.ACTORS"
         :items="actions"
-        @select="listDevices"
+        @select="handleListDevices"
       />
 
       <triggers-select-action-device
-        v-if="view.selectDevice.show && Object.keys(form.model.devices).length > 0"
+        v-if="windowScreen.selectDevice.opened && Object.keys(form.model.devices).length > 0"
         v-model="form.model.devices"
-        :device="view.selectDevice.device"
+        :device="windowScreen.selectDevice.device"
       />
     </div>
   </fb-ui-modal-form>
@@ -123,15 +100,15 @@ import get from 'lodash/get'
 
 import {
   FbSizeTypes,
-  FbFormResultType,
-  FbUiModalVariantType,
+  FbFormResultTypes,
+  FbUiModalVariantTypes,
   FbUiButtonVariantTypes,
 } from '@fastybird/web-ui-theme'
 
 import { TriggerInterface } from '~/models/triggers-node/triggers/types'
 import Action from '~/models/triggers-node/actions/Action'
 import {
-  ActionEntityTypeType,
+  ActionEntityTypes,
   ActionInterface,
 } from '~/models/triggers-node/actions/types'
 
@@ -139,10 +116,10 @@ import { DeviceInterface } from '~/models/devices-node/devices/types'
 import DeviceProperty from '~/models/devices-node/device-properties/DeviceProperty'
 import ChannelProperty from '~/models/devices-node/channel-properties/ChannelProperty'
 
-import TriggersListDevices, { ViewType as SelectViewType } from '~/components/triggers/ListDevices/index.vue'
+import TriggersListDevices, { ViewType as SelectViewTypes } from '~/components/triggers/ListDevices/index.vue'
 import TriggersSelectActionDevice from '~/components/triggers/SelectActionDevice/index.vue'
 
-enum ViewTypes {
+enum WindowScreenTypes {
   LIST_DEVICES = 'listDevices',
   SELECT_DEVICE = 'selectDevice',
 }
@@ -152,33 +129,27 @@ enum ItemType {
   CHANNEL_ACTION = 'channelAction',
 }
 
-interface TriggersDetailDefaultActionsContainerAddOrEditFormModelDeviceInterface {
-  selected: boolean
-  operation: string | boolean | null
-  type: ItemType
-  action: string | null
-}
-
-interface TriggersDetailDefaultActionsContainerAddOrEditFormModelInterface {
-  devices?: { [key: string]: TriggersDetailDefaultActionsContainerAddOrEditFormModelDeviceInterface }
-}
-
 interface TriggersDetailDefaultActionsContainerAddOrEditFormInterface {
-  model: TriggersDetailDefaultActionsContainerAddOrEditFormModelInterface
+  model: {
+    devices?: {
+      [key: string]: {
+        selected: boolean
+        operation: string | boolean | null
+        type: ItemType
+        action: string | null
+      }
+    }
+  }
 }
 
-interface TriggersDetailDefaultActionsAddOrEditViewListDevicesInterface {
-  show: boolean
-}
-
-interface TriggersDetailDefaultActionsAddOrEditViewSelectDeviceInterface {
-  show: boolean
-  device: DeviceInterface | null
-}
-
-interface TriggersDetailDefaultActionsAddOrEditViewInterface {
-  listDevices: TriggersDetailDefaultActionsAddOrEditViewListDevicesInterface
-  selectDevice: TriggersDetailDefaultActionsAddOrEditViewSelectDeviceInterface
+interface TriggersDetailDefaultActionsAddOrEditWindowInterface {
+  listDevices: {
+    opened: boolean
+  }
+  selectDevice: {
+    opened: boolean
+    device: DeviceInterface | null
+  }
 }
 
 interface TriggersDetailDefaultActionsContainerAddOrEditPropsInterface {
@@ -212,14 +183,14 @@ export default defineComponent({
   setup(props: TriggersDetailDefaultActionsContainerAddOrEditPropsInterface, context: SetupContext) {
     const hasActionDevice = ref<boolean>(false)
 
-    const formResult = ref<FbFormResultType>(FbFormResultType.NONE)
+    const formResult = ref<FbFormResultTypes>(FbFormResultTypes.NONE)
 
-    const view = reactive<TriggersDetailDefaultActionsAddOrEditViewInterface>({
+    const windowScreen = reactive<TriggersDetailDefaultActionsAddOrEditWindowInterface>({
       listDevices: {
-        show: true,
+        opened: true,
       },
       selectDevice: {
-        show: false,
+        opened: false,
         device: null,
       },
     })
@@ -228,36 +199,41 @@ export default defineComponent({
       model: {},
     })
 
-    // Processing timer
+    const openedType = computed<string>((): string => {
+      if (windowScreen.listDevices.opened) {
+        return 'list-devices'
+      }
+
+      return 'select-device'
+    })
+
     let timer: number
 
-    // Open info window
-    function openWindow(type: ViewTypes): void {
-      view[type].show = true
+    function handleOpenWindow(type: WindowScreenTypes): void {
+      windowScreen[type].opened = true
 
-      Object.keys(view)
+      Object.keys(windowScreen)
         .forEach((key: string): void => {
           if (
             (
-              key === ViewTypes.LIST_DEVICES ||
-              key === ViewTypes.SELECT_DEVICE
+              key === WindowScreenTypes.LIST_DEVICES ||
+              key === WindowScreenTypes.SELECT_DEVICE
             ) &&
             type !== key
           ) {
-            view[key].show = false
+            windowScreen[key].opened = false
           }
         })
     }
 
-    // Close opened window
-    function closeWindow(): void {
-      Object.keys(view)
+    function handleCloseWindow(): void {
+      Object.keys(windowScreen)
         .forEach((key: string): void => {
           if (
-            key === ViewTypes.LIST_DEVICES ||
-            key === ViewTypes.SELECT_DEVICE
+            key === WindowScreenTypes.LIST_DEVICES ||
+            key === WindowScreenTypes.SELECT_DEVICE
           ) {
-            view[key].show = false
+            windowScreen[key].opened = false
           }
         })
 
@@ -266,7 +242,7 @@ export default defineComponent({
       context.emit('close')
     }
 
-    function listDevices(device: DeviceInterface): void {
+    function handleListDevices(device: DeviceInterface): void {
       form.model.devices = {}
 
       device.channels
@@ -345,20 +321,19 @@ export default defineComponent({
           }
         })
 
-      view[ViewTypes.SELECT_DEVICE].device = device
+      windowScreen[WindowScreenTypes.SELECT_DEVICE].device = device
 
-      openWindow(ViewTypes.SELECT_DEVICE)
+      handleOpenWindow(WindowScreenTypes.SELECT_DEVICE)
     }
 
-    // Form could not be submitted
     function error(): void {
       window.clearInterval(timer)
 
-      formResult.value = FbFormResultType.NONE
+      formResult.value = FbFormResultTypes.NONE
     }
 
-    function submitDevice(): void {
-      formResult.value = FbFormResultType.WORKING
+    function handleSubmit(): void {
+      formResult.value = FbFormResultTypes.WORKING
 
       let result = true
 
@@ -379,7 +354,7 @@ export default defineComponent({
         if (!isValid) {
           context.root.$flashMessage(context.root.$t('triggers.messages.atLeastOneActionProperty').toString(), 'error')
 
-          formResult.value = FbFormResultType.NONE
+          formResult.value = FbFormResultTypes.NONE
 
           return
         }
@@ -441,7 +416,7 @@ export default defineComponent({
                         await Action.dispatch('add', {
                           trigger: props.trigger,
                           data: {
-                            type: ActionEntityTypeType.DEVICE_PROPERTY,
+                            type: ActionEntityTypes.DEVICE_PROPERTY,
                             enabled: true,
                             value: form.model.devices[key].operation,
                             device: property.deviceBackward?.identifier,
@@ -521,7 +496,7 @@ export default defineComponent({
                         await Action.dispatch('add', {
                           trigger: props.trigger,
                           data: {
-                            type: ActionEntityTypeType.CHANNEL_PROPERTY,
+                            type: ActionEntityTypes.CHANNEL_PROPERTY,
                             enabled: true,
                             value: form.model.devices[key].operation,
                             device: property.channelBackward?.deviceBackward?.identifier,
@@ -567,56 +542,48 @@ export default defineComponent({
       }
 
       if (result) {
-        formResult.value = FbFormResultType.OK
+        formResult.value = FbFormResultTypes.OK
 
-        timer = window.setInterval(closeWindow, 2000)
+        timer = window.setInterval(handleCloseWindow, 2000)
       } else {
-        formResult.value = FbFormResultType.ERROR
+        formResult.value = FbFormResultTypes.ERROR
 
         timer = window.setInterval(error, 2000)
       }
     }
 
-    function openedType(): string {
-      if (view.listDevices.show) {
-        return 'list-devices'
-      }
-
-      return 'select-device'
-    }
-
-    function cancelBtnCallback(): void {
-      if (view.selectDevice.show) {
-        openWindow(ViewTypes.LIST_DEVICES)
+    function handleCancel(): void {
+      if (windowScreen.selectDevice.opened) {
+        handleOpenWindow(WindowScreenTypes.LIST_DEVICES)
       } else {
-        closeWindow()
+        handleCloseWindow()
       }
     }
 
     const cancelBtnText = computed<string>((): string => {
-      if (view.selectDevice.show) {
+      if (windowScreen.selectDevice.opened) {
         return context.root.$t('application.buttons.back.title').toString()
       }
 
-      return context.root.$t('application.buttons.close.title').toString()
+      return context.root.$t('application.buttons.cancel.title').toString()
     })
 
     return {
       hasActionDevice,
       formResult,
-      view,
+      windowScreen,
       form,
       cancelBtnText,
-      viewTypes: ViewTypes,
-      selectDeviceViewTypes: SelectViewType,
-      cancelBtnCallback,
-      openWindow,
-      closeWindow,
-      listDevices,
-      submitDevice,
       openedType,
-      formResultTypes: FbFormResultType,
-      modalVariantTypes: FbUiModalVariantType,
+      handleCancel,
+      handleSubmit,
+      handleOpenWindow,
+      handleCloseWindow,
+      handleListDevices,
+      modalVariant: context.root.$windowSize.isExtraSmall() ? FbUiModalVariantTypes.PHONE : (!context.root.$windowSize.isExtraLarge() ? FbUiModalVariantTypes.TABLET : FbUiModalVariantTypes.DEFAULT),
+      windowScreenTypes: WindowScreenTypes,
+      selectDeviceViewTypes: SelectViewTypes,
+      formResultTypes: FbFormResultTypes,
       sizeTypes: FbSizeTypes,
       buttonVariantTypes: FbUiButtonVariantTypes,
     }

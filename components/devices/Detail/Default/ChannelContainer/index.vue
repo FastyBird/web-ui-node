@@ -1,108 +1,109 @@
 <template>
-  <div class="fb-devices-detail-default-channel__container">
-    <list-item
-      v-for="property in analogSensors"
-      :key="property.id"
-    >
-      <font-awesome-icon
-        slot="icon"
-        :icon="property.icon"
-      />
-
+  <div class="fb-devices-detail-default-channel-container__container">
+    <fb-ui-items-container>
       <template slot="heading">
-        {{ property.title }}
+        {{ $t('devices.headings.channel', { channel: channel.title }) }}
       </template>
 
-      <template slot="detail">
-        <template v-if="device.isReady">
-          <span class="fb-devices-detail-default-channel__value">{{ property.analogValue }}</span>
-          <span class="fb-devices-detail-default-channel__unit">{{ property.unit }}</span>
-        </template>
-        <template v-else>
-          <span class="fb-devices-detail-default-channel__value">{{ $t('application.states.notAvailable') }}</span>
-        </template>
-      </template>
-    </list-item>
-
-    <list-item
-      v-for="property in binarySensors"
-      :key="property.id"
-    >
-      <font-awesome-icon
-        slot="icon"
-        :icon="property.icon"
-      />
-
-      <template slot="heading">
-        {{ property.title }}
-      </template>
-
-      <template slot="detail">
-        <template v-if="!device.isReady">
-          {{ $t('application.states.notAvailable') }}
-        </template>
-        <template v-else-if="property.binaryValue">
-          {{ $t('application.states.on') }}
-        </template>
-        <template v-else>
-          {{ $t('application.states.off') }}
-        </template>
-      </template>
-    </list-item>
-
-    <list-item
-      v-for="property in binaryActors"
-      :key="property.id"
-    >
-      <font-awesome-icon
-        slot="icon"
-        :icon="property.icon"
-      />
-
-      <template slot="heading">
-        {{ property.title }}
-      </template>
-
-      <switch-actor
-        slot="detail"
+      <devices-list-channel-property
+        v-for="property in properties"
+        :key="property.id"
         :device="device"
+        :channel="channel"
         :property="property"
       />
-    </list-item>
 
-    <list-item
-      v-for="property in switches"
-      :key="property.id"
-    >
-      <font-awesome-icon
-        slot="icon"
-        :icon="property.icon"
-      />
-
-      <template slot="heading">
-        {{ property.title }}
-      </template>
-
-      <switch-actor
-        slot="detail"
-        :device="device"
-        :property="property"
-      />
-    </list-item>
-
-    <fb-ui-no-results v-if="!switches.length && !analogSensors.length && !analogActors.length && !binarySensors.length && !binaryActors.length">
-      <font-awesome-icon
-        slot="icon"
+      <no-results
+        v-if="!properties.length"
         icon="cube"
-      />
+      >
+        {{ $t('devices.texts.noProperties') }}
+      </no-results>
 
-      <font-awesome-icon
-        slot="second-icon"
-        icon="plug"
-      />
+      <template slot="buttons">
+        <fb-ui-button
+          v-if="editMode"
+          :variant="buttonVariantTypes.OUTLINE_PRIMARY"
+          :size="sizeTypes.EXTRA_SMALL"
+          @click.prevent="handleOpenWindow(windowScreenTypes.RENAME)"
+        >
+          <font-awesome-icon icon="pencil-alt" />
+          {{ $t('application.buttons.rename.title') }}
+        </fb-ui-button>
 
-      {{ $t('devices.texts.noProperties') }}
-    </fb-ui-no-results>
+        <fb-ui-button
+          v-if="editMode && channel.control.includes('reset')"
+          :disabled="!device.isReady"
+          :variant="buttonVariantTypes.OUTLINE_DANGER"
+          :size="sizeTypes.EXTRA_SMALL"
+          @click.prevent="handleOpenWindow(windowScreenTypes.RESET_CONFIRMATION)"
+        >
+          <font-awesome-icon icon="sync-alt" />
+          {{ $t('application.buttons.reset.title') }}
+        </fb-ui-button>
+
+        <fb-ui-button
+          v-if="editMode"
+          :variant="buttonVariantTypes.OUTLINE_PRIMARY"
+          :size="sizeTypes.EXTRA_SMALL"
+          @click.prevent="handleOpenWindow(windowScreenTypes.CONFIGURE)"
+        >
+          <font-awesome-icon icon="cogs" />
+          {{ $t('application.buttons.configure.title') }}
+        </fb-ui-button>
+      </template>
+    </fb-ui-items-container>
+
+    <devices-desktop-settings-channel-rename
+      v-if="windowScreen.rename.opened"
+      :device="device"
+      :channel="channel"
+      @close="handleCloseWindow(windowScreenTypes.RENAME)"
+    />
+
+    <devices-settings-channel-reset
+      v-if="windowScreen.resetConfirmation.opened"
+      :device="device"
+      :channel="channel"
+      @reseted="handleCloseWindow(windowScreenTypes.RESET_CONFIRMATION)"
+      @close="handleCloseWindow(windowScreenTypes.RESET_CONFIRMATION)"
+    />
+
+    <off-canvas
+      :show="editMode && windowScreen.configure.opened"
+      @close="handleCloseWindow(windowScreenTypes.CONFIGURE)"
+    >
+      <off-canvas-body>
+        <template slot="heading">
+          {{ channel.title }}
+        </template>
+
+        <template
+          slot="sub-heading"
+          v-if="device.hasComment"
+        >
+          {{ device.title }}
+        </template>
+
+        <off-canvas-button
+          slot="left-button"
+          @click.prevent="handleCloseWindow(windowScreenTypes.CONFIGURE)"
+        >
+          <font-awesome-icon icon="times" />
+        </off-canvas-button>
+
+        <transition
+          slot="body"
+          name="fade"
+          mode="out-in"
+        >
+          <devices-desktop-settings-channel
+            :device="device"
+            :channel="channel"
+          />
+        </transition>
+      </off-canvas-body>
+    </off-canvas>
   </div>
 </template>
 
@@ -111,32 +112,52 @@ import {
   defineComponent,
   computed,
   PropType,
+  reactive,
 } from '@vue/composition-api'
+
+import {
+  FbSizeTypes,
+  FbUiButtonVariantTypes,
+} from '@fastybird/web-ui-theme'
 
 import { DeviceInterface } from '~/models/devices-node/devices/types'
 import { ChannelInterface } from '~/models/devices-node/channels/types'
 import ChannelProperty from '~/models/devices-node/channel-properties/ChannelProperty'
-import { PropertyDatatypeType } from '~/models/devices-node/properties/types'
+import {
+  ActorNameTypes,
+  PropertyDatatypeTypes,
+  SensorNameTypes,
+} from '~/models/devices-node/properties/types'
 
-import SwitchActor from '~/components/devices/Actors/Switch/index.vue'
+import DevicesListChannelProperty from '~/components/devices/ListChannelProperty/index.vue'
 
-interface DevicesDetailDefaultChannelContainerPropsInterface {
-  device: DeviceInterface,
-  channel: ChannelInterface,
+import DevicesDesktopSettingsChannel from '~/components/devices/Desktop/Settings/Channel/index.vue'
+import DevicesDesktopSettingsChannelRename from '~/components/devices/Desktop/Settings/Channel/Rename/index.vue'
+
+import DevicesSettingsChannelReset from '~/components/devices/Settings/Channel/Reset/index.vue'
+
+enum WindowScreenTypes {
+  RENAME = 'rename',
+  CONFIGURE = 'configure',
+  RESET_CONFIRMATION = 'resetConfirmation',
 }
 
-const sensorsNames: Array<string> = [
-  'sensor',
-  'air_quality',
-  'light_level',
-  'noise_level',
-  'temperature',
-  'humidity',
-]
+interface DevicesDetailDefaultChannelContainerWindowInterface {
+  rename: {
+    opened: boolean
+  }
+  configure: {
+    opened: boolean
+  }
+  resetConfirmation: {
+    opened: boolean
+  }
+}
 
-const actorsNames: Array<string> = [
-  'sensor',
-]
+interface DevicesDetailDefaultChannelContainerPropsInterface {
+  device: DeviceInterface
+  channel: ChannelInterface
+}
 
 export default defineComponent({
 
@@ -154,80 +175,126 @@ export default defineComponent({
       required: true,
     },
 
+    editMode: {
+      type: Boolean,
+      default: false,
+    },
+
   },
 
   components: {
-    SwitchActor,
+    DevicesListChannelProperty,
+
+    DevicesDesktopSettingsChannel,
+    DevicesDesktopSettingsChannelRename,
+
+    DevicesSettingsChannelReset,
   },
 
   setup(props: DevicesDetailDefaultChannelContainerPropsInterface) {
-    const analogSensors = computed<Array<ChannelProperty>>((): Array<ChannelProperty> => {
-      return ChannelProperty
+    const windowScreen = reactive<DevicesDetailDefaultChannelContainerWindowInterface>({
+      rename: {
+        opened: false,
+      },
+      configure: {
+        opened: false,
+      },
+      resetConfirmation: {
+        opened: false,
+      },
+    })
+
+    const properties = computed<Array<ChannelProperty>>((): Array<ChannelProperty> => {
+      const analogSensors = ChannelProperty
         .query()
         .where('channelId', props.channel.id)
-        .where('property', (value: string): boolean => {
-          return sensorsNames.includes(value)
+        .where('property', (value: SensorNameTypes): boolean => {
+          return [
+            SensorNameTypes.SENSOR,
+            SensorNameTypes.AIR_QUALITY,
+            SensorNameTypes.LIGHT_LEVEL,
+            SensorNameTypes.NOISE_LEVEL,
+            SensorNameTypes.TEMPERATURE,
+            SensorNameTypes.HUMIDITY,
+          ].includes(value)
         })
-        .where('datatype', [PropertyDatatypeType.INTEGER, PropertyDatatypeType.FLOAT])
+        .where('datatype', [PropertyDatatypeTypes.INTEGER, PropertyDatatypeTypes.FLOAT])
         .where('isSettable', false)
         .orderBy('title')
         .get()
-    })
 
-    const analogActors = computed<Array<ChannelProperty>>((): Array<ChannelProperty> => {
-      return ChannelProperty
+      const analogActors = ChannelProperty
         .query()
         .where('channelId', props.channel.id)
-        .where('property', (value: string): boolean => {
-          return actorsNames.includes(value)
+        .where('property', (value: ActorNameTypes): boolean => {
+          return [
+            ActorNameTypes.ACTOR,
+            ActorNameTypes.SWITCH,
+          ].includes(value) && value !== ActorNameTypes.SWITCH
         })
-        .where('datatype', [PropertyDatatypeType.INTEGER, PropertyDatatypeType.FLOAT])
+        .where('datatype', [PropertyDatatypeTypes.INTEGER, PropertyDatatypeTypes.FLOAT])
         .where('isSettable', true)
         .orderBy('title')
         .get()
-    })
 
-    const binarySensors = computed<Array<ChannelProperty>>((): Array<ChannelProperty> => {
-      return ChannelProperty
+      const binarySensors = ChannelProperty
         .query()
         .where('channelId', props.channel.id)
-        .where('property', (value: string): boolean => {
-          return sensorsNames.includes(value)
+        .where('property', (value: SensorNameTypes): boolean => {
+          return [
+            SensorNameTypes.SENSOR,
+            SensorNameTypes.AIR_QUALITY,
+            SensorNameTypes.LIGHT_LEVEL,
+            SensorNameTypes.NOISE_LEVEL,
+            SensorNameTypes.TEMPERATURE,
+            SensorNameTypes.HUMIDITY,
+          ].includes(value)
         })
-        .where('datatype', PropertyDatatypeType.BOOLEAN)
+        .where('datatype', PropertyDatatypeTypes.BOOLEAN)
         .where('isSettable', false)
         .orderBy('title')
         .get()
-    })
 
-    const binaryActors = computed<Array<ChannelProperty>>((): Array<ChannelProperty> => {
-      return ChannelProperty
+      const binaryActors = ChannelProperty
         .query()
         .where('channelId', props.channel.id)
-        .where('property', (value: string): boolean => {
-          return actorsNames.includes(value)
+        .where('property', (value: ActorNameTypes): boolean => {
+          return [
+            ActorNameTypes.ACTOR,
+            ActorNameTypes.SWITCH,
+          ].includes(value) && value !== ActorNameTypes.SWITCH
         })
-        .where('datatype', PropertyDatatypeType.BOOLEAN)
+        .where('datatype', PropertyDatatypeTypes.BOOLEAN)
         .where('isSettable', true)
         .orderBy('title')
         .get()
-    })
 
-    const switches = computed<Array<ChannelProperty>>((): Array<ChannelProperty> => {
-      return ChannelProperty
+      const switches = ChannelProperty
         .query()
         .where('channelId', props.channel.id)
-        .where('property', 'switch')
+        .where('property', ActorNameTypes.SWITCH)
         .orderBy('title')
         .get()
+
+      return analogSensors.concat(binarySensors, analogActors, binaryActors, switches)
     })
+
+    function handleOpenWindow(type: WindowScreenTypes): void {
+      windowScreen[type].opened = true
+    }
+
+    function handleCloseWindow(type: WindowScreenTypes): void {
+      windowScreen[type].opened = false
+    }
 
     return {
-      analogActors,
-      analogSensors,
-      binaryActors,
-      binarySensors,
-      switches,
+      windowScreen,
+      properties,
+      handleOpenWindow,
+      handleCloseWindow,
+      windowScreenTypes: WindowScreenTypes,
+      sizeTypes: FbSizeTypes,
+      buttonVariantTypes: FbUiButtonVariantTypes,
     }
   },
 

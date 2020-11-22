@@ -5,7 +5,7 @@ import Hardware from '~/models/devices-node/hardwares/Hardware'
 import Channel from '~/models/devices-node/channels/Channel'
 import { ChannelInterface } from '~/models/devices-node/channels/types'
 import {
-  ChannelPropertyEntityTypeType,
+  ChannelPropertyEntityTypes,
   ChannelPropertyInterface,
 } from '~/models/devices-node/channel-properties/types'
 import Property from '~/models/devices-node/properties/Property'
@@ -20,7 +20,7 @@ export default class ChannelProperty extends Property implements ChannelProperty
 
   static fields(): Fields {
     return Object.assign(Property.fields(), {
-      type: this.string(ChannelPropertyEntityTypeType.PROPERTY),
+      type: this.string(ChannelPropertyEntityTypes.PROPERTY),
 
       channel: this.belongsTo(Channel, 'id'),
       channelBackward: this.hasOne(Channel, 'id', 'channelId'),
@@ -29,7 +29,7 @@ export default class ChannelProperty extends Property implements ChannelProperty
     })
   }
 
-  type!: ChannelPropertyEntityTypeType
+  type!: ChannelPropertyEntityTypes
 
   channel!: ChannelInterface | null
   channelBackward!: ChannelInterface | null

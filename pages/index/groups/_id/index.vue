@@ -71,7 +71,7 @@ export default {
   data() {
     return {
       id: this.$route.params.id,
-      view: Object.assign({}, viewSettings),
+      window: Object.assign({}, viewSettings),
     }
   },
 
@@ -290,10 +290,10 @@ export default {
      * @param {String} view
      */
     openView(view) {
-      if (Object.prototype.hasOwnProperty.call(this.view.items, view)) {
+      if (Object.prototype.hasOwnProperty.call(this.window.items, view)) {
         switch (view) {
-          case this.view.items.settings.name:
-            this.view.opened = view
+          case this.window.items.settings.name:
+            this.window.opened = view
 
             this.$nextTick(() => {
               if (this._.get(this.$refs, 'settings')) {
@@ -310,7 +310,7 @@ export default {
                       params: {
                         id: this.id,
                       },
-                      hash: this.view.items.settings.route.hash,
+                      hash: this.window.items.settings.route.hash,
                     }), () => {
                       // Reconfigure navigation after changes
                       this._configureNavigation()
@@ -321,7 +321,7 @@ export default {
             })
             break
 
-          case this.view.items.detail.name:
+          case this.window.items.detail.name:
             if (this._.get(this.$refs, 'detail')) {
               const component = this._.get(this.$refs, 'detail')
 
@@ -338,7 +338,7 @@ export default {
                     this._configureNavigation()
                   })
 
-                  this.view.opened = view
+                  this.window.opened = view
                 },
               })
             } else {
@@ -349,7 +349,7 @@ export default {
                 },
               }))
 
-              this.view.opened = view
+              this.window.opened = view
 
               // Reconfigure navigation after changes
               this._configureNavigation()
@@ -374,10 +374,10 @@ export default {
      * Header right button action event
      */
     rightButtonAction() {
-      if (this.view.opened === this.view.items.settings.name) {
-        this.openView(this.view.items.detail.name)
+      if (this.window.opened === this.window.items.settings.name) {
+        this.openView(this.window.items.detail.name)
       } else {
-        this.openView(this.view.items.settings.name)
+        this.openView(this.window.items.settings.name)
       }
     },
 
@@ -402,13 +402,13 @@ export default {
         root: true,
       })
 
-      if (this.view.opened === this.view.items.settings.name) {
+      if (this.window.opened === this.window.items.settings.name) {
         this.$store.dispatch('template/setRightButton', {
           name: this.$t('application.buttons.close.title'),
         }, {
           root: true,
         })
-      } else if (this.view.opened === this.view.items.detail.name || this.view.opened === this.view.items.type.name) {
+      } else if (this.window.opened === this.window.items.detail.name || this.window.opened === this.window.items.type.name) {
         this.$store.dispatch('template/setRightButton', {
           name: this.$t('application.buttons.edit.title'),
         }, {

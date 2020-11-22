@@ -15,8 +15,8 @@ import {
   CreateAutomaticTriggerInterface,
   CreateChannelPropertyTriggerInterface,
   CreateManualTriggerInterface,
-  SemaphoreType,
-  TriggerEntityTypeType,
+  SemaphoreTypes,
+  TriggerEntityTypes,
   TriggerInterface,
   TriggerResponseInterface,
   TriggersResponseInterface,
@@ -25,7 +25,7 @@ import {
 import Action from '~/models/triggers-node/actions/Action'
 import {
   ActionCreateInterface,
-  ActionEntityTypeType,
+  ActionEntityTypes,
   ActionInterface,
   CreateChannelPropertyActionInterface,
   CreateDevicePropertyActionInterface,
@@ -33,7 +33,7 @@ import {
 import Condition from '~/models/triggers-node/conditions/Condition'
 import {
   ConditionCreateInterface,
-  ConditionEntityTypeType,
+  ConditionEntityTypes,
   ConditionInterface,
   CreateChannelPropertyConditionInterface,
   CreateDateConditionInterface,
@@ -45,7 +45,7 @@ import {
   CreateEmailNotificationInterface,
   CreateSmsNotificationInterface,
   NotificationCreateInterface,
-  NotificationEntityTypeType,
+  NotificationEntityTypes,
   NotificationInterface,
 } from '~/models/triggers-node/notifications/types'
 
@@ -79,7 +79,7 @@ interface TriggerState {
 }
 
 interface SemaphoreAction {
-  type: SemaphoreType
+  type: SemaphoreTypes
   id?: string;
 }
 
@@ -213,7 +213,7 @@ const moduleActions: ActionTree<TriggerState, any> = {
     }
 
     commit('SET_SEMAPHORE', {
-      type: SemaphoreType.GETTING,
+      type: SemaphoreTypes.GETTING,
       id: payload.id,
     })
 
@@ -232,7 +232,7 @@ const moduleActions: ActionTree<TriggerState, any> = {
       )
     } finally {
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.GETTING,
+        type: SemaphoreTypes.GETTING,
         id: payload.id,
       })
     }
@@ -244,7 +244,7 @@ const moduleActions: ActionTree<TriggerState, any> = {
     }
 
     commit('SET_SEMAPHORE', {
-      type: SemaphoreType.FETCHING,
+      type: SemaphoreTypes.FETCHING,
     })
 
     try {
@@ -264,7 +264,7 @@ const moduleActions: ActionTree<TriggerState, any> = {
       )
     } finally {
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.FETCHING,
+        type: SemaphoreTypes.FETCHING,
       })
     }
   },
@@ -275,35 +275,35 @@ const moduleActions: ActionTree<TriggerState, any> = {
     const notifications: Array<NotificationCreateInterface> = []
 
     for (const actionData of payload.data.actions) {
-      if (actionData.type === ActionEntityTypeType.DEVICE_PROPERTY) {
+      if (actionData.type === ActionEntityTypes.DEVICE_PROPERTY) {
         actions.push(buildCreateDevicePropertyAction(actionData))
-      } else if (actionData.type === ActionEntityTypeType.CHANNEL_PROPERTY) {
+      } else if (actionData.type === ActionEntityTypes.CHANNEL_PROPERTY) {
         actions.push(buildCreateChannelPropertyAction(actionData))
       }
     }
 
-    if (payload.data.type === TriggerEntityTypeType.AUTOMATIC) {
+    if (payload.data.type === TriggerEntityTypes.AUTOMATIC) {
       if (Object.prototype.hasOwnProperty.call(payload.data, 'conditions')) {
         // @ts-ignore
         for (const conditionData of payload.data.conditions) {
-          if (conditionData.type === ConditionEntityTypeType.DEVICE_PROPERTY) {
+          if (conditionData.type === ConditionEntityTypes.DEVICE_PROPERTY) {
             conditions.push(buildCreateDevicePropertyCondition(conditionData))
-          } else if (conditionData.type === ConditionEntityTypeType.CHANNEL_PROPERTY) {
+          } else if (conditionData.type === ConditionEntityTypes.CHANNEL_PROPERTY) {
             conditions.push(buildCreateChannelPropertyCondition(conditionData))
-          } else if (conditionData.type === ConditionEntityTypeType.DATE) {
+          } else if (conditionData.type === ConditionEntityTypes.DATE) {
             conditions.push(buildCreateDateCondition(conditionData))
-          } else if (conditionData.type === ConditionEntityTypeType.TIME) {
+          } else if (conditionData.type === ConditionEntityTypes.TIME) {
             conditions.push(buildCreateTimeCondition(conditionData))
           }
         }
       }
     }
 
-    if (payload.data.type !== TriggerEntityTypeType.CHANNEL_PROPERTY) {
+    if (payload.data.type !== TriggerEntityTypes.CHANNEL_PROPERTY) {
       for (const notificationData of payload.data.notifications) {
-        if (notificationData.type === NotificationEntityTypeType.SMS) {
+        if (notificationData.type === NotificationEntityTypes.SMS) {
           notifications.push(buildCreateSmsNotification(notificationData))
-        } else if (notificationData.type === NotificationEntityTypeType.EMAIL) {
+        } else if (notificationData.type === NotificationEntityTypes.EMAIL) {
           notifications.push(buildCreateEmailNotification(notificationData))
         }
       }
@@ -313,7 +313,7 @@ const moduleActions: ActionTree<TriggerState, any> = {
     const draft = typeof payload.draft !== 'undefined' ? payload.draft : false
 
     commit('SET_SEMAPHORE', {
-      type: SemaphoreType.CREATING,
+      type: SemaphoreTypes.CREATING,
       id,
     })
 
@@ -322,16 +322,16 @@ const moduleActions: ActionTree<TriggerState, any> = {
         data: Object.assign({}, payload.data, { id, draft }),
       })
     } catch (e) {
+      commit('CLEAR_SEMAPHORE', {
+        type: SemaphoreTypes.CREATING,
+        id,
+      })
+
       throw new OrmError(
         'triggers-node.triggers.create.failed',
         e,
         'Create new trigger failed.',
       )
-    } finally {
-      commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.CREATING,
-        id,
-      })
     }
 
     const createdEntity = Trigger.find(id)
@@ -340,7 +340,7 @@ const moduleActions: ActionTree<TriggerState, any> = {
       await Trigger.delete(id)
 
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.CREATING,
+        type: SemaphoreTypes.CREATING,
         id,
       })
 
@@ -349,7 +349,7 @@ const moduleActions: ActionTree<TriggerState, any> = {
 
     if (draft) {
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.CREATING,
+        type: SemaphoreTypes.CREATING,
         id,
       })
 
@@ -412,7 +412,7 @@ const moduleActions: ActionTree<TriggerState, any> = {
         )
       } finally {
         commit('CLEAR_SEMAPHORE', {
-          type: SemaphoreType.CREATING,
+          type: SemaphoreTypes.CREATING,
           id,
         })
       }
@@ -429,7 +429,7 @@ const moduleActions: ActionTree<TriggerState, any> = {
     }
 
     commit('SET_SEMAPHORE', {
-      type: SemaphoreType.UPDATING,
+      type: SemaphoreTypes.UPDATING,
       id: payload.trigger.id,
     })
 
@@ -439,16 +439,16 @@ const moduleActions: ActionTree<TriggerState, any> = {
         data: payload.data,
       })
     } catch (e) {
+      commit('CLEAR_SEMAPHORE', {
+        type: SemaphoreTypes.UPDATING,
+        id: payload.trigger.id,
+      })
+
       throw new OrmError(
         'triggers-node.triggers.update.failed',
         e,
         'Edit trigger failed.',
       )
-    } finally {
-      commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.UPDATING,
-        id: payload.trigger.id,
-      })
     }
 
     const updatedEntity = Trigger.find(payload.trigger.id)
@@ -461,7 +461,7 @@ const moduleActions: ActionTree<TriggerState, any> = {
       })
 
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.UPDATING,
+        type: SemaphoreTypes.UPDATING,
         id: payload.trigger.id,
       })
 
@@ -470,7 +470,7 @@ const moduleActions: ActionTree<TriggerState, any> = {
 
     if (updatedEntity.draft) {
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.UPDATING,
+        type: SemaphoreTypes.UPDATING,
         id: payload.trigger.id,
       })
 
@@ -500,7 +500,7 @@ const moduleActions: ActionTree<TriggerState, any> = {
         )
       } finally {
         commit('CLEAR_SEMAPHORE', {
-          type: SemaphoreType.UPDATING,
+          type: SemaphoreTypes.UPDATING,
           id: payload.trigger.id,
         })
       }
@@ -517,7 +517,7 @@ const moduleActions: ActionTree<TriggerState, any> = {
     }
 
     commit('SET_SEMAPHORE', {
-      type: SemaphoreType.UPDATING,
+      type: SemaphoreTypes.UPDATING,
       id: payload.trigger.id,
     })
 
@@ -525,7 +525,7 @@ const moduleActions: ActionTree<TriggerState, any> = {
 
     if (entityToSave === null) {
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.UPDATING,
+        type: SemaphoreTypes.UPDATING,
         id: payload.trigger.id,
       })
 
@@ -591,7 +591,7 @@ const moduleActions: ActionTree<TriggerState, any> = {
       )
     } finally {
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.UPDATING,
+        type: SemaphoreTypes.UPDATING,
         id: payload.trigger.id,
       })
     }
@@ -615,23 +615,23 @@ const moduleActions: ActionTree<TriggerState, any> = {
     }
 
     commit('SET_SEMAPHORE', {
-      type: SemaphoreType.DELETING,
+      type: SemaphoreTypes.DELETING,
       id: payload.trigger.id,
     })
 
     try {
       await Trigger.delete(payload.trigger.id)
     } catch (e) {
+      commit('CLEAR_SEMAPHORE', {
+        type: SemaphoreTypes.DELETING,
+        id: payload.trigger.id,
+      })
+
       throw new OrmError(
         'triggers-node.triggers.delete.failed',
         e,
         'Delete trigger failed.',
       )
-    } finally {
-      commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.DELETING,
-        id: payload.trigger.id,
-      })
     }
 
     if (payload.trigger.draft) {
@@ -657,7 +657,7 @@ const moduleActions: ActionTree<TriggerState, any> = {
         })
 
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.DELETING,
+        type: SemaphoreTypes.DELETING,
         id: payload.trigger.id,
       })
 
@@ -701,7 +701,7 @@ const moduleActions: ActionTree<TriggerState, any> = {
         )
       } finally {
         commit('CLEAR_SEMAPHORE', {
-          type: SemaphoreType.DELETING,
+          type: SemaphoreTypes.DELETING,
           id: payload.trigger.id,
         })
       }
@@ -724,32 +724,32 @@ const moduleMutations: MutationTree<TriggerState> = {
 
   ['SET_SEMAPHORE'](state: TriggerState, action: SemaphoreAction): void {
     switch (action.type) {
-      case SemaphoreType.FETCHING:
+      case SemaphoreTypes.FETCHING:
         state.semaphore.fetching.items = true
         break
 
-      case SemaphoreType.GETTING:
+      case SemaphoreTypes.GETTING:
         state.semaphore.fetching.item.push(get(action, 'id', 'notValid'))
 
         // Make all keys uniq
         state.semaphore.fetching.item = uniq(state.semaphore.fetching.item)
         break
 
-      case SemaphoreType.CREATING:
+      case SemaphoreTypes.CREATING:
         state.semaphore.creating.push(get(action, 'id', 'notValid'))
 
         // Make all keys uniq
         state.semaphore.creating = uniq(state.semaphore.creating)
         break
 
-      case SemaphoreType.UPDATING:
+      case SemaphoreTypes.UPDATING:
         state.semaphore.updating.push(get(action, 'id', 'notValid'))
 
         // Make all keys uniq
         state.semaphore.updating = uniq(state.semaphore.updating)
         break
 
-      case SemaphoreType.DELETING:
+      case SemaphoreTypes.DELETING:
         state.semaphore.deleting.push(get(action, 'id', 'notValid'))
 
         // Make all keys uniq
@@ -760,11 +760,11 @@ const moduleMutations: MutationTree<TriggerState> = {
 
   ['CLEAR_SEMAPHORE'](state: TriggerState, action: SemaphoreAction): void {
     switch (action.type) {
-      case SemaphoreType.FETCHING:
+      case SemaphoreTypes.FETCHING:
         state.semaphore.fetching.items = false
         break
 
-      case SemaphoreType.GETTING:
+      case SemaphoreTypes.GETTING:
         // Process all semaphore items
         state.semaphore.fetching.item
           .forEach((item: string, index: number): void => {
@@ -776,7 +776,7 @@ const moduleMutations: MutationTree<TriggerState> = {
           })
         break
 
-      case SemaphoreType.CREATING:
+      case SemaphoreTypes.CREATING:
         // Process all semaphore items
         state.semaphore.creating
           .forEach((item: string, index: number): void => {
@@ -788,7 +788,7 @@ const moduleMutations: MutationTree<TriggerState> = {
           })
         break
 
-      case SemaphoreType.UPDATING:
+      case SemaphoreTypes.UPDATING:
         // Process all semaphore items
         state.semaphore.updating
           .forEach((item: string, index: number): void => {
@@ -800,7 +800,7 @@ const moduleMutations: MutationTree<TriggerState> = {
           })
         break
 
-      case SemaphoreType.DELETING:
+      case SemaphoreTypes.DELETING:
         // Process all semaphore items
         state.semaphore.deleting
           .forEach((item: string, index: number): void => {

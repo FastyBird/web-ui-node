@@ -1,11 +1,11 @@
 import { TJsonaModel } from 'jsona/lib/JsonaTypes'
 
-import { TriggerEntityTypeType } from '~/models/triggers-node/triggers/types'
-import { ActionEntityTypeType } from '~/models/triggers-node/actions/types'
-import { ConditionEntityTypeType } from '~/models/triggers-node/conditions/types'
-import { NotificationEntityTypeType } from '~/models/triggers-node/notifications/types'
+import { TriggerEntityTypes } from '~/models/triggers-node/triggers/types'
+import { ActionEntityTypes } from '~/models/triggers-node/actions/types'
+import { ConditionEntityTypes } from '~/models/triggers-node/conditions/types'
+import { NotificationEntityTypes } from '~/models/triggers-node/notifications/types'
 
-export enum ConditionOperatorType {
+export enum ConditionOperatorTypes {
   STATE_VALUE_EQUAL = 'eq',
   STATE_VALUE_ABOVE = 'above',
   STATE_VALUE_BELOW = 'below',
@@ -13,27 +13,27 @@ export enum ConditionOperatorType {
 
 export interface TriggerJsonModelInterface extends TJsonaModel {
   id: string
-  type: TriggerEntityTypeType
+  type: TriggerEntityTypes
 }
 
 export interface ActionJsonModelInterface extends TJsonaModel {
   id: string
-  type: ActionEntityTypeType
+  type: ActionEntityTypes
 }
 
 export interface ConditionJsonModelInterface extends TJsonaModel {
   id: string
-  type: ConditionEntityTypeType
+  type: ConditionEntityTypes
 }
 
 export interface NotificationJsonModelInterface extends TJsonaModel {
   id: string
-  type: NotificationEntityTypeType
+  type: NotificationEntityTypes
 }
 
 export interface RelationInterface extends TJsonaModel {
   id: string
-  type: TriggerEntityTypeType | ActionEntityTypeType | NotificationEntityTypeType | ConditionEntityTypeType
+  type: TriggerEntityTypes | ActionEntityTypes | NotificationEntityTypes | ConditionEntityTypes
 }
 
 export const ModuleOriginType = 'com.fastybird.triggers-node'

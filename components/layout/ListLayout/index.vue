@@ -3,9 +3,9 @@
     <div class="fb-list-layout__list-column">
       <list-items-search :search-placeholder="searchPlaceholder" />
 
-      <div class="fb-list-layout__items">
+      <scroll-shadow class="fb-list-layout__items">
         <slot name="items" />
-      </div>
+      </scroll-shadow>
     </div>
 
     <div

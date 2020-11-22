@@ -15,15 +15,15 @@ import clone from 'lodash/clone'
 import get from 'lodash/get'
 
 import Device from '~/models/devices-node/devices/Device'
-import { DeviceEntityTypeType } from '~/models/devices-node/devices/types'
-import { DevicePropertyEntityTypeType } from '~/models/devices-node/device-properties/types'
-import { DeviceConfigurationEntityTypeType } from '~/models/devices-node/device-configuration/types'
-import { HardwareEntityTypeType } from '~/models/devices-node/hardwares/types'
-import { FirmwareEntityTypeType } from '~/models/devices-node/firmwares/types'
+import { DeviceEntityTypes } from '~/models/devices-node/devices/types'
+import { DevicePropertyEntityTypes } from '~/models/devices-node/device-properties/types'
+import { DeviceConfigurationEntityTypes } from '~/models/devices-node/device-configuration/types'
+import { HardwareEntityTypes } from '~/models/devices-node/hardwares/types'
+import { FirmwareEntityTypes } from '~/models/devices-node/firmwares/types'
 import Channel from '~/models/devices-node/channels/Channel'
-import { ChannelEntityTypeType } from '~/models/devices-node/channels/types'
-import { ChannelPropertyEntityTypeType } from '~/models/devices-node/channel-properties/types'
-import { ChannelConfigurationEntityTypeType } from '~/models/devices-node/channel-configuration/types'
+import { ChannelEntityTypes } from '~/models/devices-node/channels/types'
+import { ChannelPropertyEntityTypes } from '~/models/devices-node/channel-properties/types'
+import { ChannelConfigurationEntityTypes } from '~/models/devices-node/channel-configuration/types'
 import { RelationInterface } from '~/models/devices-node/types'
 
 const RELATIONSHIP_NAMES_PROP = 'relationshipNames'
@@ -33,22 +33,22 @@ export class JsonApiModelPropertiesMapper extends ModelPropertiesMapper implemen
     const exceptProps = ['id', '$id', 'type', 'draft', RELATIONSHIP_NAMES_PROP]
 
     if (
-      model.type === ChannelEntityTypeType.CHANNEL ||
-      model.type === DevicePropertyEntityTypeType.PROPERTY ||
-      model.type === DeviceConfigurationEntityTypeType.BOOLEAN ||
-      model.type === DeviceConfigurationEntityTypeType.NUMBER ||
-      model.type === DeviceConfigurationEntityTypeType.SELECT ||
-      model.type === DeviceConfigurationEntityTypeType.TEXT ||
-      model.type === HardwareEntityTypeType.HARDWARE ||
-      model.type === FirmwareEntityTypeType.FIRMWARE
+      model.type === ChannelEntityTypes.CHANNEL ||
+      model.type === DevicePropertyEntityTypes.PROPERTY ||
+      model.type === DeviceConfigurationEntityTypes.BOOLEAN ||
+      model.type === DeviceConfigurationEntityTypes.NUMBER ||
+      model.type === DeviceConfigurationEntityTypes.SELECT ||
+      model.type === DeviceConfigurationEntityTypes.TEXT ||
+      model.type === HardwareEntityTypes.HARDWARE ||
+      model.type === FirmwareEntityTypes.FIRMWARE
     ) {
       exceptProps.push('deviceId')
     } else if (
-      model.type === ChannelPropertyEntityTypeType.PROPERTY ||
-      model.type === ChannelConfigurationEntityTypeType.BOOLEAN ||
-      model.type === ChannelConfigurationEntityTypeType.NUMBER ||
-      model.type === ChannelConfigurationEntityTypeType.SELECT ||
-      model.type === ChannelConfigurationEntityTypeType.TEXT
+      model.type === ChannelPropertyEntityTypes.PROPERTY ||
+      model.type === ChannelConfigurationEntityTypes.BOOLEAN ||
+      model.type === ChannelConfigurationEntityTypes.NUMBER ||
+      model.type === ChannelConfigurationEntityTypes.SELECT ||
+      model.type === ChannelConfigurationEntityTypes.TEXT
     ) {
       exceptProps.push('channelId')
     }
@@ -207,11 +207,11 @@ export class JsonApiPropertiesMapper extends JsonPropertiesMapper implements IJs
               },
             )
           } else if (
-            get(relation, 'type') === DeviceEntityTypeType.PHYSICAL
+            get(relation, 'type') === DeviceEntityTypes.PHYSICAL
           ) {
             Object.assign(model, { deviceId: get(relation, 'id') })
           } else if (
-            get(relation, 'type') === ChannelEntityTypeType.CHANNEL
+            get(relation, 'type') === ChannelEntityTypes.CHANNEL
           ) {
             Object.assign(model, { channelId: get(relation, 'id') })
           } else {

@@ -5,10 +5,10 @@ import { DeviceInterface } from '~/models/devices-node/devices/types'
 
 export interface HardwareInterface {
   id: string
-  type: HardwareEntityTypeType
+  type: HardwareEntityTypes
 
-  model: HardwareModelType
-  manufacturer: HardwareManufacturerType
+  model: HardwareModelTypes
+  manufacturer: HardwareManufacturerTypes
   version: string | null
   macAddress: string | null
 
@@ -27,18 +27,18 @@ export interface HardwareInterface {
 // ENTITY TYPES
 // ============
 
-export enum HardwareEntityTypeType {
+export enum HardwareEntityTypes {
   HARDWARE = 'devices-node/hardware',
 }
 
-export enum HardwareManufacturerType {
+export enum HardwareManufacturerTypes {
   GENERIC = 'generic',
   FASTYBIRD = 'fastybird',
   ITEAD = 'itead',
   AI_THINKER = 'ai_thinker',
 }
 
-export enum HardwareModelType {
+export enum HardwareModelTypes {
   CUSTOM = 'custom',
 
   SONOFF_BASIC = 'sonoff_basic',

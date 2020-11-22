@@ -7,14 +7,14 @@ import {
 } from 'jsona/lib/JsonaTypes'
 
 import {
-  AccountEntityTypeType,
+  AccountEntityTypes,
   AccountInterface,
 } from '~/models/auth-node/accounts/types'
 
 // STORE
 // =====
 
-export enum SemaphoreType {
+export enum SemaphoreTypes {
   FETCHING = 'fetching',
   GETTING = 'getting',
   CREATING = 'creating',
@@ -27,7 +27,7 @@ export enum SemaphoreType {
 
 export interface EmailInterface {
   readonly id: string
-  readonly type: EmailEntityTypeType
+  readonly type: EmailEntityTypes
 
   draft: boolean
 
@@ -52,7 +52,7 @@ export interface EmailInterface {
 // ENTITY TYPES
 // ============
 
-export enum EmailEntityTypeType {
+export enum EmailEntityTypes {
   EMAIL = 'auth-node/email',
 }
 
@@ -66,13 +66,13 @@ interface EmailAttributesResponseInterface {
   verified: boolean
 }
 
-interface EmailAccountRelationhipResponseInterface extends TJsonApiRelationshipData {
+interface EmailAccountRelationshipResponseInterface extends TJsonApiRelationshipData {
   id: string
-  type: AccountEntityTypeType
+  type: AccountEntityTypes
 }
 
 interface EmailAccountRelationshipsResponseInterface extends TJsonApiRelation {
-  data: EmailAccountRelationhipResponseInterface
+  data: EmailAccountRelationshipResponseInterface
 }
 
 interface EmailRelationshipsResponseInterface extends TJsonApiRelationships {
@@ -81,7 +81,7 @@ interface EmailRelationshipsResponseInterface extends TJsonApiRelationships {
 
 export interface EmailDataResponseInterface extends TJsonApiData {
   id: string,
-  type: EmailEntityTypeType,
+  type: EmailEntityTypes,
   attributes: EmailAttributesResponseInterface,
   relationships: EmailRelationshipsResponseInterface,
 }
@@ -107,7 +107,7 @@ export enum RoutingKeys {
 // ========================
 
 export interface EmailCreateInterface {
-  type: EmailEntityTypeType
+  type: EmailEntityTypes
 
   address: string
   default?: boolean

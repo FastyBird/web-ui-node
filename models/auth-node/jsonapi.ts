@@ -15,9 +15,9 @@ import clone from 'lodash/clone'
 import get from 'lodash/get'
 
 import Account from '~/models/auth-node/accounts/Account'
-import { AccountEntityTypeType } from '~/models/auth-node/accounts/types'
-import { IdentityEntityTypeType } from '~/models/auth-node/identities/types'
-import { EmailEntityTypeType } from '~/models/auth-node/emails/types'
+import { AccountEntityTypes } from '~/models/auth-node/accounts/types'
+import { IdentityEntityTypes } from '~/models/auth-node/identities/types'
+import { EmailEntityTypes } from '~/models/auth-node/emails/types'
 
 const RELATIONSHIP_NAMES_PROP = 'relationshipNames'
 
@@ -25,7 +25,7 @@ export class JsonApiModelPropertiesMapper extends ModelPropertiesMapper implemen
   getAttributes(model: TJsonaModel) {
     const exceptProps = ['id', '$id', 'type', 'draft', RELATIONSHIP_NAMES_PROP]
 
-    if (model.type === AccountEntityTypeType.USER) {
+    if (model.type === AccountEntityTypes.USER) {
       exceptProps.push('device')
       exceptProps.push('firstName')
       exceptProps.push('lastName')
@@ -33,19 +33,18 @@ export class JsonApiModelPropertiesMapper extends ModelPropertiesMapper implemen
       exceptProps.push('timezone')
       exceptProps.push('dateFormat')
       exceptProps.push('timeFormat')
-    } else if (model.type === AccountEntityTypeType.MACHINE) {
+    } else if (model.type === AccountEntityTypes.MACHINE) {
       exceptProps.push('details')
       exceptProps.push('language')
       exceptProps.push('weekStart')
       exceptProps.push('datetime')
-    } else if (model.type === IdentityEntityTypeType.USER) {
-      exceptProps.push('password')
+    } else if (model.type === IdentityEntityTypes.USER) {
       exceptProps.push('account')
       exceptProps.push('accountId')
-    } else if (model.type === IdentityEntityTypeType.MACHINE) {
+    } else if (model.type === IdentityEntityTypes.MACHINE) {
       exceptProps.push('account')
       exceptProps.push('accountId')
-    } else if (model.type === EmailEntityTypeType.EMAIL) {
+    } else if (model.type === EmailEntityTypes.EMAIL) {
       exceptProps.push('account')
       exceptProps.push('accountId')
     }
@@ -65,7 +64,7 @@ export class JsonApiModelPropertiesMapper extends ModelPropertiesMapper implemen
         }
       })
 
-    if (model.type === AccountEntityTypeType.USER) {
+    if (model.type === AccountEntityTypes.USER) {
       attributes.details = {}
       attributes.datetime = {}
 
@@ -197,8 +196,8 @@ export class JsonApiPropertiesMapper extends JsonPropertiesMapper implements IJs
               },
             )
           } else if (
-            get(relation, 'type') === AccountEntityTypeType.USER ||
-            get(relation, 'type') === AccountEntityTypeType.MACHINE
+            get(relation, 'type') === AccountEntityTypes.USER ||
+            get(relation, 'type') === AccountEntityTypes.MACHINE
           ) {
             Object.assign(model, { accountId: get(relation, 'id') })
           } else {

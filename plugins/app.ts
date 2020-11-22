@@ -10,18 +10,23 @@ import VueCompositionApi from '@vue/composition-api'
 
 import FastyBirdTheme,
 {
+  FbUiAlert,
   FbUiButton,
   FbUiContent,
   FbUiConfirmationWindow,
-  FbUiItemsContainer,
   FbUiDivider,
+  FbUiItemsContainer,
+  FbUiIconWithChild,
   FbUiLoadingBox,
   FbUiMediaItem,
   FbUiModalForm,
   FbUiModalInfo,
   FbUiModalHeader,
   FbUiModalHeaderIcon,
+  FbUiModalWindow,
   FbUiNoResults,
+  FbUiResultErr,
+  FbUiResultOk,
   FbUiSpinner,
   FbUiSwitchElement,
   FbUiTransitionExpand,
@@ -38,6 +43,8 @@ import FastyBirdTheme,
   FbLayoutHeaderHeading,
   FbLayoutHeaderButton,
   FbLayoutHeaderContent,
+  FbLayoutHeaderIcon,
+  FbLayoutHeaderMenuButton,
   FbLayoutHeaderSpacer,
   FbLayoutNavigation,
   FbLayoutNavigationItem,
@@ -61,24 +68,17 @@ import FastyBirdTheme,
 import PrettyCheckbox from 'pretty-checkbox-vue'
 
 // Layout components
-// @ts-ignore
-import DesktopDetailHeading from '~/components/layout/DesktopDetailHeading'
-// @ts-ignore
-import DesktopDetailToolbar from '~/components/layout/DesktopDetailToolbar'
-// @ts-ignore
-import ExpandableBox from '~/components/layout/ExpandableBox'
-// @ts-ignore
-import ListItem from '~/components/layout/ListItem'
-// @ts-ignore
-import ListLayout from '~/components/layout/ListLayout'
-// @ts-ignore
-import ListItemsSearch from '~/components/layout/ListItemsSearch'
-// @ts-ignore
-import OffCanvas from '~/components/layout/OffCanvas'
-// @ts-ignore
-import OffCanvasBody from '~/components/layout/OffCanvas/Body'
-// @ts-ignore
-import SettingsListItem from '~/components/layout/SettingsListItem'
+import DesktopDetailHeading from '~/components/layout/DesktopDetailHeading/index.vue'
+import DesktopDetailToolbar from '~/components/layout/DesktopDetailToolbar/index.vue'
+import ExpandableBox from '~/components/layout/ExpandableBox/index.vue'
+import ListItem from '~/components/layout/ListItem/index.vue'
+import ListLayout from '~/components/layout/ListLayout/index.vue'
+import ListItemsSearch from '~/components/layout/ListItemsSearch/index.vue'
+import NoResults from '~/components/layout/NoResults/index.vue'
+import OffCanvas from '~/components/layout/OffCanvas/index.vue'
+import OffCanvasBody from '~/components/layout/OffCanvas/Body/index.vue'
+import OffCanvasButton from '~/components/layout/OffCanvas/Button/index.vue'
+import ScrollShadow from '~/components/layout/ScrollShadow/index.vue'
 
 import HelpersMixin from '~/mixins/helpers'
 
@@ -94,22 +94,29 @@ Vue.component('ExpandableBox', ExpandableBox)
 Vue.component('ListItem', ListItem)
 Vue.component('ListLayout', ListLayout)
 Vue.component('ListItemsSearch', ListItemsSearch)
+Vue.component('NoResults', NoResults)
 Vue.component('OffCanvas', OffCanvas)
 Vue.component('OffCanvasBody', OffCanvasBody)
-Vue.component('SettingsListItem', SettingsListItem)
+Vue.component('OffCanvasButton', OffCanvasButton)
+Vue.component('ScrollShadow', ScrollShadow)
 
+Vue.component('FbUiAlert', FbUiAlert)
 Vue.component('FbUiButton', FbUiButton)
 Vue.component('FbUiContent', FbUiContent)
 Vue.component('FbUiConfirmationWindow', FbUiConfirmationWindow)
-Vue.component('FbUiItemsContainer', FbUiItemsContainer)
 Vue.component('FbUiDivider', FbUiDivider)
+Vue.component('FbUiItemsContainer', FbUiItemsContainer)
+Vue.component('FbUiIconWithChild', FbUiIconWithChild)
 Vue.component('FbUiLoadingBox', FbUiLoadingBox)
 Vue.component('FbUiMediaItem', FbUiMediaItem)
 Vue.component('FbUiModalForm', FbUiModalForm)
 Vue.component('FbUiModalInfo', FbUiModalInfo)
 Vue.component('FbUiModalHeader', FbUiModalHeader)
 Vue.component('FbUiModalHeaderIcon', FbUiModalHeaderIcon)
+Vue.component('FbUiModalWindow', FbUiModalWindow)
 Vue.component('FbUiNoResults', FbUiNoResults)
+Vue.component('FbUiResultErr', FbUiResultErr)
+Vue.component('FbUiResultOk', FbUiResultOk)
 Vue.component('FbUiSpinner', FbUiSpinner)
 Vue.component('FbUiSwitchElement', FbUiSwitchElement)
 Vue.component('FbUiTransitionExpand', FbUiTransitionExpand)
@@ -128,6 +135,8 @@ Vue.component('FbLayoutHeader', FbLayoutHeader)
 Vue.component('FbLayoutHeaderHeading', FbLayoutHeaderHeading)
 Vue.component('FbLayoutHeaderButton', FbLayoutHeaderButton)
 Vue.component('FbLayoutHeaderContent', FbLayoutHeaderContent)
+Vue.component('FbLayoutHeaderIcon', FbLayoutHeaderIcon)
+Vue.component('FbLayoutHeaderMenuButton', FbLayoutHeaderMenuButton)
 Vue.component('FbLayoutHeaderSpacer', FbLayoutHeaderSpacer)
 Vue.component('FbLayoutNavigation', FbLayoutNavigation)
 Vue.component('FbLayoutNavigationItem', FbLayoutNavigationItem)

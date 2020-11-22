@@ -5,10 +5,10 @@ import { DeviceInterface } from '~/models/devices-node/devices/types'
 
 export interface FirmwareInterface {
   id: string
-  type: FirmwareEntityTypeType
+  type: FirmwareEntityTypes
 
   name: string | null
-  manufacturer: FirmwareManufacturerType
+  manufacturer: FirmwareManufacturerTypes
   version: string | null
 
   relationshipNames: Array<string>
@@ -21,11 +21,11 @@ export interface FirmwareInterface {
 // ENTITY TYPES
 // ============
 
-export enum FirmwareEntityTypeType {
+export enum FirmwareEntityTypes {
   FIRMWARE = 'devices-node/firmware',
 }
 
-export enum FirmwareManufacturerType {
+export enum FirmwareManufacturerTypes {
   GENERIC = 'generic',
   FASTYBIRD = 'fastybird',
 }

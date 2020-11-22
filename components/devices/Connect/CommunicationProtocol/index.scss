@@ -1,0 +1,35 @@
+@import "~assets/scss/variables";
+@import "~assets/scss/mixins";
+
+.fb-devices-connect-select-protocol {
+  &__container {
+
+  }
+
+  &__row {
+    @include flexRow;
+    flex-wrap: wrap;
+
+    &-item {
+      -webkit-box-flex: 0;
+      -ms-flex: 0 0 50%;
+      flex: 0 0 50%;
+      max-width: 50%;
+
+      margin-bottom: $margin-sm;
+      padding: $padding-xs;
+
+      .fb-ui-button[data-size="lg"] {
+        text-align: center;
+        font-size: 1.8rem;
+        overflow: hidden;
+
+        svg {
+          display: block;
+          margin: 0 auto $margin-sm auto;
+          font-size: 2em;
+        }
+      }
+    }
+  }
+}

@@ -5,7 +5,7 @@
   >
     <list-item
       :variant="listItemTypes.DEFAULT"
-      @click="toggleState"
+      @click="handleToggleState"
       class="fb-triggers-select-condition-device-property__property"
     >
       <template slot="heading">
@@ -22,7 +22,7 @@
 
     <div class="fb-triggers-select-condition-device-property__conditions">
       <fb-form-radio-buttons-group
-        ref="conditionsGroup"
+        ref="conditionsGroupElement"
         v-if="property.isEnum"
         v-model="form.model.operand"
         :size="sizeTypes.SMALL"
@@ -47,7 +47,7 @@
           <template slot="detail">
             <fb-form-radio-button
               :label="item"
-              :group="conditionsGroup"
+              :group="conditionsGroupElement"
               :id="`value-${item}`"
               name="value"
             >
@@ -67,7 +67,7 @@
       <list-item
         v-else-if="property.isBoolean"
         :variant="listItemTypes.LIST"
-        @click="propertyChanged"
+        @click="handlePropertyChanged"
         class="fb-triggers-select-condition-device-property__condition"
       >
         <template slot="heading">
@@ -79,7 +79,7 @@
             :status="form.model.operand"
             :disabled="!form.model.selected"
             :variant="switchVariantTypes.PRIMARY"
-            @change="propertyChanged"
+            @change="handlePropertyChanged"
           />
         </template>
       </list-item>
@@ -138,30 +138,30 @@ import {
   FbUiSwitchElementVariantTypes,
 } from '@fastybird/web-ui-theme'
 
-import { ConditionOperatorType } from '~/models/triggers-node/types'
+import { ConditionOperatorTypes } from '~/models/triggers-node/types'
 
 import { DevicePropertyInterface } from '~/models/devices-node/device-properties/types'
 import { ChannelPropertyInterface } from '~/models/devices-node/channel-properties/types'
 
 import { ListItemSizeTypes } from '~/components/layout/ListItem/index.vue'
 
+interface TriggersSelectConditionDevicePropertyFormInterface {
+  model: {
+    selected: boolean
+    operator: ConditionOperatorTypes
+    operand: string | boolean | null
+  }
+}
+
 interface TriggersSelectConditionDevicePropertyValueInterface {
   selected: boolean
-  operator: ConditionOperatorType
+  operator: ConditionOperatorTypes
   operand: string | boolean | null
 }
 
 interface TriggersSelectConditionDevicePropertyPropsInterface {
   value: TriggersSelectConditionDevicePropertyValueInterface
   property: DevicePropertyInterface | ChannelPropertyInterface
-}
-
-interface TriggersSelectConditionDevicePropertyFormInterface {
-  model: {
-    selected: boolean
-    operator: ConditionOperatorType
-    operand: string | boolean | null
-  }
 }
 
 export default defineComponent({
@@ -185,7 +185,7 @@ export default defineComponent({
   setup(props: TriggersSelectConditionDevicePropertyPropsInterface, context: SetupContext) {
     const isMounted = ref<boolean>(false)
 
-    const conditionsGroup = ref<InstanceType<typeof FbFormRadioButtonsGroup> | null>(null)
+    const conditionsGroupElement = ref<InstanceType<typeof FbFormRadioButtonsGroup> | null>(null)
 
     const form = reactive<TriggersSelectConditionDevicePropertyFormInterface>({
       model: {
@@ -197,20 +197,16 @@ export default defineComponent({
 
     const operator = [
       {
-        value: ConditionOperatorType.STATE_VALUE_BELOW,
+        value: ConditionOperatorTypes.STATE_VALUE_BELOW,
         name: '<',
       }, {
-        value: ConditionOperatorType.STATE_VALUE_EQUAL,
+        value: ConditionOperatorTypes.STATE_VALUE_EQUAL,
         name: '=',
       }, {
-        value: ConditionOperatorType.STATE_VALUE_ABOVE,
+        value: ConditionOperatorTypes.STATE_VALUE_ABOVE,
         name: '>',
       },
     ]
-
-    onMounted((): void => {
-      isMounted.value = true
-    })
 
     function emitUpdate(): void {
       context.emit('input', Object.assign(props.value, {
@@ -226,13 +222,13 @@ export default defineComponent({
       })
     }
 
-    function propertyChanged(): void {
+    function handlePropertyChanged(): void {
       form.model.operand = !form.model.operand
 
       emitUpdate()
     }
 
-    function toggleState(event: MouseEvent): void {
+    function handleToggleState(event: MouseEvent): void {
       const path = context.root.getEventElementsPath(event)
 
       const isFormElement = path.find((pathItem): boolean => {
@@ -251,6 +247,10 @@ export default defineComponent({
 
       form.model.selected = !form.model.selected
     }
+
+    onMounted((): void => {
+      isMounted.value = true
+    })
 
     watch(
       () => form.model.operator,
@@ -290,9 +290,9 @@ export default defineComponent({
     return {
       form,
       operator,
-      propertyChanged,
-      toggleState,
-      conditionsGroup,
+      conditionsGroupElement,
+      handlePropertyChanged,
+      handleToggleState,
       listItemTypes: ListItemSizeTypes,
       sizeTypes: FbSizeTypes,
       switchVariantTypes: FbUiSwitchElementVariantTypes,

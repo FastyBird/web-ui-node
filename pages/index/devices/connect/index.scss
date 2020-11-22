@@ -1,0 +1,44 @@
+@import "~assets/scss/variables";
+
+.fb-devices-connect-view {
+  &__step-1,
+  &__step-2,
+  &__step-3 {
+    display: block;
+    padding: $padding-sm;
+  }
+
+  &__step-4,
+  &__step-5 {
+    text-align: center;
+    padding-top: $padding-lg;
+
+    svg {
+      display: inline-block;
+      font-size: 5rem;
+      line-height: 10rem;
+      text-align: center;
+      width: 10rem;
+      height: 10rem;
+    }
+
+    .fb-ui-spinner__container[data-size="lg"] {
+      width: 9.5rem;
+      height: 9.5rem;
+      position: relative;
+      display: inline-block;
+    }
+
+    .fb-ui-spinner__container[data-size="lg"]:before,
+    .fb-ui-spinner__container[data-size="lg"]:after {
+      width: 9.5rem;
+      height: 9.5rem;
+      margin: -4.75rem 0 0 -4.75rem;
+      border-width: 4px;
+    }
+
+    &-error {
+      color: $brand-danger;
+    }
+  }
+}

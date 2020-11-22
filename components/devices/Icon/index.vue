@@ -1,6 +1,6 @@
 <template>
   <div
-    :data-state="device.state"
+    :data-device-state="device.state"
     class="fb-devices-icon__container"
   >
     <fb-ui-icon-with-child>
@@ -25,10 +25,6 @@ import {
 import {
   DeviceInterface,
 } from '~/models/devices-node/devices/types'
-
-interface DevicesIconInterface {
-  device: DeviceInterface,
-}
 
 export default defineComponent({
 

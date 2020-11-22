@@ -1,35 +1,35 @@
 import { TJsonaModel } from 'jsona/lib/JsonaTypes'
 
-import { DeviceEntityTypeType } from '~/models/devices-node/devices/types'
-import { DevicePropertyEntityTypeType } from '~/models/devices-node/device-properties/types'
-import { ChannelEntityTypeType } from '~/models/devices-node/channels/types'
-import { ChannelPropertyEntityTypeType } from '~/models/devices-node/channel-properties/types'
-import { HardwareEntityTypeType } from '~/models/devices-node/hardwares/types'
-import { FirmwareEntityTypeType } from '~/models/devices-node/firmwares/types'
+import { DeviceEntityTypes } from '~/models/devices-node/devices/types'
+import { DevicePropertyEntityTypes } from '~/models/devices-node/device-properties/types'
+import { ChannelEntityTypes } from '~/models/devices-node/channels/types'
+import { ChannelPropertyEntityTypes } from '~/models/devices-node/channel-properties/types'
+import { HardwareEntityTypes } from '~/models/devices-node/hardwares/types'
+import { FirmwareEntityTypes } from '~/models/devices-node/firmwares/types'
 
 export interface DeviceJsonModelInterface extends TJsonaModel {
   id: string
-  type: DeviceEntityTypeType
+  type: DeviceEntityTypes
 }
 
 export interface DevicePropertyJsonModelInterface extends TJsonaModel {
   id: string
-  type: DevicePropertyEntityTypeType
+  type: DevicePropertyEntityTypes
 }
 
 export interface ChannelJsonModelInterface extends TJsonaModel {
   id: string
-  type: ChannelEntityTypeType
+  type: ChannelEntityTypes
 }
 
 export interface ChannelPropertyJsonModelInterface extends TJsonaModel {
   id: string
-  type: ChannelPropertyEntityTypeType
+  type: ChannelPropertyEntityTypes
 }
 
 export interface RelationInterface extends TJsonaModel {
   id: string
-  type: DeviceEntityTypeType | ChannelEntityTypeType | DevicePropertyEntityTypeType | ChannelPropertyEntityTypeType | HardwareEntityTypeType | FirmwareEntityTypeType
+  type: DeviceEntityTypes | ChannelEntityTypes | DevicePropertyEntityTypes | ChannelPropertyEntityTypes | HardwareEntityTypes | FirmwareEntityTypes
 }
 
 export const ModuleOriginType = 'com.fastybird.devices-node'

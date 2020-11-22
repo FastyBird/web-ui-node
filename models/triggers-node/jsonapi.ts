@@ -16,9 +16,9 @@ import get from 'lodash/get'
 import { format as dateFormat } from 'date-fns'
 
 import Trigger from '~/models/triggers-node/triggers/Trigger'
-import { TriggerEntityTypeType } from '~/models/triggers-node/triggers/types'
+import { TriggerEntityTypes } from '~/models/triggers-node/triggers/types'
 import { RelationInterface } from '~/models/triggers-node/types'
-import { ConditionEntityTypeType } from '~/models/triggers-node/conditions/types'
+import { ConditionEntityTypes } from '~/models/triggers-node/conditions/types'
 
 const RELATIONSHIP_NAMES_PROP = 'relationshipNames'
 
@@ -27,14 +27,14 @@ export class JsonApiModelPropertiesMapper extends ModelPropertiesMapper implemen
     const exceptProps = ['id', '$id', 'type', 'draft', RELATIONSHIP_NAMES_PROP]
 
     if (
-      model.type !== TriggerEntityTypeType.AUTOMATIC &&
-      model.type !== TriggerEntityTypeType.MANUAL &&
-      model.type !== TriggerEntityTypeType.CHANNEL_PROPERTY
+      model.type !== TriggerEntityTypes.AUTOMATIC &&
+      model.type !== TriggerEntityTypes.MANUAL &&
+      model.type !== TriggerEntityTypes.CHANNEL_PROPERTY
     ) {
       exceptProps.push('triggerId')
     } else if (
-      model.type === ConditionEntityTypeType.DATE ||
-      model.type === ConditionEntityTypeType.TIME
+      model.type === ConditionEntityTypes.DATE ||
+      model.type === ConditionEntityTypes.TIME
     ) {
       exceptProps.push('channel')
       exceptProps.push('device')
@@ -197,9 +197,9 @@ export class JsonApiPropertiesMapper extends JsonPropertiesMapper implements IJs
               },
             )
           } else if (
-            get(relation, 'type') === TriggerEntityTypeType.AUTOMATIC ||
-            get(relation, 'type') === TriggerEntityTypeType.MANUAL ||
-            get(relation, 'type') === TriggerEntityTypeType.CHANNEL_PROPERTY
+            get(relation, 'type') === TriggerEntityTypes.AUTOMATIC ||
+            get(relation, 'type') === TriggerEntityTypes.MANUAL ||
+            get(relation, 'type') === TriggerEntityTypes.CHANNEL_PROPERTY
           ) {
             Object.assign(model, { triggerId: get(relation, 'id') })
           } else {

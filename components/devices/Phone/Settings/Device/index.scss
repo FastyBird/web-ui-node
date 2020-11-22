@@ -1,0 +1,34 @@
+@import "~assets/scss/variables.scss";
+
+.fb-devices-phone-settings-device {
+  &__container {
+
+  }
+
+  &__heading {
+    font-size: $heading-font-size-md;
+    line-height: $heading-line-height-md;
+    border-bottom: 1px solid $gray-lighter;
+    padding-left: $padding-md;
+    margin: $margin-sm 0 0 0;
+  }
+
+  &__channels {
+    .fb-ui-items-container__items {
+      padding: 0;
+    }
+  }
+
+  &__general {
+    .fb-ui-items-container__items {
+      padding-left: 0;
+      padding-right: 0;
+    }
+  }
+
+  &__item {
+    &-remove {
+      color: $brand-danger;
+    }
+  }
+}

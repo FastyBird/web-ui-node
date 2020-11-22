@@ -1,0 +1,18 @@
+@import "~assets/scss/variables";
+
+.fb-triggers-phone-select-type {
+  &__container {
+
+  }
+
+  &__select-type {
+    .fb-ui-divider__container {
+      margin: 0;
+    }
+
+    .fb-ui-button[data-variant="link"] {
+      font-size: $font-size-lg;
+      padding: $margin-sm;
+    }
+  }
+}

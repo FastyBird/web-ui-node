@@ -1,0 +1,9 @@
+@import "~assets/scss/variables";
+
+.fb-devices-settings-channel-reset {
+  &__icon {
+    color: $brand-danger;
+    font-size: 8rem;
+    margin: $margin-lg 0 $margin-md 0;
+  }
+}

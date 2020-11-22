@@ -6,7 +6,7 @@ import {
 import Trigger from '~/models/triggers-node/triggers/Trigger'
 import { TriggerInterface } from '~/models/triggers-node/triggers/types'
 import {
-  NotificationEntityTypeType,
+  NotificationEntityTypes,
   NotificationInterface,
 } from '~/models/triggers-node/notifications/types'
 
@@ -42,7 +42,7 @@ export default class Notification extends Model implements NotificationInterface
   }
 
   id!: string
-  type!: NotificationEntityTypeType
+  type!: NotificationEntityTypes
 
   draft!: boolean
 
@@ -60,10 +60,10 @@ export default class Notification extends Model implements NotificationInterface
   triggerId!: string
 
   get isSms(): boolean {
-    return this.type === NotificationEntityTypeType.SMS
+    return this.type === NotificationEntityTypes.SMS
   }
 
   get isEmail(): boolean {
-    return this.type === NotificationEntityTypeType.EMAIL
+    return this.type === NotificationEntityTypes.EMAIL
   }
 }

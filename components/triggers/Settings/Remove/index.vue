@@ -1,8 +1,8 @@
 <template>
   <fb-ui-confirmation-window
     :transparent-bg="transparentBg"
-    @confirmed="remove"
-    @close="close"
+    @confirmed="handleRemove"
+    @close="handleClose"
   >
     <font-awesome-icon
       slot="icon"
@@ -28,7 +28,6 @@
 <script lang="ts">
 import {
   defineComponent,
-  onMounted,
   PropType,
   SetupContext,
 } from '@vue/composition-api'
@@ -62,12 +61,7 @@ export default defineComponent({
   },
 
   setup(props: TriggersSettingsTriggerRemovePropsInterface, context: SetupContext) {
-    onMounted((): void => {
-      context.emit('loaded')
-    })
-
-    // Remove selected item
-    function remove(): void {
+    function handleRemove(): void {
       const errorMessage = context.root.$t('triggers.messages.triggerNotRemoved', {
         trigger: props.trigger.name,
       }).toString()
@@ -86,14 +80,13 @@ export default defineComponent({
       context.emit('removed')
     }
 
-    // Close remove confirmation window
-    function close(): void {
+    function handleClose(): void {
       context.emit('close')
     }
 
     return {
-      remove,
-      close,
+      handleRemove,
+      handleClose,
     }
   },
 

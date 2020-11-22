@@ -7,8 +7,8 @@ import Account from '~/models/auth-node/accounts/Account'
 import { AccountInterface } from '~/models/auth-node/accounts/types'
 import {
   IdentityInterface,
-  IdentityEntityTypeType,
-  IdentityStateType,
+  IdentityEntityTypes,
+  IdentityStateTypes,
 } from '~/models/auth-node/identities/types'
 
 export default class Identity extends Model implements IdentityInterface {
@@ -23,7 +23,7 @@ export default class Identity extends Model implements IdentityInterface {
 
       draft: this.boolean(false),
 
-      state: this.string(IdentityStateType.ACTIVE),
+      state: this.string(IdentityStateTypes.ACTIVE),
       uid: this.string(''),
       password: this.string(null).nullable(),
 
@@ -37,7 +37,7 @@ export default class Identity extends Model implements IdentityInterface {
   }
 
   id!: string
-  type!: IdentityEntityTypeType
+  type!: IdentityEntityTypes
 
   draft!: boolean
 

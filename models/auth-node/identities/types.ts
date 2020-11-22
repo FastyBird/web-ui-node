@@ -7,14 +7,14 @@ import {
 } from 'jsona/lib/JsonaTypes'
 
 import {
-  AccountEntityTypeType,
+  AccountEntityTypes,
   AccountInterface,
 } from '~/models/auth-node/accounts/types'
 
 // STORE
 // =====
 
-export enum SemaphoreType {
+export enum SemaphoreTypes {
   FETCHING = 'fetching',
   GETTING = 'getting',
   CREATING = 'creating',
@@ -27,7 +27,7 @@ export enum SemaphoreType {
 
 export interface IdentityInterface {
   id: string
-  type: IdentityEntityTypeType
+  type: IdentityEntityTypes
 
   draft: boolean
 
@@ -45,12 +45,12 @@ export interface IdentityInterface {
 // ENTITY TYPES
 // ============
 
-export enum IdentityEntityTypeType {
+export enum IdentityEntityTypes {
   USER = 'auth-node/user-account-identity',
   MACHINE = 'auth-node/machine-account-identity',
 }
 
-export enum IdentityStateType {
+export enum IdentityStateTypes {
   ACTIVE = 'active',
   BLOCKED = 'blocked',
   DELETED = 'deleted',
@@ -61,20 +61,20 @@ export enum IdentityStateType {
 // =============
 
 interface IdentityAttributesResponseInterface {
-  state: IdentityStateType
+  state: IdentityStateTypes
   uid?: string
 
   // Machine user identity specific
   password?: string
 }
 
-interface IdentityAccountRelationhipResponseInterface extends TJsonApiRelationshipData {
+interface IdentityAccountRelationshipResponseInterface extends TJsonApiRelationshipData {
   id: string
-  type: AccountEntityTypeType
+  type: AccountEntityTypes
 }
 
 interface IdentityAccountRelationshipsResponseInterface extends TJsonApiRelation {
-  data: IdentityAccountRelationhipResponseInterface
+  data: IdentityAccountRelationshipResponseInterface
 }
 
 interface IdentityRelationshipsResponseInterface extends TJsonApiRelationships {
@@ -83,7 +83,7 @@ interface IdentityRelationshipsResponseInterface extends TJsonApiRelationships {
 
 export interface IdentityDataResponseInterface extends TJsonApiData {
   id: string,
-  type: IdentityEntityTypeType,
+  type: IdentityEntityTypes,
   attributes: IdentityAttributesResponseInterface,
   relationships: IdentityRelationshipsResponseInterface,
 }
@@ -109,7 +109,7 @@ export enum RoutingKeys {
 // ========================
 
 export interface IdentityCreateInterface {
-  type: IdentityEntityTypeType
+  type: IdentityEntityTypes
 
   uid: string,
   password: string

@@ -9,7 +9,7 @@ import { DeviceInterface } from '~/models/devices-node/devices/types'
 import Hardware from '~/models/devices-node/hardwares/Hardware'
 import {
   ChannelInterface,
-  ChannelEntityTypeType,
+  ChannelEntityTypes,
 } from '~/models/devices-node/channels/types'
 import ChannelProperty from '~/models/devices-node/channel-properties/ChannelProperty'
 import { ChannelPropertyInterface } from '~/models/devices-node/channel-properties/types'
@@ -27,7 +27,7 @@ export default class Channel extends Model implements ChannelInterface {
   static fields(): Fields {
     return {
       id: this.string(''),
-      type: this.string(ChannelEntityTypeType.CHANNEL),
+      type: this.string(ChannelEntityTypes.CHANNEL),
 
       // Common channel
       channel: this.string(''),
@@ -50,7 +50,7 @@ export default class Channel extends Model implements ChannelInterface {
   }
 
   id!: string
-  type!: ChannelEntityTypeType
+  type!: ChannelEntityTypes
 
   channel!: string
   name!: string | null

@@ -22,13 +22,13 @@ import Email from '~/models/auth-node/emails/Email'
 import Identity from '~/models/auth-node/identities/Identity'
 import {
   AccountCreateInterface,
-  AccountEntityTypeType,
+  AccountEntityTypes,
   AccountInterface,
   AccountResponseInterface,
   AccountsResponseInterface,
   AccountUpdateInterface,
   RoutingKeys,
-  SemaphoreType,
+  SemaphoreTypes,
 } from '~/models/auth-node/accounts/types'
 
 import {
@@ -62,7 +62,7 @@ interface AccountState {
 }
 
 interface SemaphoreAction {
-  type: SemaphoreType
+  type: SemaphoreTypes
   id?: string
 }
 
@@ -114,7 +114,7 @@ const moduleActions: ActionTree<AccountState, any> = {
     }
 
     commit('SET_SEMAPHORE', {
-      type: SemaphoreType.GETTING,
+      type: SemaphoreTypes.GETTING,
       id: payload.id,
     })
 
@@ -131,7 +131,7 @@ const moduleActions: ActionTree<AccountState, any> = {
       )
     } finally {
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.GETTING,
+        type: SemaphoreTypes.GETTING,
         id: payload.id,
       })
     }
@@ -145,7 +145,7 @@ const moduleActions: ActionTree<AccountState, any> = {
     }
 
     commit('SET_SEMAPHORE', {
-      type: SemaphoreType.FETCHING,
+      type: SemaphoreTypes.FETCHING,
     })
 
     try {
@@ -165,7 +165,7 @@ const moduleActions: ActionTree<AccountState, any> = {
       )
     } finally {
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.FETCHING,
+        type: SemaphoreTypes.FETCHING,
       })
     }
   },
@@ -175,7 +175,7 @@ const moduleActions: ActionTree<AccountState, any> = {
     const draft = typeof payload.draft !== 'undefined' ? payload.draft : false
 
     commit('SET_SEMAPHORE', {
-      type: SemaphoreType.CREATING,
+      type: SemaphoreTypes.CREATING,
       id,
     })
 
@@ -184,16 +184,16 @@ const moduleActions: ActionTree<AccountState, any> = {
         data: Object.assign({}, payload.data, { id, draft }),
       })
     } catch (e) {
+      commit('CLEAR_SEMAPHORE', {
+        type: SemaphoreTypes.CREATING,
+        id,
+      })
+
       throw new OrmError(
         'auth-node.accounts.create.failed',
         e,
         'Create new account failed.',
       )
-    } finally {
-      commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.CREATING,
-        id,
-      })
     }
 
     const createdEntity = Account.find(id)
@@ -202,7 +202,7 @@ const moduleActions: ActionTree<AccountState, any> = {
       await Account.delete(id)
 
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.CREATING,
+        type: SemaphoreTypes.CREATING,
         id,
       })
 
@@ -211,7 +211,7 @@ const moduleActions: ActionTree<AccountState, any> = {
 
     if (draft) {
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.CREATING,
+        type: SemaphoreTypes.CREATING,
         id,
       })
 
@@ -238,7 +238,7 @@ const moduleActions: ActionTree<AccountState, any> = {
         )
       } finally {
         commit('CLEAR_SEMAPHORE', {
-          type: SemaphoreType.CREATING,
+          type: SemaphoreTypes.CREATING,
           id,
         })
       }
@@ -255,7 +255,7 @@ const moduleActions: ActionTree<AccountState, any> = {
     }
 
     commit('SET_SEMAPHORE', {
-      type: SemaphoreType.UPDATING,
+      type: SemaphoreTypes.UPDATING,
       id: payload.account.id,
     })
 
@@ -265,16 +265,16 @@ const moduleActions: ActionTree<AccountState, any> = {
         data: payload.data,
       })
     } catch (e) {
+      commit('CLEAR_SEMAPHORE', {
+        type: SemaphoreTypes.UPDATING,
+        id: payload.account.id,
+      })
+
       throw new OrmError(
         'auth-node.accounts.update.failed',
         e,
         'Edit account failed.',
       )
-    } finally {
-      commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.UPDATING,
-        id: payload.account.id,
-      })
     }
 
     const updatedEntity = Account.find(payload.account.id)
@@ -286,7 +286,7 @@ const moduleActions: ActionTree<AccountState, any> = {
       })
 
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.UPDATING,
+        type: SemaphoreTypes.UPDATING,
         id: payload.account.id,
       })
 
@@ -295,7 +295,7 @@ const moduleActions: ActionTree<AccountState, any> = {
 
     if (updatedEntity.draft) {
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.UPDATING,
+        type: SemaphoreTypes.UPDATING,
         id: payload.account.id,
       })
 
@@ -324,7 +324,7 @@ const moduleActions: ActionTree<AccountState, any> = {
         )
       } finally {
         commit('CLEAR_SEMAPHORE', {
-          type: SemaphoreType.UPDATING,
+          type: SemaphoreTypes.UPDATING,
           id: payload.account.id,
         })
       }
@@ -341,7 +341,7 @@ const moduleActions: ActionTree<AccountState, any> = {
     }
 
     commit('SET_SEMAPHORE', {
-      type: SemaphoreType.UPDATING,
+      type: SemaphoreTypes.UPDATING,
       id: payload.account.id,
     })
 
@@ -349,7 +349,7 @@ const moduleActions: ActionTree<AccountState, any> = {
 
     if (entityToSave === null) {
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.UPDATING,
+        type: SemaphoreTypes.UPDATING,
         id: payload.account.id,
       })
 
@@ -374,7 +374,7 @@ const moduleActions: ActionTree<AccountState, any> = {
       )
     } finally {
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.UPDATING,
+        type: SemaphoreTypes.UPDATING,
         id: payload.account.id,
       })
     }
@@ -390,28 +390,28 @@ const moduleActions: ActionTree<AccountState, any> = {
     }
 
     commit('SET_SEMAPHORE', {
-      type: SemaphoreType.DELETING,
+      type: SemaphoreTypes.DELETING,
       id: payload.account.id,
     })
 
     try {
       await Account.delete(payload.account.id)
     } catch (e) {
+      commit('CLEAR_SEMAPHORE', {
+        type: SemaphoreTypes.DELETING,
+        id: payload.account.id,
+      })
+
       throw new OrmError(
         'auth-node.accounts.delete.failed',
         e,
         'Delete account failed.',
       )
-    } finally {
-      commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.DELETING,
-        id: payload.account.id,
-      })
     }
 
     if (payload.account.draft) {
       commit('CLEAR_SEMAPHORE', {
-        type: SemaphoreType.DELETING,
+        type: SemaphoreTypes.DELETING,
         id: payload.account.id,
       })
 
@@ -440,14 +440,14 @@ const moduleActions: ActionTree<AccountState, any> = {
         )
       } finally {
         commit('CLEAR_SEMAPHORE', {
-          type: SemaphoreType.DELETING,
+          type: SemaphoreTypes.DELETING,
           id: payload.account.id,
         })
       }
     }
   },
 
-  async socketData({ commit }, payload: { origin: string, routingKey: string, data: string }): Promise<boolean> {
+  async socketData({ state, commit }, payload: { origin: string, routingKey: string, data: string }): Promise<boolean> {
     if (payload.origin !== ModuleOriginType) {
       return false
     }
@@ -470,7 +470,7 @@ const moduleActions: ActionTree<AccountState, any> = {
 
       if (payload.routingKey === RoutingKeys.DELETED) {
         commit('SET_SEMAPHORE', {
-          type: SemaphoreType.DELETING,
+          type: SemaphoreTypes.DELETING,
           id: body.id,
         })
 
@@ -498,25 +498,31 @@ const moduleActions: ActionTree<AccountState, any> = {
           )
         } finally {
           commit('CLEAR_SEMAPHORE', {
-            type: SemaphoreType.DELETING,
+            type: SemaphoreTypes.DELETING,
             id: body.id,
           })
         }
       } else {
+        if (payload.routingKey === RoutingKeys.UPDATED && state.semaphore.updating.includes(body.id)) {
+          return true
+        }
+
         commit('SET_SEMAPHORE', {
-          type: payload.routingKey === RoutingKeys.UPDATED ? SemaphoreType.UPDATING : SemaphoreType.CREATING,
+          type: payload.routingKey === RoutingKeys.UPDATED ? SemaphoreTypes.UPDATING : SemaphoreTypes.CREATING,
           id: body.id,
         })
 
         const entityData: { [index: string]: any } = {
-          type: body.type === Type.USER ? AccountEntityTypeType.USER : AccountEntityTypeType.MACHINE,
+          type: body.type === Type.USER ? AccountEntityTypes.USER : AccountEntityTypes.MACHINE,
         }
 
         Object.keys(body)
           .forEach((attrName) => {
             const kebabName = attrName.replace(/([a-z][A-Z0-9])/g, g => `${g[0]}_${g[1].toLowerCase()}`)
 
-            entityData[kebabName] = body[attrName]
+            if (kebabName !== 'type') {
+              entityData[kebabName] = body[attrName]
+            }
           })
 
         try {
@@ -536,7 +542,7 @@ const moduleActions: ActionTree<AccountState, any> = {
           )
         } finally {
           commit('CLEAR_SEMAPHORE', {
-            type: payload.routingKey === RoutingKeys.UPDATED ? SemaphoreType.UPDATING : SemaphoreType.CREATING,
+            type: payload.routingKey === RoutingKeys.UPDATED ? SemaphoreTypes.UPDATING : SemaphoreTypes.CREATING,
             id: body.id,
           })
         }
@@ -560,32 +566,32 @@ const moduleMutations: MutationTree<AccountState> = {
 
   ['SET_SEMAPHORE'](state: AccountState, action: SemaphoreAction): void {
     switch (action.type) {
-      case SemaphoreType.FETCHING:
+      case SemaphoreTypes.FETCHING:
         state.semaphore.fetching.items = true
         break
 
-      case SemaphoreType.GETTING:
+      case SemaphoreTypes.GETTING:
         state.semaphore.fetching.item.push(get(action, 'id', 'notValid'))
 
         // Make all keys uniq
         state.semaphore.fetching.item = uniq(state.semaphore.fetching.item)
         break
 
-      case SemaphoreType.CREATING:
+      case SemaphoreTypes.CREATING:
         state.semaphore.creating.push(get(action, 'id', 'notValid'))
 
         // Make all keys uniq
         state.semaphore.creating = uniq(state.semaphore.creating)
         break
 
-      case SemaphoreType.UPDATING:
+      case SemaphoreTypes.UPDATING:
         state.semaphore.updating.push(get(action, 'id', 'notValid'))
 
         // Make all keys uniq
         state.semaphore.updating = uniq(state.semaphore.updating)
         break
 
-      case SemaphoreType.DELETING:
+      case SemaphoreTypes.DELETING:
         state.semaphore.deleting.push(get(action, 'id', 'notValid'))
 
         // Make all keys uniq
@@ -596,11 +602,11 @@ const moduleMutations: MutationTree<AccountState> = {
 
   ['CLEAR_SEMAPHORE'](state: AccountState, action: SemaphoreAction): void {
     switch (action.type) {
-      case SemaphoreType.FETCHING:
+      case SemaphoreTypes.FETCHING:
         state.semaphore.fetching.items = false
         break
 
-      case SemaphoreType.GETTING:
+      case SemaphoreTypes.GETTING:
         // Process all semaphore items
         state.semaphore.fetching.item
           .forEach((item: string, index: number): void => {
@@ -612,7 +618,7 @@ const moduleMutations: MutationTree<AccountState> = {
           })
         break
 
-      case SemaphoreType.CREATING:
+      case SemaphoreTypes.CREATING:
         // Process all semaphore items
         state.semaphore.creating
           .forEach((item: string, index: number): void => {
@@ -624,7 +630,7 @@ const moduleMutations: MutationTree<AccountState> = {
           })
         break
 
-      case SemaphoreType.UPDATING:
+      case SemaphoreTypes.UPDATING:
         // Process all semaphore items
         state.semaphore.updating
           .forEach((item: string, index: number): void => {
@@ -636,7 +642,7 @@ const moduleMutations: MutationTree<AccountState> = {
           })
         break
 
-      case SemaphoreType.DELETING:
+      case SemaphoreTypes.DELETING:
         // Process all semaphore items
         state.semaphore.deleting
           .forEach((item: string, index: number): void => {

@@ -1,22 +1,38 @@
-@import "~@fastybird/web-ui-theme/src/assets/variables/screen";
+@import "~assets/scss/variables";
+@import "~assets/scss/mixins";
 
-.fb-devices-detail-default-channel {
+.fb-devices-detail-default-channel-container {
   &__container {
     width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
 
-    .fb-list-item__container {
-      width: 100%;
+    .fb-ui-items-container {
+      &__buttons {
+        @media (min-width: $screen-sm-min) {
+          padding-right: $padding-sm;
+          flex: 0 0 30rem;
+          max-width: 30rem;
+        }
+
+        .fb-ui-button {
+          line-height: 2.5rem;
+          height: 2.5rem;
+        }
+      }
+
+      &__items {
+        @media (max-width: $screen-xs-max) {
+          padding: 0;
+        }
+      }
     }
   }
 
-  &__value {
-    font-size: 1.5rem;
-  }
+  &__items {
+    @include flexRow;
+    align-items: center;
 
-  &__unit {
-    font-size: 1rem;
+    @media (max-width: $screen-xs-max) {
+      padding: 0;
+    }
   }
 }

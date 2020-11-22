@@ -55,7 +55,7 @@
             <fb-ui-switch-element
               :status="form.model.enabled"
               :variant="switchVariantTypes.PRIMARY"
-              @change="toggle"
+              @change="handleToggle"
             />
           </div>
 
@@ -66,7 +66,7 @@
             <fb-ui-button
               :size="sizeTypes.SMALL"
               :variant="buttonVariantTypes.LINK"
-              @click="remove"
+              @click="handleRemove"
             >
               {{ $t('application.buttons.remove.title') }}
             </fb-ui-button>
@@ -111,17 +111,15 @@ import { ChannelPropertyInterface } from '~/models/devices-node/channel-properti
 
 import { ListItemSizeTypes } from '~/components/layout/ListItem/index.vue'
 
-interface TriggersDetailDefaultActionsContainerActionFormModelInterface {
-  enabled: boolean
+interface TriggersListActionFormInterface {
+  model: {
+    enabled: boolean
+  }
 }
 
-interface TriggersDetailDefaultActionsContainerActionFormInterface {
-  model: TriggersDetailDefaultActionsContainerActionFormModelInterface
-}
-
-interface TriggersDetailDefaultActionsContainerActionPropsInterface {
-  trigger: TriggerInterface,
-  action: ActionInterface,
+interface TriggersListActionPropsInterface {
+  trigger: TriggerInterface
+  action: ActionInterface
 }
 
 export default defineComponent({
@@ -142,8 +140,8 @@ export default defineComponent({
 
   },
 
-  setup(props: TriggersDetailDefaultActionsContainerActionPropsInterface, context: SetupContext) {
-    const form = reactive<TriggersDetailDefaultActionsContainerActionFormInterface>({
+  setup(props: TriggersListActionPropsInterface, context: SetupContext) {
+    const form = reactive<TriggersListActionFormInterface>({
       model: {
         enabled: props.action.enabled,
       },
@@ -183,20 +181,7 @@ export default defineComponent({
 
     const fetchingDevices = computed<boolean>((): boolean => Device.getters('fetching')())
 
-    onBeforeMount(async(): Promise<void> => {
-      if (!Device.getters('firstLoadFinished')()) {
-        try {
-          await Device.dispatch('fetch', {
-            includeChannels: true,
-          })
-        } catch {
-          context.root.$nuxt.error({ statusCode: 503, message: 'Something went wrong' })
-        }
-      }
-    })
-
-    // Submit toggle state
-    async function toggle(): Promise<void> {
+    async function handleToggle(): Promise<void> {
       const errorMessage = context.root.$t('triggers.messages.actionNotUpdated', {
         trigger: props.trigger.name,
       }).toString()
@@ -217,7 +202,7 @@ export default defineComponent({
       }
     }
 
-    async function remove(): Promise<void> {
+    async function handleRemove(): Promise<void> {
       const errorMessage = context.root.$t('triggers.messages.actionNotRemoved', {
         trigger: props.trigger.name,
       }).toString()
@@ -235,6 +220,18 @@ export default defineComponent({
       }
     }
 
+    onBeforeMount(async(): Promise<void> => {
+      if (!Device.getters('firstLoadFinished')()) {
+        try {
+          await Device.dispatch('fetch', {
+            includeChannels: true,
+          })
+        } catch {
+          context.root.$nuxt.error({ statusCode: 503, message: 'Something went wrong' })
+        }
+      }
+    })
+
     return {
       form,
       device,
@@ -242,8 +239,8 @@ export default defineComponent({
       property,
       windowSize,
       fetchingDevices,
-      toggle,
-      remove,
+      handleToggle,
+      handleRemove,
       listSizeTypes: ListItemSizeTypes,
       sizeTypes: FbSizeTypes,
       buttonVariantTypes: FbUiButtonVariantTypes,

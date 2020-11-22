@@ -14,7 +14,7 @@
         <fb-layout-header-button
           v-if="!view.settings.opened"
           :type="menuItemTypes.BUTTON"
-          @click="closeView(viewTypes.DETAIL)"
+          @click="handleCloseView(viewTypes.DETAIL)"
           small
           left
         >
@@ -27,7 +27,7 @@
           v-if="view.settings.opened"
           :label="$t('application.buttons.cancel.title')"
           :type="menuItemTypes.BUTTON"
-          @click="closeView(viewTypes.SETTINGS)"
+          @click="handleCloseView(viewTypes.SETTINGS)"
           small
           left
         />
@@ -36,7 +36,7 @@
           v-if="!view.settings.opened"
           :label="$t('application.buttons.edit.title')"
           :type="menuItemTypes.BUTTON"
-          @click="openView(viewTypes.SETTINGS)"
+          @click="handleOpenView(viewTypes.SETTINGS)"
           small
           right
         />
@@ -45,25 +45,15 @@
           v-if="view.settings.opened"
           :label="$t('application.buttons.done.title')"
           :type="menuItemTypes.BUTTON"
-          @click="submitUpdate"
+          @click="handleSubmitUpdate"
           small
           right
         />
 
         <fb-layout-header-spacer small />
 
-        <fb-layout-header-button
-          :link="localePath($routes.triggers.list)"
-          :type="menuItemTypes.NUXT_LINK"
-          right
-        >
-          <template slot="icon">
-            <font-awesome-icon :icon="trigger.icon" />
-          </template>
-        </fb-layout-header-button>
-
         <expandable-box :show="view.detail.opened">
-          <trigger-detail
+          <triggers-detail
             :trigger="trigger"
           />
         </expandable-box>
@@ -71,10 +61,10 @@
         <expandable-box :show="view.settings.opened">
           <trigger-settings
             :trigger="trigger"
-            :remote-submit.sync="remoteSubmit"
+            :remote-form-submit.sync="remoteFormSubmit"
             :remote-form-result.sync="remoteFormResult"
-            :remote-reset.sync="remoteReset"
-            @removed="triggerRemoved"
+            :remote-form-reset.sync="remoteFormReset"
+            @removed="handleTriggerRemoved"
             class="fb-triggers-detail-view__container-settings"
           />
         </expandable-box>
@@ -107,9 +97,9 @@ import {
 import get from 'lodash/get'
 
 import {
-  FbFormResultType,
+  FbFormResultTypes,
   FbSizeTypes,
-  FbMenuItemType,
+  FbMenuItemTypes,
 } from '@fastybird/web-ui-theme'
 
 import {
@@ -120,7 +110,7 @@ import {
 import Trigger from '~/models/triggers-node/triggers/Trigger'
 import { TriggerInterface } from '~/models/triggers-node/triggers/types'
 
-import TriggerDetail from '~/components/triggers/Detail/index.vue'
+import TriggersDetail from '~/components/triggers/Detail/index.vue'
 import TriggerSettings from '~/components/triggers/Phone/Settings/index.vue'
 
 enum ViewTypes {
@@ -135,11 +125,18 @@ export default defineComponent({
   transition: 'fade',
 
   components: {
-    TriggerDetail,
+    TriggersDetail,
     TriggerSettings,
   },
 
   setup(props: {}, context: SetupContext) {
+    if (!context.root.$validateUUID(context.root.$route.params.id)) {
+      context.root.$nuxt.error({
+        statusCode: 404,
+        message: 'Trigger Not Found',
+      })
+    }
+
     const view = reactive({
       detail: {
         opened: !context.root.$route.hash.includes(TRIGGERS_HASH_SETTINGS),
@@ -179,24 +176,17 @@ export default defineComponent({
 
     const isLoading = computed<boolean>((): boolean => fetchingTriggers.value || fetchingTrigger.value || trigger.value === null)
 
-    const remoteSubmit = ref<boolean>(false)
+    const remoteFormSubmit = ref<boolean>(false)
 
-    const remoteFormResult = ref<FbFormResultType>(FbFormResultType.NONE)
+    const remoteFormResult = ref<FbFormResultTypes>(FbFormResultTypes.NONE)
 
-    const remoteReset = ref<boolean>(false)
+    const remoteFormReset = ref<boolean>(false)
 
-    if (!context.root.$validateUUID(context.root.$route.params.id)) {
-      context.root.$nuxt.error({
-        statusCode: 404,
-        message: 'Trigger Not Found',
-      })
-    }
-
-    function triggerRemoved(): void {
+    function handleTriggerRemoved(): void {
       context.root.$router.push(context.root.localePath(context.root.$routes.triggers.list))
     }
 
-    function openView(type: ViewTypes): void {
+    function handleOpenView(type: ViewTypes): void {
       switch (type) {
         case ViewTypes.DETAIL:
           break
@@ -204,7 +194,7 @@ export default defineComponent({
         case ViewTypes.SETTINGS:
           view.detail.opened = false
 
-          remoteReset.value = true
+          remoteFormReset.value = true
 
           context.root.$nextTick((): void => {
             view.settings.opened = true
@@ -221,7 +211,7 @@ export default defineComponent({
       }
     }
 
-    function closeView(type: ViewTypes): void {
+    function handleCloseView(type: ViewTypes): void {
       switch (type) {
         case ViewTypes.DETAIL:
           context.root.$router.push(context.root.localePath({ name: context.root.$routes.triggers.list }))
@@ -244,8 +234,8 @@ export default defineComponent({
       }
     }
 
-    function submitUpdate(): void {
-      remoteSubmit.value = true
+    function handleSubmitUpdate(): void {
+      remoteFormSubmit.value = true
     }
 
     onBeforeMount((): void => {
@@ -318,6 +308,7 @@ export default defineComponent({
           context.root.$store.dispatch('app/setHeading', {
             heading: val.name,
             subHeading: val.description,
+            icon: trigger.value ? trigger.value.icon : null,
           }, {
             root: true,
           })
@@ -326,10 +317,10 @@ export default defineComponent({
     )
 
     watch(
-      (): FbFormResultType => remoteFormResult.value,
+      (): FbFormResultTypes => remoteFormResult.value,
       (val): void => {
-        if (val === FbFormResultType.OK && isMounted.value) {
-          closeView(ViewTypes.SETTINGS)
+        if (val === FbFormResultTypes.WORKING && isMounted.value) {
+          handleCloseView(ViewTypes.SETTINGS)
         }
       },
     )
@@ -337,7 +328,6 @@ export default defineComponent({
     return {
       id: context.root.$route.params.id,
       view,
-      viewTypes: ViewTypes,
       isMounted,
       windowSize,
       trigger,
@@ -346,15 +336,21 @@ export default defineComponent({
       fetchingTrigger,
       detailComponent,
       settingsComponent,
-      remoteSubmit,
+      remoteFormSubmit,
       remoteFormResult,
-      remoteReset,
-      openView,
-      closeView,
-      submitUpdate,
-      triggerRemoved,
-      menuItemTypes: FbMenuItemType,
+      remoteFormReset,
+      handleOpenView,
+      handleCloseView,
+      handleSubmitUpdate,
+      handleTriggerRemoved,
+      viewTypes: ViewTypes,
+      menuItemTypes: FbMenuItemTypes,
     }
+  },
+
+  // @ts-ignore
+  validate({ app, params }) {
+    return app.$validateUUID(params.id)
   },
 
   head() {

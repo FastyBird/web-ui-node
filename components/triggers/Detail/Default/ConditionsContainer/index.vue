@@ -5,19 +5,12 @@
         {{ $tc('triggers.headings.conditions', conditions.length, { count: conditions.length }) }}
       </template>
 
-      <fb-ui-no-results v-if="conditions.length === 0">
-        <font-awesome-icon
-          slot="icon"
-          icon="magic"
-        />
-
-        <font-awesome-icon
-          slot="second-icon"
-          icon="plus"
-        />
-
+      <no-results
+        v-if="conditions.length === 0"
+        icon="magic"
+      >
         {{ $t('triggers.texts.noConditions') }}
-      </fb-ui-no-results>
+      </no-results>
 
       <template v-else>
         <swipe-list
@@ -38,7 +31,7 @@
                 <fb-ui-button
                   :variant="buttonVariantTypes.LINK"
                   :size="sizeTypes.EXTRA_SMALL"
-                  @click.prevent="openRemoveConfirmation(item)"
+                  @click.prevent="handleOpenRemoveConfirmation(item)"
                 >
                   <font-awesome-icon icon="minus-circle" />
                 </fb-ui-button>
@@ -55,7 +48,7 @@
 
           <template v-slot:right="{ item }">
             <div
-              @click.prevent="openRemoveConfirmation(item)"
+              @click.prevent="handleOpenRemoveConfirmation(item)"
               class="fb-triggers-detail-default-actions-container__item-remove"
             >
               <font-awesome-icon icon="trash" />
@@ -66,9 +59,10 @@
 
       <template slot="buttons">
         <fb-ui-button
-          :variant="buttonVariantTypes.LINK"
+          v-if="editMode || $windowSize.isExtraSmall()"
+          :variant="$windowSize.isExtraSmall() ? buttonVariantTypes.LINK : buttonVariantTypes.OUTLINE_PRIMARY"
           :size="sizeTypes.EXTRA_SMALL"
-          @click.prevent="openWindow(viewTypes.ADD_OR_EDIT)"
+          @click.prevent="handleOpenWindow(windowScreenTypes.ADD_OR_EDIT)"
         >
           <font-awesome-icon icon="plus" />
           {{ $t('application.buttons.add.title') }}
@@ -77,16 +71,16 @@
     </fb-ui-items-container>
 
     <triggers-detail-default-conditions-container-add-or-edit
-      v-if="view.addOrEdit.show"
+      v-if="windowScreen.addOrEdit.opened"
       :trigger="trigger"
       :conditions="conditions"
-      @close="closeWindow(viewTypes.ADD_OR_EDIT)"
+      @close="handleCloseWindow(windowScreenTypes.ADD_OR_EDIT)"
     />
 
     <fb-ui-confirmation-window
-      v-if="view.removeConfirmation.show"
-      @confirmed="remove"
-      @close="closeWindow(viewTypes.REMOVE_CONFIRMATION)"
+      v-if="windowScreen.removeConfirmation.opened"
+      @confirmed="handleRemove"
+      @close="handleCloseWindow(windowScreenTypes.REMOVE_CONFIRMATION)"
       class="fb-triggers-detail-default-conditions-container__remove"
     >
       <font-awesome-icon
@@ -120,6 +114,7 @@ import {
   SetupContext,
 } from '@vue/composition-api'
 
+// @ts-ignore
 import { SwipeList } from 'vue-swipe-actions'
 
 import get from 'lodash/get'
@@ -136,26 +131,21 @@ import Condition from '~/models/triggers-node/conditions/Condition'
 import { ConditionInterface } from '~/models/triggers-node/conditions/types'
 
 import TriggersListCondition from '~/components/triggers/ListCondition/index.vue'
-import TriggersDetailDefaultConditionsContainerAddOrEdit
-  from '~/components/triggers/Detail/Default/ConditionsContainer/AddOrEdit/index.vue'
+import TriggersDetailDefaultConditionsContainerAddOrEdit from '~/components/triggers/Detail/Default/ConditionsContainer/AddOrEdit/index.vue'
 
-enum ViewTypes {
+enum WindowScreenTypes {
   ADD_OR_EDIT = 'addOrEdit',
   REMOVE_CONFIRMATION = 'removeConfirmation',
 }
 
-interface TriggersDetailDefaultConditionsContainerViewRemoveConfirmationInterface {
-  show: boolean
-  condition: string | null
-}
-
-interface TriggersDetailDefaultConditionsContainerViewAddOrEditConditionInterface {
-  show: boolean
-}
-
-interface TriggersDetailDefaultConditionsContainerViewInterface {
-  addOrEdit: TriggersDetailDefaultConditionsContainerViewAddOrEditConditionInterface
-  removeConfirmation: TriggersDetailDefaultConditionsContainerViewRemoveConfirmationInterface
+interface TriggersDetailDefaultConditionsContainerWindowInterface {
+  addOrEdit: {
+    opened: boolean
+  }
+  removeConfirmation: {
+    opened: boolean
+    condition: string | null
+  }
 }
 
 interface TriggersDetailDefaultConditionsContainerPropsInterface {
@@ -189,12 +179,12 @@ export default defineComponent({
   },
 
   setup(props: TriggersDetailDefaultConditionsContainerPropsInterface, context: SetupContext) {
-    const view = reactive<TriggersDetailDefaultConditionsContainerViewInterface>({
+    const windowScreen = reactive<TriggersDetailDefaultConditionsContainerWindowInterface>({
       addOrEdit: {
-        show: false,
+        opened: false,
       },
       removeConfirmation: {
-        show: false,
+        opened: false,
         condition: null,
       },
     })
@@ -209,27 +199,25 @@ export default defineComponent({
 
     const windowSize = computed<string>((): string => context.root.$store.state.app.windowSize)
 
-    // Open info window
-    function openWindow(type: ViewTypes): void {
-      view[type].show = true
+    function handleOpenWindow(type: WindowScreenTypes): void {
+      windowScreen[type].opened = true
     }
 
-    // Close opened window
-    function closeWindow(type: ViewTypes): void {
-      view[type].show = false
+    function handleCloseWindow(type: WindowScreenTypes): void {
+      windowScreen[type].opened = false
     }
 
-    function openRemoveConfirmation(condition: ConditionInterface): void {
-      view.removeConfirmation.condition = condition.id
+    function handleOpenRemoveConfirmation(condition: ConditionInterface): void {
+      windowScreen.removeConfirmation.condition = condition.id
 
-      openWindow(ViewTypes.REMOVE_CONFIRMATION)
+      handleOpenWindow(WindowScreenTypes.REMOVE_CONFIRMATION)
     }
 
-    async function remove(): Promise<void> {
-      closeWindow(ViewTypes.REMOVE_CONFIRMATION)
+    async function handleRemove(): Promise<void> {
+      handleCloseWindow(WindowScreenTypes.REMOVE_CONFIRMATION)
 
-      if (view.removeConfirmation.condition !== null) {
-        const condition = Condition.find(view.removeConfirmation.condition)
+      if (windowScreen.removeConfirmation.condition !== null) {
+        const condition = Condition.find(windowScreen.removeConfirmation.condition)
 
         if (condition !== null) {
           const errorMessage = context.root.$t('triggers.messages.conditionNotRemoved', {
@@ -250,18 +238,18 @@ export default defineComponent({
         }
       }
 
-      view.removeConfirmation.condition = null
+      windowScreen.removeConfirmation.condition = null
     }
 
     return {
-      view,
-      viewTypes: ViewTypes,
+      windowScreen,
       conditions,
       windowSize,
-      openWindow,
-      closeWindow,
-      openRemoveConfirmation,
-      remove,
+      handleOpenWindow,
+      handleCloseWindow,
+      handleOpenRemoveConfirmation,
+      handleRemove,
+      windowScreenTypes: WindowScreenTypes,
       sizeTypes: FbSizeTypes,
       buttonVariantTypes: FbUiButtonVariantTypes,
     }

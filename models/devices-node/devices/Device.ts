@@ -5,9 +5,9 @@ import {
 import capitalize from 'lodash/capitalize'
 
 import {
-  DeviceEntityTypeType,
+  DeviceEntityTypes,
   DeviceInterface,
-  DeviceStateType,
+  DeviceStateTypes,
 } from '~/models/devices-node/devices/types'
 import DeviceProperty from '~/models/devices-node/device-properties/DeviceProperty'
 import { DevicePropertyInterface } from '~/models/devices-node/device-properties/types'
@@ -16,7 +16,7 @@ import { DeviceConfigurationInterface } from '~/models/devices-node/device-confi
 import Hardware from '~/models/devices-node/hardwares/Hardware'
 import {
   HardwareInterface,
-  HardwareModelType,
+  HardwareModelTypes,
 } from '~/models/devices-node/hardwares/types'
 import Firmware from '~/models/devices-node/firmwares/Firmware'
 import { FirmwareInterface } from '~/models/devices-node/firmwares/types'
@@ -43,7 +43,7 @@ export default class Device extends Model implements DeviceInterface {
       identifier: this.string(''),
       name: this.string(null).nullable(),
       comment: this.string(null).nullable(),
-      state: this.string(DeviceStateType.UNKNOWN),
+      state: this.string(DeviceStateTypes.UNKNOWN),
       enabled: this.boolean(false),
 
       control: this.attr([]),
@@ -66,7 +66,7 @@ export default class Device extends Model implements DeviceInterface {
   }
 
   id!: string
-  type!: DeviceEntityTypeType
+  type!: DeviceEntityTypes
 
   draft!: boolean
 
@@ -75,7 +75,7 @@ export default class Device extends Model implements DeviceInterface {
   identifier!: string
   name!: string | null
   comment!: string | null
-  state!: DeviceStateType
+  state!: DeviceStateTypes
   enabled!: boolean
 
   control!: Array<string>
@@ -97,7 +97,7 @@ export default class Device extends Model implements DeviceInterface {
   }
 
   get isReady(): boolean {
-    return this.state === DeviceStateType.READY
+    return this.state === DeviceStateTypes.READY
   }
 
   get icon(): string {
@@ -112,11 +112,11 @@ export default class Device extends Model implements DeviceInterface {
 
     if (hardware.isManufacturerItead) {
       switch (hardware.model) {
-        case HardwareModelType.SONOFF_SC:
+        case HardwareModelTypes.SONOFF_SC:
           return 'thermometer-half'
 
-        case HardwareModelType.SONOFF_POW:
-        case HardwareModelType.SONOFF_POW_R2:
+        case HardwareModelTypes.SONOFF_POW:
+        case HardwareModelTypes.SONOFF_POW_R2:
           return 'calculator'
       }
     }

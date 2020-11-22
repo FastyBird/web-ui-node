@@ -1,0 +1,15 @@
+@import "~assets/scss/variables";
+
+.fb-devices-list-channel-property {
+  &__container {
+    width: 100%;
+  }
+
+  &__value {
+    font-size: $font-size-lg;
+  }
+
+  &__unit {
+    font-size: $font-size-sm;
+  }
+}

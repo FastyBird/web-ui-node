@@ -110,7 +110,7 @@ export default {
 
   data() {
     return {
-      view: Object.assign({}, viewSettings),
+      window: Object.assign({}, viewSettings),
       click: {
         delay: 200,
         clicks: 0,
@@ -156,22 +156,22 @@ export default {
 
     windowSize(val) {
       if (val === 'xs') {
-        if (this.view.opened === this.view.items.detail.name) {
+        if (this.window.opened === this.window.items.detail.name) {
           this.$router.push(this.localePath({
             name: this.$routes.things.detail,
             params: {
-              id: this.view.items.detail.id,
+              id: this.window.items.detail.id,
             },
           }))
-        } else if (this.view.opened === this.view.items.settings.name) {
+        } else if (this.window.opened === this.window.items.settings.name) {
           this.$router.push(this.localePath({
             name: this.$routes.things.detail,
             params: {
-              id: this.view.items.settings.id,
+              id: this.window.items.settings.id,
             },
             hash: GROUPS_HASH_SETTINGS,
           }))
-        } else if (this.view.opened === this.view.items.create.name) {
+        } else if (this.window.opened === this.window.items.create.name) {
           this.$router.push(this.localePath({
             name: this.$routes.things.create,
           }))
@@ -280,17 +280,17 @@ export default {
      * @param {String} [id]
      */
     openView(view, id) {
-      if (Object.prototype.hasOwnProperty.call(this.view.items, view)) {
-        for (const viewName in this.view.items) {
-          if (Object.prototype.hasOwnProperty.call(this.view.items, viewName)) {
-            if (Object.prototype.hasOwnProperty.call(this.view.items[viewName], 'id')) {
-              this.view.items[viewName].id = null
+      if (Object.prototype.hasOwnProperty.call(this.window.items, view)) {
+        for (const viewName in this.window.items) {
+          if (Object.prototype.hasOwnProperty.call(this.window.items, viewName)) {
+            if (Object.prototype.hasOwnProperty.call(this.window.items[viewName], 'id')) {
+              this.window.items[viewName].id = null
             }
           }
         }
 
         switch (view) {
-          case this.view.items.detail.name:
+          case this.window.items.detail.name:
             if (this.windowSize === 'xs') {
               this.$bus.$emit('wait-page_reloading', 10)
 
@@ -305,12 +305,12 @@ export default {
             } else {
               this.$router.push(this.localePath({
                 name: this.$routes.groups.list,
-                hash: `${this.view.items.detail.route.hash}-${id}`,
+                hash: `${this.window.items.detail.route.hash}-${id}`,
               }))
             }
             break
 
-          case this.view.items.settings.name:
+          case this.window.items.settings.name:
             if (this.windowSize === 'xs') {
               this.$bus.$emit('wait-page_reloading', 10)
 
@@ -326,12 +326,12 @@ export default {
             } else {
               this.$router.push(this.localePath({
                 name: this.$routes.groups.list,
-                hash: `${this.view.items.settings.route.hash}-${id}`,
+                hash: `${this.window.items.settings.route.hash}-${id}`,
               }))
             }
             break
 
-          case this.view.items.create.name:
+          case this.window.items.create.name:
             if (this.windowSize === 'xs') {
               this.$bus.$emit('wait-page_reloading', 10)
 
@@ -341,16 +341,16 @@ export default {
             } else {
               this.$router.push(this.localePath({
                 name: this.$routes.groups.list,
-                hash: this.view.items.create.route.hash,
+                hash: this.window.items.create.route.hash,
               }))
             }
             break
         }
 
-        this.view.opened = view
+        this.window.opened = view
 
-        if (Object.prototype.hasOwnProperty.call(this.view.items[view], 'id') && typeof id !== 'undefined') {
-          this.view.items[view].id = id
+        if (Object.prototype.hasOwnProperty.call(this.window.items[view], 'id') && typeof id !== 'undefined') {
+          this.window.items[view].id = id
 
           const group = Group.find(id)
 
@@ -368,7 +368,7 @@ export default {
       this.$router.push(this.localePath(this.$routes.things.list))
 
       // Reset to default values
-      Object.assign(this.view, viewSettings)
+      Object.assign(this.window, viewSettings)
 
       this.$el.focus()
     },
@@ -398,7 +398,7 @@ export default {
 
       if (this.click.clicks === 1) {
         this.click.timer = setTimeout(() => {
-          this.openView(this.view.detail.name, item.id)
+          this.openView(this.window.detail.name, item.id)
 
           this.click.clicks = 0
         }, this.click.delay)
@@ -407,7 +407,7 @@ export default {
 
         this.click.clicks = 0
 
-        this.openView(this.view.settings.name, item.id)
+        this.openView(this.window.settings.name, item.id)
       }
     },
 
@@ -415,7 +415,7 @@ export default {
      * Header action button action event
      */
     actionButtonAction() {
-      this.openView(this.view.items.create.name)
+      this.openView(this.window.items.create.name)
     },
 
     /**
@@ -425,12 +425,12 @@ export default {
      */
     _checkRoute() {
       if (this.$route.hash !== '') {
-        if (this.$route.hash.includes(this.view.items.detail.route.hash)) {
-          this.openView(this.view.items.detail.name, this.$route.hash.substring(this.view.items.detail.route.length))
-        } else if (this.$route.hash.includes(this.view.items.settings.route.hash)) {
-          this.openView(this.view.items.settings.name, this.$route.hash.substring(this.view.items.settings.route.length))
-        } else if (this.$route.hash.includes(this.view.items.create.route.hash)) {
-          this.openView(this.view.items.create.name)
+        if (this.$route.hash.includes(this.window.items.detail.route.hash)) {
+          this.openView(this.window.items.detail.name, this.$route.hash.substring(this.window.items.detail.route.length))
+        } else if (this.$route.hash.includes(this.window.items.settings.route.hash)) {
+          this.openView(this.window.items.settings.name, this.$route.hash.substring(this.window.items.settings.route.length))
+        } else if (this.$route.hash.includes(this.window.items.create.route.hash)) {
+          this.openView(this.window.items.create.name)
         }
       }
     },

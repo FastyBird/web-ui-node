@@ -117,6 +117,7 @@ module.exports = {
   css: [
     '@/node_modules/@fastybird/web-ui-theme/src/assets/theme',
     '@/node_modules/pretty-checkbox/src/pretty-checkbox',
+    '@/node_modules/vue-swipe-actions/dist/vue-swipe-actions',
     '@/assets/scss/toaster',
   ],
 

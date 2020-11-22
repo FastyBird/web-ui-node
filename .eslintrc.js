@@ -69,6 +69,7 @@ module.exports = {
     'no-useless-computed-key': 'off',
     'semi': 'off',
     '@typescript-eslint/no-unused-vars': ['error', {'args': 'after-used'}],
+    'vue/comment-directive': 'off',
   },
   'overrides': [
     {

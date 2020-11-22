@@ -1,10 +1,10 @@
-@import "~@fastybird/web-ui-theme/src/assets/variables/colors";
+@import "~assets/scss/variables";
 
 .fb-devices-switch {
   &__container {
     height: 100%;
 
-    &[data-state="off"] {
+    &[data-device-state="off"] {
       .fb-ui-switch-element__container input:disabled ~ .fb-ui-switch-element__track {
         background-color: $gray-lighter
       }

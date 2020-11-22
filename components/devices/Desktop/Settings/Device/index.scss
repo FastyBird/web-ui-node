@@ -1,0 +1,27 @@
+@import "~assets/scss/variables.scss";
+
+.fb-devices-desktop-settings-device {
+  &__item {
+    &-action {
+      padding-left: $padding-xs;
+      padding-right: $padding-xs;
+    }
+
+    .fb-ui-spinner__container {
+      vertical-align: middle;
+    }
+
+    &-single-row {
+      .fb-settings-list-item__content {
+        line-height: 3.6rem;
+      }
+    }
+
+    &-multi-row {
+      small {
+        display: block;
+        font-size: 80%;
+      }
+    }
+  }
+}

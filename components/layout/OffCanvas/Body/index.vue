@@ -11,9 +11,15 @@
         </small>
       </h4>
 
-      <slot name="left-button" />
+      <slot
+        v-if="parent._.get(scopedSlots, 'left-button', null) !== null"
+        name="left-button"
+      />
 
-      <slot name="right-button" />
+      <slot
+        v-if="parent._.get(scopedSlots, 'right-button', null) !== null"
+        name="right-button"
+      />
     </div>
 
     <div class="fb-off-canvas-body__body">

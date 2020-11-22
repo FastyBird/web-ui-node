@@ -1,64 +1,42 @@
 <template>
-  <validation-observer
-    ref="validator"
-    v-slot="{ handleSubmit }"
-  >
-    <fb-ui-modal-form
-      :transparent-bg="transparentBg"
-      :lock-submit-button="form.result !== formResultTypes.NONE"
-      :state="form.result"
-      :variant="$windowSize.isExtraSmall() ? modalVariantTypes.PHONE : modalVariantTypes.DEFAULT"
-      @submit="handleSubmit(submit)"
-      @cancel="close"
-      @close="close"
-    >
-      <fb-ui-modal-header-icon slot="icon">
-        <font-awesome-icon icon="pencil-alt" />
-      </fb-ui-modal-header-icon>
-
-      <template slot="header">
-        {{ $t('triggers.headings.renameTrigger') }}
-      </template>
-
-      <template slot="form">
-        <fb-ui-content :mb="sizeTypes.LARGE">
-          <validation-provider
-            v-slot="{ errors }"
-            name="triggerName"
-            rules="required"
-          >
-            <fb-form-input
-              v-model="form.model.name"
-              :error="errors[0]"
-              :has-error="errors.length > 0"
-              :label="$t('triggers.fields.triggerName.title')"
-              :placeholder="$t('triggers.fields.triggerName.placeholder')"
-              :required="true"
-              :tab-index="2"
-              name="triggerName"
-            />
-          </validation-provider>
-        </fb-ui-content>
-
-        <fb-form-text-area
-          v-model="form.model.comment"
-          :label="$t('triggers.fields.triggerComment.title')"
-          :placeholder="$t('triggers.fields.triggerComment.placeholder')"
-          :tab-index="3"
-          name="triggerComment"
+  <validation-observer ref="validator">
+    <fb-ui-content :mb="sizeTypes.LARGE">
+      <validation-provider
+        v-slot="{ errors }"
+        name="triggerName"
+        rules="required"
+      >
+        <fb-form-input
+          v-model="form.model.name"
+          :error="errors[0]"
+          :has-error="errors.length > 0"
+          :label="$t('triggers.fields.triggerName.title')"
+          :placeholder="$t('triggers.fields.triggerName.placeholder')"
+          :required="true"
+          :tab-index="2"
+          name="triggerName"
         />
-      </template>
-    </fb-ui-modal-form>
+      </validation-provider>
+    </fb-ui-content>
+
+    <fb-form-text-area
+      v-model="form.model.comment"
+      :label="$t('triggers.fields.triggerComment.title')"
+      :placeholder="$t('triggers.fields.triggerComment.placeholder')"
+      :tab-index="3"
+      name="triggerComment"
+    />
   </validation-observer>
 </template>
 
 <script lang="ts">
 import {
   defineComponent,
-  onMounted,
   PropType,
   reactive,
+  ref,
   SetupContext,
+  watch,
 } from '@vue/composition-api'
 
 import get from 'lodash/get'
@@ -70,27 +48,25 @@ import {
 } from 'vee-validate'
 
 import {
-  FbFormResultType,
+  FbFormResultTypes,
   FbSizeTypes,
-  FbUiModalVariantType,
 } from '@fastybird/web-ui-theme'
 
 import Trigger from '~/models/triggers-node/triggers/Trigger'
 import { TriggerInterface } from '~/models/triggers-node/triggers/types'
 
-interface TriggersSettingsRenameFormModelInterface {
-  name: string
-  comment: string | null
-}
-
-interface TriggersSettingsRenameFormInterface {
-  model: TriggersSettingsRenameFormModelInterface
-  result: string | boolean | null
+interface TriggersSettingsTriggerRenameFormInterface {
+  model: {
+    name: string
+    comment: string | null
+  }
 }
 
 interface TriggersSettingsTriggerRenamePropsInterface {
   trigger: TriggerInterface
-  transparentBg: boolean
+  remoteFormSubmit: boolean
+  remoteFormResult: FbFormResultTypes
+  remoteFormReset: boolean
 }
 
 export default defineComponent({
@@ -104,7 +80,17 @@ export default defineComponent({
       required: true,
     },
 
-    transparentBg: {
+    remoteFormSubmit: {
+      type: Boolean,
+      default: false,
+    },
+
+    remoteFormResult: {
+      type: String as PropType<FbFormResultTypes>,
+      default: FbFormResultTypes.NONE,
+    },
+
+    remoteFormReset: {
       type: Boolean,
       default: false,
     },
@@ -117,12 +103,13 @@ export default defineComponent({
   },
 
   setup(props: TriggersSettingsTriggerRenamePropsInterface, context: SetupContext) {
-    const form = reactive<TriggersSettingsRenameFormInterface>({
+    const validator = ref<InstanceType<typeof ValidationObserver>>(null)
+
+    const form = reactive<TriggersSettingsTriggerRenameFormInterface>({
       model: {
         name: props.trigger.name,
         comment: props.trigger.comment,
       },
-      result: FbFormResultType.NONE,
     })
 
     localize({
@@ -145,66 +132,76 @@ export default defineComponent({
       computesRequired: true,
     })
 
-    // Processing timer
     let timer: number
 
-    onMounted((): void => {
-      context.emit('loaded')
-    })
+    function clearResult(): void {
+      window.clearTimeout(timer)
 
-    // Close form window
-    function close(): void {
-      window.clearInterval(timer)
-
-      context.emit('close')
+      context.emit('update:remoteFormResult', FbFormResultTypes.NONE)
     }
 
-    // Form could not be submitted
-    function error(): void {
-      window.clearInterval(timer)
+    watch(
+      (): boolean => props.remoteFormSubmit,
+      (val): void => {
+        if (val) {
+          context.emit('update:remoteFormSubmit', false)
 
-      form.result = FbFormResultType.NONE
-    }
+          if (validator.value !== null) {
+            validator.value
+              .validate()
+              .then(async(success: boolean): Promise<void> => {
+                if (success) {
+                  const errorMessage = context.root.$t('triggers.messages.triggerNotRenamed', {
+                    trigger: props.trigger.name,
+                  }).toString()
 
-    // Submit form
-    async function submit(): Promise<void> {
-      const errorMessage = context.root.$t('triggers.messages.triggerNotRenamed', {
-        trigger: props.trigger.name,
-      }).toString()
+                  context.emit('update:remoteFormResult', FbFormResultTypes.WORKING)
 
-      form.result = FbFormResultType.WORKING
+                  try {
+                    await Trigger.dispatch('edit', {
+                      trigger: props.trigger,
+                      data: {
+                        name: form.model.name,
+                        comment: form.model.comment,
+                      },
+                    })
 
-      try {
-        await Trigger.dispatch('edit', {
-          trigger: props.trigger,
-          data: {
-            name: form.model.name,
-            comment: form.model.comment,
-          },
-        })
+                    context.emit('update:remoteFormResult', FbFormResultTypes.OK)
 
-        form.result = FbFormResultType.OK
+                    timer = window.setTimeout(clearResult, 2000)
+                  } catch (e) {
+                    if (get(e, 'exception', null) !== null) {
+                      context.root.handleException(e.exception, errorMessage)
+                    } else {
+                      context.root.$flashMessage(errorMessage, 'error')
+                    }
 
-        timer = window.setInterval(close, 2000)
-      } catch (e) {
-        if (get(e, 'exception', null) !== null) {
-          context.root.handleException(e.exception, errorMessage)
-        } else {
-          context.root.$flashMessage(errorMessage, 'error')
+                    context.emit('update:remoteFormResult', FbFormResultTypes.ERROR)
+
+                    timer = window.setTimeout(clearResult, 2000)
+                  }
+                }
+              })
+          }
         }
+      },
+    )
 
-        form.result = FbFormResultType.ERROR
+    watch(
+      (): boolean => props.remoteFormReset,
+      (val): void => {
+        context.emit('update:remoteFormReset', false)
 
-        timer = window.setInterval(error, 2000)
-      }
-    }
+        if (val) {
+          form.model.name = props.trigger.name
+          form.model.comment = props.trigger.comment
+        }
+      },
+    )
 
     return {
+      validator,
       form,
-      close,
-      submit,
-      formResultTypes: FbFormResultType,
-      modalVariantTypes: FbUiModalVariantType,
       sizeTypes: FbSizeTypes,
     }
   },

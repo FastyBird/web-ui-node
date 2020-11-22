@@ -62,16 +62,6 @@ import get from 'lodash/get'
 
 import { FbFormCheckboxesGroup } from '@fastybird/web-ui-theme'
 
-interface TriggersSelectTimePropsInterfaceValueInterface {
-  selected: boolean
-  time: string
-  days: Array<number>
-}
-
-interface TriggersSelectTimePropsInterface {
-  value: TriggersSelectTimePropsInterfaceValueInterface
-}
-
 interface TriggersSelectTimeFormInterface {
   model: {
     hour: number
@@ -81,6 +71,16 @@ interface TriggersSelectTimeFormInterface {
   }
 }
 
+interface TriggersSelectTimeValueInterface {
+  selected: boolean
+  time: string
+  days: Array<number>
+}
+
+interface TriggersSelectTimePropsInterface {
+  value: TriggersSelectTimeValueInterface
+}
+
 export default defineComponent({
 
   name: 'TriggersSelectTime',
@@ -88,7 +88,7 @@ export default defineComponent({
   props: {
 
     value: {
-      type: Object as PropType<TriggersSelectTimePropsInterfaceValueInterface>,
+      type: Object as PropType<TriggersSelectTimeValueInterface>,
       default: null,
     },
 
@@ -144,10 +144,6 @@ export default defineComponent({
       { value: 'p', name: 'p.m.' },
     ]
 
-    onMounted((): void => {
-      isMounted.value = true
-    })
-
     function emitUpdate(): void {
       const today = new Date()
 
@@ -165,6 +161,10 @@ export default defineComponent({
         days: form.model.days,
       }))
     }
+
+    onMounted((): void => {
+      isMounted.value = true
+    })
 
     watch(
       () => form.model.days,

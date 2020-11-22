@@ -6,8 +6,8 @@ import {
 
 import {
   AccountInterface,
-  AccountEntityTypeType,
-  AccountStateType,
+  AccountEntityTypes,
+  AccountStateTypes,
 } from '~/models/auth-node/accounts/types'
 import Email from '~/models/auth-node/emails/Email'
 import { EmailInterface } from '~/models/auth-node/emails/types'
@@ -55,11 +55,11 @@ export default class Account extends Model implements AccountInterface {
   }
 
   id!: string
-  type!: AccountEntityTypeType
+  type!: AccountEntityTypes
 
   draft!: boolean
 
-  state!: AccountStateType
+  state!: AccountStateTypes
 
   lastVisit!: string
   registered!: string
@@ -88,7 +88,7 @@ export default class Account extends Model implements AccountInterface {
 
   // Entity transformers
   get name(): string {
-    if (this.type !== AccountEntityTypeType.USER) {
+    if (this.type !== AccountEntityTypes.USER) {
       throw new Error(`This field is not allowed for entity type ${this.type}`)
     }
 
@@ -96,7 +96,7 @@ export default class Account extends Model implements AccountInterface {
   }
 
   get email(): EmailInterface | null {
-    if (this.type !== AccountEntityTypeType.USER) {
+    if (this.type !== AccountEntityTypes.USER) {
       throw new Error(`This field is not allowed for entity type ${this.type}`)
     }
 
@@ -108,10 +108,10 @@ export default class Account extends Model implements AccountInterface {
   }
 
   get ownerAccount(): Item<Account> {
-    if (this.type !== AccountEntityTypeType.MACHINE) {
+    if (this.type !== AccountEntityTypes.MACHINE) {
       throw new Error(`This field is not allowed for entity type ${this.type}`)
     }
 
-    return Account.query().where('id', this.owner).where('type', AccountEntityTypeType.USER).first()
+    return Account.query().where('id', this.owner).where('type', AccountEntityTypes.USER).first()
   }
 }

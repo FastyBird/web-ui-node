@@ -10,12 +10,12 @@ import get from 'lodash/get'
 // @ts-ignore
 import jwtDecode from 'jwt-decode'
 
-import { SemaphoreType } from '~/store/session'
+import { SemaphoreTypes } from '~/store/session'
 
 import Account from '~/models/auth-node/accounts/Account'
-import { AccountEntityTypeType } from '~/models/auth-node/accounts/types'
-import { EmailEntityTypeType } from '~/models/auth-node/emails/types'
-import { IdentityEntityTypeType } from '~/models/auth-node/identities/types'
+import { AccountEntityTypes } from '~/models/auth-node/accounts/types'
+import { EmailEntityTypes } from '~/models/auth-node/emails/types'
+import { IdentityEntityTypes } from '~/models/auth-node/identities/types'
 
 declare module 'vue/types/vue' {
   interface Vue {
@@ -44,7 +44,7 @@ interface SessionAttributesInterface {
 
 interface SessionAccountRelationshipDataInterface {
   id: string,
-  type: AccountEntityTypeType,
+  type: AccountEntityTypes,
 }
 
 interface SessionAccountRelationshipInterface {
@@ -75,6 +75,13 @@ interface SessionRefreshPayloadInterface {
   refreshToken: string,
 }
 
+interface RegisterPayloadInterface {
+  emailAddress: string,
+  firstName: string,
+  lastName: string,
+  password: string,
+}
+
 interface BackendApiInterface {
   getAxios(): AxiosInstance
 
@@ -87,6 +94,8 @@ interface BackendApiInterface {
   validateEmail(payload: { address: string }): Promise<any>
 
   requestPassword(payload: { uid: string }): Promise<any>
+
+  register(payload: RegisterPayloadInterface): Promise<any>
 }
 
 class BackendApi implements BackendApiInterface {
@@ -104,7 +113,7 @@ class BackendApi implements BackendApiInterface {
 
   fetchSession(): Promise<any> {
     this.store.dispatch('session/setSemaphore', {
-      type: SemaphoreType.FETCHING,
+      type: SemaphoreTypes.FETCHING,
     }, {
       root: true,
     })
@@ -142,7 +151,7 @@ class BackendApi implements BackendApiInterface {
         })
         .finally(() => {
           this.store.dispatch('session/clearSemaphore', {
-            type: SemaphoreType.FETCHING,
+            type: SemaphoreTypes.FETCHING,
           }, {
             root: true,
           })
@@ -154,7 +163,7 @@ class BackendApi implements BackendApiInterface {
     const dataFormatter = new Jsona()
 
     this.store.dispatch('session/setSemaphore', {
-      type: SemaphoreType.CREATING,
+      type: SemaphoreTypes.CREATING,
     }, {
       root: true,
     })
@@ -164,7 +173,7 @@ class BackendApi implements BackendApiInterface {
         '/auth-node/v1/session',
         dataFormatter.serialize({
           stuff: Object.assign({}, {
-            type: AccountEntityTypeType.USER,
+            type: AccountEntityTypes.USER,
 
             uid: payload.uid,
             password: payload.password,
@@ -200,7 +209,7 @@ class BackendApi implements BackendApiInterface {
         })
         .finally(() => {
           this.store.dispatch('session/clearSemaphore', {
-            type: SemaphoreType.CREATING,
+            type: SemaphoreTypes.CREATING,
           }, {
             root: true,
           })
@@ -212,7 +221,7 @@ class BackendApi implements BackendApiInterface {
     const dataFormatter = new Jsona()
 
     this.store.dispatch('session/setSemaphore', {
-      type: SemaphoreType.UPDATING,
+      type: SemaphoreTypes.UPDATING,
     }, {
       root: true,
     })
@@ -222,7 +231,7 @@ class BackendApi implements BackendApiInterface {
         '/auth-node/v1/session',
         dataFormatter.serialize({
           stuff: Object.assign({}, {
-            type: AccountEntityTypeType.USER,
+            type: AccountEntityTypes.USER,
 
             refresh: payload.refreshToken,
           }),
@@ -257,7 +266,7 @@ class BackendApi implements BackendApiInterface {
         })
         .finally(() => {
           this.store.dispatch('session/clearSemaphore', {
-            type: SemaphoreType.UPDATING,
+            type: SemaphoreTypes.UPDATING,
           }, {
             root: true,
           })
@@ -272,7 +281,7 @@ class BackendApi implements BackendApiInterface {
       '/auth-node/v1/validate-email',
       dataFormatter.serialize({
         stuff: Object.assign({}, {
-          type: EmailEntityTypeType.EMAIL,
+          type: EmailEntityTypes.EMAIL,
           address: payload.address,
         }),
       }),
@@ -286,8 +295,23 @@ class BackendApi implements BackendApiInterface {
       '/auth-node/v1/password-reset',
       dataFormatter.serialize({
         stuff: Object.assign({}, {
-          type: IdentityEntityTypeType.USER,
+          type: IdentityEntityTypes.USER,
           uid: payload.uid,
+        }),
+      }),
+    )
+  }
+
+  register(payload: RegisterPayloadInterface): Promise<any> {
+    // TODO: Implement
+    const dataFormatter = new Jsona()
+
+    return this.axios.post(
+      '/auth-node/v1/register',
+      dataFormatter.serialize({
+        stuff: Object.assign({}, {
+          type: AccountEntityTypes.USER,
+          email: payload.emailAddress,
         }),
       }),
     )
@@ -375,7 +399,7 @@ const backendApiPlugin: Plugin = ({ app, store }, inject): void => {
           '/auth-node/v1/session',
           dataFormatter.serialize({
             stuff: Object.assign({}, {
-              type: AccountEntityTypeType.USER,
+              type: AccountEntityTypes.USER,
 
               refresh: store.getters['session/getRefreshToken'](),
             }),
@@ -424,6 +448,15 @@ const backendApiPlugin: Plugin = ({ app, store }, inject): void => {
       }
 
       return refreshAccessTokenCall
+    } else if (
+      parseInt(get(error, 'response.status', 200), 10) >= 500 &&
+      parseInt(get(error, 'response.status', 200), 10) < 600 &&
+      !get(originalRequest, '_retry', false)
+    ) {
+      // if the error is 5xx and has sent already been retried
+      originalRequest._retry = true // now it can be retried
+
+      return axios(originalRequest) // retry the request that errored out
     } else {
       return Promise.reject(error)
     }

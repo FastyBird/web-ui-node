@@ -1,9 +1,8 @@
 <template>
   <fb-ui-confirmation-window
     :transparent-bg="transparentBg"
-    class="fb-devices-settings-device-remove__container"
-    @confirmed="remove"
-    @close="close"
+    @confirmed="handleRemove"
+    @close="handleClose"
   >
     <font-awesome-icon
       slot="icon"
@@ -29,7 +28,6 @@
 <script lang="ts">
 import {
   defineComponent,
-  onMounted,
   PropType,
   SetupContext,
 } from '@vue/composition-api'
@@ -63,12 +61,7 @@ export default defineComponent({
   },
 
   setup(props: DevicesSettingsDeviceRemovePropsInterface, context: SetupContext) {
-    onMounted((): void => {
-      context.emit('loaded')
-    })
-
-    // Remove selected item
-    function remove(event?: MouseEvent): void {
+    function handleRemove(event?: MouseEvent): void {
       event && event.preventDefault()
 
       const errorMessage = context.root.$t('devices.messages.deviceNotRemoved', {
@@ -89,16 +82,13 @@ export default defineComponent({
       context.emit('removed')
     }
 
-    // Close remove confirmation window
-    function close(event?: MouseEvent): void {
-      event && event.preventDefault()
-
+    function handleClose(): void {
       context.emit('close')
     }
 
     return {
-      remove,
-      close,
+      handleRemove,
+      handleClose,
     }
   },
 

@@ -7,20 +7,20 @@ import {
 } from 'jsona/lib/JsonaTypes'
 
 import {
-  EmailEntityTypeType,
+  EmailEntityTypes,
   EmailInterface,
   EmailDataResponseInterface,
 } from '~/models/auth-node/emails/types'
 import {
   IdentityDataResponseInterface,
-  IdentityEntityTypeType,
+  IdentityEntityTypes,
   IdentityInterface,
 } from '~/models/auth-node/identities/types'
 
 // STORE
 // =====
 
-export enum SemaphoreType {
+export enum SemaphoreTypes {
   FETCHING = 'fetching',
   GETTING = 'getting',
   CREATING = 'creating',
@@ -33,11 +33,11 @@ export enum SemaphoreType {
 
 export interface AccountInterface {
   readonly id: string
-  readonly type: AccountEntityTypeType
+  readonly type: AccountEntityTypes
 
   draft: boolean
 
-  state: AccountStateType
+  state: AccountStateTypes
 
   lastVisit: string | null
   registered: string | null
@@ -72,12 +72,12 @@ export interface AccountInterface {
 // ENTITY TYPES
 // ============
 
-export enum AccountEntityTypeType {
+export enum AccountEntityTypes {
   USER = 'auth-node/user-account',
   MACHINE = 'auth-node/machine-account',
 }
 
-export enum AccountStateType {
+export enum AccountStateTypes {
   ACTIVE = 'active',
   BLOCKED = 'blocked',
   DELETED = 'deleted',
@@ -101,7 +101,7 @@ interface AccountDatetimeAttributesResponseInterface {
 }
 
 interface AccountAttributesResponseInterface {
-  state: AccountStateType
+  state: AccountStateTypes
 
   // User account specific
   datetime?: AccountDatetimeAttributesResponseInterface
@@ -117,7 +117,7 @@ interface AccountAttributesResponseInterface {
 
 interface EmailRelationshipResponseInterface extends TJsonApiRelationshipData {
   id: string
-  type: EmailEntityTypeType
+  type: EmailEntityTypes
 }
 
 interface AccountEmailsRelationshipsResponseInterface extends TJsonApiRelation {
@@ -126,7 +126,7 @@ interface AccountEmailsRelationshipsResponseInterface extends TJsonApiRelation {
 
 interface IdentityRelationshipResponseInterface extends TJsonApiRelationshipData {
   id: string
-  type: IdentityEntityTypeType
+  type: IdentityEntityTypes
 }
 
 interface AccountIdentitiesRelationshipsResponseInterface extends TJsonApiRelation {
@@ -155,7 +155,7 @@ interface MachineAccountRelationshipsResponseInterface extends TJsonApiRelations
 
 interface AccountDataResponseInterface extends TJsonApiData {
   id: string,
-  type: AccountEntityTypeType,
+  type: AccountEntityTypes,
   attributes: AccountAttributesResponseInterface,
   relationships: UserAccountRelationshipsResponseInterface | MachineAccountRelationshipsResponseInterface,
 }
@@ -182,7 +182,7 @@ export enum RoutingKeys {
 // ========================
 
 export interface AccountCreateInterface {
-  type: AccountEntityTypeType
+  type: AccountEntityTypes
 }
 
 // UPDATE ENTITY INTERFACES

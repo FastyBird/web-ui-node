@@ -8,13 +8,13 @@ import {
 
 import {
   TriggerInterface,
-  TriggerEntityTypeType,
+  TriggerEntityTypes,
 } from '~/models/triggers-node/triggers/types'
 
 // STORE
 // =====
 
-export enum SemaphoreType {
+export enum SemaphoreTypes {
   FETCHING = 'fetching',
   GETTING = 'getting',
   CREATING = 'creating',
@@ -27,7 +27,7 @@ export enum SemaphoreType {
 
 export interface ActionInterface {
   id: string
-  type: ActionEntityTypeType
+  type: ActionEntityTypes
 
   draft: boolean
 
@@ -53,7 +53,7 @@ export interface ActionInterface {
 // ENTITY TYPES
 // ============
 
-export enum ActionEntityTypeType {
+export enum ActionEntityTypes {
   DEVICE_PROPERTY = 'triggers-node/action-device-property',
   CHANNEL_PROPERTY = 'triggers-node/action-channel-property',
 }
@@ -73,7 +73,7 @@ interface ActionAttributesResponseInterface {
 
 interface ActionTriggerRelationshipResponseInterface extends TJsonApiRelationshipData {
   id: string
-  type: TriggerEntityTypeType
+  type: TriggerEntityTypes
 }
 
 interface ActionTriggerRelationshipsResponseInterface extends TJsonApiRelation {
@@ -86,7 +86,7 @@ interface ActionRelationshipsResponseInterface extends TJsonApiRelationships {
 
 export interface ActionDataResponseInterface extends TJsonApiData {
   id: string
-  type: ActionEntityTypeType
+  type: ActionEntityTypes
   attributes: ActionAttributesResponseInterface
   relationships: ActionRelationshipsResponseInterface
 }
@@ -125,7 +125,7 @@ export interface CreateChannelPropertyActionInterface extends ActionCreateInterf
 }
 
 export interface ActionCreateInterface {
-  type: ActionEntityTypeType
+  type: ActionEntityTypes
 
   enabled: boolean
 }

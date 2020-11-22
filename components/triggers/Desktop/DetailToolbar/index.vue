@@ -4,7 +4,7 @@
       <fb-ui-button
         :variant="buttonVariantTypes.LINK_DEFAULT"
         :size="sizeTypes.EXTRA_SMALL"
-        @click.prevent="$emit('close', $event)"
+        @click.prevent="handleClose"
       >
         <font-awesome-icon icon="times" />
         {{ $t('application.buttons.close.title') }}
@@ -14,7 +14,7 @@
         v-if="!editMode"
         :variant="buttonVariantTypes.LINK_DEFAULT"
         :size="sizeTypes.EXTRA_SMALL"
-        @click.prevent="$emit('toggleEdit', $event)"
+        @click.prevent="handleToggleEditMode"
       >
         <font-awesome-icon icon="pencil-alt" />
         {{ $t('application.buttons.edit.title') }}
@@ -24,7 +24,7 @@
         v-if="editMode"
         :variant="buttonVariantTypes.LINK"
         :size="sizeTypes.EXTRA_SMALL"
-        @click.prevent="$emit('toggleEdit', $event)"
+        @click.prevent="handleToggleEditMode"
       >
         <font-awesome-icon icon="check" />
         {{ $t('application.buttons.done.title') }}
@@ -55,15 +55,16 @@
         :disabled="page <= 1"
         :variant="buttonVariantTypes.LINK_DEFAULT"
         :size="sizeTypes.EXTRA_SMALL"
-        @click.prevent="$emit('previous', $event)"
+        @click.prevent="handlePreviousItem"
       >
         <font-awesome-icon icon="angle-left" />
       </fb-ui-button>
+
       <fb-ui-button
         :disabled="page >= total"
         :variant="buttonVariantTypes.LINK_DEFAULT"
         :size="sizeTypes.EXTRA_SMALL"
-        @click.prevent="$emit('next', $event)"
+        @click.prevent="handleNextItem"
       >
         <font-awesome-icon icon="angle-right" />
       </fb-ui-button>
@@ -75,6 +76,7 @@
 import {
   defineComponent,
   PropType,
+  SetupContext,
 } from '@vue/composition-api'
 
 import {
@@ -83,13 +85,6 @@ import {
 } from '@fastybird/web-ui-theme'
 
 import { TriggerInterface } from '~/models/triggers-node/triggers/types'
-
-interface TriggersDesktopDetailHeaderPropsInterface {
-  trigger: TriggerInterface
-  editMode: boolean
-  page: number
-  total: number
-}
 
 export default defineComponent({
 
@@ -119,8 +114,28 @@ export default defineComponent({
 
   },
 
-  setup() {
+  setup(props: {}, context: SetupContext) {
+    function handlePreviousItem(): void {
+      context.emit('previous')
+    }
+
+    function handleNextItem(): void {
+      context.emit('next')
+    }
+
+    function handleToggleEditMode(): void {
+      context.emit('toggleEdit')
+    }
+
+    function handleClose(): void {
+      context.emit('close')
+    }
+
     return {
+      handlePreviousItem,
+      handleNextItem,
+      handleToggleEditMode,
+      handleClose,
       sizeTypes: FbSizeTypes,
       buttonVariantTypes: FbUiButtonVariantTypes,
     }
