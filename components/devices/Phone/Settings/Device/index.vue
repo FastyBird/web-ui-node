@@ -32,7 +32,7 @@
       />
     </fb-ui-items-container>
 
-    <fb-ui-items-container class="fb-devices-phone-settings-device__general">
+    <fb-ui-items-container>
       <template slot="heading">
         {{ $t('devices.headings.generalSettings') }}
       </template>

@@ -160,7 +160,7 @@
           slot="header"
           :menu-hidden="menuHidden"
           :menu-collapsed="menuCollapsed"
-          @handleToggleMenu="handleToggleMenu"
+          @toggleMenu="handleToggleMenu"
         >
           <nuxt-link
             slot="logo"

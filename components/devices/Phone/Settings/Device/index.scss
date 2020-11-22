@@ -19,13 +19,6 @@
     }
   }
 
-  &__general {
-    .fb-ui-items-container__items {
-      padding-left: 0;
-      padding-right: 0;
-    }
-  }
-
   &__item {
     &-remove {
       color: $brand-danger;
