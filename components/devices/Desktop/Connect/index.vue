@@ -30,11 +30,11 @@
         />
 
         <template slot="heading">
-          Device basic info
+          {{ $t('devices.heading.deviceBasicInfo') }}
         </template>
 
         <template slot="description">
-          Provide basic information about your new device to identify it in the system
+          {{ $t('devices.texts.deviceBasicInfo') }}
         </template>
       </template>
 
@@ -46,11 +46,11 @@
         />
 
         <template slot="heading">
-          Connection to server
+          {{ $t('devices.heading.connectionToServer') }}
         </template>
 
         <template slot="description">
-          Choose one from listed options how your new device will be connected to the server
+          {{ $t('devices.texts.connectionToServer') }}
         </template>
       </template>
 
@@ -62,11 +62,11 @@
         />
 
         <template slot="heading">
-          Access credentials
+          {{ $t('devices.heading.accessCredentials') }}
         </template>
 
         <template slot="description">
-          Provide device server access credentials
+          {{ $t('devices.texts.accessCredentials') }}
         </template>
       </template>
 
@@ -78,11 +78,11 @@
         />
 
         <template slot="heading">
-          Processing
+          {{ $t('devices.heading.processingDevice') }}
         </template>
 
         <template slot="description">
-          Your new device is now going to be registered on server
+          {{ $t('devices.texts.processingDevice') }}
         </template>
       </template>
 
@@ -94,11 +94,11 @@
         />
 
         <template slot="heading">
-          Finished
+          {{ $t('devices.heading.finished') }}
         </template>
 
         <template slot="description">
-          Your new device is now allowed to connect to the server
+          {{ $t('devices.texts.finished') }}
         </template>
       </template>
     </fb-ui-modal-header>
@@ -135,7 +135,7 @@
           <fb-ui-spinner :size="sizeTypes.LARGE" />
 
           <p>
-            Registering device...
+            {{ $t('devices.texts.registeringDevice') }}
           </p>
         </template>
 
@@ -143,7 +143,7 @@
           <fb-ui-spinner :size="sizeTypes.LARGE" />
 
           <p>
-            Granting access to the server...
+            {{ $t('devices.texts.grantingAccess') }}
           </p>
         </template>
 
@@ -151,7 +151,7 @@
           <font-awesome-icon icon="exclamation-triangle" />
 
           <p>
-            Something went wrong, device could not be registered
+            {{ $t('devices.texts.registeringDeviceError') }}
           </p>
         </template>
       </div>
@@ -163,7 +163,7 @@
         <fb-ui-spinner :size="sizeTypes.LARGE" />
 
         <p>
-          Waiting for the device to connect to the server...
+          {{ $t('devices.texts.waitingForDevice') }}
         </p>
       </div>
     </div>

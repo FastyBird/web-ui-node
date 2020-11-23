@@ -44,15 +44,6 @@ export default {
   application: {
     headings: {
       offlineState: 'No internet connection',
-      groups: {
-        list: 'All groups',
-        add: 'New group',
-      },
-    },
-    subHeadings: {
-      groups: {
-        list: 'no groups | one group | {count} groups',
-      },
     },
     buttons: {
       menu: {
@@ -89,7 +80,7 @@ export default {
         title: 'Back',
       },
       next: {
-        title: 'Next step',
+        title: 'Next',
       },
       add: {
         title: 'Add',
@@ -205,9 +196,7 @@ export default {
     messages: {
       passwordRequestFail: 'Password reset instruction couldn\'t be send.',
       accountNotEdited: 'Your account couldn\'t be edited.',
-      profileNotEdited: 'Your profile couldn\'t be edited.',
       emailNotEdited: 'Your email address couldn\'t be changed.',
-      questionNotSaved: 'Your security question couldn\'t be saved.',
       passwordNotEdited: 'Your password couldn\'t be changed.',
     },
     texts: {
@@ -365,32 +354,43 @@ export default {
     headings: {
       allDevices: 'All devices',
       channel: 'Channel: {channel}',
-      resetChannel: 'Reset channel',
+      channels: 'Device channels',
       renameDevice: 'Rename device',
       renameChannel: 'Rename channel',
-      remove: 'Remove device',
+      resetChannel: 'Reset channel',
+      removeDevice: 'Remove device',
       credentials: 'Connection credentials',
       deviceSettings: 'Device settings',
       channelSettings: 'Channel settings',
       moduleSensorSettings: 'Device sensor settings',
       moduleTimeSettings: 'Device time settings',
       generalSettings: 'General settings',
-      channelParameterEdit: 'Channel parameter settings',
       deviceParameterEdit: 'Device parameter settings',
-      addNewDevice: 'Connect new device',
+      channelParameterEdit: 'Channel parameter settings',
+      connectDevice: 'Connect new device',
       syncDevices: 'Sync devices',
       aboutDevice: 'About device',
-      channels: 'Device channels',
+      deviceBasicInfo: 'Device basic info',
+      connectionToServer: 'Connection to server',
+      accessCredentials: 'Access credentials',
+      processingDevice: 'Processing',
+      finished: 'Finished',
     },
     subHeadings: {
       allDevices: 'No devices registered | One device registered | {count} devices registered',
-      addNewDevice: 'Register new device to the system',
+      connectDevice: 'Register new device to the system',
       syncDevices: 'Sync all devices with server',
+
+      deviceBasicInfo: 'Describe your new device',
+      connectionToServer: 'How device will communicate with server',
+      accessCredentials: 'Device server access credentials',
+      processingDevice: 'Finalizing device configuration',
+      finished: 'Your new device could be now connected',
     },
     messages: {
-      notOnline: 'Device <strong>{device}</strong> is not connected to server.',
-      commandNotAccepted: 'Last command was not accepted by device <strong>{device}</strong>.',
-      notSupported: 'This function is not supported by <strong>{device}</strong>.',
+      notOnline: 'Device {device} is not connected to server.',
+      commandNotAccepted: 'Last command was not accepted by device {device}.',
+      notSupported: 'This function is not supported by {device}.',
       confirmResetChannel: 'Clear measured values for device {device} and channel {channel} ?',
       deviceNotRenamed: 'Device {device} couldn\'t be renamed.',
       channelNotRenamed: 'Channel {channel} couldn\'t be renamed.',
@@ -406,10 +406,19 @@ export default {
     texts: {
       loadingDevices: 'Loading devices...',
       loadingDevice: 'Loading device...',
-      notFound: 'Device was not found, please try reload page.',
+      notFound: 'Device was not found, please try reload page',
       noDevices: 'You don\'t have assigned any device',
       noChannels: 'This device is without channels',
       noProperties: 'This channel is without properties',
+      deviceBasicInfo: 'Provide basic information about your new device to identify it in the system',
+      connectionToServer: 'Choose one from listed options how your new device will be connected to the server',
+      accessCredentials: 'Provide device server access credentials',
+      processingDevice: 'Your new device is now going to be registered on server',
+      finished: 'Your new device is now allowed to connect to the server',
+      registeringDevice: 'Registering device...',
+      grantingAccess: 'Granting access to the server...',
+      registeringDeviceError: 'Something went wrong, device could not be registered',
+      waitingForDevice: 'Waiting for the device to connect to the server...',
     },
     fields: {
       deviceName: {
@@ -520,35 +529,6 @@ export default {
       },
     },
     vendors: {
-      global: {
-        title: {
-          title: 'Device name',
-          validation: {
-            required: 'Please fill in device name',
-          },
-        },
-        comment: {
-          title: 'Device description',
-        },
-        username: {
-          title: 'Device MQTT username',
-          validation: {
-            required: 'Please fill in your device username',
-          },
-        },
-        password: {
-          title: 'Device MQTT password',
-          validation: {
-            required: 'Please fill in your device password',
-          },
-        },
-        mqttServer: {
-          title: 'MQTT server address',
-        },
-        mqttPort: {
-          title: 'MQTT server port',
-        },
-      },
       fastybird: {
         devices: {
           fastybird_wifi_gw: {
@@ -577,31 +557,35 @@ export default {
           on: 'Turn {property} on',
           off: 'Turn {property} off',
         },
-        led_mode: {
-          button: 'Status indicator mode',
-          heading: 'Status indicator mode',
-          description: 'Define how the device status indicator should operate. Indicator could be turned off to not disturb you.',
-          values: {
-            wifi_status: 'Wifi status',
-            always_on: 'Always on',
-            always_off: 'Always off',
-          },
+        properties: {
         },
-        relays_sync: {
-          button: 'Switch synchronization',
-          heading: 'Switch sync mode',
-          description: 'Define how the different switches should be synchronized.',
-          values: {
-            disabled: 'Disabled',
-            zero_or_one: 'Zero or one active',
-            only_one: 'Only one active',
-            all_synchronized: 'All synchronized',
+        configuration: {
+          led_mode: {
+            button: 'Status indicator mode',
+            heading: 'Status indicator mode',
+            description: 'Define how the device status indicator should operate. Indicator could be turned off to not disturb you.',
+            values: {
+              wifi_status: 'Wifi status',
+              always_on: 'Always on',
+              always_off: 'Always off',
+            },
           },
-        },
-        btn_delay: {
-          button: 'Double click delay',
-          heading: 'Double click delay',
-          description: 'Delay in milliseconds to detect a double click (from 0 to 1000ms).',
+          relays_sync: {
+            button: 'Switch synchronization',
+            heading: 'Switch sync mode',
+            description: 'Define how the different switches should be synchronized.',
+            values: {
+              disabled: 'Disabled',
+              zero_or_one: 'Zero or one active',
+              only_one: 'Only one active',
+              all_synchronized: 'All synchronized',
+            },
+          },
+          btn_delay: {
+            button: 'Double click delay',
+            heading: 'Double click delay',
+            description: 'Delay in milliseconds to detect a double click (from 0 to 1000ms).',
+          },
         },
       },
       itead: {
@@ -630,6 +614,11 @@ export default {
               energy: 'Energy',
             },
           },
+        },
+        actions: {
+          toggle: 'Toggle {property} state',
+          on: 'Turn {property} on',
+          off: 'Turn {property} off',
         },
         properties: {
           switch: {
@@ -693,157 +682,159 @@ export default {
             },
           },
         },
-        led_mode: {
-          button: 'Status indicator mode',
-          heading: 'Status indicator mode',
-          description: 'Define how the device status indicator should operate. Indicator could be turned off to not disturb you.',
-          values: {
-            wifi_status: 'Wifi status',
-            always_on: 'Always on',
-            always_off: 'Always off',
+        configuration: {
+          led_mode: {
+            button: 'Status indicator mode',
+            heading: 'Status indicator mode',
+            description: 'Define how the device status indicator should operate. Indicator could be turned off to not disturb you.',
+            values: {
+              wifi_status: 'Wifi status',
+              always_on: 'Always on',
+              always_off: 'Always off',
+            },
           },
-        },
-        relays_sync: {
-          button: 'Switch synchronization',
-          heading: 'Switch sync mode',
-          description: 'Define how the different switches should be synchronized.',
-          values: {
-            disabled: 'Disabled',
-            zero_or_one: 'Zero or one active',
-            only_one: 'Only one active',
-            all_synchronized: 'All synchronized',
+          relays_sync: {
+            button: 'Switch synchronization',
+            heading: 'Switch sync mode',
+            description: 'Define how the different switches should be synchronized.',
+            values: {
+              disabled: 'Disabled',
+              zero_or_one: 'Zero or one active',
+              only_one: 'Only one active',
+              all_synchronized: 'All synchronized',
+            },
           },
-        },
-        btn_delay: {
-          button: 'Double click delay',
-          heading: 'Double click delay',
-          description: 'Delay in milliseconds to detect a double click (from 0 to 1000ms).',
-        },
-        ntp_offset: {
-          button: 'Time zone',
-          heading: 'Time zone',
-          description: 'Define time zone offset in minutes from GMT',
-        },
-        ntp_server: {
-          button: 'NTP server',
-          heading: 'NTP server',
-          description: 'Define server for time synchronization',
-        },
-        ntp_region: {
-          button: 'DST region',
-          heading: 'DST region',
-          values: {
-            europe: 'Europe',
-            usa: 'USA',
+          btn_delay: {
+            button: 'Double click delay',
+            heading: 'Double click delay',
+            description: 'Delay in milliseconds to detect a double click (from 0 to 1000ms).',
           },
-        },
-        ntp_dst: {
-          button: 'Enable DST',
-          heading: 'Enable DST',
-        },
-        on_disconnect: {
-          button: 'On disconnect',
-          heading: 'On disconnect',
-          description: 'State of switch after connection loss to broker',
-          values: {
-            no_change: 'No change',
-            turn_off: 'Turn off',
-            turn_on: 'Turn on',
+          ntp_offset: {
+            button: 'Time zone',
+            heading: 'Time zone',
+            description: 'Define time zone offset in minutes from GMT',
           },
-        },
-        pulse_mode: {
-          button: 'Pulse mode',
-          heading: 'Pulse mode',
-          values: {
-            disabled: 'Disabled',
-            normally_off: 'Normally off',
-            normally_on: 'Normally on',
+          ntp_server: {
+            button: 'NTP server',
+            heading: 'NTP server',
+            description: 'Define server for time synchronization',
           },
-        },
-        pulse_time: {
-          button: 'Pulse time',
-          heading: 'Pulse time (s)',
-          description: '',
-        },
-        relay_boot: {
-          button: 'Boot mode',
-          heading: 'Boot mode',
-          description: 'State of switch after boot up',
-          values: {
-            always_off: 'Always off',
-            always_on: 'Always on',
-            same_before: 'Same before',
-            toggle_before: 'Toggle before',
+          ntp_region: {
+            button: 'DST region',
+            heading: 'DST region',
+            values: {
+              europe: 'Europe',
+              usa: 'USA',
+            },
           },
-        },
-        sensor_read_interval: {
-          button: 'Sensors reading interval',
-          heading: 'Sensors reading interval',
-          description: 'Select the interval between readings. These will be filtered and averaged for the report',
-          values: {
-            1: '1 s',
-            6: '6 s',
-            10: '10 s',
-            15: '15 s',
-            30: '30 s',
-            60: '60 s',
-            300: '5 min',
-            600: '10 min',
-            900: '15 min',
-            1800: '30 min',
-            3600: '60 min',
+          ntp_dst: {
+            button: 'Enable DST',
+            heading: 'Enable DST',
           },
-        },
-        sensor_report_interval: {
-          button: 'Sensors report every',
-          heading: 'Sensors report every',
-          description: 'Select the number of readings to average and report',
-        },
-        sensor_save_interval: {
-          button: 'Sensors save every',
-          heading: 'Sensors save every',
-          description: 'Save aggregated data to device memory after these many reports. Set it to 0 to disable this feature',
-        },
-        sensor_power_units: {
-          button: 'Power unit',
-          heading: 'Power unit',
-          values: {
-            watts: 'Watts (W)',
-            kilowatts: 'Kilowatts (kW)',
+          on_disconnect: {
+            button: 'On disconnect',
+            heading: 'On disconnect',
+            description: 'State of switch after connection loss to broker',
+            values: {
+              no_change: 'No change',
+              turn_off: 'Turn off',
+              turn_on: 'Turn on',
+            },
           },
-        },
-        sensor_energy_units: {
-          button: 'Energy unit',
-          heading: 'Energy unit',
-          values: {
-            joules: 'Joules (J)',
-            kilowatts_hours: 'Kilowatts-hours (kWh)',
+          pulse_mode: {
+            button: 'Pulse mode',
+            heading: 'Pulse mode',
+            values: {
+              disabled: 'Disabled',
+              normally_off: 'Normally off',
+              normally_on: 'Normally on',
+            },
           },
-        },
-        sensor_energy_ration: {
-          button: 'Energy ratio',
-          heading: 'Energy ratio',
-          description: 'Energy ratio in pulses/kWh.',
-        },
-        sensor_expected_current: {
-          button: 'Expected current',
-          heading: 'Expected current',
-          description: 'In Amperes (A). If you are using a pure resistive load like a bulb, this will be the ratio between the two previous values, i.e. power / voltage. You can also use a current clamp around one of the power wires to get this value.',
-        },
-        sensor_expected_voltage: {
-          button: 'Expected voltage',
-          heading: 'Expected voltage',
-          description: 'In Volts (V). Enter your the nominal AC voltage for your household or facility, or use multimeter to get this value.',
-        },
-        sensor_expected_power: {
-          button: 'Expected power',
-          heading: 'Expected power',
-          description: 'In Watts (W). Calibrate your sensor connecting a pure resistive load (like a bulb) and enter here its nominal power or use a multimeter.',
-        },
-        actions: {
-          toggle: 'Toggle {property} state',
-          on: 'Turn {property} on',
-          off: 'Turn {property} off',
+          pulse_time: {
+            button: 'Pulse time',
+            heading: 'Pulse time (s)',
+            description: '',
+          },
+          relay_boot: {
+            button: 'Boot mode',
+            heading: 'Boot mode',
+            description: 'State of switch after boot up',
+            values: {
+              always_off: 'Always off',
+              always_on: 'Always on',
+              same_before: 'Same before',
+              toggle_before: 'Toggle before',
+            },
+          },
+          sensor_read_interval: {
+            button: 'Sensors reading interval',
+            heading: 'Sensors reading interval',
+            description: 'Select the interval between readings. These will be filtered and averaged for the report',
+            values: {
+              1: '1 s',
+              6: '6 s',
+              10: '10 s',
+              15: '15 s',
+              30: '30 s',
+              60: '60 s',
+              300: '5 min',
+              600: '10 min',
+              900: '15 min',
+              1800: '30 min',
+              3600: '60 min',
+            },
+          },
+          sensor_report_interval: {
+            button: 'Sensors report every',
+            heading: 'Sensors report every',
+            description: 'Select the number of readings to average and report',
+          },
+          sensor_save_interval: {
+            button: 'Sensors save every',
+            heading: 'Sensors save every',
+            description: 'Save aggregated data to device memory after these many reports. Set it to 0 to disable this feature',
+          },
+          sensor_power_units: {
+            button: 'Power unit',
+            heading: 'Power unit',
+            values: {
+              watts: 'Watts (W)',
+              kilowatts: 'Kilowatts (kW)',
+            },
+          },
+          sensor_energy_units: {
+            button: 'Energy unit',
+            heading: 'Energy unit',
+            values: {
+              joules: 'Joules (J)',
+              kilowatts_hours: 'Kilowatts-hours (kWh)',
+            },
+          },
+          sensor_energy_ration: {
+            button: 'Energy ratio',
+            heading: 'Energy ratio',
+            description: 'Energy ratio in pulses/kWh.',
+          },
+          sensor_expected_current: {
+            button: 'Expected current',
+            heading: 'Expected current',
+            description: 'In Amperes (A). If you are using a pure resistive load like a bulb, this will be the ratio between the two previous values, i.e. power / voltage. You can also use a current clamp around one of the power wires to get this value.',
+          },
+          sensor_expected_voltage: {
+            button: 'Expected voltage',
+            heading: 'Expected voltage',
+            description: 'In Volts (V). Enter your the nominal AC voltage for your household or facility, or use multimeter to get this value.',
+          },
+          sensor_expected_power: {
+            button: 'Expected power',
+            heading: 'Expected power',
+            description: 'In Watts (W). Calibrate your sensor connecting a pure resistive load (like a bulb) and enter here its nominal power or use a multimeter.',
+          },
+          actions: {
+            toggle: 'Toggle {property} state',
+            on: 'Turn {property} on',
+            off: 'Turn {property} off',
+          },
         },
       },
     },

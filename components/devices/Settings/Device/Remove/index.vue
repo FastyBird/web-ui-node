@@ -11,7 +11,7 @@
     />
 
     <template slot="header">
-      {{ $t('devices.headings.remove') }}
+      {{ $t('devices.headings.removeDevice') }}
     </template>
 
     <template slot="question">

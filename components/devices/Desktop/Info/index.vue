@@ -23,11 +23,11 @@
         />
 
         <template slot="heading">
-          {{ $t('devices.headings.addNewDevice') }}
+          {{ $t('devices.headings.connectDevice') }}
         </template>
 
         <template slot="description">
-          {{ $t('devices.subHeadings.addNewDevice') }}
+          {{ $t('devices.subHeadings.connectDevice') }}
         </template>
 
         <fb-ui-button

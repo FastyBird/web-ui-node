@@ -51,7 +51,7 @@
           <fb-ui-spinner :size="sizeTypes.LARGE" />
 
           <p>
-            Registering device...
+            {{ $t('devices.texts.registeringDevice') }}
           </p>
         </template>
 
@@ -59,7 +59,7 @@
           <fb-ui-spinner :size="sizeTypes.LARGE" />
 
           <p>
-            Granting access to the server...
+            {{ $t('devices.texts.grantingAccess') }}
           </p>
         </template>
 
@@ -67,7 +67,7 @@
           <font-awesome-icon icon="exclamation-triangle" />
 
           <p>
-            Something went wrong, device could not be registered
+            {{ $t('devices.texts.registeringDeviceError') }}
           </p>
         </template>
       </div>
@@ -79,7 +79,7 @@
         <fb-ui-spinner :size="sizeTypes.LARGE" />
 
         <p>
-          Waiting for the device to connect to the server...
+          {{ $t('devices.texts.waitingForDevice') }}
         </p>
       </div>
 
@@ -180,8 +180,8 @@ export default defineComponent({
 
     function setHeading(): void {
       context.root.$store.dispatch('app/setHeading', {
-        heading: context.root.$t('devices.headings.connectDevice'),
-        subHeading: context.root.$t('devices.subHeadings.connectDevice'),
+        heading: context.root.$t('devices.headings.deviceBasicInfo'),
+        subHeading: context.root.$t('devices.subHeadings.deviceBasicInfo'),
         icon: 'plug',
       }, {
         root: true,
@@ -259,6 +259,63 @@ export default defineComponent({
     onUnmounted((): void => {
       destroyDevice()
     })
+
+    watch(
+      (): string => step.value,
+      (val): void => {
+        switch (val) {
+          case 1:
+            context.root.$store.dispatch('app/setHeading', {
+              heading: context.root.$t('devices.headings.deviceBasicInfo'),
+              subHeading: context.root.$t('devices.subHeadings.deviceBasicInfo'),
+              icon: 'plug',
+            }, {
+              root: true,
+            })
+            break
+
+          case 2:
+            context.root.$store.dispatch('app/setHeading', {
+              heading: context.root.$t('devices.headings.connectionToServer'),
+              subHeading: context.root.$t('devices.subHeadings.connectionToServer'),
+              icon: 'plug',
+            }, {
+              root: true,
+            })
+            break
+
+          case 3:
+            context.root.$store.dispatch('app/setHeading', {
+              heading: context.root.$t('devices.headings.accessCredentials'),
+              subHeading: context.root.$t('devices.subHeadings.accessCredentials'),
+              icon: 'plug',
+            }, {
+              root: true,
+            })
+            break
+
+          case 4:
+            context.root.$store.dispatch('app/setHeading', {
+              heading: context.root.$t('devices.headings.processingDevice'),
+              subHeading: context.root.$t('devices.subHeadings.processingDevice'),
+              icon: 'plug',
+            }, {
+              root: true,
+            })
+            break
+
+          case 5:
+            context.root.$store.dispatch('app/setHeading', {
+              heading: context.root.$t('devices.headings.finished'),
+              subHeading: context.root.$t('devices.subHeadings.finished'),
+              icon: 'plug',
+            }, {
+              root: true,
+            })
+            break
+        }
+      },
+    )
 
     watch(
       (): string => windowSize.value,
