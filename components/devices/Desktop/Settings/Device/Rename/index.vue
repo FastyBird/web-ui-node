@@ -41,7 +41,7 @@ import {
   FbUiModalVariantTypes,
 } from '@fastybird/web-ui-theme'
 
-import { DeviceInterface } from '~/models/devices-node/devices/types'
+import { DeviceInterface } from '~/models/devices-module/devices/types'
 
 import DevicesSettingsDeviceRename from '~/components/devices/Settings/Device/Rename/index.vue'
 

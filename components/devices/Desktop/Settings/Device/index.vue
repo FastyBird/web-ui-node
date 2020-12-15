@@ -110,11 +110,11 @@ import {
   watch,
 } from '@vue/composition-api'
 
-import { DeviceInterface } from '~/models/devices-node/devices/types'
-import DeviceConfiguration from '~/models/devices-node/device-configuration/DeviceConfiguration'
-import { DeviceConfigurationInterface } from '~/models/devices-node/device-configuration/types'
-import Hardware from '~/models/devices-node/hardwares/Hardware'
-import { HardwareInterface } from '~/models/devices-node/hardwares/types'
+import { DeviceInterface } from '~/models/devices-module/devices/types'
+import DeviceConfiguration from '~/models/devices-module/device-configuration/DeviceConfiguration'
+import { DeviceConfigurationInterface } from '~/models/devices-module/device-configuration/types'
+import Hardware from '~/models/devices-module/hardwares/Hardware'
+import { HardwareInterface } from '~/models/devices-module/hardwares/types'
 
 import { ListItemSizeTypes } from '~/components/layout/ListItem/index.vue'
 

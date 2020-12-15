@@ -126,9 +126,9 @@ import {
 
 import 'vue-swipe-actions/dist/vue-swipe-actions.css'
 
-import { TriggerInterface } from '~/models/triggers-node/triggers/types'
-import Condition from '~/models/triggers-node/conditions/Condition'
-import { ConditionInterface } from '~/models/triggers-node/conditions/types'
+import { TriggerInterface } from '~/models/triggers-module/triggers/types'
+import Condition from '~/models/triggers-module/conditions/Condition'
+import { ConditionInterface } from '~/models/triggers-module/conditions/types'
 
 import TriggersListCondition from '~/components/triggers/ListCondition/index.vue'
 import TriggersDetailDefaultConditionsContainerAddOrEdit from '~/components/triggers/Detail/Default/ConditionsContainer/AddOrEdit/index.vue'

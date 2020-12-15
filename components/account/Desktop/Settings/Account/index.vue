@@ -41,7 +41,7 @@ import {
   FbUiModalVariantTypes,
 } from '@fastybird/web-ui-theme'
 
-import { AccountInterface } from '~/models/auth-node/accounts/types'
+import { AccountInterface } from '~/models/auth-module/accounts/types'
 
 import AccountSettingsAccount from '~/components/account/Settings/Account/index.vue'
 

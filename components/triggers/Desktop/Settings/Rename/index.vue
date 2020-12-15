@@ -41,7 +41,7 @@ import {
   FbUiModalVariantTypes,
 } from '@fastybird/web-ui-theme'
 
-import { TriggerInterface } from '~/models/triggers-node/triggers/types'
+import { TriggerInterface } from '~/models/triggers-module/triggers/types'
 
 import TriggersSettingsRename from '~/components/triggers/Settings/Rename/index.vue'
 

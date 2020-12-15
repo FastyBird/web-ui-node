@@ -11,7 +11,7 @@ import {
   PropType,
 } from '@vue/composition-api'
 
-import { DeviceInterface } from '~/models/devices-node/devices/types'
+import { DeviceInterface } from '~/models/devices-module/devices/types'
 
 import DevicesDetailDefault from '~/components/devices/Detail/Default/index.vue'
 

@@ -19,7 +19,7 @@ import {
   PropType,
 } from '@vue/composition-api'
 
-import { TriggerInterface } from '~/models/triggers-node/triggers/types'
+import { TriggerInterface } from '~/models/triggers-module/triggers/types'
 
 import TriggersDetailDefaultActionsContainer from '~/components/triggers/Detail/Default/ActionsContainer/index.vue'
 import TriggersDetailDefaultConditionsContainer from '~/components/triggers/Detail/Default/ConditionsContainer/index.vue'

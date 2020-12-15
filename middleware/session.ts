@@ -4,9 +4,9 @@ import get from 'lodash/get'
 // @ts-ignore
 import jwtDecode from 'jwt-decode'
 
-import Account from '~/models/auth-node/accounts/Account'
-import Device from '~/models/devices-node/devices/Device'
-import Trigger from '~/models/triggers-node/triggers/Trigger'
+import Account from '~/models/auth-module/accounts/Account'
+import Device from '~/models/devices-module/devices/Device'
+import Trigger from '~/models/triggers-module/triggers/Trigger'
 
 function updateCookies(app: NuxtAppOptions, accessToken: string, refreshToken: string): void {
   const decodedAccessToken = jwtDecode(accessToken)

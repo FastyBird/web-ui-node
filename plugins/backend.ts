@@ -12,10 +12,10 @@ import jwtDecode from 'jwt-decode'
 
 import { SemaphoreTypes } from '~/store/session'
 
-import Account from '~/models/auth-node/accounts/Account'
-import { AccountEntityTypes } from '~/models/auth-node/accounts/types'
-import { EmailEntityTypes } from '~/models/auth-node/emails/types'
-import { IdentityEntityTypes } from '~/models/auth-node/identities/types'
+import Account from '~/models/auth-module/accounts/Account'
+import { AccountEntityTypes } from '~/models/auth-module/accounts/types'
+import { EmailEntityTypes } from '~/models/auth-module/emails/types'
+import { IdentityEntityTypes } from '~/models/auth-module/identities/types'
 
 declare module 'vue/types/vue' {
   interface Vue {
@@ -120,7 +120,7 @@ class BackendApi implements BackendApiInterface {
 
     return new Promise((resolve: (value: { accessToken: string, refreshToken: string }) => void, reject): void => {
       this.axios.get(
-        '/auth-node/v1/session',
+        '/auth-module/v1/session',
       )
         .then((response: AxiosResponse<SessionResponseInterface>): void => {
           this.store.dispatch('session/set', {
@@ -170,7 +170,7 @@ class BackendApi implements BackendApiInterface {
 
     return new Promise((resolve: (value: { accessToken: string, refreshToken: string }) => void, reject): void => {
       this.axios.post(
-        '/auth-node/v1/session',
+        '/auth-module/v1/session',
         dataFormatter.serialize({
           stuff: Object.assign({}, {
             type: AccountEntityTypes.USER,
@@ -228,7 +228,7 @@ class BackendApi implements BackendApiInterface {
 
     return new Promise((resolve: (value: { accessToken: string, refreshToken: string }) => void, reject): void => {
       this.axios.patch(
-        '/auth-node/v1/session',
+        '/auth-module/v1/session',
         dataFormatter.serialize({
           stuff: Object.assign({}, {
             type: AccountEntityTypes.USER,
@@ -278,7 +278,7 @@ class BackendApi implements BackendApiInterface {
     const dataFormatter = new Jsona()
 
     return this.axios.post(
-      '/auth-node/v1/validate-email',
+      '/auth-module/v1/validate-email',
       dataFormatter.serialize({
         stuff: Object.assign({}, {
           type: EmailEntityTypes.EMAIL,
@@ -292,7 +292,7 @@ class BackendApi implements BackendApiInterface {
     const dataFormatter = new Jsona()
 
     return this.axios.post(
-      '/auth-node/v1/password-reset',
+      '/auth-module/v1/password-reset',
       dataFormatter.serialize({
         stuff: Object.assign({}, {
           type: IdentityEntityTypes.USER,
@@ -307,7 +307,7 @@ class BackendApi implements BackendApiInterface {
     const dataFormatter = new Jsona()
 
     return this.axios.post(
-      '/auth-node/v1/register',
+      '/auth-module/v1/register',
       dataFormatter.serialize({
         stuff: Object.assign({}, {
           type: AccountEntityTypes.USER,
@@ -359,7 +359,7 @@ const backendApiPlugin: Plugin = ({ app, store }, inject): void => {
   instance.interceptors.request.use((request: AxiosRequestConfig): AxiosRequestConfig => {
     const accessToken = store.getters['session/getAccessToken']()
 
-    if (get(request, 'url', '').startsWith('/auth-node/v1/session') && request.method === 'patch') {
+    if (get(request, 'url', '').startsWith('/auth-module/v1/session') && request.method === 'patch') {
       // eslint-disable-next-line no-param-reassign
       delete request.headers.Authorization
     } else if (accessToken !== null) {
@@ -385,7 +385,7 @@ const backendApiPlugin: Plugin = ({ app, store }, inject): void => {
 
     if (
       parseInt(get(error, 'response.status', 200), 10) === 401 &&
-      originalRequest.url !== '/auth-node/v1/session' &&
+      originalRequest.url !== '/auth-module/v1/session' &&
       originalRequest.method !== 'patch' &&
       !get(originalRequest, '_retry', false)
     ) {
@@ -396,7 +396,7 @@ const backendApiPlugin: Plugin = ({ app, store }, inject): void => {
         const dataFormatter = new Jsona()
 
         refreshAccessTokenCall = instance.patch(
-          '/auth-node/v1/session',
+          '/auth-module/v1/session',
           dataFormatter.serialize({
             stuff: Object.assign({}, {
               type: AccountEntityTypes.USER,

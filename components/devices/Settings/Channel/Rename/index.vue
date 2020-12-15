@@ -52,9 +52,9 @@ import {
   FbSizeTypes,
 } from '@fastybird/web-ui-theme'
 
-import { DeviceInterface } from '~/models/devices-node/devices/types'
-import { ChannelInterface } from '~/models/devices-node/channels/types'
-import Channel from '~/models/devices-node/channels/Channel'
+import { DeviceInterface } from '~/models/devices-module/devices/types'
+import { ChannelInterface } from '~/models/devices-module/channels/types'
+import Channel from '~/models/devices-module/channels/Channel'
 
 interface DevicesSettingsChannelRenameFormInterface {
   model: {

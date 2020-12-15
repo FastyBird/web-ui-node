@@ -74,10 +74,10 @@ import {
   FbSizeTypes,
 } from '@fastybird/web-ui-theme'
 
-import { DeviceInterface } from '~/models/devices-node/devices/types'
-import Channel from '~/models/devices-node/channels/Channel'
+import { DeviceInterface } from '~/models/devices-module/devices/types'
+import Channel from '~/models/devices-module/channels/Channel'
 
-import { ChannelInterface } from '~/models/devices-node/channels/types'
+import { ChannelInterface } from '~/models/devices-module/channels/types'
 import { ListItemSizeTypes } from '~/components/layout/ListItem/index.vue'
 
 import DevicesPhoneSettingsDeviceChannel from '~/components/devices/Phone/Settings/Device/Channel/index.vue'

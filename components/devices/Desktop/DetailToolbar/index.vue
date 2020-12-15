@@ -84,7 +84,7 @@ import {
   FbUiButtonVariantTypes,
 } from '@fastybird/web-ui-theme'
 
-import { DeviceInterface } from '~/models/devices-node/devices/types'
+import { DeviceInterface } from '~/models/devices-module/devices/types'
 
 export default defineComponent({
 

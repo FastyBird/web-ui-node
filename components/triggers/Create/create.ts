@@ -6,24 +6,24 @@ import {
 
 import uuid from 'uuid'
 
-import Trigger from '~/models/triggers-node/triggers/Trigger'
-import { TriggerInterface } from '~/models/triggers-node/triggers/types'
-import Condition from '~/models/triggers-node/conditions/Condition'
+import Trigger from '~/models/triggers-module/triggers/Trigger'
+import { TriggerInterface } from '~/models/triggers-module/triggers/types'
+import Condition from '~/models/triggers-module/conditions/Condition'
 import {
   ConditionEntityTypes,
   ConditionInterface,
-} from '~/models/triggers-node/conditions/types'
-import Action from '~/models/triggers-node/actions/Action'
+} from '~/models/triggers-module/conditions/types'
+import Action from '~/models/triggers-module/actions/Action'
 import {
   ActionEntityTypes,
   ActionInterface,
-} from '~/models/triggers-node/actions/types'
-import { ConditionOperatorTypes } from '~/models/triggers-node/types'
-import Notification from '~/models/triggers-node/notifications/Notification'
+} from '~/models/triggers-module/actions/types'
+import { ConditionOperatorTypes } from '~/models/triggers-module/types'
+import Notification from '~/models/triggers-module/notifications/Notification'
 
-import { DeviceInterface } from '~/models/devices-node/devices/types'
-import DeviceProperty from '~/models/devices-node/device-properties/DeviceProperty'
-import ChannelProperty from '~/models/devices-node/channel-properties/ChannelProperty'
+import { DeviceInterface } from '~/models/devices-module/devices/types'
+import DeviceProperty from '~/models/devices-module/device-properties/DeviceProperty'
+import ChannelProperty from '~/models/devices-module/channel-properties/ChannelProperty'
 
 export enum TriggerTypes {
   TIME_SCHEDULED = 'timeScheduled',

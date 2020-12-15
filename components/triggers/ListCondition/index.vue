@@ -184,20 +184,20 @@ import {
   FbUiSpinnerVariantTypes,
 } from '@fastybird/web-ui-theme'
 
-import { TriggerInterface } from '~/models/triggers-node/triggers/types'
-import Condition from '~/models/triggers-node/conditions/Condition'
-import { ConditionInterface } from '~/models/triggers-node/conditions/types'
+import { TriggerInterface } from '~/models/triggers-module/triggers/types'
+import Condition from '~/models/triggers-module/conditions/Condition'
+import { ConditionInterface } from '~/models/triggers-module/conditions/types'
 
-import Device from '~/models/devices-node/devices/Device'
-import { DeviceInterface } from '~/models/devices-node/devices/types'
-import Channel from '~/models/devices-node/channels/Channel'
-import { ChannelInterface } from '~/models/devices-node/channels/types'
-import DeviceProperty from '~/models/devices-node/device-properties/DeviceProperty'
-import { DevicePropertyInterface } from '~/models/devices-node/device-properties/types'
-import ChannelProperty from '~/models/devices-node/channel-properties/ChannelProperty'
-import { ChannelPropertyInterface } from '~/models/devices-node/channel-properties/types'
+import Device from '~/models/devices-module/devices/Device'
+import { DeviceInterface } from '~/models/devices-module/devices/types'
+import Channel from '~/models/devices-module/channels/Channel'
+import { ChannelInterface } from '~/models/devices-module/channels/types'
+import DeviceProperty from '~/models/devices-module/device-properties/DeviceProperty'
+import { DevicePropertyInterface } from '~/models/devices-module/device-properties/types'
+import ChannelProperty from '~/models/devices-module/channel-properties/ChannelProperty'
+import { ChannelPropertyInterface } from '~/models/devices-module/channel-properties/types'
 
-import { AccountInterface } from '~/models/auth-node/accounts/types'
+import { AccountInterface } from '~/models/auth-module/accounts/types'
 
 import { ListItemSizeTypes } from '~/components/layout/ListItem/index.vue'
 

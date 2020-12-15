@@ -120,14 +120,14 @@ import {
   FbUiButtonVariantTypes,
 } from '@fastybird/web-ui-theme'
 
-import { DeviceInterface } from '~/models/devices-node/devices/types'
-import { ChannelInterface } from '~/models/devices-node/channels/types'
-import ChannelProperty from '~/models/devices-node/channel-properties/ChannelProperty'
+import { DeviceInterface } from '~/models/devices-module/devices/types'
+import { ChannelInterface } from '~/models/devices-module/channels/types'
+import ChannelProperty from '~/models/devices-module/channel-properties/ChannelProperty'
 import {
   ActorNameTypes,
   PropertyDatatypeTypes,
   SensorNameTypes,
-} from '~/models/devices-node/properties/types'
+} from '~/models/devices-module/properties/types'
 
 import DevicesListChannelProperty from '~/components/devices/ListChannelProperty/index.vue'
 

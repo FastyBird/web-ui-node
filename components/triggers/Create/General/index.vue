@@ -200,15 +200,15 @@ import {
   FbFormResultTypes,
 } from '@fastybird/web-ui-theme'
 
-import Trigger from '~/models/triggers-node/triggers/Trigger'
-import { TriggerInterface } from '~/models/triggers-node/triggers/types'
-import Action from '~/models/triggers-node/actions/Action'
-import { ActionInterface } from '~/models/triggers-node/actions/types'
-import Condition from '~/models/triggers-node/conditions/Condition'
+import Trigger from '~/models/triggers-module/triggers/Trigger'
+import { TriggerInterface } from '~/models/triggers-module/triggers/types'
+import Action from '~/models/triggers-module/actions/Action'
+import { ActionInterface } from '~/models/triggers-module/actions/types'
+import Condition from '~/models/triggers-module/conditions/Condition'
 import {
   ConditionEntityTypes,
   ConditionInterface,
-} from '~/models/triggers-node/conditions/types'
+} from '~/models/triggers-module/conditions/types'
 
 import TriggersListCondition from '~/components/triggers/ListCondition/index.vue'
 import TriggersListAction from '~/components/triggers/ListAction/index.vue'

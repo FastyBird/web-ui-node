@@ -105,20 +105,20 @@ import {
   FbSizeTypes,
 } from '@fastybird/web-ui-theme'
 
-import { DeviceInterface } from '~/models/devices-node/devices/types'
-import Identity from '~/models/auth-node/identities/Identity'
+import { DeviceInterface } from '~/models/devices-module/devices/types'
+import Identity from '~/models/auth-module/identities/Identity'
 import {
   IdentityEntityTypes,
   IdentityInterface,
-} from '~/models/auth-node/identities/types'
+} from '~/models/auth-module/identities/types'
 
 import {
   MQTT_SERVER_ADDRESS,
   MQTT_SERVER_PORT,
   MQTT_SERVER_SECURED_PORT,
 } from '~/configuration'
-import Account from '~/models/auth-node/accounts/Account'
-import { AccountInterface } from '~/models/auth-node/accounts/types'
+import Account from '~/models/auth-module/accounts/Account'
+import { AccountInterface } from '~/models/auth-module/accounts/types'
 
 interface DevicesSettingsDeviceCredentialsFormInterface {
   model: {

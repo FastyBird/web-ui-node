@@ -89,9 +89,9 @@ import {
   PropType,
 } from '@vue/composition-api'
 
-import { DeviceInterface } from '~/models/devices-node/devices/types'
-import { ChannelInterface } from '~/models/devices-node/channels/types'
-import { ChannelPropertyInterface } from '~/models/devices-node/channel-properties/types'
+import { DeviceInterface } from '~/models/devices-module/devices/types'
+import { ChannelInterface } from '~/models/devices-module/channels/types'
+import { ChannelPropertyInterface } from '~/models/devices-module/channel-properties/types'
 
 import DevicesActorSwitch from '~/components/devices/Actors/Switch/index.vue'
 

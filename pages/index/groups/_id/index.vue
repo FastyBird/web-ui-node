@@ -34,7 +34,7 @@ import {
   GROUPS_HASH_SETTINGS,
 } from '~/configuration/routes'
 
-import Group from '~/models/ui-node/Group'
+import Group from '~/models/ui-module/Group'
 
 import GroupDetail from '~/components/groups/Detail'
 import GroupSettings from '~/components/groups/Settings'

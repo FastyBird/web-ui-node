@@ -56,7 +56,7 @@ import {
   GROUPS_HASH_CREATE,
 } from '~/configuration/routes'
 
-import Group from '~/models/ui-node/Group'
+import Group from '~/models/ui-module/Group'
 
 import GroupListItem from '~/components/groups/ListItem'
 

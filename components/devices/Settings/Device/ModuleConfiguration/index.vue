@@ -108,9 +108,9 @@ import {
   FbSizeTypes,
 } from '@fastybird/web-ui-theme'
 
-import { DeviceInterface } from '~/models/devices-node/devices/types'
-import DeviceConfiguration from '~/models/devices-node/device-configuration/DeviceConfiguration'
-import { DeviceConfigurationInterface } from '~/models/devices-node/device-configuration/types'
+import { DeviceInterface } from '~/models/devices-module/devices/types'
+import DeviceConfiguration from '~/models/devices-module/device-configuration/DeviceConfiguration'
+import { DeviceConfigurationInterface } from '~/models/devices-module/device-configuration/types'
 
 interface DevicesSettingsDeviceModuleConfigurationFormInterface {
   model: {

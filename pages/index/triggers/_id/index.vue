@@ -107,8 +107,8 @@ import {
   TRIGGERS_HASH_SETTINGS,
 } from '~/configuration/routes'
 
-import Trigger from '~/models/triggers-node/triggers/Trigger'
-import { TriggerInterface } from '~/models/triggers-node/triggers/types'
+import Trigger from '~/models/triggers-module/triggers/Trigger'
+import { TriggerInterface } from '~/models/triggers-module/triggers/types'
 
 import TriggersDetail from '~/components/triggers/Detail/index.vue'
 import TriggerSettings from '~/components/triggers/Phone/Settings/index.vue'

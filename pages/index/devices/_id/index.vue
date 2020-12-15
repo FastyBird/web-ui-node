@@ -107,8 +107,8 @@ import {
   DEVICES_HASH_SETTINGS,
 } from '~/configuration/routes'
 
-import Device from '~/models/devices-node/devices/Device'
-import { DeviceInterface } from '~/models/devices-node/devices/types'
+import Device from '~/models/devices-module/devices/Device'
+import { DeviceInterface } from '~/models/devices-module/devices/types'
 
 import DevicesDetail from '~/components/devices/Detail/index.vue'
 

@@ -6,14 +6,14 @@ import {
 
 import uuid from 'uuid'
 
-import Device from '~/models/devices-node/devices/Device'
+import Device from '~/models/devices-module/devices/Device'
 import {
   DeviceEntityTypes,
   DeviceInterface,
-} from '~/models/devices-node/devices/types'
+} from '~/models/devices-module/devices/types'
 
-import Account from '~/models/auth-node/accounts/Account'
-import Identity from '~/models/auth-node/identities/Identity'
+import Account from '~/models/auth-module/accounts/Account'
+import Identity from '~/models/auth-module/identities/Identity'
 
 export enum ProtocolTypes {
   MQTT = 'mqtt',

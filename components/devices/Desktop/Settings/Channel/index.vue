@@ -40,11 +40,11 @@ import {
   watch,
 } from '@vue/composition-api'
 
-import Device from '~/models/devices-node/devices/Device'
-import { DeviceInterface } from '~/models/devices-node/devices/types'
-import { ChannelInterface } from '~/models/devices-node/channels/types'
-import ChannelConfiguration from '~/models/devices-node/channel-configuration/ChannelConfiguration'
-import { ChannelConfigurationInterface } from '~/models/devices-node/channel-configuration/types'
+import Device from '~/models/devices-module/devices/Device'
+import { DeviceInterface } from '~/models/devices-module/devices/types'
+import { ChannelInterface } from '~/models/devices-module/channels/types'
+import ChannelConfiguration from '~/models/devices-module/channel-configuration/ChannelConfiguration'
+import { ChannelConfigurationInterface } from '~/models/devices-module/channel-configuration/types'
 
 import DevicesSettingsChannelParameter from '~/components/devices/Settings/Channel/Parameter/index.vue'
 import DevicesSettingsChannelParameterEdit from '~/components/devices/Settings/Channel/ParameterEdit/index.vue'

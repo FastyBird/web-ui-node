@@ -172,9 +172,9 @@ import {
   FbSizeTypes,
 } from '@fastybird/web-ui-theme'
 
-import Account from '~/models/auth-node/accounts/Account'
-import { AccountInterface } from '~/models/auth-node/accounts/types'
-import Email from '~/models/auth-node/emails/Email'
+import Account from '~/models/auth-module/accounts/Account'
+import { AccountInterface } from '~/models/auth-module/accounts/types'
+import Email from '~/models/auth-module/emails/Email'
 
 import timezones from '~/helpers/timezones'
 

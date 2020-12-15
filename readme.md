@@ -14,11 +14,11 @@ FastyBird Web UI node is tested against ECMAScript 6
 
 > **NOTE:** If you don't want to install it manually, try [docker image](#install-with-docker)
 
-The best way to install **fastybird/web-ui-node** is using [Yarn](https://yarnpkg.com/). If you don't have Yarn yet, [download it](https://classic.yarnpkg.com/en/docs/install#search-stable) following the instructions.
+The best way to install **fastybird/web-ui-module** is using [Yarn](https://yarnpkg.com/). If you don't have Yarn yet, [download it](https://classic.yarnpkg.com/en/docs/install#search-stable) following the instructions.
 Then use command:
 
 ```sh
-$ git clone git@github.com:FastyBird/web-ui-node.git path/to/install
+$ git clone git@github.com:FastyBird/web-ui-module.git path/to/install
 $ cd path/to/install
 $ yarn install
 ```
@@ -46,23 +46,23 @@ This command build app from source files and start node server which is listenin
 
 ## Install with docker
 
-![Docker Image Version (latest by date)](https://img.shields.io/docker/v/fastybird/web-ui-node?style=flat-square)
-![Docker Image Size (latest by date)](https://img.shields.io/docker/image-size/fastybird/web-ui-node?style=flat-square)
-![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/fastybird/web-ui-node?style=flat-square)
+![Docker Image Version (latest by date)](https://img.shields.io/docker/v/fastybird/web-ui-module?style=flat-square)
+![Docker Image Size (latest by date)](https://img.shields.io/docker/image-size/fastybird/web-ui-module?style=flat-square)
+![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/fastybird/web-ui-module?style=flat-square)
 
-Docker image: [fastybird/web-ui-node](https://hub.docker.com/r/fastybird/web-ui-node/)
+Docker image: [fastybird/web-ui-module](https://hub.docker.com/r/fastybird/web-ui-module/)
 
 ### Use docker hub image
 
 ```bash
-$ docker run -d -it --name web-ui fastybird/web-ui-node:latest
+$ docker run -d -it --name web-ui fastybird/web-ui-module:latest
 ```
 
 ### Generate local image
 
 ```bash
-$ docker build --tag=web-ui-node .
-$ docker run -d -it --name web-ui-node web-ui-node
+$ docker build --tag=web-ui-module .
+$ docker run -d -it --name web-ui-module web-ui-module
 ```
 
 ## Configuration
@@ -87,13 +87,13 @@ Configuration could be made via environment variables:
 
 ## Feedback
 
-Use the [issue tracker](https://github.com/FastyBird/web-ui-node/issues) for bugs or [mail](mailto:info@fastybird.com) or [Tweet](https://twitter.com/fastybird) us for any idea that can improve the project.
+Use the [issue tracker](https://github.com/FastyBird/web-ui-module/issues) for bugs or [mail](mailto:info@fastybird.com) or [Tweet](https://twitter.com/fastybird) us for any idea that can improve the project.
 
 Thank you for testing, reporting and contributing.
 
 ## Changelog
 
-For release info check [release page](https://github.com/FastyBird/web-ui-node/releases)
+For release info check [release page](https://github.com/FastyBird/web-ui-module/releases)
 
 ## Maintainers
 
@@ -112,4 +112,4 @@ For release info check [release page](https://github.com/FastyBird/web-ui-node/r
 </table>
 
 ***
-Homepage [http://www.fastybird.com](http://www.fastybird.com) and repository [http://github.com/fastybird/web-ui-node](http://github.com/fastybird/web-ui-node).
+Homepage [http://www.fastybird.com](http://www.fastybird.com) and repository [http://github.com/fastybird/web-ui-module](http://github.com/fastybird/web-ui-module).

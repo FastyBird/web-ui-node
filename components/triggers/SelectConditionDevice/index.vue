@@ -25,9 +25,9 @@ import {
   PropType,
 } from '@vue/composition-api'
 
-import { ConditionOperatorTypes } from '~/models/triggers-node/types'
+import { ConditionOperatorTypes } from '~/models/triggers-module/types'
 
-import { DeviceInterface } from '~/models/devices-node/devices/types'
+import { DeviceInterface } from '~/models/devices-module/devices/types'
 
 import TriggersSelectConditionDeviceProperty from '~/components/triggers/SelectConditionDevice/Property/index.vue'
 

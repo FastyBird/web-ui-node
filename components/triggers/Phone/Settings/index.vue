@@ -86,8 +86,8 @@ import {
   FbUiSwitchElementVariantTypes,
 } from '@fastybird/web-ui-theme'
 
-import Trigger from '~/models/triggers-node/triggers/Trigger'
-import { TriggerInterface } from '~/models/triggers-node/triggers/types'
+import Trigger from '~/models/triggers-module/triggers/Trigger'
+import { TriggerInterface } from '~/models/triggers-module/triggers/types'
 
 import { ListItemSizeTypes } from '~/components/layout/ListItem/index.vue'
 

@@ -429,17 +429,17 @@ import {
   FbUiDividerVariantTypes,
 } from '@fastybird/web-ui-theme'
 
-import { TriggerInterface } from '~/models/triggers-node/triggers/types'
-import Condition from '~/models/triggers-node/conditions/Condition'
+import { TriggerInterface } from '~/models/triggers-module/triggers/types'
+import Condition from '~/models/triggers-module/conditions/Condition'
 import {
   ConditionEntityTypes,
   ConditionInterface,
-} from '~/models/triggers-node/conditions/types'
-import { ConditionOperatorTypes } from '~/models/triggers-node/types'
+} from '~/models/triggers-module/conditions/types'
+import { ConditionOperatorTypes } from '~/models/triggers-module/types'
 
-import { DeviceInterface } from '~/models/devices-node/devices/types'
-import DeviceProperty from '~/models/devices-node/device-properties/DeviceProperty'
-import ChannelProperty from '~/models/devices-node/channel-properties/ChannelProperty'
+import { DeviceInterface } from '~/models/devices-module/devices/types'
+import DeviceProperty from '~/models/devices-module/device-properties/DeviceProperty'
+import ChannelProperty from '~/models/devices-module/channel-properties/ChannelProperty'
 
 import TriggersListDevices, { ViewType as SelectViewTypes } from '~/components/triggers/ListDevices/index.vue'
 import TriggersSelectConditionDevice from '~/components/triggers/SelectConditionDevice/index.vue'

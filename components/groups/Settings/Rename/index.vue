@@ -40,7 +40,7 @@
 </template>
 
 <script>
-import Group from '~/models/ui-node/Group'
+import Group from '~/models/ui-module/Group'
 
 export default {
 

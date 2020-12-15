@@ -66,11 +66,11 @@ import {
   SetupContext,
 } from '@vue/composition-api'
 
-import { ActionInterface } from '~/models/triggers-node/actions/types'
-import { ConditionInterface } from '~/models/triggers-node/conditions/types'
+import { ActionInterface } from '~/models/triggers-module/actions/types'
+import { ConditionInterface } from '~/models/triggers-module/conditions/types'
 
-import Device from '~/models/devices-node/devices/Device'
-import { DeviceInterface } from '~/models/devices-node/devices/types'
+import Device from '~/models/devices-module/devices/Device'
+import { DeviceInterface } from '~/models/devices-module/devices/types'
 
 export enum ViewType {
   SENSORS = 'sensors',

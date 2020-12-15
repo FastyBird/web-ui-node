@@ -90,7 +90,7 @@ import {
   DEVICES_HASH_DETAIL,
 } from '~/configuration/routes'
 
-import Device from '~/models/devices-node/devices/Device'
+import Device from '~/models/devices-module/devices/Device'
 
 import DevicesListDevices from '~/components/devices/ListDevices/index.vue'
 

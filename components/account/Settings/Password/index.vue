@@ -91,8 +91,8 @@ import {
   FbSizeTypes,
 } from '@fastybird/web-ui-theme'
 
-import Identity from '~/models/auth-node/identities/Identity'
-import { IdentityInterface } from '~/models/auth-node/identities/types'
+import Identity from '~/models/auth-module/identities/Identity'
+import { IdentityInterface } from '~/models/auth-module/identities/types'
 
 interface AccountSettingsPasswordFormInterface {
   model: {

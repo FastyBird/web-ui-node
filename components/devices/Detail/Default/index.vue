@@ -26,9 +26,9 @@ import {
   PropType,
 } from '@vue/composition-api'
 
-import { DeviceInterface } from '~/models/devices-node/devices/types'
-import Channel from '~/models/devices-node/channels/Channel'
-import { ChannelInterface } from '~/models/devices-node/channels/types'
+import { DeviceInterface } from '~/models/devices-module/devices/types'
+import Channel from '~/models/devices-module/channels/Channel'
+import { ChannelInterface } from '~/models/devices-module/channels/types'
 
 import DevicesDetailDefaultChannelContainer from '~/components/devices/Detail/Default/ChannelContainer/index.vue'
 

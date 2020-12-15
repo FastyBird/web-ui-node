@@ -287,14 +287,14 @@ import { version } from './../package.json'
 
 import * as config from '~/configuration'
 
-import Account from '~/models/auth-node/accounts/Account'
-import { AccountInterface } from '~/models/auth-node/accounts/types'
-import Identity from '~/models/auth-node/identities/Identity'
-import { IdentityInterface } from '~/models/auth-node/identities/types'
+import Account from '~/models/auth-module/accounts/Account'
+import { AccountInterface } from '~/models/auth-module/accounts/types'
+import Identity from '~/models/auth-module/identities/Identity'
+import { IdentityInterface } from '~/models/auth-module/identities/types'
 
-import Device from '~/models/devices-node/devices/Device'
+import Device from '~/models/devices-module/devices/Device'
 
-import Trigger from '~/models/triggers-node/triggers/Trigger'
+import Trigger from '~/models/triggers-module/triggers/Trigger'
 
 import AccountDesktopSettingsAccount from '~/components/account/Desktop/Settings/Account/index.vue'
 import AccountDesktopSettingsPassword from '~/components/account/Desktop/Settings/Password/index.vue'

@@ -28,7 +28,7 @@ import {
   SetupContext,
 } from '@vue/composition-api'
 
-import { DeviceInterface } from '~/models/devices-node/devices/types'
+import { DeviceInterface } from '~/models/devices-module/devices/types'
 
 import { ListItemSizeTypes } from '~/components/layout/ListItem/index.vue'
 

@@ -84,7 +84,7 @@ import {
   FbUiButtonVariantTypes,
 } from '@fastybird/web-ui-theme'
 
-import { TriggerInterface } from '~/models/triggers-node/triggers/types'
+import { TriggerInterface } from '~/models/triggers-module/triggers/types'
 
 export default defineComponent({
 

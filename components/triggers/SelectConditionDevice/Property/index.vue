@@ -138,10 +138,10 @@ import {
   FbUiSwitchElementVariantTypes,
 } from '@fastybird/web-ui-theme'
 
-import { ConditionOperatorTypes } from '~/models/triggers-node/types'
+import { ConditionOperatorTypes } from '~/models/triggers-module/types'
 
-import { DevicePropertyInterface } from '~/models/devices-node/device-properties/types'
-import { ChannelPropertyInterface } from '~/models/devices-node/channel-properties/types'
+import { DevicePropertyInterface } from '~/models/devices-module/device-properties/types'
+import { ChannelPropertyInterface } from '~/models/devices-module/channel-properties/types'
 
 import { ListItemSizeTypes } from '~/components/layout/ListItem/index.vue'
 

@@ -24,7 +24,7 @@ import {
 
 import {
   DeviceInterface,
-} from '~/models/devices-node/devices/types'
+} from '~/models/devices-module/devices/types'
 
 export default defineComponent({
 

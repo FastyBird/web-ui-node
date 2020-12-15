@@ -124,9 +124,9 @@ import {
 
 import 'vue-swipe-actions/dist/vue-swipe-actions.css'
 
-import { TriggerInterface } from '~/models/triggers-node/triggers/types'
-import Action from '~/models/triggers-node/actions/Action'
-import { ActionInterface } from '~/models/triggers-node/actions/types'
+import { TriggerInterface } from '~/models/triggers-module/triggers/types'
+import Action from '~/models/triggers-module/actions/Action'
+import { ActionInterface } from '~/models/triggers-module/actions/types'
 
 import TriggersListAction from '~/components/triggers/ListAction/index.vue'
 import TriggersDetailDefaultActionsContainerAddOrEdit from '~/components/triggers/Detail/Default/ActionsContainer/AddOrEdit/index.vue'

@@ -158,12 +158,12 @@ import {
   MQTT_SERVER_SECURED_PORT,
 } from '~/configuration'
 
-import { DeviceInterface } from '~/models/devices-node/devices/types'
+import { DeviceInterface } from '~/models/devices-module/devices/types'
 
-import Account from '~/models/auth-node/accounts/Account'
-import { AccountEntityTypes } from '~/models/auth-node/accounts/types'
-import Identity from '~/models/auth-node/identities/Identity'
-import { IdentityEntityTypes } from '~/models/auth-node/identities/types'
+import Account from '~/models/auth-module/accounts/Account'
+import { AccountEntityTypes } from '~/models/auth-module/accounts/types'
+import Identity from '~/models/auth-module/identities/Identity'
+import { IdentityEntityTypes } from '~/models/auth-module/identities/types'
 
 interface DevicesConnectCredentialsPropsPropsInterface {
   device: DeviceInterface

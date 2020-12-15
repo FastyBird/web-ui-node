@@ -33,12 +33,12 @@ import {
   SetupContext,
 } from '@vue/composition-api'
 
-import { DeviceInterface } from '~/models/devices-node/devices/types'
+import { DeviceInterface } from '~/models/devices-module/devices/types'
 import {
   ChannelInterface,
   CommandRoutingKeys,
-} from '~/models/devices-node/channels/types'
-import Channel from '~/models/devices-node/channels/Channel'
+} from '~/models/devices-module/channels/types'
+import Channel from '~/models/devices-module/channels/Channel'
 
 interface DevicesSettingsChannelResetPropsInterface {
   device: DeviceInterface

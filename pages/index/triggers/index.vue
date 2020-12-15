@@ -96,7 +96,7 @@ import {
   TRIGGERS_HASH_CREATE,
 } from '~/configuration/routes'
 
-import Trigger from '~/models/triggers-node/triggers/Trigger'
+import Trigger from '~/models/triggers-module/triggers/Trigger'
 
 import TriggersListTriggers from '~/components/triggers/ListTriggers/index.vue'
 

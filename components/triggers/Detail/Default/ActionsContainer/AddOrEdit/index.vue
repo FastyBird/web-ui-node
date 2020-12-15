@@ -105,16 +105,16 @@ import {
   FbUiButtonVariantTypes,
 } from '@fastybird/web-ui-theme'
 
-import { TriggerInterface } from '~/models/triggers-node/triggers/types'
-import Action from '~/models/triggers-node/actions/Action'
+import { TriggerInterface } from '~/models/triggers-module/triggers/types'
+import Action from '~/models/triggers-module/actions/Action'
 import {
   ActionEntityTypes,
   ActionInterface,
-} from '~/models/triggers-node/actions/types'
+} from '~/models/triggers-module/actions/types'
 
-import { DeviceInterface } from '~/models/devices-node/devices/types'
-import DeviceProperty from '~/models/devices-node/device-properties/DeviceProperty'
-import ChannelProperty from '~/models/devices-node/channel-properties/ChannelProperty'
+import { DeviceInterface } from '~/models/devices-module/devices/types'
+import DeviceProperty from '~/models/devices-module/device-properties/DeviceProperty'
+import ChannelProperty from '~/models/devices-module/channel-properties/ChannelProperty'
 
 import TriggersListDevices, { ViewType as SelectViewTypes } from '~/components/triggers/ListDevices/index.vue'
 import TriggersSelectActionDevice from '~/components/triggers/SelectActionDevice/index.vue'

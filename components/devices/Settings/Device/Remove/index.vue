@@ -34,8 +34,8 @@ import {
 
 import get from 'lodash/get'
 
-import Device from '~/models/devices-node/devices/Device'
-import { DeviceInterface } from '~/models/devices-node/devices/types'
+import Device from '~/models/devices-module/devices/Device'
+import { DeviceInterface } from '~/models/devices-module/devices/types'
 
 interface DevicesSettingsDeviceRemovePropsInterface {
   device: DeviceInterface

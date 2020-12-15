@@ -107,10 +107,10 @@ import {
   FbSizeTypes,
 } from '@fastybird/web-ui-theme'
 
-import { DeviceInterface } from '~/models/devices-node/devices/types'
-import { ChannelInterface } from '~/models/devices-node/channels/types'
-import ChannelConfiguration from '~/models/devices-node/channel-configuration/ChannelConfiguration'
-import { ChannelConfigurationInterface } from '~/models/devices-node/channel-configuration/types'
+import { DeviceInterface } from '~/models/devices-module/devices/types'
+import { ChannelInterface } from '~/models/devices-module/channels/types'
+import ChannelConfiguration from '~/models/devices-module/channel-configuration/ChannelConfiguration'
+import { ChannelConfigurationInterface } from '~/models/devices-module/channel-configuration/types'
 
 interface DevicesSettingsChannelParameterEditFormInterface {
   model: {

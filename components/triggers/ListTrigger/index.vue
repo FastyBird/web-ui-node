@@ -25,7 +25,7 @@ import {
   SetupContext,
 } from '@vue/composition-api'
 
-import { TriggerInterface } from '~/models/triggers-node/triggers/types'
+import { TriggerInterface } from '~/models/triggers-module/triggers/types'
 
 import { ListItemSizeTypes } from '~/components/layout/ListItem/index.vue'
 

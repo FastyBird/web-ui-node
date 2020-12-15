@@ -69,8 +69,8 @@ import { SwipeList } from 'vue-swipe-actions'
 
 import { orderBy } from 'natural-orderby'
 
-import Trigger from '~/models/triggers-node/triggers/Trigger'
-import { TriggerInterface } from '~/models/triggers-node/triggers/types'
+import Trigger from '~/models/triggers-module/triggers/Trigger'
+import { TriggerInterface } from '~/models/triggers-module/triggers/types'
 
 import TriggersListTrigger from '~/components/triggers/ListTrigger/index.vue'
 import TriggersSettingsRemove from '~/components/triggers/Settings/Remove/index.vue'

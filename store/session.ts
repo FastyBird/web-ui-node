@@ -1,6 +1,6 @@
 import { ActionTree, GetterTree, MutationTree } from 'vuex'
 
-import Account from '~/models/auth-node/accounts/Account'
+import Account from '~/models/auth-module/accounts/Account'
 
 interface SemaphoreState {
   fetching: boolean

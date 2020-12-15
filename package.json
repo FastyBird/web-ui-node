@@ -1,6 +1,6 @@
 {
-  "name": "web-ui-node",
-  "description": "FastyBird IO server user interface",
+  "name": "web-ui",
+  "description": "FastyBird IOT user interface",
   "version": "0.1.0",
   "author": "FastyBird s.r.o.",
   "private": false,
@@ -16,7 +16,7 @@
     "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
-    "@fastybird/node-metadata": "https://github.com/FastyBird/node-metadata.git",
+    "@fastybird/modules-metadata": "https://github.com/FastyBird/modules-metadata.git",
     "@fastybird/vue-wamp-v1": "https://github.com/FastyBird/vue-wamp-v1.git",
     "@fastybird/vuex-orm-wamp": "https://github.com/FastyBird/vuex-orm-wamp.git",
     "@fastybird/web-ui-theme": "https://github.com/FastyBird/web-ui-theme.git",
@@ -88,6 +88,7 @@
     "jest": "^24.1.0",
     "node-sass": "^4.12.0",
     "patch-package": "^6.2.0",
+    "prettier": "^2.2.0",
     "sass-loader": "^8.0.0",
     "vue-devtools": "^5.1.3",
     "vue-jest": "^4.0.0-0",

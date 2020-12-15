@@ -58,9 +58,9 @@ import {
 import {
   DeviceInterface,
   DeviceStateTypes,
-} from '~/models/devices-node/devices/types'
-import ChannelProperty from '~/models/devices-node/channel-properties/ChannelProperty'
-import { ChannelPropertyInterface } from '~/models/devices-node/channel-properties/types'
+} from '~/models/devices-module/devices/types'
+import ChannelProperty from '~/models/devices-module/channel-properties/ChannelProperty'
+import { ChannelPropertyInterface } from '~/models/devices-module/channel-properties/types'
 
 interface DevicesActorsSwitchPropsInterface {
   device: DeviceInterface
